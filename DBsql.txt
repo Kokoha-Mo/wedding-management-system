@@ -1,0 +1,130 @@
+-- 1. 建立資料庫 (如果尚未建立)
+CREATE DATABASE IF NOT EXISTS wedding_management_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE wedding_management_system;
+
+-- 2. 建立部門表 (departments)
+CREATE TABLE IF NOT EXISTS departments (
+    dept_id INT AUTO_INCREMENT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL COMMENT '部門名稱'
+);
+
+-- 3. 建立員工表 (employees)
+CREATE TABLE IF NOT EXISTS employees (
+    emp_id INT AUTO_INCREMENT PRIMARY KEY,
+    dept_id INT,
+    manager_id INT COMMENT '直屬主管ID',
+    password VARCHAR(255) NOT NULL COMMENT '密碼',
+    name VARCHAR(50) NOT NULL COMMENT '姓名',
+    tel VARCHAR(20) COMMENT '電話',
+    email VARCHAR(100) COMMENT '電子信箱',
+    id_number VARCHAR(10) UNIQUE COMMENT '身分證字號',
+    role ENUM('admin', 'staff') DEFAULT 'staff' COMMENT '權限角色',
+    CONSTRAINT fk_emp_dept FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+);
+
+-- 4. 建立客戶表 (customers)
+CREATE TABLE IF NOT EXISTS customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    password VARCHAR(255) NOT NULL,
+    cname VARCHAR(50) NOT NULL COMMENT '中文姓名',
+    name VARCHAR(50) COMMENT '英文姓名',
+    email VARCHAR(100) UNIQUE COMMENT '電子信箱',
+    address TEXT COMMENT '通訊地址',
+    tel VARCHAR(20) COMMENT '手機'
+);
+
+-- 5. 建立諮詢紀錄表 (consultation)
+CREATE TABLE IF NOT EXISTS consultation (
+    consultation_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    client_name VARCHAR(50) COMMENT '顧客姓名',
+    phone VARCHAR(20) COMMENT '聯絡電話',
+    email VARCHAR(100) COMMENT '電子郵件',
+    line_id VARCHAR(50) COMMENT 'Line ID',
+    wedding_date DATE COMMENT '預定婚期',
+    guest_scale VARCHAR(50) COMMENT '賓客規模',
+    styles VARCHAR(200) COMMENT '需求風格',
+    services VARCHAR(200) COMMENT '服務項目',
+    additional_notes TEXT COMMENT '其他備註',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_cons_cust FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+-- 6. 建立類別表 (Category)
+CREATE TABLE IF NOT EXISTS category (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    dept_id INT,
+    name VARCHAR(50) COMMENT '類別名稱',
+    CONSTRAINT fk_cate_dept FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+);
+
+-- 7. 建立服務項目表 (services)
+CREATE TABLE IF NOT EXISTS services (
+    service_id INT AUTO_INCREMENT PRIMARY KEY,
+    cate_id INT,
+    name VARCHAR(50) NOT NULL COMMENT '服務名稱',
+    price INT NOT NULL DEFAULT 0 COMMENT '單價',
+    content VARCHAR(200) COMMENT '服務描述',
+    estimated_days INT DEFAULT 1 COMMENT '預估工期',
+    ceremony_date DATE COMMENT '儀式時間',
+    CONSTRAINT fk_serv_cate FOREIGN KEY (cate_id) REFERENCES category(category_id)
+);
+
+-- 8. 建立預約主表 (books)
+CREATE TABLE IF NOT EXISTS books (
+    book_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    manager_id INT COMMENT '負責員工',
+    create_at_date DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '預約日期',
+    wedding_date DATE COMMENT '婚禮日期',
+    guest_scale VARCHAR(50) COMMENT '賓客預算',
+    styles ENUM('簡約', '奢華', '戶外', '中式') COMMENT '風格主題',
+    status ENUM('待確認', '處理中', '已成功', '已取消') DEFAULT '待確認',
+    content VARCHAR(1000) COMMENT '備註',
+    CONSTRAINT fk_book_cust FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    CONSTRAINT fk_book_emp FOREIGN KEY (manager_id) REFERENCES employees(emp_id)
+);
+
+-- 9. 建立預約細目表 (book_details)
+CREATE TABLE IF NOT EXISTS book_details (
+    detail_id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT,
+    service_id INT,
+    unit_price INT COMMENT '成交單價',
+    CONSTRAINT fk_det_book FOREIGN KEY (book_id) REFERENCES books(book_id),
+    CONSTRAINT fk_det_serv FOREIGN KEY (service_id) REFERENCES services(service_id)
+);
+
+-- 10. 建立專案表 (projects)
+CREATE TABLE IF NOT EXISTS projects (
+    project_id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT,
+    create_at_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_at_date DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    total_payment INT DEFAULT 0 COMMENT '總金額',
+    payment_status ENUM('未付款', '已付訂金', '尾款待結', '結案') DEFAULT '未付款',
+    status ENUM('規劃', '進行', '結案') DEFAULT '規劃',
+    CONSTRAINT fk_proj_book FOREIGN KEY (book_id) REFERENCES books(book_id)
+);
+
+-- 11. 建立專案任務表 (projects_tasks)
+CREATE TABLE IF NOT EXISTS projects_tasks (
+    task_id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT,
+    service_id INT,
+    update_at_date DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deadline DATETIME COMMENT '截止時間',
+    status ENUM('待辦', '進行中', '審核中', '已完成') DEFAULT '待辦',
+    manager_content VARCHAR(500) COMMENT '任務描述',
+    task_response VARCHAR(500) COMMENT '進度回報',
+    CONSTRAINT fk_task_proj FOREIGN KEY (project_id) REFERENCES projects(project_id),
+    CONSTRAINT fk_task_serv FOREIGN KEY (service_id) REFERENCES services(service_id)
+);
+
+-- 12. 建立文件表 (documents)
+CREATE TABLE IF NOT EXISTS documents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT,
+    name VARCHAR(255) COMMENT '文件名',
+    CONSTRAINT fk_doc_proj FOREIGN KEY (project_id) REFERENCES projects(project_id)
+);

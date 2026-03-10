@@ -5,30 +5,28 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "Category")
 @Data
-public class Customer {
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer customer_id;
-    private String password;
-    private String cname;
+    private Integer category_id;
+    
+    @ManyToOne
+    @JoinColumn(name = "dept_id")
+    private Department department;
+    
     private String name;
-    private String email;
-    private String address;
-    private String tel;
-
+    
     @JsonIgnore
-    @OneToMany(mappedBy = "customer")
-    private List<Book> books;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "customer")
-    private List<Consultation> consultations;
+    @OneToMany(mappedBy = "category")
+    private List<Service> services;
 }

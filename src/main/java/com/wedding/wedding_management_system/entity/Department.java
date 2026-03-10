@@ -11,24 +11,19 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "departments")
 @Data
-public class Customer {
+public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer customer_id;
-    private String password;
-    private String cname;
-    private String name;
-    private String email;
-    private String address;
-    private String tel;
-
+    private Integer dept_id;
+    private String dept_name;
+    
     @JsonIgnore
-    @OneToMany(mappedBy = "customer")
-    private List<Book> books;
-
+    @OneToMany(mappedBy = "department")
+    private List<Employee> employees;
+    
     @JsonIgnore
-    @OneToMany(mappedBy = "customer")
-    private List<Consultation> consultations;
+    @OneToMany(mappedBy = "department")
+    private List<Category> categories;
 }

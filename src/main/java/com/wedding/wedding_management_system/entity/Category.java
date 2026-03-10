@@ -18,14 +18,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer category_id;
-    
+    private Integer id;
+
     @ManyToOne
     @JoinColumn(name = "dept_id")
     private Department department;
-    
+
     private String name;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "category")
     private List<Service> services;

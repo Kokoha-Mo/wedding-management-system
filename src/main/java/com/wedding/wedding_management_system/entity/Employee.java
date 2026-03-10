@@ -18,23 +18,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer emp_id;
-    
+    private Integer id;
+
     @ManyToOne
     @JoinColumn(name = "dept_id")
     private Department department;
-    
+
     @ManyToOne
     @JoinColumn(name = "manager_id")
     private Employee manager;
-    
+
     private String password;
     private String name;
     private String tel;
     private String email;
     private String id_number;
     private String role;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "manager")
     private List<Book> managedBooks;

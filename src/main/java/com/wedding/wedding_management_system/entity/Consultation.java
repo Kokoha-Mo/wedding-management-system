@@ -18,12 +18,12 @@ import jakarta.persistence.ManyToOne;
 public class Consultation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer consultation_id;
-    
+    private Integer id;
+
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = true)
     private Customer customer;
-    
+
     private String client_name;
     private String phone;
     private String email;

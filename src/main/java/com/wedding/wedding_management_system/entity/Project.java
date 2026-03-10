@@ -21,23 +21,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer project_id;
-    
+    private Integer id;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
     private Book book;
-    
+
     @Column(insertable = false, updatable = false)
     private LocalDate create_at;
     private LocalDate update_at;
     private Integer total_payment;
     private String payment_status;
     private String status;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "project")
     private List<ProjectTask> projectTasks;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "project")
     private List<Document> documents;

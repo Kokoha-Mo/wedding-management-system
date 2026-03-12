@@ -1,5 +1,6 @@
 package com.wedding.wedding_management_system.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,12 +18,25 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(nullable = false)
     private String password;
-    private String cname;
-    private String name;
-    private String email;
-    private String address;
-    private String tel;
+
+    @Column(nullable = false)
+    private String cname;   // 公司名稱
+
+    @Column(nullable = false)
+    private String name;    // 聯絡人
+
+    private String email;   // 電子信箱
+
+    private String address; // 地址
+
+    @Column(columnDefinition = "varchar(20)")
+    private String tel;     // 電話（含 0 結頭）
+
+    @Column(name = "line_id", length = 50)
+    private String lineId;  // Line 聯絡方式
 
     @JsonIgnore
     @OneToMany(mappedBy = "customer")

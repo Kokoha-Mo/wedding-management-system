@@ -23,7 +23,4 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<Employee> employees;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "department")
-    private List<Category> categories;
 }

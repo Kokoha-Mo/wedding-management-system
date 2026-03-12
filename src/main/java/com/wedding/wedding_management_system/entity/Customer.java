@@ -17,23 +17,24 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "customer_id")
     private Integer id;
 
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
-    private String name;    // 聯絡人
+    private String name; // 聯絡人
 
-    private String email;   // 電子信箱
+    private String email; // 電子信箱
 
     private String address; // 地址
 
     @Column(columnDefinition = "varchar(20)")
-    private String tel;     // 電話（含 0 結頭）
+    private String tel; // 電話（含 0 結頭）
 
     @Column(name = "line_id", length = 50)
-    private String lineId;  // Line 聯絡方式
+    private String lineId; // Line 聯絡方式
 
     @JsonIgnore
     @OneToMany(mappedBy = "customer")

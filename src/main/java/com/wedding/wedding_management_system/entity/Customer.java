@@ -39,8 +39,4 @@ public class Customer {
     @JsonIgnore
     @OneToMany(mappedBy = "customer")
     private List<Book> books;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "customer")
-    private List<Consultation> consultations;
 }

@@ -3,33 +3,33 @@ package com.wedding.wedding_management_system.controller;
 import com.wedding.wedding_management_system.dto.BookResponseDTO;
 import com.wedding.wedding_management_system.dto.CreateBookRequestDTO;
 import com.wedding.wedding_management_system.dto.CustomerDTO;
-import com.wedding.wedding_management_system.entity.Book;
-import com.wedding.wedding_management_system.entity.Customer;
 import com.wedding.wedding_management_system.repository.BookRepository;
-import com.wedding.wedding_management_system.repository.CustomerRepository;
 import com.wedding.wedding_management_system.service.BookService;
+import com.wedding.wedding_management_system.service.ConsultationConvertService;
+
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-
+@Slf4j
 @RestController
-@RequestMapping ("/api/books")
+@RequestMapping("/api/books")
+@RequiredArgsConstructor // 🌟 讓 Spring 自動幫你注入 final 變數
 public class BookController {
 
-    @Autowired
-    private BookService bookService;
+    private final BookService bookService;
 
-    @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
+
+    private final ConsultationConvertService convertService;
 
     @PostMapping
     public ResponseEntity<BookResponseDTO> create(
@@ -41,12 +41,48 @@ public class BookController {
                 .body(result);
     }
 
-    @PostMapping("/convert/{consultationId}")
-    public ResponseEntity<BookResponseDTO> convertFromConsultation(
-            @PathVariable Integer consultationId) {
+    // 從諮詢單轉預約
+    @PostMapping("/from-consultation/{consultationId}")
+    public ResponseEntity<?> convertFromConsultation(
+            @PathVariable Integer consultationId,
+            @RequestBody Map<String, String> payload) { // 🌟 接收前端傳來的 JSON
 
-        BookResponseDTO result = bookService.convertFromConsultation(consultationId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        try {
+            // 🌟 取出前端填寫的伴侶姓名，以及可能被櫃檯人員修改的信箱與電話
+            String partnerName = payload.get("partnerName");
+            String email = payload.get("email");
+            String tel = payload.get("tel");
+
+            // 將所有資料一併傳給 Service 處理
+            BookResponseDTO result = convertService.convertFromConsultation(consultationId, partnerName, email, tel);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+
+        } catch (RuntimeException e) {
+            String errorMsg = e.getMessage() != null ? e.getMessage() : "發生未知錯誤";
+
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", errorMsg);
+
+            // 🌟 根據我們在 Service 層設定的錯誤前綴，精準回傳對應的 HTTP 狀態碼
+            if (errorMsg.startsWith("EMAIL_EXISTS:") || errorMsg.startsWith("TEL_EXISTS:")) {
+                // 這是業務邏輯的資源衝突，使用 warn 記錄即可，並回傳 409
+                log.warn("轉預約失敗 (資料衝突) - Consultation ID: {}, 原因: {}", consultationId, errorMsg);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+
+            } else if (errorMsg.startsWith("TEL_FORMAT:") || errorMsg.contains("找不到此諮詢單")
+                    || errorMsg.contains("已經轉換過了")) {
+                // 這是前端傳來的參數不合規，回傳 400
+                log.warn("轉預約失敗 (無效請求) - Consultation ID: {}, 原因: {}", consultationId, errorMsg);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+
+            } else {
+                // 真正未知的系統嚴重錯誤，才使用 error 級別記錄並印出 stack trace，回傳 500
+                log.error("轉預約發生非預期系統錯誤 - Consultation ID: " + consultationId, e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            }
+        }
     }
 
     @GetMapping("/check-duplicate")
@@ -65,8 +101,9 @@ public class BookController {
         return ResponseEntity.ok(books);
     }
 
-    @PatchMapping("{id}/update") //只更新一個欄位
-    public ResponseEntity<BookResponseDTO>updateStatus(@PathVariable Integer id, @RequestBody Map<String,String>body){
+    @PatchMapping("{id}/update") // 只更新一個欄位
+    public ResponseEntity<BookResponseDTO> updateStatus(@PathVariable Integer id,
+            @RequestBody Map<String, String> body) {
         BookResponseDTO result = bookService.updateStatus(id, body.get("status"));
         return ResponseEntity.ok(result);
     }
@@ -79,8 +116,5 @@ public class BookController {
         counts.put("取消", bookRepository.countByStatus("取消"));
         return ResponseEntity.ok(counts);
     }
-
-
-
 
 }

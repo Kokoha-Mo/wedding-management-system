@@ -9,10 +9,8 @@ import java.util.stream.Collectors;
 import com.wedding.wedding_management_system.dto.BookResponseDTO;
 import com.wedding.wedding_management_system.dto.CreateBookRequestDTO;
 import com.wedding.wedding_management_system.dto.CustomerDTO;
-import com.wedding.wedding_management_system.entity.Consultation;
 import com.wedding.wedding_management_system.entity.Customer;
 import com.wedding.wedding_management_system.entity.Employee;
-import com.wedding.wedding_management_system.repository.ConsultationRepository;
 import com.wedding.wedding_management_system.repository.CustomerRepository;
 import com.wedding.wedding_management_system.repository.EmployeeRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,10 +41,7 @@ public class BookService {
     private EmployeeRepository employeeRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private ConsultationRepository consultationRepository;
+    private PasswordEncoder passwordEncoder; // 🌟 用來加密初始密碼
 
     // 臨時密碼固定值，客戶登入後必須重設
     private static final String TEMP_PASSWORD = "12345678";
@@ -88,31 +82,6 @@ public class BookService {
         return cleaned.replaceAll("^[\\s&]+|[\\s&]+$", "");
     }
 
-    @Transactional
-    public BookResponseDTO convertFromConsultation(Integer consultationId) {
-
-        Consultation consultation = consultationRepository.findById(consultationId)
-                .orElseThrow(() -> new EntityNotFoundException("找不到諮詢單，id=" + consultationId));
-
-        CreateBookRequestDTO dto = new CreateBookRequestDTO();
-        dto.setName(consultation.getName());
-        dto.setTel(consultation.getTel());
-        dto.setEmail(consultation.getEmail());
-        dto.setLineId(consultation.getLineId());
-        dto.setWeddingDate(consultation.getWeddingDate());
-        dto.setStyles(consultation.getStyles());
-        dto.setContent(consultation.getAdditionalNotes());
-
-        // 建立 customer + book
-        BookResponseDTO result = createBook(dto);
-
-        // 更新諮詢單狀態為「轉預約」
-        consultation.setStatus("轉預約");
-        consultationRepository.save(consultation);
-
-        return result;
-    }
-
     // public List<Book> getBooksByCustomerId(int customerId) {
     // return bookRepository.findByCustomer_Id(customerId);
     // }
@@ -150,8 +119,8 @@ public class BookService {
             log.info("刪除客戶舊有預約，customer_id={}, 共{}筆", customer.getId(), existingBooks.size());
         }
 
-        // 自動分配接案數最少的 manager
-        Employee manager = employeeRepository.findEmployeeWithLeastBooks()
+        // 🌟 修改：自動分配接案數最少的 "婚顧部 MANAGER"
+        Employee manager = employeeRepository.findManagerWithLeastBooks()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("目前沒有可分配的業務人員"));

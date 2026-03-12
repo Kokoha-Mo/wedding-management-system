@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .map(employee -> User.builder()
                         .username(employee.getEmail())
                         .password(employee.getPassword())
-                        .roles(employee.getRole().toUpperCase()) // Translates to ROLE_STAFF, ROLE_MANAGER, ROLE_ADMIN
+                        .roles(employee.getRole().toUpperCase()) // Translates to ROLE_ADMIN, ROLE_STAFF
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
     }

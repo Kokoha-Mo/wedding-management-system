@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OneToMany;
@@ -27,11 +28,21 @@ public class Project {
     @JoinColumn(name = "book_id")
     private Book book;
 
-    @Column(insertable = false, updatable = false)
-    private LocalDate create_at;
-    private LocalDate update_at;
-    private Integer total_payment;
-    private String payment_status;
+    @Column(name = "create_at", insertable = false, updatable = false, columnDefinition = "datetime default now()")
+    private LocalDateTime createAt; // 建立日期時間
+
+    @Column(name = "update_at")
+    private LocalDateTime updateAt; // 更新日期（date）
+
+    @Column(name = "total_payment")
+    private Integer totalPayment; // 總金額
+
+    // 付款狀態
+    @Column(name = "payment_status", length = 50)
+    private String paymentStatus;
+
+    // 進度狀態
+    @Column(length = 50)
     private String status;
 
     @JsonIgnore
@@ -41,4 +52,8 @@ public class Project {
     @JsonIgnore
     @OneToMany(mappedBy = "project")
     private List<Document> documents;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "project")
+    private List<ProjectCommunication> communications;
 }

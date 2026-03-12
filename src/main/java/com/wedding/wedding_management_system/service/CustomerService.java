@@ -9,14 +9,14 @@ import com.wedding.wedding_management_system.repository.CustomerRepository;
 @Service
 public class CustomerService {
     @Autowired
-    private CustomerRepository custemorRepository;
+    private CustomerRepository customerRepository;
 
     public Customer findByEmail(String email) {
         System.out.println(email);
-        return custemorRepository.findByEmail(email).orElse(null);
+        return customerRepository.findByEmail(email).orElse(null);
     }
 
     public Customer register(Customer customer) {
-        return custemorRepository.save(customer);
+        return customerRepository.save(customer);
     }
 }

@@ -19,22 +19,22 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer service_id;
-    
+    private Integer id;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-    
+
     private String name;
     private Integer price;
     private String content;
     private Integer estimated_days;
     private LocalDate ceremony_date;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "service")
     private List<BookDetail> bookDetails;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "service")
     private List<ProjectTask> projectTasks;

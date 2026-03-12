@@ -15,15 +15,15 @@ import lombok.Data;
 public class BookDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer detail_id;
-    
+    private Integer id;
+
     @ManyToOne
     @JoinColumn(name = "book_id")
     private Book book;
-    
+
     @ManyToOne
     @JoinColumn(name = "service_id")
     private Service service;
-    
+
     private Integer unit_price;
 }

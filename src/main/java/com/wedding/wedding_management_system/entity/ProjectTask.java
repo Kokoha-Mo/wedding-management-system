@@ -17,16 +17,16 @@ import jakarta.persistence.ManyToOne;
 public class ProjectTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer task_id;
-    
+    private Integer id;
+
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
-    
+
     @ManyToOne
     @JoinColumn(name = "service_id")
     private Service service;
-    
+
     private LocalDate update_at;
     private LocalDateTime deadline;
     private String status;

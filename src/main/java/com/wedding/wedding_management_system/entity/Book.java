@@ -22,16 +22,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer book_id;
-    
+    private Integer bookId;
+
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
-    
+
     @ManyToOne
     @JoinColumn(name = "manager_id")
     private Employee manager;
-    
+
     @Column(insertable = false, updatable = false)
     private LocalDateTime create_at;
     private LocalDate wedding_date;

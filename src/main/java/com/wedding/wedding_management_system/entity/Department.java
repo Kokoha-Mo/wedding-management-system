@@ -16,13 +16,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer dept_id;
+    private Integer id;
     private String dept_name;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "department")
     private List<Employee> employees;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "department")
     private List<Category> categories;

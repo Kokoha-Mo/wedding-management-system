@@ -32,13 +32,24 @@ public class Book {
     @JoinColumn(name = "manager_id")
     private Employee manager;
 
-    @Column(insertable = false, updatable = false)
-    private LocalDateTime create_at;
-    private LocalDate wedding_date;
-    private String guest_scale;
-    private String styles;
-    private String status;
-    private String content;
+    @Column(name = "create_at", insertable = false, updatable = false,
+            columnDefinition = "datetime default now()")
+    private LocalDateTime createAt;     // 建立日期
+
+    @Column(name = "wedding_date")
+    private LocalDate weddingDate;      // 婚禮日期
+
+    @Column(name = "guest_scale")
+    private Integer guestScale;         // 賓客規模（人數）
+
+    @Column(length = 4)
+    private String styles;              // 婚禮風格代碼
+
+    @Column(length = 100)
+    private String status;              // 狀態
+
+    @Column(length = 1000)
+    private String content;             // 備注
 
     @JsonIgnore
     @OneToMany(mappedBy = "book")

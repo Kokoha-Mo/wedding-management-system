@@ -7,26 +7,26 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.Data;
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * 任務負責人（task_owner）
+ * ProjectTask 與 Employee 的多對多中間表
+ */
 @Entity
-@Table(name = "Category")
+@Table(name = "task_owner")
 @Data
-public class Category {
+public class TaskOwner {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer ownerId;            // PK
 
     @ManyToOne
-    @JoinColumn(name = "dept_id")
-    private Department department;
+    @JoinColumn(name = "task_id")
+    private ProjectTask task;           // FK → projects_tasks
 
-    private String name;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "category")
-    private List<Service> services;
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
+    private Employee employee;          // FK → employees
 }

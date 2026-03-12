@@ -23,9 +23,6 @@ public class Customer {
     private String password;
 
     @Column(nullable = false)
-    private String cname;   // 公司名稱
-
-    @Column(nullable = false)
     private String name;    // 聯絡人
 
     private String email;   // 電子信箱

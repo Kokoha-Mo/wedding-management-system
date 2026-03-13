@@ -42,14 +42,17 @@ public class Book {
     @Column(name = "guest_scale")
     private Integer guestScale;         // 賓客規模（人數）
 
-    @Column(length = 4)
-    private String styles;              // 婚禮風格代碼
+    @Column(length = 10)
+    private String styles;              // 婚禮風格
+
+    @Column(name = "place")
+    private String weddingplace;        // 婚禮地點
 
     @Column(length = 100)
     private String status;              // 狀態
 
     @Column(length = 1000)
-    private String content;             // 備注
+    private String content;             // 備註
 
     @JsonIgnore
     @OneToMany(mappedBy = "book")

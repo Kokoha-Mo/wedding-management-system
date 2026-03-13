@@ -27,4 +27,6 @@ public class BookService {
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
     }
+
+    public List<Book> getCancelBooks(){ return bookRepository.findByStatus(toString());    }
 }

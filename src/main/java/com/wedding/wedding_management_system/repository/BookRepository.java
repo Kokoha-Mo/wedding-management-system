@@ -11,4 +11,8 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
     List<Book> findByCustomer_Id(int customerId);
 
     List<Book> findByStatus(String status);
+
+    List<Book> findByStatusOrderByCancel(String status);
+
+
 }

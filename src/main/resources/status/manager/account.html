@@ -1,0 +1,433 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ES Admin - 主頁儀表板</title>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="./ESCss/es_new_ver.css">
+    <script src="./ESJS/es_new_ver.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#1F2937",
+                        "sidebar-bg": "#21252D",
+                        "sidebar-hover": "#2C313C",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    }
+                },
+            },
+        };
+    </script>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
+
+    <div id="sidebar-overlay"
+        class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity hidden cursor-pointer">
+    </div>
+    <aside id="sidebar"
+        class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative -translate-x-full lg:translate-x-0">
+        <div class="h-16 flex items-center justify-center">
+            <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
+            <div class="text-white font-bold text-lg tracking-wide menu-category p-0 m-0">Admin</div>
+        </div>
+
+        <div class="px-4 py-4 mt-2 sidebar-user">
+            <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
+                <img alt="Joy Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover"
+                    src="../Img/smile.jpg" />
+                <div class="menu-category p-0 m-0">
+                    <div class="text-white font-medium">Joy</div>
+                    <div class="text-xs text-gray-400 mt-1">PM 權限</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
+            <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
+                GENERAL</div>
+            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="consultation.html">
+                <span
+                    class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
+            </a>
+            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="book.html">
+                <span
+                    class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
+            </a>
+            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="project.html">
+                <span
+                    class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
+            </a>
+            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="quest_staff.html">
+                <span
+                    class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">任務管理</div>
+            </a>
+
+            <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
+                系統設定</div>
+
+            <a class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
+                href="account.html">
+                <span
+                    class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap text-white">個人資訊</div>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-full overflow-hidden relative">
+
+        <header
+            class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
+            <div class="flex items-center flex-1">
+                <button id="sidebar-hamburger"
+                    class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
+                    <span class="material-icons">menu</span>
+                </button>
+                <h1 class="text-xl font-bold tracking-wider text-gray-100 hidden sm:block">個人資訊</h1>
+            </div>
+
+            <div class="flex items-center space-x-4">
+
+                <div class="relative">
+                    <div id="user-menu-button"
+                        class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
+                        <img alt="Joy Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
+                            src="../Img/smile.jpg" />
+                        <span class="text-sm font-medium mr-1 text-gray-200">Joy</span>
+                        <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
+                    </div>
+
+                    <div id="user-dropdown"
+                        class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">
+                        <a href="account.html"
+                            class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span> Profile
+                        </a>
+                        <hr class="my-1 border-gray-100">
+                        <a href="login.html"
+                            class="flex items-center px-4 py-2.5 text-sm text-danger hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-danger">logout</span> Log Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-background-light dark:bg-background-dark p-6">
+            <div class="w-full max-w-[1400px] mx-auto space-y-6">
+                <div
+                    class="bg-white dark:bg-gray-800 rounded shadow-sm p-6 flex flex-col md:flex-row items-center md:items-start justify-between">
+                    <div
+                        class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                        <div class="relative">
+                            <img alt="Joy Chen Avatar"
+                                class="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-sm"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAqx_Atie42QLhYnhUJtRmpKKYzxbHlA4xijHyKwKexmnTZ2Us9tOz2NIGlI7RGS_1fPF5rtb9NhGSErt5p82jGur4H0hs5zyLGLANAxIGnFkJDlzU7U88jMr8ellzbzAdaiEoBQInAG-gu73qWr64lnfRYl1AtOuFcgEGoX7Wm13NCTzdQh0-HKArkc160-ooalGj6sJPaGSUZXOQgXkobwQR304jXpjWm8iYtTiZkA60DSt4SmrE2JpPWkG9ABCQ2rWXdG9ksl5I" />
+                            <button
+                                class="absolute bottom-0 right-0 bg-gray-200 dark:bg-gray-600 rounded-full p-1.5 shadow-sm text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+                                <span class="material-icons text-sm">camera_alt</span>
+                            </button>
+                        </div>
+                        <div class="text-center md:text-left">
+                            <h1
+                                class="text-2xl font-bold text-gray-900 dark:text-white flex items-center justify-center md:justify-start">
+                                Joy Chen
+                            </h1>
+                            <p class="text-primary font-medium mt-1">Full-stack Developer</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 md:mt-0">
+                        <button
+                            class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center transition-colors shadow-sm">
+                            <span class="material-icons text-sm mr-2">lock</span>
+                            更改密碼
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-gray-800 rounded shadow-sm overflow-hidden flex flex-col border border-transparent transition-colors"
+                        id="basic-container">
+                        <div
+                            class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+                            <h2 class="text-lg font-medium text-gray-800 dark:text-gray-200 flex items-center">
+                                <span class="material-icons text-primary mr-2 text-xl">account_circle</span>
+                                基本資料
+                            </h2>
+                            <button id="basic-edit-btn" type="button"
+                                class="text-sm border border-blue-200 text-primary hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-900/30 px-3 py-1 rounded flex items-center transition-colors">
+                                <span class="material-icons text-xs mr-1">edit</span> 修改資料
+                            </button>
+                            <div id="basic-action-btns" class="hidden flex space-x-2">
+                                <button id="basic-cancel-btn" type="button"
+                                    class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded transition-colors font-medium">取消</button>
+                                <button form="basic-form" type="submit"
+                                    class="text-sm bg-primary hover:bg-blue-700 text-white px-4 py-1.5 rounded flex items-center transition-colors font-medium shadow-sm">
+                                    <span class="material-icons text-[16px] mr-1">save</span> 儲存
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6 flex-1 relative">
+                            <div id="basic-view" class="grid grid-cols-2 gap-y-6 gap-x-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">姓名</p>
+                                    <p id="view-name" class="text-sm font-medium text-gray-900 dark:text-gray-100">Joy
+                                        Chen</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">員工編號 (ID)</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">00001</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">身分證字號</p>
+                                    <p id="view-idcard" class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        S123456789</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">手機號碼</p>
+                                    <p id="view-phone" class="text-sm font-medium text-gray-900">0912-234566</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">電子郵件</p>
+                                    <p id="view-email" class="text-sm font-medium text-gray-900">joy.chen@company.com
+                                    </p>
+                                </div>
+                            </div>
+                            <form id="basic-form" class="hidden grid grid-cols-2 gap-y-5 gap-x-4">
+                                <div>
+                                    <label class="text-xs text-gray-500 mb-1 block">姓名</label>
+                                    <input type="text" id="edit-name" value="Joy Chen"
+                                        class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 mb-1 block">員工編號 (ID)</label>
+                                    <input type="text" value="00001" disabled
+                                        class="w-full rounded-md border-gray-200 bg-gray-100 text-gray-500 text-sm py-1.5 px-3 cursor-not-allowed">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 mb-1 block">身分證字號</label>
+                                    <input type="text" id="edit-idcard" value="S123456789"
+                                        class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 mb-1 block">手機號碼</label>
+                                    <input type="text" id="edit-phone" value="0912-234566"
+                                        class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3 transition-colors">
+                                    <p id="phone-error" class="text-red-500 text-xs mt-1 font-medium hidden">
+                                        格式錯誤，請輸入正確的手機號碼</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 mb-1 block">電子郵件</label>
+                                    <input type="email" id="edit-email" value="joy.chen@company.com"
+                                        class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded shadow-sm overflow-hidden flex flex-col">
+                        <div
+                            class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
+                            <h2 class="text-lg font-medium text-gray-800 dark:text-gray-200 flex items-center">
+                                <span class="material-icons text-gray-400 mr-2 text-xl">work_outline</span>
+                                職務資料
+                            </h2>
+                            <span class="material-icons text-gray-400 text-sm" title="不可修改">lock</span>
+                        </div>
+                        <div class="p-6 flex-1">
+                            <div class="grid grid-cols-2 gap-y-6 gap-x-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">職位名稱</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Full-stack
+                                        Developer</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">所屬部門</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Operations
+                                        Department</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">直屬主管</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">王大明 (Manager)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="clockModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-80 max-w-[90%] transform transition-all duration-300 scale-95 opacity-0 border border-gray-100 dark:border-gray-700"
+            id="clockModalContent">
+            <div class="p-6 text-center relative">
+                <button id="closeModalCross"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="material-icons text-sm">close</span>
+                </button>
+                <div
+                    class="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-500 mx-auto flex items-center justify-center mb-4 mt-2">
+                    <span class="material-icons text-3xl">update</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">系統確認</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">目前紀錄時間</p>
+
+                <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg py-3 mb-4">
+                    <div class="text-3xl font-mono font-bold text-gray-800 dark:text-gray-100" id="clockConfirmTime">
+                        00:00:00</div>
+                </div>
+
+                <p class="text-gray-700 dark:text-gray-300 font-medium mb-6" id="clockConfirmText">確定要進行打卡嗎？</p>
+
+                <div class="flex space-x-3">
+                    <button id="cancelSubmitBtn"
+                        class="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors">取消</button>
+                    <button id="confirmSubmitBtn"
+                        class="flex-1 py-2.5 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium shadow-md shadow-blue-500/30 transition-colors">確定送出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 right-6 z-[100] flex flex-col space-y-3 pointer-events-none" id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // === 1. 基本資料切換邏輯 ===
+            const basicContainer = document.getElementById('basic-container');
+            const basicView = document.getElementById('basic-view');
+            const basicForm = document.getElementById('basic-form');
+            const basicEditBtn = document.getElementById('basic-edit-btn');
+            const basicActionBtns = document.getElementById('basic-action-btns');
+            const basicCancelBtn = document.getElementById('basic-cancel-btn');
+
+            function toggleBasicMode(isEdit) {
+                basicView.classList.toggle('hidden', isEdit);
+                basicForm.classList.toggle('hidden', !isEdit);
+                basicEditBtn.classList.toggle('hidden', isEdit);
+                basicActionBtns.classList.toggle('hidden', !isEdit);
+                // 進入編輯時，外框顯示淺藍色，增加對比感
+                isEdit ? basicContainer.classList.add('border-blue-200', 'ring-1', 'ring-blue-100') : basicContainer.classList.remove('border-blue-200', 'ring-1', 'ring-blue-100');
+            }
+
+            basicEditBtn.addEventListener('click', () => toggleBasicMode(true));
+            basicCancelBtn.addEventListener('click', () => toggleBasicMode(false));
+
+            basicForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // 同步資料回檢視模式
+                document.getElementById('view-name').textContent = document.getElementById('edit-name').value;
+                document.getElementById('view-nickname').textContent = document.getElementById('edit-nickname').value;
+                document.getElementById('view-gender').textContent = document.getElementById('edit-gender').value;
+                document.getElementById('view-birthday').textContent = document.getElementById('edit-birthday').value;
+                document.getElementById('view-idcard').textContent = document.getElementById('edit-idcard').value;
+                toggleBasicMode(false);
+            });
+
+
+            // === 2. 聯絡資訊切換與防呆驗證邏輯 ===
+            const contactContainer = document.getElementById('contact-container');
+            const contactView = document.getElementById('contact-view');
+            const contactForm = document.getElementById('contact-form');
+            const contactEditBtn = document.getElementById('contact-edit-btn');
+            const contactActionBtns = document.getElementById('contact-action-btns');
+            const contactCancelBtn = document.getElementById('contact-cancel-btn');
+
+            const phoneInput = document.getElementById('edit-phone');
+            const phoneError = document.getElementById('phone-error');
+            const emPhoneInput = document.getElementById('edit-em-phone');
+
+            function toggleContactMode(isEdit) {
+                contactView.classList.toggle('hidden', isEdit);
+                contactForm.classList.toggle('hidden', !isEdit);
+                contactEditBtn.classList.toggle('hidden', isEdit);
+                contactActionBtns.classList.toggle('hidden', !isEdit);
+                isEdit ? contactContainer.classList.add('border-blue-200', 'ring-1', 'ring-blue-100') : contactContainer.classList.remove('border-blue-200', 'ring-1', 'ring-blue-100');
+
+                // 取消時重置錯誤狀態
+                if (!isEdit) {
+                    resetErrorState(phoneInput, phoneError);
+                    resetErrorState(emPhoneInput, null);
+                }
+            }
+
+            // 重置紅框與錯誤文字
+            function resetErrorState(inputEl, errorEl) {
+                inputEl.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500', 'text-red-600');
+                inputEl.classList.add('border-gray-300', 'focus:border-blue-500', 'focus:ring-blue-500');
+                if (errorEl) errorEl.classList.add('hidden');
+            }
+
+            // 設定紅框與錯誤文字
+            function setErrorState(inputEl, errorEl) {
+                inputEl.classList.remove('border-gray-300', 'focus:border-blue-500', 'focus:ring-blue-500');
+                inputEl.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500', 'text-red-600');
+                if (errorEl) errorEl.classList.remove('hidden');
+            }
+
+            contactEditBtn.addEventListener('click', () => toggleContactMode(true));
+            contactCancelBtn.addEventListener('click', () => toggleContactMode(false));
+
+            // 輸入時自動取消紅框
+            phoneInput.addEventListener('input', () => resetErrorState(phoneInput, phoneError));
+            emPhoneInput.addEventListener('input', () => resetErrorState(emPhoneInput, null));
+
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // 簡易台灣手機號碼防呆 (09開頭，接受09xx-xxxxxx 或 09xxxxxxxx)
+                const phoneRegex = /^09\d{2}-?\d{6}$/;
+                let isValid = true;
+
+                if (!phoneRegex.test(phoneInput.value.trim())) {
+                    setErrorState(phoneInput, phoneError);
+                    isValid = false;
+                }
+
+                if (!phoneRegex.test(emPhoneInput.value.trim())) {
+                    setErrorState(emPhoneInput, null); // 截圖中緊急聯絡人只有紅框無紅字
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    // 驗證成功：同步資料回檢視模式
+                    document.getElementById('view-phone').textContent = phoneInput.value;
+                    document.getElementById('view-email').textContent = document.getElementById('edit-email').value;
+                    document.getElementById('view-address').textContent = document.getElementById('edit-address').value;
+                    document.getElementById('view-em-name').textContent = document.getElementById('edit-em-name').value;
+                    document.getElementById('view-em-relation').textContent = document.getElementById('edit-em-relation').value;
+                    document.getElementById('view-em-phone').textContent = emPhoneInput.value;
+                    toggleContactMode(false);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

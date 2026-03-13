@@ -18,7 +18,7 @@ public class TaskOwner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "owner_id")
-    private Integer ownerId;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "task_id")

@@ -23,7 +23,7 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "book_id")
-    private Integer bookId;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")

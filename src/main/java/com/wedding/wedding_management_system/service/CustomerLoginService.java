@@ -16,6 +16,7 @@ public class CustomerLoginService {
         Customer customer = customerRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("查無此帳號"));
 
+        // 目前資料庫是明碼，先用 equals 比對測試
         if (!customer.getPassword().equals(dto.getPassword())) {
             throw new RuntimeException("密碼錯誤");
         }

@@ -84,6 +84,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/manager/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/api/staff/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                        .requestMatchers("/api/customer/login").permitAll() // 開放登入這支 API
                         .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
                         .anyRequest().permitAll())
                 .httpBasic(basic -> {

@@ -15,7 +15,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
+import java.time.LocalDateTime;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "projects")
@@ -27,25 +33,23 @@ public class Project {
     @Column(name = "project_id")
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "book_id")
     private Book book;
 
-    @Column(name = "create_at", insertable = false, updatable = false, columnDefinition = "datetime default now()")
-    private LocalDateTime createAt; // 建立日期時間
+    @Column(name = "create_at", insertable = false, updatable = false)
+    private LocalDateTime createAt;
 
     @Column(name = "update_at")
-    private LocalDateTime updateAt; // 更新日期（date）
+    private LocalDateTime updateAt;
 
     @Column(name = "total_payment")
-    private Integer totalPayment; // 總金額
+    private Integer totalPayment;
 
-    // 付款狀態
-    @Column(name = "payment_status", length = 50)
+    @Column(name = "payment_status", length = 20)
     private String paymentStatus;
 
-    // 進度狀態
-    @Column(length = 50)
+    @Column(length = 20)
     private String status;
 
     @JsonIgnore

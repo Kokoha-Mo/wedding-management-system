@@ -19,7 +19,7 @@ public class TaskCommunication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comm_id")
-    private Integer commId;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "task_id")

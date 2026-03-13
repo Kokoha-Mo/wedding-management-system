@@ -29,26 +29,32 @@ public class Employee {
     @JoinColumn(name = "dept_id")
     private Department department;
 
-    @ManyToOne
-    @JoinColumn(name = "manager_id")
-    private Employee manager;
-
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String name; // 姓名
+    @Column(nullable = false, length = 50)
+    private String name;
 
-    @Column(length = 10)
-    private String tel; // 電話
+    @Column(length = 20)
+    private String tel;
 
-    private String email; // 電子信箱
+    @Column(length = 255, unique = true)
+    private String email;
 
-    @Column(length = 20, columnDefinition = "varchar(20) default 'staff'")
-    private String role; // 角色（admin / staff）
+    @Column(length = 20)
+    private String role; // MANAGER/STAFF
+
+    @Column(name = "year_exp", length = 20)
+    private String yearExp;
+
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    @Column(length = 255)
+    private String styles;
 
     @Column(name = "img_path", length = 1000)
-    private String imgPath; // 員工照片路徑
+    private String imgPath;
 
     @JsonIgnore
     @OneToMany(mappedBy = "manager")
@@ -57,4 +63,16 @@ public class Employee {
     @JsonIgnore
     @OneToMany(mappedBy = "uploadedBy")
     private List<Document> uploadedDocuments;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "employee")
+    private List<TaskOwner> taskOwners;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "createBy")
+    private List<TaskCommunication> taskCommunications;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "createBy")
+    private List<ProjectCommunication> projectCommunications;
 }

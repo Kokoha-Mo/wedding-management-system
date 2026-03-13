@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,25 +26,23 @@ public class Project {
     @Column(name = "project_id")
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "book_id")
     private Book book;
 
-    @Column(name = "create_at", insertable = false, updatable = false, columnDefinition = "datetime default now()")
-    private LocalDateTime createAt; // 建立日期時間
+    @Column(name = "create_at", insertable = false, updatable = false)
+    private LocalDateTime createAt;
 
     @Column(name = "update_at")
-    private LocalDateTime updateAt; // 更新日期（date）
+    private LocalDateTime updateAt;
 
     @Column(name = "total_payment")
-    private Integer totalPayment; // 總金額
+    private Integer totalPayment;
 
-    // 付款狀態
-    @Column(name = "payment_status", length = 50)
+    @Column(name = "payment_status", length = 20)
     private String paymentStatus;
 
-    // 進度狀態
-    @Column(length = 50)
+    @Column(length = 20)
     private String status;
 
     @JsonIgnore

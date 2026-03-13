@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wedding.wedding_management_system.dto.CustomerLoginDto;
+import com.wedding.wedding_management_system.dto.CustomerLoginResponseDto;
 import com.wedding.wedding_management_system.service.CustomerLoginService;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -24,34 +22,32 @@ public class CustomerLoginController {
     private CustomerLoginService customerLoginService;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody CustomerLoginDto loginDto) {
+    public ResponseEntity<CustomerLoginResponseDto> login(@RequestBody CustomerLoginDto loginDto) {
         try {
-            // 1. 呼叫 Service 進行登入驗證，成功會回傳 JWT Token
-            String token = customerLoginService.login(loginDto);
+            // 1. 呼叫 Service 進行登入驗證，成功回傳包含 token、email、name 的 DTO
+            CustomerLoginResponseDto result = customerLoginService.login(loginDto);
 
-            // 2. 建立 HttpOnly Cookie，將 JWT 放入其中
-            //    這裡的 Max-Age 單位是秒 (10 * 60 = 600 秒)
-            ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", token)
+            // 2. 建立 HttpOnly Cookie，Controller 從 DTO 拿 token 來設定
+            // 這裡的 Max-Age 單位是秒 (10 * 60 = 600 秒)
+            ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", result.getToken())
                     .httpOnly(true)
                     .secure(false) // 只有 HTTPS 時才能送出，本地開發先設為 false
-                    .path("/")     // 整個網站都可以帶這個 Cookie
+                    .path("/") // 整個網站都可以帶這個 Cookie
                     .maxAge(10 * 60)
                     .build();
 
-            // 3. 準備回傳給前端的 Body 資料 
-            Map<String, String> responseBody = new HashMap<>();
-            responseBody.put("message", "客戶登入成功");
-            responseBody.put("email", loginDto.getEmail());
+            // 3. token 是給 Cookie 用的，不需要回傳給前端，把它清空
+            result.setToken(null);
 
             // 4. 將 Cookie 加到 Response Header 中並回傳給前端
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                    .body(responseBody);
+                    .body(result);
 
         } catch (RuntimeException e) {
             // 如果 Service 拋出例外（像是密碼錯誤或帳號不存在），回傳 401 Unauthorized
-            Map<String, String> errorBody = new HashMap<>();
-            errorBody.put("message", e.getMessage());
+            // 錯誤時 name/email 為 null，只有 HTTP 401 狀態碼告知前端失敗
+            CustomerLoginResponseDto errorBody = new CustomerLoginResponseDto();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
         }
     }

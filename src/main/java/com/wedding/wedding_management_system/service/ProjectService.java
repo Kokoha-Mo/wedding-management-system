@@ -186,7 +186,7 @@ public class ProjectService {
         List<ProjectProgressDTO.CommunicationDetail> timeline = comms.stream().map(comm -> {
             ProjectProgressDTO.CommunicationDetail commDto = new ProjectProgressDTO.CommunicationDetail();
             commDto.setId(comm.getId());
-            commDto.setCreateBy(comm.getCreateBy());
+            commDto.setCreateBy(comm.getCreateBy() != null ? comm.getCreateBy().getName() : null);
             commDto.setContent(comm.getContent());
             commDto.setCreateAt(comm.getCreateAt());
 

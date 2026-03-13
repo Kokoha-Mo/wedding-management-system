@@ -44,7 +44,8 @@ public class Consultation {
     private String additionalNotes;        // 其他備註細節
 
     @Column(length = 20, columnDefinition = "varchar(20) default '待處理'")
-    private String status;              // 狀態：待處理/轉預約/無效單
+    private String status;              // 狀態：待處理/已聯絡/轉預約/無效單
+
     @Column(name = "created_at", insertable = false, updatable = false,
             columnDefinition = "datetime default now()")
     private LocalDateTime createdAt;

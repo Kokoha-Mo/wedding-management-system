@@ -65,7 +65,7 @@ public class ConsultationService {
     /**
      * 更新諮詢單的處理狀態
      * @param id 諮詢單ID
-     * @param newStatus 新的狀態 (待處理/轉預約/無效單)
+     * @param newStatus 新的狀態 (待處理/已聯絡/轉預約/無效單)
      */
     @Transactional
     public Consultation updateStatus(Integer id, String newStatus) {

@@ -11,10 +11,6 @@ import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-/**
- * 任務溝通記錄（task_communications）
- * 任務執行中的溝通訊息
- */
 @Entity
 @Table(name = "task_communications")
 @Data
@@ -22,16 +18,20 @@ public class TaskCommunication {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer commId;             // PK
+    @Column(name = "comm_id")
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "task_id")
-    private ProjectTask task;           // FK → projects_tasks
+    private ProjectTask task;
 
-    @Column(name = "create_at", insertable = false, updatable = false,
-            columnDefinition = "datetime default now()")
-    private LocalDateTime createAt;     // 建立時間
+    @ManyToOne
+    @JoinColumn(name = "create_by")
+    private Employee createBy;
+
+    @Column(name = "create_at", insertable = false, updatable = false)
+    private LocalDateTime createAt;
 
     @Column(length = 500)
-    private String content;             // 訊息內容
+    private String content;
 }

@@ -23,18 +23,20 @@ public class Customer {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String name; // 聯絡人
+    @Column(nullable = false, length = 50)
+    private String name;
 
-    private String email; // 電子信箱
+    @Column(length = 255, unique = true)
+    private String email;
 
-    private String address; // 地址
-
-    @Column(columnDefinition = "varchar(20)")
-    private String tel; // 電話（含 0 結頭）
+    @Column(columnDefinition = "TEXT")
+    private String address;
 
     @Column(name = "line_id", length = 50)
-    private String lineId; // Line 聯絡方式
+    private String lineId;
+
+    @Column(length = 20)
+    private String tel;
 
     @JsonIgnore
     @OneToMany(mappedBy = "customer")

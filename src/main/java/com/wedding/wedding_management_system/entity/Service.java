@@ -6,10 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
-import java.time.LocalDate;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -19,27 +19,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "service_id")
     private Integer id;
 
+    @ManyToOne
+    @JoinColumn(name = "depart_id")
+    private Department department;
+
+    @Column(nullable = false, length = 100)
+    private String name;
+
     @Column(nullable = false)
-    private String name;                // 服務名稱（NOT NULL）
+    private Integer price;
 
-    private Integer price;              // 單價
-
-    @Column(columnDefinition = "text")
-    private String content;             // 服務說明
-
-    @Column(name = "estimated_days")
-    private Integer estimatedDays;      // 估計天數
-
-    @Column(name = "ceremony_date")
-    private LocalDate ceremonyDate;     // 典禮日期
-
-    @Column(name = "phone", length = 10)
-    private String phone;               // 電話（nullable）
-
-    @Column(name = "contact", length = 255)
-    private String contact;             // 聯絡方式（nullable）
+    @Column(length = 300)
+    private String content;
 
     @JsonIgnore
     @OneToMany(mappedBy = "service")

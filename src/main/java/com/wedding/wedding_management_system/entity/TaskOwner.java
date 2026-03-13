@@ -1,5 +1,6 @@
 package com.wedding.wedding_management_system.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,10 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
-/**
- * 任務負責人（task_owner）
- * ProjectTask 與 Employee 的多對多中間表
- */
 @Entity
 @Table(name = "task_owner")
 @Data
@@ -20,13 +17,14 @@ public class TaskOwner {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer ownerId;            // PK
+    @Column(name = "owner_id")
+    private Integer ownerId;
 
     @ManyToOne
     @JoinColumn(name = "task_id")
-    private ProjectTask task;           // FK → projects_tasks
+    private ProjectTask task;
 
     @ManyToOne
     @JoinColumn(name = "employee_id")
-    private Employee employee;          // FK → employees
+    private Employee employee;
 }

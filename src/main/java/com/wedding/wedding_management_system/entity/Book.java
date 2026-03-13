@@ -6,13 +6,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OneToMany;
+import lombok.Data;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "book_id")
     private Integer bookId;
 
     @ManyToOne
@@ -32,24 +33,26 @@ public class Book {
     @JoinColumn(name = "manager_id")
     private Employee manager;
 
-    @Column(name = "create_at", insertable = false, updatable = false,
-            columnDefinition = "datetime default now()")
-    private LocalDateTime createAt;     // 建立日期
+    @Column(name = "create_at", insertable = false, updatable = false)
+    private LocalDateTime createAt;
 
     @Column(name = "wedding_date")
-    private LocalDate weddingDate;      // 婚禮日期
+    private LocalDate weddingDate;
 
     @Column(name = "guest_scale")
-    private Integer guestScale;         // 賓客規模（人數）
-
-    @Column(length = 4)
-    private String styles;              // 婚禮風格代碼
+    private Integer guestScale;
 
     @Column(length = 100)
-    private String status;              // 狀態
+    private String place;
+
+    @Column(length = 30)
+    private String styles;
+
+    @Column(length = 20)
+    private String status;
 
     @Column(length = 1000)
-    private String content;             // 備注
+    private String content;
 
     @JsonIgnore
     @OneToMany(mappedBy = "book")

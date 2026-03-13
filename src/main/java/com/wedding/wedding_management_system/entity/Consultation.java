@@ -8,53 +8,40 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "consultation")
 @Data
 public class Consultation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "consultation_id")
-    private Integer id;
+    private Integer id; // 諮詢單ID
 
-    @Column(length = 50)
-    private String name;
-
-    @Column(length = 30)
-    private String tel;
-
-    @Column(length = 100)
-    private String email;
-
-    @Column(name = "line_id", length = 50)
-    private String lineId;
-
-    @Column(name = "wedding_date")
-    private LocalDate weddingDate;
-
-    @Column(name = "guest_scale", length = 50)
-    private String guestScale;
-
-    @Column(length = 200)
-    private String styles;
-
-    @Column(length = 200)
-    private String services;
-
-    @Column(name = "additional_notes", columnDefinition = "TEXT")
-    private String additionalNotes;
+    private String name; // 顧客姓名
+    private String phone; // 連絡電話
+    private String email; // Email
+    @Column(name = "line_id")
+    private String lineId; // Line ID
 
     @Column(name = "consultation_date")
-    private LocalDate consultationDate;
-
+    private LocalDate consultationDate; // 期望諮詢日期
     @Column(name = "preferred_time", length = 20)
-    private String preferredTime;
+    private String preferredTime; // 期望時段
 
-    @Column(name = "created_at", insertable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "wedding_date")
+    private LocalDate weddingDate; // 預定婚期
+    @Column(name = "guest_scale")
+    private String guestScale; // 賓客規模
 
-    @Column(length = 20)
-    private String status;
+    private String styles; // 嚮往婚禮風格
+    @Column(length = 200)
+    private String services; // 協助服務項目
+
+    @Column(name = "additional_notes", columnDefinition = "text")
+    private String additionalNotes; // 其他備註細節
+
+    @Column(length = 20, columnDefinition = "varchar(20) default '待處理'")
+    private String status; // 狀態：待處理/已聯絡/轉預約/無效單
 }

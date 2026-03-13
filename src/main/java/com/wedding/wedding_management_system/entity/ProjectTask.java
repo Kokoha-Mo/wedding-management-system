@@ -6,12 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.Data;
+import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -21,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ProjectTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "task_id")
     private Integer id;
 
     @ManyToOne
@@ -32,19 +32,15 @@ public class ProjectTask {
     private Service service;
 
     @Column(name = "update_at")
-    private LocalDateTime updateAt; // 更新日期
+    private LocalDateTime updateAt;
 
-    private LocalDate deadline; // 截止日期時間
+    private LocalDateTime deadline;
 
-    // 狀態：待開始/進行中/待審核/完成/其他
-    @Column(length = 30)
+    @Column(length = 20)
     private String status;
 
     @Column(name = "manager_content", length = 500)
-    private String managerContent; // 管理者說明/要求
-
-    @Column(name = "task_response", length = 500)
-    private String taskResponse; // 負責人回饋
+    private String managerContent;
 
     @JsonIgnore
     @OneToMany(mappedBy = "task")

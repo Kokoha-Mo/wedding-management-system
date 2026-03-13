@@ -1,13 +1,17 @@
 package com.wedding.wedding_management_system.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.wedding.wedding_management_system.service.ProjectService;
 import com.wedding.wedding_management_system.dto.ProjectResponse;
-
-import java.util.List;
+import com.wedding.wedding_management_system.service.ProjectService;
 
 @RestController
 @RequestMapping("/api/manager/projects")
@@ -18,9 +22,8 @@ public class ProjectController {
     private ProjectService projectService;
 
     /**
-     * 1. 取得專案列表
-     * 對應前端：Table 列表顯示
-     * 測試網址：GET http://localhost:8080/api/manager/projects
+     * 1. 取得專案列表 對應前端：Table 列表顯示 測試網址：GET
+     * http://localhost:8080/api/manager/projects
      */
     @GetMapping
     public ResponseEntity<List<ProjectResponse.ListDTO>> getAllProjects() {
@@ -29,20 +32,8 @@ public class ProjectController {
     }
 
     /**
-     * 2. 取得上方統計數據
-     * 對應前端：最上方的三個數字卡片
-     * 測試網址：GET http://localhost:8080/api/manager/projects/dashboard
-     */
-    @GetMapping("/dashboard")
-    public ResponseEntity<ProjectResponse.DashboardDTO> getDashboardStats() {
-        ProjectResponse.DashboardDTO stats = projectService.getDashboardStats();
-        return ResponseEntity.ok(stats);
-    }
-
-    /**
-     * 3. 取得單一專案的結案紀錄
-     * 對應前端：點擊「查看紀錄」跳出的 Modal 彈窗
-     * 測試網址：GET http://localhost:8080/api/manager/projects/{projectId}/record (例如
+     * 2. 取得單一專案的結案紀錄 對應前端：點擊「查看紀錄」跳出的 Modal 彈窗 測試網址：GET
+     * http://localhost:8080/api/manager/projects/{projectId}/record (例如
      * /api/projects/1/record)
      */
     @GetMapping("/{projectId}/record")

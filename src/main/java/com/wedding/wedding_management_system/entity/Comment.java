@@ -16,24 +16,25 @@ import java.time.LocalDateTime;
  * 客戶或員工對預約/案件的留言
  */
 @Entity
-@Table(name = "comments")
+@Table(name = "project_communications")
 @Data
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;                 // PK
+    @Column(name = "comm_id")
+    private Integer id; // PK
 
     @ManyToOne
-    @JoinColumn(name = "book_id")
-    private Book book;                  // FK → books（隸屬哪筆預約）
+    @JoinColumn(name = "project_id")
+    private Project project; // FK → project（隸屬哪筆專案）
 
     @ManyToOne
     @JoinColumn(name = "book_owner")
-    private Customer bookOwner;         // FK → customers（留言者）
+    private Customer bookOwner; // FK → customers（留言者）
 
-    private LocalDateTime date;         // 留言日期時間
+    private LocalDateTime date; // 留言日期時間
 
     @Column(length = 1000)
-    private String text;                // 留言內容
+    private String text; // 留言內容
 }

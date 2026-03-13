@@ -3,7 +3,7 @@ package com.wedding.wedding_management_system.dto;
 import lombok.Data;
 
 @Data
-public class LoginDto {
+public class CustomerLoginDto {
 
 	private String email, password;
 }

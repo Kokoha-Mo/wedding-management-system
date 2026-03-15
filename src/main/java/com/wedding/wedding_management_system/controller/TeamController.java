@@ -17,8 +17,6 @@ public class TeamController {
     @Autowired
     private TeamService teamService;
 
-    // GET http://localhost:8080/api/team
-    // 回傳所有員工的 TeamDto 陣列供前台婚禮團隊頁面使用
     @GetMapping("/team")
     public ResponseEntity<List<TeamDto>> getTeamMembers() {
         List<TeamDto> members = teamService.getAllTeamMembers();

@@ -1,6 +1,11 @@
 package com.wedding.wedding_management_system.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,7 +13,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
 import com.wedding.wedding_management_system.entity.Customer;
@@ -56,6 +63,31 @@ public class CustomerController {
             return ResponseEntity.ok(progress);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build(); // 找不到專案時回傳 404
+        }
+    }
+
+    @PostMapping("/{projectId}/communication")
+    public ResponseEntity<Map<String, Object>> addProjectCommunication(
+            @PathVariable Integer projectId,
+            @RequestParam("createBy") String createBy,
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+
+        try {
+            // 呼叫 Service 處理儲存邏輯
+            projectService.addProjectCommunicationWithFiles(projectId, createBy, content, files);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "留言發送成功");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "發送失敗：" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 }

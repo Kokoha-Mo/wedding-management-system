@@ -2,15 +2,22 @@ package com.wedding.wedding_management_system.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.wedding.wedding_management_system.entity.Project;
 import com.wedding.wedding_management_system.entity.ProjectCommunication;
+import com.wedding.wedding_management_system.entity.ProjectCommunicationDocument;
 import com.wedding.wedding_management_system.entity.Book;
+import com.wedding.wedding_management_system.repository.ProjectCommunicationDocumentRepository;
 import com.wedding.wedding_management_system.repository.ProjectCommunicationRepository;
 import com.wedding.wedding_management_system.repository.ProjectRepository;
 import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
 import com.wedding.wedding_management_system.dto.ProjectResponse;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -18,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 public class ProjectService {
@@ -27,6 +35,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectCommunicationRepository communicationRepository;
+
+    @Autowired
+    private ProjectCommunicationDocumentRepository pcdRepository;
 
     /**
      * 1. 取得專案列表 (對應前端的 Table)
@@ -155,7 +166,9 @@ public class ProjectService {
     }
 
     /**
-     * 4. 取得專案籌備進度與溝通紀錄 (對應客戶端的 customer_progress.html)
+     * 4. 取得專案整體資訊 (GET)
+     * 包含：左側的籌備進度(Tasks)、基本資料，以及右側的歷史留言紀錄(Timeline)
+     * 對應頁面：customer_progress.html (畫面初次載入時呼叫)
      */
     public ProjectProgressDTO getProjectProgress(Integer projectId) {
 
@@ -220,5 +233,62 @@ public class ProjectService {
 
         dto.setTimeline(timeline);
         return dto;
+    }
+
+    /**
+     * 5. 新增專屬討論區留言 (POST)
+     * 包含：儲存純文字留言，以及將夾帶的圖檔/文件寫入本機與資料庫 (ProjectCommunicationDocument)
+     * 對應頁面：customer_progress.html (按下「送出留言」按鈕時呼叫)
+     * TODO: 之後記得獨立 ProjectCommunicationService 及 FileStorageService，這裡先寫在一起方便測試
+     */
+    @Transactional
+    public void addProjectCommunicationWithFiles(Integer projectId, String createBy, String content,
+            List<MultipartFile> files) throws Exception {
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("找不到專案 ID: " + projectId));
+
+        // 1. 儲存溝通紀錄 (純文字部分)
+        ProjectCommunication newComm = new ProjectCommunication();
+        newComm.setProject(project);
+        newComm.setCreateBy(createBy); // 存入 "客戶" 或 "公司"
+        newComm.setContent(content == null ? "" : content);
+        newComm.setCreateAt(LocalDateTime.now());
+
+        // 先 save 取得 ID，供下方關聯檔案使用
+        ProjectCommunication savedComm = communicationRepository.save(newComm);
+
+        // 2. 處理檔案上傳
+        if (files != null && !files.isEmpty()) {
+            // 設定存檔資料夾 (存在專案根目錄下的 uploads 資料夾)
+            String uploadDir = "uploads/projects/" + projectId + "/";
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            for (MultipartFile file : files) {
+                if (file.isEmpty())
+                    continue;
+
+                // 產生獨一無二的檔名避免覆蓋 (例如: 123e4567-e89b... .jpg)
+                String originalFileName = file.getOriginalFilename();
+                String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                String newFileName = UUID.randomUUID().toString() + extension;
+
+                // 實體檔案寫入硬碟
+                Path filePath = uploadPath.resolve(newFileName);
+                Files.copy(file.getInputStream(), filePath);
+
+                // 🌟 3. 只儲存到留言專屬附件表 (ProjectCommunicationDocument)
+                ProjectCommunicationDocument pcd = new ProjectCommunicationDocument();
+                pcd.setCommunication(savedComm);
+                pcd.setName(originalFileName);
+                pcd.setFilePath("/" + uploadDir + newFileName);
+                pcd.setFileType(file.getContentType());
+
+                pcdRepository.save(pcd); // 儲存關聯
+            }
+        }
     }
 }

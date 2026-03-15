@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
 import com.wedding.wedding_management_system.entity.Customer;
 import com.wedding.wedding_management_system.service.CustomerService;
+import com.wedding.wedding_management_system.service.ProjectCommunicationService;
 import com.wedding.wedding_management_system.service.ProjectService;
 
 import lombok.RequiredArgsConstructor;
@@ -29,11 +29,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*") // 開發階段允許跨域
 public class CustomerController {
-    // 使用 Lombok 的 @RequiredArgsConstructor 來自動生成建構子，並注入 CustomerService 和
-    // ProjectService
+    /*
+     * 使用 Lombok 的 @RequiredArgsConstructor 來自動生成建構子，並注入
+     * CustomerService、ProjectService、ProjectCommunicationService
+     */
     private final CustomerService customerService;
 
     private final ProjectService projectService;
+
+    private final ProjectCommunicationService communicationService;
 
     @GetMapping("/email/{email}")
     public ResponseEntity<Customer> getCustomerByEmail(@PathVariable String email) {
@@ -66,7 +70,17 @@ public class CustomerController {
         }
     }
 
-    @PostMapping("/{projectId}/communication")
+    /**
+     * 新增專案溝通紀錄與檔案上傳
+     * 對應前端：新人客戶端 customer_progress.html 的留言功能
+     * 測試網址：POST
+     * http://localhost:8080/api/customers/projects/{projectId}/communication
+     * 參數說明：
+     * - createBy: 留言者名稱 (必填)
+     * - content: 留言內容 (選填)
+     * - files: 夾帶的檔案 (選填，可以多個)
+     */
+    @PostMapping("/projects/{projectId}/communication")
     public ResponseEntity<Map<String, Object>> addProjectCommunication(
             @PathVariable Integer projectId,
             @RequestParam("createBy") String createBy,
@@ -74,8 +88,7 @@ public class CustomerController {
             @RequestParam(value = "files", required = false) List<MultipartFile> files) {
 
         try {
-            // 呼叫 Service 處理儲存邏輯
-            projectService.addProjectCommunicationWithFiles(projectId, createBy, content, files);
+            communicationService.addProjectCommunicationWithFiles(projectId, createBy, content, files);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

@@ -153,7 +153,7 @@ public class ProjectService {
 
         return dto;
     }
-    
+
     /**
      * 4. 取得專案籌備進度與溝通紀錄 (對應客戶端的 customer_progress.html)
      */
@@ -165,7 +165,7 @@ public class ProjectService {
         // 注意這裡也要改成 CreateAt
         List<ProjectCommunication> comms = communicationRepository
                 .findByProject_IdOrderByCreateAtDesc(projectId);
-        
+
         ProjectProgressDTO dto = new ProjectProgressDTO();
         dto.setProjectId(project.getId());
         dto.setStatus(project.getStatus());
@@ -174,11 +174,14 @@ public class ProjectService {
         Book book = project.getBook();
         if (book != null) {
             dto.setWeddingDate(book.getWeddingDate());
-            if (book.getCustomer() != null) dto.setCustomerName(book.getCustomer().getName());
-            if (book.getManager() != null) dto.setPmName(book.getManager().getName());
-            
-            String dateStr = book.getWeddingDate() != null ? 
-                    book.getWeddingDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : "Unknown";
+            if (book.getCustomer() != null)
+                dto.setCustomerName(book.getCustomer().getName());
+            if (book.getManager() != null)
+                dto.setPmName(book.getManager().getName());
+
+            String dateStr = book.getWeddingDate() != null
+                    ? book.getWeddingDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                    : "Unknown";
             dto.setProjectNo("#WED-" + dateStr + "-" + project.getId());
         }
 
@@ -186,7 +189,18 @@ public class ProjectService {
         List<ProjectProgressDTO.CommunicationDetail> timeline = comms.stream().map(comm -> {
             ProjectProgressDTO.CommunicationDetail commDto = new ProjectProgressDTO.CommunicationDetail();
             commDto.setId(comm.getId());
-            commDto.setCreateBy(comm.getCreateBy() != null ? comm.getCreateBy().getName() : null);
+
+            // 🌟 核心修改：判斷 createBy 欄位，將「角色標籤」翻譯成「真實姓名」
+            String role = comm.getCreateBy();
+            if ("客戶".equals(role) && book != null && book.getCustomer() != null) {
+                commDto.setCreateBy(book.getCustomer().getName());
+            } else if ("公司".equals(role) && book != null && book.getManager() != null) {
+                commDto.setCreateBy(book.getManager().getName());
+            } else {
+                // 防呆：如果是舊資料或是直接寫入的名字，就照原樣顯示
+                commDto.setCreateBy(role);
+            }
+
             commDto.setContent(comm.getContent());
             commDto.setCreateAt(comm.getCreateAt());
 

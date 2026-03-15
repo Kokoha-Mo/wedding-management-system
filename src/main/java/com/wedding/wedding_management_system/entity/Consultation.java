@@ -21,7 +21,7 @@ public class Consultation {
     private Integer id; // 諮詢單ID
 
     private String name; // 顧客姓名
-    private String phone; // 連絡電話
+    private String tel; // 連絡電話
     private String email; // Email
     @Column(name = "line_id")
     private String lineId; // Line ID

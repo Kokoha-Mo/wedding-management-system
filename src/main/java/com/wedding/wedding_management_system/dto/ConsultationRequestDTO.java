@@ -9,7 +9,7 @@ import java.util.List;
 public class ConsultationRequestDTO {
 
     private String name;
-    private String phone;
+    private String tel;
     private String email;
 
     // 透過 @JsonProperty 精準對接前端的底線命名

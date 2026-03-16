@@ -949,7 +949,9 @@
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#collapse1">
                                         {{ data.phases[1].title }}
-                                        <span class="status-badge badge-active">進行中</span>
+                                        <span v-if="isPhaseCompleted(data.phases[1])"
+                                            class="status-badge badge-completed">已完成</span>
+                                        <span v-else class="status-badge badge-active">進行中</span>
                                     </button>
                                 </h2>
                                 <div id="collapse1" class="accordion-collapse collapse show">
@@ -1239,6 +1241,32 @@
 
                 const clearUnread = () => { hasUnread.value = false; };
 
+                // 🌟 新增：檢查特定階段的所有任務是否已全部完成
+                const isPhaseCompleted = (phase) => {
+                    // 如果後端直接傳回狀態是 completed，或者進度已經 100%，就當作完成
+                    if (phase.status === 'completed' || phase.status === 'COMPLETED') return true;
+
+                    // 檢查第一階段那種單純的 task 陣列
+                    if (phase.tasks && phase.tasks.length > 0) {
+                        return phase.tasks.every(t => t.isDone || t.done);
+                    }
+
+                    // 檢查第二階段那種包在 categories 裡面的 task 陣列
+                    if (phase.categories && phase.categories.length > 0) {
+                        let totalTasks = 0;
+                        let completedTasks = 0;
+                        phase.categories.forEach(cat => {
+                            if (cat.tasks) {
+                                totalTasks += cat.tasks.length;
+                                completedTasks += cat.tasks.filter(t => t.isDone || t.done).length;
+                            }
+                        });
+                        return totalTasks > 0 && totalTasks === completedTasks;
+                    }
+
+                    return false;
+                };
+
                 // 🚀 核心：向後端撈取專案進度與留言紀錄
                 const fetchProjectProgress = () => {
                     axios.get(`http://localhost:8080/api/customer/projects/${projectId}/progress`)
@@ -1457,7 +1485,8 @@
                 return {
                     data, dashOffset, getCatIcon, hasUnread, clearUnread,
                     messages, newMessage, postMessage, selectedFiles,
-                    handleFileUpload, removeSelectedFile
+                    handleFileUpload, removeSelectedFile,
+                    isPhaseCompleted 
                 }
             }
         }).mount('#app');

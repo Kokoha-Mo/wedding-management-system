@@ -4,8 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wedding.wedding_management_system.entity.Project;
+import com.wedding.wedding_management_system.entity.ProjectCommunication;
 import com.wedding.wedding_management_system.entity.Book;
+import com.wedding.wedding_management_system.repository.ProjectCommunicationRepository;
 import com.wedding.wedding_management_system.repository.ProjectRepository;
+import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
 import com.wedding.wedding_management_system.dto.ProjectResponse;
 
 import java.time.LocalDate;
@@ -21,6 +24,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private ProjectCommunicationRepository communicationRepository;
 
     /**
      * 1. 取得專案列表 (對應前端的 Table)
@@ -147,4 +153,75 @@ public class ProjectService {
 
         return dto;
     }
-}
+
+    /**
+     * 4. 取得專案整體資訊 (GET)
+     * 包含：右側的籌備進度(Tasks)，以及左側的基本資料、歷史留言紀錄(Timeline)
+     * 對應頁面：customer_progress.html (畫面初次載入時呼叫)
+     */
+    public ProjectProgressDTO getProjectProgress(Integer projectId) {
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("找不到該專案 ID: " + projectId));
+
+        // 注意這裡也要改成 CreateAt
+        List<ProjectCommunication> comms = communicationRepository
+                .findByProject_IdOrderByCreateAtDesc(projectId);
+
+        ProjectProgressDTO dto = new ProjectProgressDTO();
+        dto.setProjectId(project.getId());
+        dto.setStatus(project.getStatus());
+
+        // 防呆：從 Book 抓取關聯資料
+        Book book = project.getBook();
+        if (book != null) {
+            dto.setWeddingDate(book.getWeddingDate());
+            if (book.getCustomer() != null)
+                dto.setCustomerName(book.getCustomer().getName());
+            if (book.getManager() != null)
+                dto.setPmName(book.getManager().getName());
+
+            String dateStr = book.getWeddingDate() != null
+                    ? book.getWeddingDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                    : "Unknown";
+            dto.setProjectNo("#WED-" + dateStr + "-" + project.getId());
+        }
+
+        // 使用 Stream API 轉換留言與附件
+        List<ProjectProgressDTO.CommunicationDetail> timeline = comms.stream().map(comm -> {
+            ProjectProgressDTO.CommunicationDetail commDto = new ProjectProgressDTO.CommunicationDetail();
+            commDto.setId(comm.getId());
+
+            // 🌟 核心修改：判斷 createBy 欄位，將「角色標籤」翻譯成「真實姓名」
+            String role = comm.getCreateBy();
+            if ("客戶".equals(role) && book != null && book.getCustomer() != null) {
+                commDto.setCreateBy(book.getCustomer().getName());
+            } else if ("公司".equals(role) && book != null && book.getManager() != null) {
+                commDto.setCreateBy(book.getManager().getName());
+            } else {
+                // 防呆：如果是舊資料或是直接寫入的名字，就照原樣顯示
+                commDto.setCreateBy(role);
+            }
+
+            commDto.setContent(comm.getContent());
+            commDto.setCreateAt(comm.getCreateAt());
+
+            if (comm.getDocuments() != null) {
+                List<ProjectProgressDTO.DocumentDetail> docs = comm.getDocuments().stream().map(doc -> {
+                    ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();
+                    docDto.setId(doc.getId());
+                    docDto.setName(doc.getName());
+                    docDto.setFileType(doc.getFileType());
+                    docDto.setFilePath(doc.getFilePath());
+                    return docDto;
+                }).collect(Collectors.toList());
+                commDto.setDocuments(docs);
+            }
+            return commDto;
+        }).collect(Collectors.toList());
+
+        dto.setTimeline(timeline);
+        return dto;
+    }
+
+    }

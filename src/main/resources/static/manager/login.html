@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <script src="../js/bootstrap.bundle.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="./ESCss/Login.css">
+    <script src="./ESJS/MainPage.js"></script>
+
+    <title>Enterprise System</title>
+
+    <style>
+        body {
+            background-image: url("./Img/LoginBG.png");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+    
+</head>
+
+
+<body>
+
+    <section class="py-1">
+        <div class="container">
+            <div class="row justify-content-center align-items-center min-vh-100">
+
+                <div class="col-11 col-md-5 login-box bg-white p-5 shadow">
+
+                    <div class="mb-4 text-center">
+                        <h3 class="fw-bold mb-2 text-dark">登入系統</h3>
+                        <p class="text-secondary small">Welcome back! Please enter your details.</p>
+                    </div>
+
+                    <form action="main_page.html">
+                        <div class="row g-4">
+
+                            <div class="col-12">
+                                <label for="employeeId" class="small fw-bold text-secondary mb-2">員工編號</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-card-text"></i></span>
+                                    <input type="text" id="employeeId" name="employeeId" class="form-control"
+                                        placeholder="請輸入員工編號" required style="border-radius: 0 12px 12px 0 !important;">
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="password" class="small fw-bold text-secondary mb-2">密碼</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                    <input type="password" id="password" name="password"
+                                        class="form-control border-end-0" placeholder="請輸入密碼" required
+                                        style="border-radius: 0 !important;">
+                                    <button class="btn border" type="button" id="togglePassword"
+                                        style="border-radius: 0 12px 12px 0 !important; border-left: none;">
+                                        <i class="bi bi-eye-slash" id="eyeIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-12 d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                                    <label class="form-check-label text-secondary small" for="rememberMe">記住我</label>
+                                </div>
+                                <a href="#" class="text-decoration-none small fw-bold"
+                                    onclick="alert('請洽管理員'); return false;">忘記密碼?</a>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <button type="submit" id="submitBtn"
+                                    class="btn btn-primary w-100 fw-bold btn-login">登入</button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('togglePassword');
+            const passwordField = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            toggleBtn.addEventListener('click', function () {
+
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+
+                    eyeIcon.classList.remove('bi-eye-slash');
+                    eyeIcon.classList.add('bi-eye');
+                } else {
+                    passwordField.type = 'password';
+
+                    eyeIcon.classList.remove('bi-eye');
+                    eyeIcon.classList.add('bi-eye-slash');
+                }
+            });
+        });
+
+
+        // 模擬登入
+        const mockUsers = {
+            "A001": { password: "123456", role: "admin" },
+            "S001": { password: "123456", role: "staff" }
+        };
+
+        document.querySelector("form").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const id = document.getElementById("employeeId").value;
+            const pw = document.getElementById("password").value;
+            const user = mockUsers[id];
+
+            if (user && user.password === pw) {
+                sessionStorage.setItem("userRole", user.role); // 存入 role
+                window.location.href = "main_page.html"; // 跳轉
+            } else {
+                alert("帳號或密碼錯誤");
+            }
+        });
+
+
+    </script>
+
+</body>
+
+
+</html>

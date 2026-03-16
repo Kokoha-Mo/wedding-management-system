@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wedding.wedding_management_system.dto.ProjectResponse;
+import com.wedding.wedding_management_system.dto.TaskDTO;
 import com.wedding.wedding_management_system.entity.ProjectTask;
 import com.wedding.wedding_management_system.service.ProjectService;
 import com.wedding.wedding_management_system.service.ProjectTaskService;
@@ -55,12 +56,13 @@ public class ProjectController {
 
     // 獲取該專案底下的所有任務清單
     @GetMapping("/{projectId}/tasks")
-    public ResponseEntity<List<ProjectTask>> getProjectTasks(@PathVariable Integer projectId) {
+    public ResponseEntity<List<TaskDTO>> getProjectTasks(@PathVariable Integer projectId) {
         try {
-            List<ProjectTask> tasks = projectTaskService.getTasksByProjectId(projectId);
+            // 接收 Service 傳來的一包 DTO
+            List<TaskDTO> tasks = projectTaskService.getTasksByProjectId(projectId);
             return ResponseEntity.ok(tasks);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             return ResponseEntity.notFound().build();
         }
 

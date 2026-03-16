@@ -12,7 +12,7 @@ import com.wedding.wedding_management_system.entity.ProjectTask;
 public interface ProjectTaskRepository extends JpaRepository<ProjectTask, Integer> {
 
     @Query("SELECT new com.wedding.wedding_management_system.dto.TaskDTO("
-            + "t.id, s.name, c.name, t.deadline, t.managerContent, t.updateAt) "
+            + "t.id, t.status, s.name, c.name, t.deadline, t.managerContent, t.updateAt) "
             + "FROM ProjectTask t "
             + "JOIN t.service s "
             + "JOIN t.project p "

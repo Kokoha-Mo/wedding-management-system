@@ -347,62 +347,12 @@
 
                         <div
                             class="text-xs font-bold text-gray-400 px-2 py-1.5 uppercase tracking-wider bg-gray-50 dark:bg-gray-800 rounded mb-1">
-                            內部各部門專員</div>
-                        <label
-                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
-                            <input type="checkbox"
-                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
-                            <div class="flex items-center space-x-3">
-                                <div
-                                    class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
-                                    王</div>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">王大明 (企劃部)</span>
-                            </div>
-                        </label>
-                        <label
-                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
-                            <input type="checkbox"
-                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
-                            <div class="flex items-center space-x-3">
-                                <div
-                                    class="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
-                                    李</div>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">李小華 (設計部)</span>
-                            </div>
-                        </label>
-                        <label
-                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
-                            <input type="checkbox"
-                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
-                            <div class="flex items-center space-x-3">
-                                <div
-                                    class="w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-xs">
-                                    張</div>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">張小飛 (攝影部)</span>
-                            </div>
-                        </label>
-                        <label
-                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
-                            <input type="checkbox"
-                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
-                            <div class="flex items-center space-x-3">
-                                <div
-                                    class="w-7 h-7 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold text-xs">
-                                    陳</div>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">陳美玲 (造型部)</span>
-                            </div>
-                        </label>
-                        <label
-                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
-                            <input type="checkbox"
-                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
-                            <div class="flex items-center space-x-3">
-                                <div
-                                    class="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs">
-                                    林</div>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">林志明 (主持部)</span>
-                            </div>
-                        </label>
+                            內部各部門專員
+                        </div>
+
+                        <div id="employee-list-container">
+                        </div>
+
                     </div>
                 </div>
 
@@ -642,82 +592,84 @@
         </div>
     </div>
 
-<script>
-    // ================== 全局變數 ==================
-    let currentTaskCard = null;
-    let currentRejectCard = null;
-    const taskListContainer = document.getElementById('task-list-container');
+    <script>
+        // ================== 全局變數 ==================
+        let currentTaskCard = null;
+        let currentRejectCard = null;
+        const taskListContainer = document.getElementById('task-list-container');
 
-    // ================== 頁面初始化 ==================
-    document.addEventListener('DOMContentLoaded', () => {
+        // ================== 頁面初始化 ==================
+        document.addEventListener('DOMContentLoaded', () => {
 
-        // 1. 從網址列抓取 ?id= 的數值
-        const urlParams = new URLSearchParams(window.location.search);
-        // 為了相容你的設計，同時支援 ?id= 或 ?projectId=，如果都沒有預設抓 1 號專案來測試
-        const projectId = urlParams.get('id') || urlParams.get('projectId') || 1; 
+            // 1. 從網址列抓取 ?id= 的數值
+            const urlParams = new URLSearchParams(window.location.search);
+            // 為了相容你的設計，同時支援 ?id= 或 ?projectId=，如果都沒有預設抓 1 號專案來測試
+            const projectId = urlParams.get('id') || urlParams.get('projectId') || 1;
 
-        if (projectId) {
-            fetchProjectTasks(projectId);
-        } else {
-            showError('缺少專案 ID，無法載入任務！請從專案總覽點擊進入。');
-        }
-
-        // ==========================================
-        // 🌟 2. 呼叫 Spring Boot API
-        // ==========================================
-        async function fetchProjectTasks(id) {
-            try {
-                // ⚠️ 確保網址跟你的 Controller 完對齊：/api/manager/projects/{id}/tasks
-                const response = await fetch(`/api/manager/projects/${id}/tasks`);
-                if (!response.ok) throw new Error('API 請求失敗');
-
-                const tasks = await response.json();
-                renderTasks(tasks);
-            } catch (error) {
-                console.error('無法取得任務:', error);
-                showError('資料載入失敗，請檢查後端伺服器狀態。');
-            }
-        }
-
-        // ==========================================
-        // 🌟 3. 動態渲染任務小卡到 HTML
-        // ==========================================
-        function renderTasks(tasks) {
-            if (!taskListContainer) return;
-            taskListContainer.innerHTML = ''; // 清空「載入中」提示
-
-            if (tasks.length === 0) {
-                taskListContainer.innerHTML = '<div class="text-center py-8 text-gray-500 font-bold bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">此專案目前尚無指派任務</div>';
-                updateStatusCounts(tasks); // 更新上方四個大按鈕的數字為 0
-                return;
+            if (projectId) {
+                fetchProjectTasks(projectId);
+            } else {
+                showError('缺少專案 ID，無法載入任務！請從專案總覽點擊進入。');
             }
 
-            tasks.forEach(task => {
-                // 根據狀態設定顏色
-                let statusColor = 'bg-gray-300 dark:bg-gray-600'; // 預設：待指派
-                let badgeClass = 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
-                
-                if (task.status === '進行中') {
-                    statusColor = 'bg-blue-500';
-                    badgeClass = 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400';
-                } else if (task.status === '已完成' || task.status === '已結案') {
-                    statusColor = 'bg-green-500';
-                    badgeClass = 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400';
-                } else if (task.status === '卡關' || task.status === '需注意') {
-                    statusColor = 'bg-red-500';
-                    badgeClass = 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400';
-                } else if (task.status === '待處理' || task.status === '待審核') {
-                    statusColor = 'bg-amber-500';
-                    badgeClass = 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400';
+            // ==========================================
+            // 🌟 2. 呼叫 Spring Boot API
+            // ==========================================
+            async function fetchProjectTasks(id) {
+                try {
+                    // ⚠️ 確保網址跟你的 Controller 完對齊：/api/manager/projects/{id}/tasks
+                    const response = await fetch(`/api/manager/projects/${id}/tasks`);
+                    if (!response.ok) throw new Error('API 請求失敗');
+
+                    const tasks = await response.json();
+                    renderTasks(tasks);
+                } catch (error) {
+                    console.error('無法取得任務:', error);
+                    showError('資料載入失敗，請檢查後端伺服器狀態。');
+                }
+            }
+
+            // ==========================================
+            // 🌟 3. 動態渲染任務小卡到 HTML
+            // ==========================================
+            function renderTasks(tasks) {
+                if (!taskListContainer) return;
+                taskListContainer.innerHTML = ''; // 清空「載入中」提示
+
+                if (tasks.length === 0) {
+                    taskListContainer.innerHTML = '<div class="text-center py-8 text-gray-500 font-bold bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">此專案目前尚無指派任務</div>';
+                    updateStatusCounts(tasks); // 更新上方四個大按鈕的數字為 0
+                    return;
                 }
 
-                // 防呆處理：依據 @ManyToOne 的寫法抓取關聯名稱
-                const serviceName = task.service ? task.service.name : (task.serviceName || `服務 #${task.serviceId || '未知'}`);
-                const deptName = task.department ? task.department.name : (task.deptName || `未指派`);
-                const updateTime = task.updateAt ? task.updateAt.replace('T', ' ').substring(0, 16) : '尚無更新紀錄';
+                tasks.forEach(task => {
+                    // 根據狀態設定顏色
+                    let statusColor = 'bg-gray-300 dark:bg-gray-600'; // 預設：待指派
+                    let badgeClass = 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
 
-                // 生成任務卡片 HTML
-                const html = `
+                    if (task.status === '進行中') {
+                        statusColor = 'bg-blue-500';
+                        badgeClass = 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400';
+                    } else if (task.status === '已完成' || task.status === '已結案') {
+                        statusColor = 'bg-green-500';
+                        badgeClass = 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400';
+                    } else if (task.status === '卡關' || task.status === '需注意') {
+                        statusColor = 'bg-red-500';
+                        badgeClass = 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400';
+                    } else if (task.status === '待處理' || task.status === '待審核') {
+                        statusColor = 'bg-amber-500';
+                        badgeClass = 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400';
+                    }
+
+                    // 防呆處理：依據 @ManyToOne 的寫法抓取關聯名稱
+                    // 直接從 DTO 抓取扁平化的屬性
+                    const deptName = task.deptName || '未歸屬部門';
+                    const deptId = task.deptId || '';
+                    const serviceName = task.serviceName || `服務 #${task.serviceId || '未知'}`;
+                    const updateTime = task.updateAt ? task.updateAt.replace('T', ' ').substring(0, 16) : '尚無更新紀錄';
+
+                    // 生成任務卡片 HTML
+                    const html = `
                     <div class="task-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all hover:shadow-md" data-status="${task.status}">
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 ${statusColor}"></div>
                         <div class="flex justify-between items-start pl-3">
@@ -731,150 +683,202 @@
                                     <span class="material-icons text-[14px] mr-1">update</span> 最後更新: ${updateTime}
                                 </p>
                             </div>
-                            <button class="text-gray-400 hover:text-indigo-600 transition-colors p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 btn-assign" data-task="${serviceName}" data-category="${deptName}" data-task-id="${task.taskId}">
+                            <button class="text-gray-400 hover:text-indigo-600 transition-colors p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 btn-assign" 
+                                data-task="${serviceName}" data-category="${deptName}" data-task-id="${task.taskId}" data-dept-id="${deptId}">
                                 <span class="material-icons text-[20px]">chevron_right</span>
                             </button>
                         </div>
                     </div>
                 `;
-                taskListContainer.insertAdjacentHTML('beforeend', html);
-            });
+                    taskListContainer.insertAdjacentHTML('beforeend', html);
+                });
 
-            // 資料渲染完畢後，更新上方四個大方塊的數字，並重新綁定篩選功能
-            updateStatusCounts(tasks);
-            rebindTaskFilters();
-        }
+                // 資料渲染完畢後，更新上方四個大方塊的數字，並重新綁定篩選功能
+                updateStatusCounts(tasks);
+                rebindTaskFilters();
+            }
 
-        // ==========================================
-        // 🌟 4. 更新上方四個狀態按鈕的數字
-        // ==========================================
-        function updateStatusCounts(tasks) {
-            const counts = { pending: 0, active: 0, review: 0, completed: 0 };
-            
-            tasks.forEach(task => {
-                if (task.status === '待指派' || task.status === '卡關') counts.pending++;
-                else if (task.status === '進行中') counts.active++;
-                else if (task.status === '待審核') counts.review++;
-                else if (task.status === '已完成' || task.status === '已結案') counts.completed++;
-            });
+            // ==========================================
+            // 🌟 4. 更新上方四個狀態按鈕的數字
+            // ==========================================
+            function updateStatusCounts(tasks) {
+                const counts = { pending: 0, active: 0, review: 0, completed: 0 };
 
-            // 更新按鈕中的大數字
-            document.querySelectorAll('.task-filter-btn').forEach(btn => {
-                const filter = btn.getAttribute('data-filter');
-                const span = btn.querySelector('.text-2xl');
-                if (span && counts[filter] !== undefined) {
-                    span.textContent = counts[filter];
+                tasks.forEach(task => {
+                    if (task.status === '待指派' || task.status === '卡關') counts.pending++;
+                    else if (task.status === '進行中') counts.active++;
+                    else if (task.status === '待審核') counts.review++;
+                    else if (task.status === '已完成' || task.status === '已結案') counts.completed++;
+                });
+
+                // 更新按鈕中的大數字
+                document.querySelectorAll('.task-filter-btn').forEach(btn => {
+                    const filter = btn.getAttribute('data-filter');
+                    const span = btn.querySelector('.text-2xl');
+                    if (span && counts[filter] !== undefined) {
+                        span.textContent = counts[filter];
+                    }
+                });
+            }
+
+            // ==========================================
+            // 🌟 5. 綁定「任務篩選按鈕」的功能
+            // ==========================================
+            function rebindTaskFilters() {
+                const taskFilterBtns = document.querySelectorAll('.task-filter-btn');
+                const taskItems = document.querySelectorAll('.task-item');
+
+                taskFilterBtns.forEach(btn => {
+                    // 為了避免重複綁定，先 Clone 一個乾淨的 Node 替換掉自己
+                    const newBtn = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(newBtn, btn);
+
+                    newBtn.addEventListener('click', (e) => {
+                        // 移除所有按鈕的選取樣式，並替當前按鈕加上選取樣式
+                        document.querySelectorAll('.task-filter-btn').forEach(b => {
+                            b.classList.remove('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
+                        });
+                        newBtn.classList.add('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
+
+                        const filterValue = newBtn.getAttribute('data-filter');
+
+                        // 執行篩選
+                        taskItems.forEach(item => {
+                            const itemStatus = item.getAttribute('data-status');
+                            let shouldShow = false;
+
+                            if (filterValue === 'all') shouldShow = true;
+                            else if (filterValue === 'pending' && (itemStatus === '待指派' || itemStatus === '卡關')) shouldShow = true;
+                            else if (filterValue === 'active' && itemStatus === '進行中') shouldShow = true;
+                            else if (filterValue === 'review' && itemStatus === '待審核') shouldShow = true;
+                            else if (filterValue === 'completed' && (itemStatus === '已完成' || itemStatus === '已結案')) shouldShow = true;
+
+                            if (shouldShow) {
+                                item.style.display = '';
+                                item.style.animation = 'fadeIn 0.3s ease-out';
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+                    });
+                });
+            }
+
+            // 錯誤訊息顯示工具
+            function showError(msg) {
+                if (taskListContainer) {
+                    taskListContainer.innerHTML = `<div class="text-center py-8 text-red-500">${msg}</div>`;
+                }
+            }
+
+        }); // DOMContentLoaded 結束
+
+        // ================= 檔案上傳觸發邏輯 (保留) =================
+        const uploadBtn = document.getElementById('upload-doc-btn');
+        const fileInput = document.getElementById('file-upload-input');
+
+        if (uploadBtn && fileInput) {
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const fileNames = Array.from(e.target.files).map(file => file.name).join('\n');
+                    alert(`已準備上傳以下檔案：\n\n${fileNames}`);
+                    fileInput.value = '';
                 }
             });
         }
 
-        // ==========================================
-        // 🌟 5. 綁定「任務篩選按鈕」的功能
-        // ==========================================
-        function rebindTaskFilters() {
-            const taskFilterBtns = document.querySelectorAll('.task-filter-btn'); 
-            const taskItems = document.querySelectorAll('.task-item');
+        // ================= Modal 控制邏輯 (簡化版) =================
 
-            taskFilterBtns.forEach(btn => {
-                // 為了避免重複綁定，先 Clone 一個乾淨的 Node 替換掉自己
-                const newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn);
+        // 客服通道 Modal
+        window.openClientChatModal = function (e) {
+            if (e) e.preventDefault();
+            document.getElementById('clientChatModal').classList.remove('hidden');
+            const unreadHint = document.getElementById('client-unread-hint');
+            if (unreadHint) unreadHint.style.display = 'none';
+        };
+        window.closeClientChatModal = function () {
+            document.getElementById('clientChatModal').classList.add('hidden');
+        };
 
-                newBtn.addEventListener('click', (e) => {
-                    // 移除所有按鈕的選取樣式，並替當前按鈕加上選取樣式
-                    document.querySelectorAll('.task-filter-btn').forEach(b => {
-                        b.classList.remove('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
-                    });
-                    newBtn.classList.add('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
+        // 指派人員 Modal
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.btn-assign');
+            if (!btn) return;
+            e.preventDefault();
 
-                    const filterValue = newBtn.getAttribute('data-filter');
-                    
-                    // 執行篩選
-                    taskItems.forEach(item => {
-                        const itemStatus = item.getAttribute('data-status');
-                        let shouldShow = false;
+            const taskName = btn.getAttribute('data-task') || '未知任務';
+            const deptName = btn.getAttribute('data-category') || '未指派';
+            const deptId = btn.getAttribute('data-dept-id'); // 🌟 拿到部門 ID
 
-                        if (filterValue === 'all') shouldShow = true;
-                        else if (filterValue === 'pending' && (itemStatus === '待指派' || itemStatus === '卡關')) shouldShow = true;
-                        else if (filterValue === 'active' && itemStatus === '進行中') shouldShow = true;
-                        else if (filterValue === 'review' && itemStatus === '待審核') shouldShow = true;
-                        else if (filterValue === 'completed' && (itemStatus === '已完成' || itemStatus === '已結案')) shouldShow = true;
+            document.getElementById('modal-task-name').textContent = taskName;
+            document.getElementById('modal-task-category').textContent = deptName;
+            document.getElementById('assignModal').classList.remove('hidden');
 
-                        if (shouldShow) {
-                            item.style.display = '';
-                            item.style.animation = 'fadeIn 0.3s ease-out';
-                        } else {
-                            item.style.display = 'none';
-                        }
-                    });
-                });
+            // 準備渲染員工的容器
+            const employeeContainer = document.getElementById('employee-list-container');
+
+            if (!deptId) {
+                employeeContainer.innerHTML = '<p class="text-red-500 text-sm p-3">此任務未歸屬任何部門，無法載入員工。</p>';
+                return;
+            }
+
+            employeeContainer.innerHTML = '<div class="flex items-center text-gray-500 p-3"><span class="material-icons animate-spin mr-2 text-[18px]">autorenew</span> 載入部門員工中...</div>';
+
+            try {
+                // 🌟 呼叫後端 API (依據部門 ID 找員工)
+                const response = await fetch(`/api/manager/employees/department/${deptId}`);
+                if (!response.ok) throw new Error('API 請求失敗');
+
+                const employees = await response.json();
+
+                if (employees.length === 0) {
+                    employeeContainer.innerHTML = '<p class="text-gray-500 text-sm p-3">該部門目前沒有員工資料。</p>';
+                    return;
+                }
+
+                // 隨機配色陣列
+                const colors = ['bg-indigo-100 text-indigo-600', 'bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-pink-100 text-pink-600', 'bg-amber-100 text-amber-600'];
+
+                // 渲染 Checkbox 列表
+                employeeContainer.innerHTML = employees.map((emp, idx) => {
+                    const color = colors[idx % colors.length];
+                    const firstChar = emp.name ? emp.name.charAt(0) : '員';
+                    return `
+                    <label class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
+                        <input type="checkbox" name="assignees" value="${emp.empId}" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-7 h-7 rounded-full ${color} flex items-center justify-center font-bold text-xs">
+                                ${firstChar}
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">${emp.name}</span>
+                        </div>
+                    </label>
+                `;
+                }).join('');
+
+            } catch (error) {
+                console.error('載入員工失敗:', error);
+                employeeContainer.innerHTML = '<p class="text-red-500 text-sm p-3">載入員工失敗，請檢查後端連線。</p>';
+            }
+        });
+
+        document.querySelectorAll('.close-assign-modal').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('assignModal').classList.add('hidden');
+            });
+        });
+
+        // 模擬送出指派
+        const submitAssignBtn = document.getElementById('submit-assign-btn');
+        if (submitAssignBtn) {
+            submitAssignBtn.addEventListener('click', () => {
+                alert('已成功送出派工指令！(實務上此處將打 API 儲存至資料庫)');
+                document.getElementById('assignModal').classList.add('hidden');
             });
         }
 
-        // 錯誤訊息顯示工具
-        function showError(msg) {
-            if(taskListContainer) {
-                taskListContainer.innerHTML = `<div class="text-center py-8 text-red-500">${msg}</div>`;
-            }
-        }
-
-    }); // DOMContentLoaded 結束
-
-    // ================= 檔案上傳觸發邏輯 (保留) =================
-    const uploadBtn = document.getElementById('upload-doc-btn');
-    const fileInput = document.getElementById('file-upload-input');
-
-    if (uploadBtn && fileInput) {
-        uploadBtn.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const fileNames = Array.from(e.target.files).map(file => file.name).join('\n');
-                alert(`已準備上傳以下檔案：\n\n${fileNames}`);
-                fileInput.value = '';
-            }
-        });
-    }
-
-    // ================= Modal 控制邏輯 (簡化版) =================
-    
-    // 客服通道 Modal
-    window.openClientChatModal = function (e) {
-        if (e) e.preventDefault();
-        document.getElementById('clientChatModal').classList.remove('hidden');
-        const unreadHint = document.getElementById('client-unread-hint');
-        if (unreadHint) unreadHint.style.display = 'none';
-    };
-    window.closeClientChatModal = function () {
-        document.getElementById('clientChatModal').classList.add('hidden');
-    };
-
-    // 指派人員 Modal
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.btn-assign');
-        if (!btn) return;
-        e.preventDefault();
-        
-        document.getElementById('modal-task-name').textContent = btn.getAttribute('data-task') || '未知任務';
-        document.getElementById('modal-task-category').textContent = btn.getAttribute('data-category') || '未指派';
-        document.getElementById('assignModal').classList.remove('hidden');
-    });
-
-    document.querySelectorAll('.close-assign-modal').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.getElementById('assignModal').classList.add('hidden');
-        });
-    });
-
-    // 模擬送出指派
-    const submitAssignBtn = document.getElementById('submit-assign-btn');
-    if (submitAssignBtn) {
-        submitAssignBtn.addEventListener('click', () => {
-            alert('已成功送出派工指令！(實務上此處將打 API 儲存至資料庫)');
-            document.getElementById('assignModal').classList.add('hidden');
-        });
-    }
-
-</script>
+    </script>
 </body>
 
 </html>

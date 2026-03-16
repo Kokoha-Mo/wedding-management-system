@@ -25,7 +25,7 @@ import com.wedding.wedding_management_system.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/customers")
+@RequestMapping("/api/customer")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*") // 開發階段允許跨域
 public class CustomerController {
@@ -57,7 +57,7 @@ public class CustomerController {
     /**
      * 取得客戶專案的籌備進度與溝通留言
      * 對應前端：新人客戶端 customer_progress.html
-     * 測試網址：GET http://localhost:8080/api/customers/projects/{projectId}/progress
+     * 測試網址：GET http://localhost:8080/api/customer/projects/{projectId}/progress
      */
     @GetMapping("/projects/{projectId}/progress")
     public ResponseEntity<ProjectProgressDTO> getCustomerProjectProgress(@PathVariable Integer projectId) {
@@ -74,7 +74,7 @@ public class CustomerController {
      * 新增專案溝通紀錄與檔案上傳
      * 對應前端：新人客戶端 customer_progress.html 的留言功能
      * 測試網址：POST
-     * http://localhost:8080/api/customers/projects/{projectId}/communication
+     * http://localhost:8080/api/customer/projects/{projectId}/communication
      * 參數說明：
      * - createBy: 留言者名稱 (必填)
      * - content: 留言內容 (選填)

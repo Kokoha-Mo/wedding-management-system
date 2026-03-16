@@ -440,11 +440,24 @@
 
         /* 🌟 新增：氣泡內顯示多張圖片的樣式 */
         .msg-img-attachment {
-            border-radius: 8px;
-            max-width: 150px;
-            /* 稍微縮小一點，並排時比較好看 */
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            /* 變得更圓潤 */
+            max-width: 160px;
+            max-height: 160px;
             object-fit: cover;
+            /* 讓長寬不同的圖片自動裁切成完美比例，不會變形 */
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #faf7f2;
+            /* 載入前的底色 */
+        }
+
+        .msg-img-attachment:hover {
+            transform: translateY(-2px);
+            /* 滑鼠移過去會有輕微上浮感 */
+            box-shadow: 0 8px 24px rgba(197, 160, 89, 0.15);
         }
 
         /* Documents */
@@ -810,8 +823,9 @@
                             </svg>
                             <div class="position-absolute top-50 start-50 translate-middle w-100">
                                 <div class="countdown-number">{{ data.countdownDays }}</div>
-                                <div style="font-size: 10px; letter-spacing: 0.2em; color: var(--text-muted);">DAYS TO
-                                    GO</div>
+                                <div style="font-size: 14px; letter-spacing: 0.15em; color: var(--text-muted);">
+                                    {{ data.countdownDays > 0 ? 'DAYS TO GO' : '圓滿完成' }}
+                                </div>
                             </div>
                         </div>
 
@@ -908,14 +922,23 @@
                                 </h2>
                                 <div id="collapse0" class="accordion-collapse collapse">
                                     <div class="accordion-body">
-                                        <ul class="task-list mt-4">
-                                            <li v-for="task in data.phases[0].tasks" :key="task.id"
-                                                :class="task.isDone ? 'task-done' : 'task-pending'">
-                                                <span class="material-symbols-outlined">{{ task.isDone ? 'check_circle'
-                                                    : 'radio_button_unchecked' }}</span>
-                                                {{ task.name }}
-                                            </li>
-                                        </ul>
+
+                                        <div class="category-block mt-2">
+                                            <div class="category-label">
+                                                <span class="material-symbols-outlined">verified</span>
+                                                前置作業
+                                                <span class="category-progress">2 / 2</span>
+                                            </div>
+                                            <ul class="task-list">
+                                                <li v-for="task in data.phases[0].tasks" :key="task.id"
+                                                    :class="task.done ? 'task-done' : 'task-pending'">
+                                                    <span class="material-symbols-outlined">{{ task.done ?
+                                                        'check_circle' : 'radio_button_unchecked' }}</span>
+                                                    {{ task.name }}
+                                                </li>
+                                            </ul>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -1029,13 +1052,26 @@
                                         <div v-if="msg.attachments && msg.attachments.length > 0"
                                             class="d-flex flex-wrap gap-2" :class="{'mt-2': msg.text}">
                                             <template v-for="(att, idx) in msg.attachments" :key="idx">
-                                                <img v-if="att.type.startsWith('image/')" :src="att.url"
-                                                    class="msg-img-attachment" alt="上傳的圖片">
-                                                <a v-else :href="att.url" target="_blank" class="msg-file-link">
+
+                                                <img v-if="att.type.startsWith('image/') && !att.loadError"
+                                                    :src="att.url" class="msg-img-attachment" alt="附圖"
+                                                    @error="att.loadError = true">
+
+                                                <span v-if="att.type.startsWith('image/') && att.loadError"
+                                                    class="msg-file-link"
+                                                    style="cursor: default; pointer-events: none; opacity: 0.5;">
+                                                    <span class="material-symbols-outlined"
+                                                        style="font-size: 16px;">broken_image</span>
+                                                    圖片無法預覽
+                                                </span>
+
+                                                <a v-if="!att.type.startsWith('image/')" :href="att.url" target="_blank"
+                                                    class="msg-file-link">
                                                     <span class="material-symbols-outlined"
                                                         style="font-size: 16px;">description</span>
                                                     {{ att.name }}
                                                 </a>
+
                                             </template>
                                         </div>
                                     </div>
@@ -1055,7 +1091,7 @@
                                     <span class="material-symbols-outlined" style="font-size: 16px;">description</span>
                                     <span class="text-truncate">{{ file.name }}</span>
                                 </div>
-                                <button class="btn-remove-file" @click="removeSelectedFile(index)">
+                                <button type="button" class="btn-remove-file" @click="removeSelectedFile(index)">
                                     <span class="material-symbols-outlined" style="font-size: 14px;">close</span>
                                 </button>
                             </div>
@@ -1081,7 +1117,7 @@
                                     <span class="hint-text d-none d-sm-inline">附加檔案</span>
                                 </label>
                             </div>
-                            <button class="btn" @click="postMessage" :disabled="isSubmitting"
+                            <button type="button" class="btn" @click="postMessage" :disabled="isSubmitting"
                                 style="background: var(--accent-gold); color: white; border-radius: 30px; font-size: 13px; letter-spacing: 0.15em; padding: 10px 28px; transition: all 0.3s;">
                                 {{ isSubmitting ? '傳送中...' : '送出留言' }}
                             </button>
@@ -1122,16 +1158,9 @@
                     weddingDate: '載入中...',
                     pmName: '載入中...',
                     customerName: '客戶',
-                    progressPercent: 65,
-                    payments: [
-                        { title: '訂金 20%', status: 'PAID', dueDate: '' },
-                        { title: '期中款 50%', status: 'PENDING', dueDate: '2026.04.01' },
-                        { title: '尾款 30%', status: 'NONE', dueDate: '' }
-                    ],
-                    documents: [
-                        { name: '婚宴定案合約書.pdf', icon: 'description' },
-                        { name: '主視覺模擬圖_V2.jpg', icon: 'image' }
-                    ],
+                    progressPercent: 100,
+                    payments: [],
+                    documents: [],
                     // 🌟 這裡把原本的假資料加回來了，畫面才不會找不到資料報錯
                     phases: [
                         {
@@ -1212,7 +1241,7 @@
 
                 // 🚀 核心：向後端撈取專案進度與留言紀錄
                 const fetchProjectProgress = () => {
-                    axios.get(`http://localhost:8080/api/customers/projects/${projectId}/progress`)
+                    axios.get(`http://localhost:8080/api/customer/projects/${projectId}/progress`)
                         .then(response => {
                             // 【修改重點 1】：直接把 response.data 當作 realData，不需要再解開 apiData.data
                             const realData = response.data;
@@ -1223,6 +1252,11 @@
                                 if (realData.pmName) data.pmName = realData.pmName;
                                 if (realData.customerName) data.customerName = realData.customerName;
                                 if (realData.payments) data.payments = realData.payments;
+                                if (realData.phases) data.phases = realData.phases;
+                                if (realData.progressPercent !== undefined) {
+                                    // 加一點點延遲，讓圓環有從 0 跑上去的帥氣動畫
+                                    setTimeout(() => { data.progressPercent = realData.progressPercent; }, 300);
+                                }
 
                                 // 🌟 新增：處理正式文件，並動態指派 Icon 與補全網址
                                 if (realData.documents) {
@@ -1242,7 +1276,7 @@
                                         return {
                                             name: doc.name,
                                             icon: iconType,
-                                            url: fileUrl
+                                            url: fileUrl,
                                         };
                                     });
                                 }
@@ -1360,6 +1394,7 @@
                     }
 
                     // 🌟 3. 將選擇的實體檔案一一塞入包裹 (對應後端的 @RequestParam("files"))
+                    let attachmentsData = [];
                     if (selectedFiles.value.length > 0) {
                         selectedFiles.value.forEach(item => {
                             formData.append('files', item.file);
@@ -1367,7 +1402,7 @@
                     }
 
                     // 🌟 4. 透過 Axios 發送 POST 請求
-                    axios.post(`http://localhost:8080/api/customers/projects/${projectId}/communication`, formData, {
+                    axios.post(`http://localhost:8080/api/customer/projects/${projectId}/communication`, formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data' // 告訴後端：「嘿！我這包裡面有檔案喔！」
                         }

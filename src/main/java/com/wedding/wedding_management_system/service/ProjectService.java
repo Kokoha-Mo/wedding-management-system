@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 
 import com.wedding.wedding_management_system.entity.Project;
 import com.wedding.wedding_management_system.entity.ProjectCommunication;
+import com.wedding.wedding_management_system.entity.ProjectTask;
 import com.wedding.wedding_management_system.entity.Book;
 import com.wedding.wedding_management_system.repository.ProjectCommunicationRepository;
 import com.wedding.wedding_management_system.repository.ProjectRepository;
+import com.wedding.wedding_management_system.repository.ProjectTaskRepository;
 import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
 import com.wedding.wedding_management_system.dto.ProjectResponse;
 
@@ -17,6 +19,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +30,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectCommunicationRepository communicationRepository;
+
+    @Autowired
+    private ProjectTaskRepository projectTaskRepository;
 
     /**
      * 1. 取得專案列表 (對應前端的 Table)
@@ -293,7 +299,139 @@ public class ProjectService {
         }).collect(Collectors.toList());
 
         dto.setTimeline(timeline);
-        return dto;
+        // ==========================================
+        // 🌟 新增區塊：動態產生 Phases (手風琴時間軸) 與進度條
+        // ==========================================
+        List<ProjectTask> allTasks = projectTaskRepository.findByProjectId(projectId);
+        List<ProjectProgressDTO.PhaseDTO> phases = new java.util.ArrayList<>();
+
+        // --- Phase 1: 初步規劃 (假設專案成立即完成) ---
+        ProjectProgressDTO.PhaseDTO p1 = new ProjectProgressDTO.PhaseDTO();
+        p1.setId(1);
+        p1.setTitle("初步規劃");
+        p1.setStatus("completed");
+        List<ProjectProgressDTO.TaskItemDTO> p1Tasks = new java.util.ArrayList<>();
+        ProjectProgressDTO.TaskItemDTO t1 = new ProjectProgressDTO.TaskItemDTO();
+        t1.setId(101);
+        t1.setName("婚宴資訊確認");
+        t1.setDone(true);
+        ProjectProgressDTO.TaskItemDTO t2 = new ProjectProgressDTO.TaskItemDTO();
+        t2.setId(102);
+        t2.setName("專屬顧問指派");
+        t2.setDone(true);
+        p1Tasks.add(t1);
+        p1Tasks.add(t2);
+        p1.setTasks(p1Tasks);
+        phases.add(p1);
+
+        // --- Phase 2: 婚禮籌備 (動態從資料庫撈取) ---
+        ProjectProgressDTO.PhaseDTO p2 = new ProjectProgressDTO.PhaseDTO();
+        p2.setId(2);
+        p2.setTitle("婚禮籌備");
+
+        // 💡 巧思：將 Timeline 中「最新的一筆 PM 留言」抓出來，顯示在進度框裡！
+        String pmNameStr = book != null && book.getManager() != null ? book.getManager().getName() : "公司";
+        dto.getTimeline().stream()
+                .filter(c -> c.getCreateBy().equals(pmNameStr))
+                .findFirst() // 因為 timeline 已經是 OrderByDesc，第一筆就是最新
+                .ifPresent(latestComm -> {
+                    p2.setPmMessage(latestComm.getContent());
+                    p2.setPmUpdateTime(latestComm.getCreateAt().format(DateTimeFormatter.ofPattern("MM/dd HH:mm")));
+                });
+
+        // 依照 Department (部門/分類) 來分組任務
+        Map<String, List<ProjectTask>> groupedTasks = allTasks.stream()
+                .filter(t -> t.getService() != null)
+                .collect(Collectors.groupingBy(t -> {
+                    // 🌟 小奈除錯：這裡把 getName() 改成 getDeptName() 就沒問題了！
+                    if (t.getService().getDepartment() != null
+                            && t.getService().getDepartment().getDeptName() != null) {
+                        return t.getService().getDepartment().getDeptName();
+                    }
+                    return "其他籌備項目";
+                }));
+
+        List<ProjectProgressDTO.CategoryDTO> categories = new java.util.ArrayList<>();
+        int totalTasks = allTasks.size();
+        int completedTasks = 0;
+
+        for (Map.Entry<String, List<ProjectTask>> entry : groupedTasks.entrySet()) {
+            ProjectProgressDTO.CategoryDTO cat = new ProjectProgressDTO.CategoryDTO();
+            cat.setName(entry.getKey());
+            List<ProjectProgressDTO.TaskItemDTO> catTasks = new java.util.ArrayList<>();
+
+            for (ProjectTask pt : entry.getValue()) {
+                ProjectProgressDTO.TaskItemDTO taskDto = new ProjectProgressDTO.TaskItemDTO();
+                taskDto.setId(pt.getId());
+                taskDto.setName(pt.getService().getName()); // 任務名稱等於 Service 名稱
+
+                boolean isDone = "已完成".equals(pt.getStatus());
+                taskDto.setDone(isDone);
+                if (isDone)
+                    completedTasks++;
+
+                catTasks.add(taskDto);
+            }
+            cat.setTasks(catTasks);
+            categories.add(cat);
+        }
+        p2.setCategories(categories);
+
+        // 判斷 Phase 2 狀態：如果任務 > 0 且全部完成，就變成 completed
+        if (totalTasks > 0 && completedTasks == totalTasks) {
+            p2.setStatus("completed");
+        } else {
+            p2.setStatus("active");
+        }
+        phases.add(p2);
+
+        // --- Phase 3: Happy Ending ---
+        ProjectProgressDTO.PhaseDTO p3 = new ProjectProgressDTO.PhaseDTO();
+        p3.setId(3);
+        p3.setTitle("Happy Ending");
+        p3.setStatus(p2.getStatus().equals("completed") ? "active" : "pending");
+        p3.setTasks(new java.util.ArrayList<>());
+        phases.add(p3);
+
+        dto.setPhases(phases);
+
+        // ==========================================
+        // 🌟 修改區塊：計算圓環進度條百分比 (依據婚期時間倒數)
+        // ==========================================
+        int calculatedProgress = 0;
+
+        // 確保有 Book (包含婚期) 以及專案的建立時間
+        if (book != null && book.getWeddingDate() != null && project.getCreateAt() != null) {
+            LocalDate startDate = project.getCreateAt().toLocalDate(); // 起點：專案成立日
+            LocalDate weddingDate = book.getWeddingDate(); // 終點：大囍之日
+            LocalDate today = LocalDate.now(); // 現在：今天
+
+            // 1. 如果今天已經超過或剛好是婚期，進度直接圓滿 100%
+            if (today.isAfter(weddingDate) || today.isEqual(weddingDate)) {
+                calculatedProgress = 100;
+            }
+            // 2. 邏輯防呆：如果今天比成立日還早 (通常不可能發生)，進度 0%
+            else if (today.isBefore(startDate)) {
+                calculatedProgress = 0;
+            }
+            // 3. 正常計算比例
+            else {
+                long totalDays = ChronoUnit.DAYS.between(startDate, weddingDate); // 總共要籌備幾天
+                long passedDays = ChronoUnit.DAYS.between(startDate, today); // 已經過了幾天
+
+                if (totalDays > 0) {
+                    calculatedProgress = (int) (((double) passedDays / totalDays) * 100);
+                }
+            }
+        } else {
+            // 如果缺乏完整的日期資料，給個預設值 5% 讓畫面不至於空空的
+            calculatedProgress = 5;
+        }
+
+        // 🌟 防呆：確保算出來的數字絕對落在 0 ~ 100 之間，以免前端 SVG 圓環爆掉
+        dto.setProgressPercent(Math.min(Math.max(calculatedProgress, 0), 100));
+        
+        return dto; // 完美回傳！
     }
 
 }

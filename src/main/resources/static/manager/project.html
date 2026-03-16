@@ -215,6 +215,11 @@
                                         專案進度
                                     </th>
 
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[20%]">
+                                        專案更新日期
+                                    </th>
+
                                     <th id="th-date"
                                         class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[20%] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none">
                                         <div class="flex items-center">
@@ -619,8 +624,18 @@
                     let statusHtml = '';
                     let dateHtml = '';
                     let actionHtml = '';
-                    let rowClass = 'project-row transition-colors group ';
 
+                    // 🌟 新增：更新日期的 HTML 組合
+                    // 這裡假設後端會傳一個 updateAt 欄位過來，如果沒有就顯示 '無更新紀錄'
+                    // .substring(0, 10) 是為了把 "2026-10-24T15:30:00" 切成 "2026-10-24"
+                    let updateHtml = `
+                        <div class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">最後更新於：</div>
+                        <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            ${project.updateAt ? project.updateAt.substring(0, 10) : '無更新紀錄'}
+                        </div>
+                    `;
+
+                    let rowClass = 'project-row transition-colors group ';
                     // 判斷狀態：已完成
                     if (project.status === '已完成') {
                         rowClass += 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
@@ -670,14 +685,14 @@
                     const tr = document.createElement('tr');
                     tr.className = rowClass;
                     tr.innerHTML = `
-                <td class="px-6 py-4">
-                    <div class="font-bold text-gray-900 dark:text-white text-base">${project.customerName || '未知客戶'}</div>
-                    <div class="text-xs text-gray-500 mt-1">${project.projectNo || ''}</div>
-                </td>
-                <td class="px-6 py-4">${statusHtml}</td>
-                <td class="px-6 py-4">${dateHtml}</td>
-                <td class="px-6 py-4">${actionHtml}</td>
-            `;
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-gray-900 dark:text-white text-base">${project.customerName || '未知客戶'}</div>
+                            <div class="text-xs text-gray-500 mt-1">${project.projectNo || ''}</div>
+                        </td>
+                        <td class="px-6 py-4">${statusHtml}</td>
+                        <td class="px-6 py-4">${updateHtml}</td> <td class="px-6 py-4">${dateHtml}</td>
+                        <td class="px-6 py-4">${actionHtml}</td>
+                    `;
                     tbody.appendChild(tr);
                 });
             }

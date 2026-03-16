@@ -3,6 +3,8 @@ package com.wedding.wedding_management_system.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.hibernate.annotations.UpdateTimestamp;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -33,6 +35,7 @@ public class Project {
     @Column(name = "create_at", insertable = false, updatable = false)
     private LocalDateTime createAt;
 
+    @UpdateTimestamp
     @Column(name = "update_at")
     private LocalDateTime updateAt;
 

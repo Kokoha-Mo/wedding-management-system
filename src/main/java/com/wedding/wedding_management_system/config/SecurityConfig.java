@@ -88,7 +88,10 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/manager/**").hasAnyRole("MANAGER")
                                                 .requestMatchers("/api/staff/**").hasAnyRole("MANAGER", "STAFF")
+                                                .requestMatchers("/api/customer/test-email").permitAll() // 測試用，之後刪
                                                 .requestMatchers("/api/customer/login").permitAll() // 開放客戶登入 API
+                                                .requestMatchers("/api/customer/verify-reset-token").permitAll()
+                                                .requestMatchers("/api/customer/reset-password").permitAll()
                                                 .requestMatchers("/api/employee/login").permitAll() // 開放員工登入 API
                                                 .requestMatchers("/api/employee/logout").permitAll() // 開放員工登出 API
                                                 .requestMatchers("/api/employee/**").authenticated() // 其他員工路由需要 JWT 驗證

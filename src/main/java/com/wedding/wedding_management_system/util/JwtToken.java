@@ -11,6 +11,7 @@ import io.jsonwebtoken.security.Keys;
 
 public class JwtToken {
 	private static final long EXP_TIME = 10 * 60 * 1000; // 過期時間
+	private static final long RESET_EXP_TIME = 10 * 60 * 1000; // 重設密碼專用 token（10分鐘有效）
 	private static final String SECURT = "JoyChu1223334444555556666667777777"; // JS要設定
 	private static final Key key = Keys.hmacShaKeyFor(SECURT.getBytes());
 
@@ -43,6 +44,26 @@ public class JwtToken {
 		try {
 			parse(token);
 			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public static String createResetToken(String email) {
+		return Jwts.builder()
+				.setSubject(email)
+				.claim("purpose", "reset_password") // 標記用途
+				.setIssuedAt(new Date())
+				.setExpiration(new Date(System.currentTimeMillis() + RESET_EXP_TIME))
+				.signWith(key, io.jsonwebtoken.SignatureAlgorithm.HS256)
+				.compact();
+	}
+
+	// 驗證是不是重設密碼專用的 token
+	public static boolean isResetToken(String token) {
+		try {
+			Claims claims = parse(token).getBody();
+			return "reset_password".equals(claims.get("purpose", String.class));
 		} catch (Exception e) {
 			return false;
 		}

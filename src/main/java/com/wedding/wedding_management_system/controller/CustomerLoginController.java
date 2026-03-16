@@ -12,11 +12,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wedding.wedding_management_system.dto.CustomerLoginDto;
 import com.wedding.wedding_management_system.dto.CustomerLoginResponseDto;
+import com.wedding.wedding_management_system.dto.ResetPasswordDto;
 import com.wedding.wedding_management_system.service.CustomerLoginService;
+import com.wedding.wedding_management_system.service.EmailService;
+import com.wedding.wedding_management_system.util.JwtToken;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/customer")
 public class CustomerLoginController {
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private CustomerLoginService customerLoginService;
@@ -63,6 +73,47 @@ public class CustomerLoginController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, expiredCookie.toString())
                 .build();
+    }
+
+    // ── 驗證重設密碼 token ──
+    @GetMapping("/verify-reset-token")
+    public ResponseEntity<Map<String, String>> verifyResetToken(
+            @RequestParam("token") String token) {
+        try {
+            customerLoginService.verifyResetToken(token);
+            return ResponseEntity.ok(Map.of("message", "token 有效"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // ── 重設密碼 ──
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(
+            @RequestBody ResetPasswordDto dto) {
+        try {
+            customerLoginService.resetPassword(dto.getToken(), dto.getNewPassword());
+            return ResponseEntity.ok(Map.of("message", "密碼已更新"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/test-email")
+    public ResponseEntity<Map<String, String>> testEmail(@RequestParam("email") String email) {
+        try {
+            // 這裡改成呼叫 Service，確保 Token 有確實存入資料庫
+            String token = customerLoginService.generateAndSaveResetToken(email);
+
+            // 寄出信件
+            emailService.sendResetPasswordEmail(email, "測試客人", token);
+            return ResponseEntity.ok(Map.of("message", "寄信成功！請去信箱確認"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 
 }

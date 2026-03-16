@@ -62,95 +62,107 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    /* ════ COOKIE 同意橫欄 ════ */
+    /* ════ COOKIE 同意卡片（右下角浮動 RWD） ════ */
     (function () {
-        // 會員頁面不顯示
         const excludePages = ['customer_system', 'customer_progress'];
         const currentPage = window.location.pathname;
         const isExcluded = excludePages.some(page => currentPage.includes(page));
         if (isExcluded) return;
 
-        // 已同意過就不再顯示
         if (localStorage.getItem('dv_cookie_consent')) return;
 
-        // 動態插入 HTML
+        const style = document.createElement('style');
+        style.textContent = `
+        #cookieBanner {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            z-index: 99998;
+            width: 300px;
+            background: rgba(250, 247, 242, 0.98);
+            border: 1px solid rgba(197, 160, 89, 0.35);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 20px 20px 16px;
+            border-radius: 4px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: transform 0.45s ease, opacity 0.45s ease;
+        }
+        @media (max-width: 480px) {
+            #cookieBanner {
+                width: auto;
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+                border-radius: 4px;
+            }
+        }
+    `;
+        document.head.appendChild(style);
+
         const banner = document.createElement('div');
         banner.id = 'cookieBanner';
-        banner.style.cssText = /*css*/ `
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 99998;
-        background: rgba(250, 247, 242, 0.98);
-        border-top: 1px solid rgba(197, 160, 89, 0.4);
-        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.08);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        padding: 18px 56px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 32px;
-        transform: translateY(100%);
-        transition: transform 0.5s ease;
-    `;
-        banner.innerHTML = /*html*/ `
-        <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
-            <span style="font-size:18px; color:rgba(197,160,89,0.8); flex-shrink:0;">✦</span>
-            <p style="margin:0; font-size:12.5px; color:#6a6053; letter-spacing:0.1em; line-height:1.9;">
-                本網站使用 Cookie 以提供最佳瀏覽體驗，並分析流量與使用狀況。繼續使用即表示您同意我們的
-                <a href="privacy.html" style="color:#b8922a; text-decoration:none; border-bottom:1px solid rgba(184,146,42,0.4);">隱私政策</a>。
-            </p>
+        banner.innerHTML = /*html*/`
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <span style="font-size:14px; color:rgba(197,160,89,0.85);">✦</span>
+            <span style="font-size:11px; letter-spacing:0.25em; color:#b8922a; text-transform:uppercase;">Cookie 通知</span>
         </div>
-        <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
+        <p style="margin:0 0 16px; font-size:12px; color:#6a6053; letter-spacing:0.05em; line-height:1.85;">
+            本網站使用 Cookie 以提供最佳瀏覽體驗，並分析流量與使用狀況。繼續使用即表示您同意我們的
+            <a href="privacy.html" style="color:#b8922a; text-decoration:none; border-bottom:1px solid rgba(184,146,42,0.35);">隱私政策</a>。
+        </p>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+            <button id="cookieAccept" style="
+                background: rgba(197,160,89,0.15);
+                border: 1px solid rgba(197,160,89,0.55);
+                color: #b8922a;
+                font-size: 14px;
+                letter-spacing: 0.3em;
+                text-transform: uppercase;
+                padding: 13px 16px;
+                cursor: pointer;
+                border-radius: 0;
+                font-family: inherit;
+                width: 100%;
+                font-weight: 400;
+            ">同意</button>
             <button id="cookieDeny" style="
                 background: none;
-                border: 1px solid rgba(140,126,111,0.4);
+                border: none;
                 color: #8c7e6f;
-                font-size: 11px;
-                letter-spacing: 0.35em;
+                font-size: 13px;
+                letter-spacing: 0.2em;
                 text-transform: uppercase;
-                padding: 9px 22px;
+                padding: 8px 16px;
                 cursor: pointer;
                 border-radius: 0;
                 font-family: inherit;
-                transition: background 0.3s, border-color 0.3s;
-                white-space: nowrap;
+                width: 100%;
+                text-decoration: underline;
+                text-underline-offset: 3px;
             ">拒絕</button>
-            <button id="cookieAccept" style="
-                background: rgba(197,160,89,0.12);
-                border: 1px solid rgba(197,160,89,0.6);
-                color: #b8922a;
-                font-size: 11px;
-                letter-spacing: 0.35em;
-                text-transform: uppercase;
-                padding: 9px 22px;
-                cursor: pointer;
-                border-radius: 0;
-                font-family: inherit;
-                transition: background 0.3s, border-color 0.3s;
-                white-space: nowrap;
-            ">同意</button>
         </div>
     `;
 
         document.body.appendChild(banner);
 
-        // 延遲 1.2 秒滑入
         setTimeout(() => {
+            banner.style.opacity = '1';
             banner.style.transform = 'translateY(0)';
         }, 1200);
 
         function dismissBanner(accepted) {
-            banner.style.transform = 'translateY(100%)';
+            banner.style.opacity = '0';
+            banner.style.transform = 'translateY(20px)';
+            setTimeout(() => banner.remove(), 450);
             localStorage.setItem('dv_cookie_consent', accepted ? 'accepted' : 'denied');
         }
 
         document.getElementById('cookieAccept').addEventListener('click', () => dismissBanner(true));
         document.getElementById('cookieDeny').addEventListener('click', () => dismissBanner(false));
     })();
-
 
 
 });

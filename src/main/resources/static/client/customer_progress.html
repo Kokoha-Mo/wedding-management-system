@@ -1149,7 +1149,7 @@
             setup() {
                 // 未來的寫法預告
                 const urlParams = new URLSearchParams(window.location.search);
-                const projectId = urlParams.get('id') || 6; // 💡 測試階段先寫死，抓不到就預設 1 
+                const projectId = urlParams.get('id') || 6; // 💡 測試階段先寫死，抓不到就預設 6
                 const isSubmitting = ref(false);
 
                 // 完整保留 UI 假資料框架

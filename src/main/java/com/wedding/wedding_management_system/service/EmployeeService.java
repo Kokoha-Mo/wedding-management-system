@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import com.wedding.wedding_management_system.entity.Employee;
 import com.wedding.wedding_management_system.repository.EmployeeRepository;
 
-import java.util.Optional;
-
 @Service
 public class EmployeeService {
     @Autowired

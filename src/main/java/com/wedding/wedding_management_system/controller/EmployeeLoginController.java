@@ -53,4 +53,16 @@ public class EmployeeLoginController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
         }
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<java.util.Map<String, String>> logout() {
+        ResponseCookie cookie = ResponseCookie.from("jwtToken", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(java.util.Map.of("message", "登出成功"));
+    }
 }

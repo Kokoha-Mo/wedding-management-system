@@ -89,6 +89,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/staff/**").hasAnyRole("MANAGER", "STAFF")
                                                 .requestMatchers("/api/customer/login").permitAll() // 開放客戶登入 API
                                                 .requestMatchers("/api/employee/login").permitAll() // 開放員工登入 API
+                                                .requestMatchers("/api/employee/logout").permitAll() // 開放員工登出 API
                                                 .requestMatchers("/api/employee/**").authenticated() // 其他員工路由需要 JWT 驗證
                                                 .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
                                                 .anyRequest().permitAll());

@@ -225,6 +225,7 @@
                             class="form-select text-sm border-gray-200 rounded-lg shadow-sm focus:ring-accent-gold focus:border-accent-gold w-full md:w-40 bg-white py-2">
                             <option value="all">顯示全部</option>
                             <option value="pending">待處理 (Pending)</option>
+                            <option value="contacted">已聯絡 (Contacted)</option>
                             <option value="confirmed">轉預約 (Booking)</option>
                             <option value="cancelled">無效 / 取消 (Cancelled)</option>
                         </select>
@@ -291,7 +292,7 @@
 
                                     <td
                                         class="px-6 py-4 text-gray-600 text-sm font-mono hidden lg:table-cell whitespace-nowrap">
-                                        {{ formatPhone(item.phone) }}
+                                        {{ formatTel(item.tel) }}
                                     </td>
 
                                     <td class="px-6 py-4 hidden lg:table-cell">
@@ -395,7 +396,7 @@
                             </div>
                             <div>
                                 <div class="readonly-label">聯絡電話</div>
-                                <div class="readonly-value flex items-center">{{ selectedItem.phone }}</div>
+                                <div class="readonly-value flex items-center">{{ selectedItem.tel }}</div>
                             </div>
                         </div>
 
@@ -469,6 +470,7 @@
                         <select v-model="editForm.status"
                             class="form-select border-gray-300 rounded-lg focus:ring-accent-gold focus:border-accent-gold flex-1 py-2">
                             <option value="待處理">待處理</option>
+                            <option value="已聯絡">已聯絡</option>
                             <option value="轉預約">轉預約</option>
                             <option value="無效單">無效單</option>
                         </select>
@@ -483,8 +485,7 @@
     </div>
 
     <!-- 載入 Bootstrap JS 用於 Offcanvas & Modal -->
-    <script src="../js/bootstrap.bundle.min.js"></script>
-
+    <script src="./ESJS/bootstrap.bundle.min.js"></script>
     <script>
         const { createApp } = Vue;
 
@@ -517,6 +518,7 @@
                     if (this.statusFilter !== 'all') {
                         const statusMap = {
                             'pending': '待處理',
+                            'contacted': '已聯絡',
                             'confirmed': '轉預約',
                             'cancelled': '無效單'
                         };
@@ -530,10 +532,10 @@
                             const servicesMatch = (c.services || []).join(',').toLowerCase().includes(kw);
                             const stylesMatch = (c.styles || []).join(',').toLowerCase().includes(kw);
                             const name = c.name ? c.name.toLowerCase() : '';
-                            const phone = c.phone || '';
+                            const tel = c.tel || '';
                             const id = c.id ? c.id.toString() : '';
 
-                            return id.includes(kw) || name.includes(kw) || phone.includes(kw) || servicesMatch || stylesMatch;
+                            return id.includes(kw) || name.includes(kw) || tel.includes(kw) || servicesMatch || stylesMatch;
                         });
                     }
                     return result;
@@ -623,6 +625,7 @@
                 },
                 getStatusClass(status) {
                     if (status === '待處理') return 'status-pending';
+                    if (status === '已聯絡') return 'status-contacting';
                     if (status === '轉預約') return 'status-confirmed';
                     if (status === '無效單') return 'status-cancelled';
                     return 'status-pending'; // 預設
@@ -630,20 +633,21 @@
                 // 🌟 1. 狀態 Icon 對應邏輯
                 getStatusIcon(status) {
                     if (status === '待處理') return 'schedule';         // 時鐘圖示
+                    if (status === '已聯絡') return 'call';             // 電話圖示
                     if (status === '轉預約') return 'check_circle';     // 打勾圖示
                     if (status === '無效單') return 'cancel';           // 叉叉圖示
                     return 'help_outline'; // 預設
                 },
                 // 🌟 2. 電話號碼格式化邏輯
-                formatPhone(phone) {
-                    if (!phone) return '未提供';
+                formatTel(tel) {
+                    if (!tel) return '未提供';
                     // 利用正則表達式，把 0912345678 轉換成 0912-345-678
-                    const cleaned = ('' + phone).replace(/\D/g, ''); // 先濾掉非數字的雜質
+                    const cleaned = ('' + tel).replace(/\D/g, ''); // 先濾掉非數字的雜質
                     const match = cleaned.match(/^(\d{4})(\d{3})(\d{3})$/);
                     if (match) {
                         return `${match[1]}-${match[2]}-${match[3]}`;
                     }
-                    return phone; // 如果不是標準的 10 碼台灣手機，就維持原樣顯示
+                    return tel; // 如果不是標準的 10 碼台灣手機，就維持原樣顯示
                 },
 
                 openDetailPanel(item) {

@@ -23,8 +23,8 @@ public class EmployeeLoginService {
     }
 
     public EmployeeLoginResponseDto login(EmpLoginDto dto) {
-        // Query by email using the incoming empAccount
-        Employee employee = employeeRepository.findByEmail(dto.getEmpAccount())
+        // Query by email using the incoming empEmail
+        Employee employee = employeeRepository.findByEmail(dto.getEmpEmail())
                 .orElseThrow(() -> new RuntimeException("查無此帳號"));
 
         // Match encrypted password
@@ -37,7 +37,7 @@ public class EmployeeLoginService {
         result.setEmpId(employee.getId());
         result.setEmpName(employee.getName());
         result.setPosition(employee.getRole()); // Assumed 'role' serves as 'position'
-        
+
         if (employee.getDepartment() != null) {
             result.setDeptId(employee.getDepartment().getId());
         }

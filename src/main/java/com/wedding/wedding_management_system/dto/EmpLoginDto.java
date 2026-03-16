@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 public class EmpLoginDto {
-    @JsonProperty("emp_account")
-    private String empAccount;
+    @JsonProperty("emp_email")
+    private String empEmail;
     
     @JsonProperty("emp_password")
     private String empPassword;

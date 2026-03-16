@@ -22,7 +22,7 @@ public class EmployeeLoginController {
     private EmployeeLoginService employeeLoginService;
 
     // {
-    // "emp_account": "user@example.com",
+    // "emp_email": "user@example.com",
     // "emp_password": "yourpassword"
     // }
     @PostMapping("/login")
@@ -45,6 +45,10 @@ public class EmployeeLoginController {
                     .body(result);
 
         } catch (RuntimeException e) {
+
+            System.out.println("登入失敗原因: " + e.getMessage());
+            e.printStackTrace();
+            
             EmployeeLoginResponseDto errorBody = new EmployeeLoginResponseDto();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
         }

@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span style="font-size:18px; color:rgba(197,160,89,0.8); flex-shrink:0;">✦</span>
             <p style="margin:0; font-size:12.5px; color:#6a6053; letter-spacing:0.1em; line-height:1.9;">
                 本網站使用 Cookie 以提供最佳瀏覽體驗，並分析流量與使用狀況。繼續使用即表示您同意我們的
-                <a href="#" style="color:#b8922a; text-decoration:none; border-bottom:1px solid rgba(184,146,42,0.4);">隱私政策</a>。
+                <a href="privacy.html" style="color:#b8922a; text-decoration:none; border-bottom:1px solid rgba(184,146,42,0.4);">隱私政策</a>。
             </p>
         </div>
         <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">

@@ -1,6 +1,7 @@
 const API_BASE = 'http://localhost:8080/api';
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadStatusCounts();
     loadBooks('處理中');
 });
 
@@ -27,6 +28,19 @@ function switchTab(tabId) {
     if (tabId === 'tab-pending')   loadBooks('處理中');
     if (tabId === 'tab-signed')    loadBooks('已簽約');
     if (tabId === 'tab-cancelled') loadBooks('取消');
+}
+
+async function loadStatusCounts() {
+    try {
+        const res    = await fetch(`${API_BASE}/books/status-counts`);
+        const counts = await res.json();
+
+        document.getElementById('badge-pending').textContent   = counts['處理中']  ?? 0;
+        document.getElementById('badge-signed').textContent    = counts['已簽約']  ?? 0;
+        document.getElementById('badge-cancelled').textContent = counts['取消']    ?? 0;
+    } catch (err) {
+        console.error('[API] 載入狀態數量失敗:', err);
+    }
 }
 
 // ════════════════════════════════════════
@@ -233,6 +247,7 @@ async function updateBookStatus(bookId, newStatus) {
 
         if (res.ok) {
             showToast('狀態已更新');
+            loadStatusCounts();
             loadBooks('處理中');
         }
     } catch (err) {

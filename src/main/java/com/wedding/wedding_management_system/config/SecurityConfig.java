@@ -79,12 +79,12 @@ public class SecurityConfig {
                 return new ProviderManager(customerProvider, employeeProvider);
         }
 
-<<<<<<< HEAD
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 http
                                 .cors(Customizer.withDefaults()) // 啟用 CORS
                                 .csrf(csrf -> csrf.disable()) // Disable CSRF for API usage
+                                .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/manager/**").hasAnyRole("MANAGER")
                                                 .requestMatchers("/api/staff/**").hasAnyRole("MANAGER", "STAFF")
@@ -95,23 +95,6 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
                                                 .anyRequest().permitAll());
                 // .httpBasic(Customizer.withDefaults()); // 可以移除 Basic Auth，改用 JWT
-=======
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(Customizer.withDefaults()) // 啟用 CORS
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for API usage
-                .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/manager/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/staff/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
-                        .requestMatchers("/api/customer/login", "/api/customer/logout").permitAll() // 開放登入登出 API
-                        .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
-                        .anyRequest().permitAll())
-                .httpBasic(basic -> {
-                }); // Using Basic Auth for illustration; typically JWT would be used
->>>>>>> login
 
                 http.addFilterBefore(new com.wedding.wedding_management_system.filter.JwtFilter(),
                                 org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);

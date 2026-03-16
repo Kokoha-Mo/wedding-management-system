@@ -28,19 +28,19 @@ public class TaskController {
     @Autowired
     private TaskCommunicationService taskCommunicationService;
 
-    @GetMapping("/task/{emp_id}")
+    @GetMapping("/api/employee/task/{emp_id}")
     public ResponseEntity<List<TaskDTO>> getTasksByEmployee(@PathVariable("emp_id") Integer empId) {
         List<TaskDTO> tasks = projectTaskService.getInProgressTasksByEmployeeId(empId);
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/task/history/{emp_id}")
+    @GetMapping("/api/employee/task/history/{emp_id}")
     public ResponseEntity<List<TaskDTO>> getHistoryTasksByEmployee(@PathVariable("emp_id") Integer empId) {
         List<TaskDTO> tasks = projectTaskService.getHistoryTasksByEmployeeId(empId);
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/tc/{task_id}")
+    @GetMapping("/api/employee/tc/{task_id}")
     public ResponseEntity<List<TaskCommunicationDTO>> getTaskCommunications(@PathVariable("task_id") Integer taskId) {
         List<TaskCommunicationDTO> communications = taskCommunicationService.getCommunicationsByTaskId(taskId);
         return ResponseEntity.ok(communications);
@@ -53,7 +53,7 @@ public class TaskController {
      * "content": "String"
      * }
      */
-    @PostMapping("/tc/mesg")
+    @PostMapping("/api/employee/tc/mesg")
     public ResponseEntity<Map<String, String>> createMessage(@RequestBody MessageRequestDTO request) {
         boolean success = taskCommunicationService.saveCommunication(request);
         if (success) {
@@ -65,7 +65,7 @@ public class TaskController {
         }
     }
 
-    @PutMapping("/task/status")
+    @PutMapping("/api/employee/task/status")
     public ResponseEntity<Map<String, String>> updateTaskStatus(@RequestBody TaskStatusRequestDTO request) {
         boolean success = projectTaskService.updateTaskStatus(request.getTaskId(), request.getStatus());
         if (success) {

@@ -11,10 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import com.wedding.wedding_management_system.dto.TaskStatusRequestDTO;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,13 @@ public class TaskController {
 
     @GetMapping("/task/{emp_id}")
     public ResponseEntity<List<TaskDTO>> getTasksByEmployee(@PathVariable("emp_id") Integer empId) {
-        List<TaskDTO> tasks = projectTaskService.getTasksByEmployeeId(empId);
+        List<TaskDTO> tasks = projectTaskService.getInProgressTasksByEmployeeId(empId);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @GetMapping("/task/history/{emp_id}")
+    public ResponseEntity<List<TaskDTO>> getHistoryTasksByEmployee(@PathVariable("emp_id") Integer empId) {
+        List<TaskDTO> tasks = projectTaskService.getHistoryTasksByEmployeeId(empId);
         return ResponseEntity.ok(tasks);
     }
 
@@ -55,6 +62,17 @@ public class TaskController {
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("status", "error", "message", "儲存失敗"));
+        }
+    }
+
+    @PutMapping("/task/status")
+    public ResponseEntity<Map<String, String>> updateTaskStatus(@RequestBody TaskStatusRequestDTO request) {
+        boolean success = projectTaskService.updateTaskStatus(request.getTaskId(), request.getStatus());
+        if (success) {
+            return ResponseEntity.ok(Map.of("status", "success", "message", "狀態已更新"));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "狀態更新失敗"));
         }
     }
 }

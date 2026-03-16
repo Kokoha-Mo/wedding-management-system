@@ -14,4 +14,5 @@ public class TaskDTO {
     private String customerName;
     private LocalDateTime deadline;
     private String managerContent;
+    private LocalDateTime updateAt;
 }

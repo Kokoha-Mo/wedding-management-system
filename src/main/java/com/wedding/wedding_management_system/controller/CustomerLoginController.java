@@ -50,4 +50,19 @@ public class CustomerLoginController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
         }
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        ResponseCookie expiredCookie = ResponseCookie.from("jwtToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0) // 刪除jwtToken cookie
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, expiredCookie.toString())
+                .build();
+    }
+
 }

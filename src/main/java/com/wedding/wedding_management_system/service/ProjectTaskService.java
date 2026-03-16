@@ -1,15 +1,15 @@
 package com.wedding.wedding_management_system.service;
 
-import com.wedding.wedding_management_system.dto.TaskDTO;
-import com.wedding.wedding_management_system.repository.ProjectTaskRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
-import com.wedding.wedding_management_system.entity.ProjectTask;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
+
+import com.wedding.wedding_management_system.dto.TaskDTO;
+import com.wedding.wedding_management_system.entity.ProjectTask;
+import com.wedding.wedding_management_system.repository.ProjectTaskRepository;
 
 @Service
 public class ProjectTaskService {
@@ -37,5 +37,10 @@ public class ProjectTaskService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public List<ProjectTask> getTasksByProjectId(Integer projectId) {
+        List<ProjectTask> tasks = projectTaskRepository.findByProject_Id(projectId);
+        return projectTaskRepository.findByProject_Id(projectId);
     }
 }

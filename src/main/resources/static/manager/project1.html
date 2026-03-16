@@ -195,15 +195,21 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6">
+        <main
+            class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6">
             <div class="w-full max-w-[1600px] mx-auto space-y-5">
 
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-indigo-50 dark:bg-indigo-900/20 rounded-full -mr-16 -mt-16 opacity-50 pointer-events-none"></div>
-                    
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
+                    <div
+                        class="absolute top-0 right-0 w-40 h-40 bg-indigo-50 dark:bg-indigo-900/20 rounded-full -mr-16 -mt-16 opacity-50 pointer-events-none">
+                    </div>
+
                     <div class="relative z-10">
-                        <a href="project.html" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors mb-3 group">
-                            <span class="material-icons text-[18px] mr-1 transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                        <a href="project.html"
+                            class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors mb-3 group">
+                            <span
+                                class="material-icons text-[18px] mr-1 transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
                             返回專案總覽
                         </a>
                         <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center tracking-wide">
@@ -211,170 +217,89 @@
                             專案進度追蹤：陳志明 & 林春嬌
                         </h2>
                         <div class="flex items-center gap-4 mt-3">
-                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">#WED-20261015</span>
-                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium flex items-center"><span class="material-icons text-[16px] mr-1">event</span> 預計婚期：2026-10-15</span>
+                            <span
+                                class="text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">#WED-20261015</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium flex items-center"><span
+                                    class="material-icons text-[16px] mr-1">event</span> 預計婚期：2026-10-15</span>
                         </div>
                     </div>
 
                     <div class="relative z-10 flex flex-wrap items-center gap-3">
                         <div class="relative inline-block">
-                            <button onclick="openClientChatModal(event)" class="bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-900/30 dark:hover:bg-indigo-500 dark:text-indigo-400 dark:hover:text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm flex items-center transition-colors border border-indigo-100 dark:border-indigo-800">
+                            <button onclick="openClientChatModal(event)"
+                                class="bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-900/30 dark:hover:bg-indigo-500 dark:text-indigo-400 dark:hover:text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm flex items-center transition-colors border border-indigo-100 dark:border-indigo-800">
                                 <span class="material-icons text-[18px] mr-1.5">forum</span>
                                 專屬客服通道
                             </button>
-                            <span id="client-unread-hint" class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full shadow-[0_0_0_rgba(239,68,68,0.7)] animate-[pulse-alert_2s_infinite_cubic-bezier(0.66,0,0,1)] pointer-events-none border-2 border-white"></span>
+                            <span id="client-unread-hint"
+                                class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full shadow-[0_0_0_rgba(239,68,68,0.7)] animate-[pulse-alert_2s_infinite_cubic-bezier(0.66,0,0,1)] pointer-events-none border-2 border-white"></span>
                         </div>
 
-                        <input type="file" id="file-upload-input" class="hidden" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
-                        <button id="upload-doc-btn" class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-600 flex items-center shadow-sm transition-colors">
+                        <input type="file" id="file-upload-input" class="hidden" multiple
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
+                        <button id="upload-doc-btn"
+                            class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-600 flex items-center shadow-sm transition-colors">
                             <span class="material-icons text-[18px] mr-2">upload_file</span> 文件上傳
                         </button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <button data-filter="pending" class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
+                    <button data-filter="pending"
+                        class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gray-300 dark:bg-gray-600"></div>
                         <div class="flex justify-between items-center w-full mb-1 pl-2">
-                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center"><span class="material-icons text-[18px] mr-1.5">person_add_alt</span>待指派</span>
+                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center"><span
+                                    class="material-icons text-[18px] mr-1.5">person_add_alt</span>待指派</span>
                             <span class="text-2xl font-black text-gray-700 dark:text-gray-300">3</span>
                         </div>
                     </button>
 
-                    <button data-filter="active" class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-blue-100 dark:border-blue-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
+                    <button data-filter="active"
+                        class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-blue-100 dark:border-blue-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500"></div>
                         <div class="flex justify-between items-center w-full mb-1 pl-2">
-                            <span class="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center"><span class="material-icons text-[18px] mr-1.5">play_circle</span>進行中</span>
+                            <span class="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center"><span
+                                    class="material-icons text-[18px] mr-1.5">play_circle</span>進行中</span>
                             <span class="text-2xl font-black text-blue-600 dark:text-blue-400">4</span>
                         </div>
                     </button>
 
-                    <button data-filter="review" class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-amber-100 dark:border-amber-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
+                    <button data-filter="review"
+                        class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-amber-100 dark:border-amber-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-amber-500"></div>
                         <div class="flex justify-between items-center w-full mb-1 pl-2">
-                            <span class="text-sm font-bold text-amber-600 dark:text-amber-400 flex items-center"><span class="material-icons text-[18px] mr-1.5">pending_actions</span>待審核</span>
+                            <span class="text-sm font-bold text-amber-600 dark:text-amber-400 flex items-center"><span
+                                    class="material-icons text-[18px] mr-1.5">pending_actions</span>待審核</span>
                             <span class="text-2xl font-black text-amber-600 dark:text-amber-400">1</span>
                         </div>
                     </button>
 
-                    <button data-filter="completed" class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-green-100 dark:border-green-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
+                    <button data-filter="completed"
+                        class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-green-100 dark:border-green-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-green-500"></div>
                         <div class="flex justify-between items-center w-full mb-1 pl-2">
-                            <span class="text-sm font-bold text-green-600 dark:text-green-400 flex items-center"><span class="material-icons text-[18px] mr-1.5">check_circle</span>已完成</span>
+                            <span class="text-sm font-bold text-green-600 dark:text-green-400 flex items-center"><span
+                                    class="material-icons text-[18px] mr-1.5">check_circle</span>已完成</span>
                             <span class="text-2xl font-black text-green-600 dark:text-green-400">15</span>
                         </div>
                     </button>
                 </div>
 
-                <div class="glass-card rounded-2xl p-6 lg:p-8 shadow-sm">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <h3 class="text-xl font-bold text-gray-800 dark:text-white flex items-center">
-                            <span class="material-icons text-indigo-500 mr-2">format_list_bulleted</span> 任務執行清單
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                            <span class="material-icons text-indigo-500 mr-2">checklist</span>
+                            任務執行清單
                         </h3>
-                        <div class="flex items-center space-x-3">
-                            <button id="show-all-tasks-btn" class="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-lg transition-colors hidden shadow-sm border border-indigo-100 dark:border-indigo-800">
-                                顯示全部任務
-                            </button>
-                            <div class="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 border border-gray-200 dark:border-gray-700">
-                                <span class="text-sm font-medium text-gray-500 pl-2">排序：</span>
-                                <select class="text-sm border-none bg-transparent rounded-md py-1 pl-1 pr-8 focus:ring-0 cursor-pointer font-bold text-gray-700 dark:text-gray-200">
-                                    <option>依狀態 (需處理優先)</option>
-                                    <option>依建立時間</option>
-                                </select>
-                            </div>
-                        </div>
+                        <div class="flex space-x-2 overflow-x-auto ..."> ... </div>
                     </div>
 
-                    <div class="relative border-l-2 border-gray-200 dark:border-gray-700 ml-3 space-y-6 pb-6 mt-6">
-
-                        <div class="relative pl-8 task-item" data-status="pending">
-                            <div class="absolute -left-[9px] top-6 w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-4 border-white dark:border-gray-800"></div>
-                            <div class="bg-white dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden">
-                                <div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10">急需派工</div>
-                                <span class="text-xs font-bold text-gray-600 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-gray-600">待指派</span>
-                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-3">婚禮主持人面談定稿</h4>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1.5">需與主持部門確認流程與風格。</p>
-
-                                <div class="flex justify-between items-center mt-5 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                    <div class="flex items-center text-gray-400">
-                                        <span class="material-icons text-[16px] mr-1.5">person_off</span>
-                                        <span class="text-sm font-medium">尚未指派負責人</span>
-                                    </div>
-                                    <button class="btn-assign bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center" data-task="婚禮主持人面談定稿" data-category="主持部">
-                                        <span class="material-icons text-[16px] mr-1.5">person_add_alt</span> 指派人員
-                                    </button>
-                                </div>
-                            </div>
+                    <div id="task-list-container" class="space-y-4 relative min-h-[200px]">
+                        <div class="text-center py-10 text-gray-500">
+                            <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
+                            <p>正在載入任務資料...</p>
                         </div>
-
-                        <div class="relative pl-8 task-item" data-status="review">
-                            <div class="absolute -left-[11px] top-5 w-6 h-6 rounded-full bg-amber-500 border-4 border-white dark:border-gray-800 shadow-[0_0_0_3px_rgba(245,158,11,0.2)] task-dot"></div>
-                            <div class="bg-amber-50/30 dark:bg-amber-900/10 rounded-2xl p-6 border border-amber-200 dark:border-amber-800/50 shadow-sm task-card-bg">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div>
-                                        <span class="status-badge text-xs font-bold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-0.5 rounded-full animate-pulse">待審核</span>
-                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-3">確認攝影師與錄影師檔期</h4>
-                                    </div>
-                                    <div class="flex items-center space-x-2 mt-1">
-                                        <button class="btn-reject bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm" onclick="openRejectModal(this)">駁回</button>
-                                        <button class="btn-approve bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors" disabled title="請先點擊下方查看成果">審核通過</button>
-                                    </div>
-                                </div>
-                                <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl p-3.5 flex justify-between items-center border border-amber-100 dark:border-amber-800/30 shadow-sm">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">張</div>
-                                        <div>
-                                            <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-0.5 font-bold uppercase tracking-wider">內部影像團隊</p>
-                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">張小飛 (攝影部)</p>
-                                        </div>
-                                    </div>
-                                    <button class="btn-view-result text-sm text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors shadow-sm">查看成果</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="relative pl-8 task-item" data-status="active">
-                            <div class="absolute -left-[9px] top-6 w-5 h-5 rounded-full bg-blue-500 border-4 border-white dark:border-gray-800"></div>
-                            <div class="bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl p-6 border border-blue-200 dark:border-blue-800/50 shadow-sm">
-                                <span class="text-xs font-bold text-blue-700 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full">進行中</span>
-                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-3">新娘秘書試妝</h4>
-
-                                <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl p-3.5 flex justify-between items-center border border-blue-100 dark:border-blue-800/30 shadow-sm">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="flex -space-x-2 overflow-hidden">
-                                            <div class="w-9 h-9 rounded-full bg-indigo-100 border-2 border-white dark:border-gray-800 flex items-center justify-center font-bold text-xs text-indigo-600" title="王大明">王</div>
-                                            <div class="w-9 h-9 rounded-full bg-pink-100 border-2 border-white dark:border-gray-800 flex items-center justify-center font-bold text-xs text-pink-600" title="陳美玲">陳</div>
-                                        </div>
-                                        <div>
-                                            <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-0.5 font-bold uppercase tracking-wider">跨部門</p>
-                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">企劃部, 造型部</p>
-                                        </div>
-                                    </div>
-                                    <button class="btn-assign text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg font-bold transition-colors shadow-sm border border-indigo-100 dark:border-indigo-800" data-task="新娘秘書試妝與合約" data-category="新娘秘書">+ 修改名單</button>
-                                </div>
-                                <button onclick="openChatModal('task_1')" class="mt-4 w-full flex items-center justify-center py-2.5 px-4 border border-indigo-200 dark:border-indigo-800/50 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-indigo-900/10 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-colors text-sm font-bold shadow-sm group">
-                                    <span class="material-icons text-[18px] mr-2 group-hover:scale-110 transition-transform">forum</span> 任務協調留言板
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="relative pl-8 task-item" data-status="completed">
-                            <div class="absolute -left-[9px] top-6 w-5 h-5 rounded-full bg-green-500 border-4 border-white dark:border-gray-800 shadow-sm"></div>
-                            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                                <span class="text-xs font-bold text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-2.5 py-0.5 rounded-full">已完成</span>
-                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-3">初步諮詢與需求確認</h4>
-                                <div class="mt-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3.5 flex items-center space-x-3 border border-gray-100 dark:border-gray-600">
-                                    <div class="flex -space-x-2 overflow-hidden">
-                                        <div class="w-9 h-9 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center font-bold text-xs text-indigo-600">王</div>
-                                        <div class="w-9 h-9 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center font-bold text-xs text-blue-600">李</div>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">王大明, 李小華</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
@@ -717,418 +642,239 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
+<script>
+    // ================== 全局變數 ==================
+    let currentTaskCard = null;
+    let currentRejectCard = null;
+    const taskListContainer = document.getElementById('task-list-container');
+
+    // ================== 頁面初始化 ==================
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // 1. 從網址列抓取 ?id= 的數值
+        const urlParams = new URLSearchParams(window.location.search);
+        // 為了相容你的設計，同時支援 ?id= 或 ?projectId=，如果都沒有預設抓 1 號專案來測試
+        const projectId = urlParams.get('id') || urlParams.get('projectId') || 1; 
+
+        if (projectId) {
+            fetchProjectTasks(projectId);
+        } else {
+            showError('缺少專案 ID，無法載入任務！請從專案總覽點擊進入。');
+        }
+
+        // ==========================================
+        // 🌟 2. 呼叫 Spring Boot API
+        // ==========================================
+        async function fetchProjectTasks(id) {
+            try {
+                // ⚠️ 確保網址跟你的 Controller 完對齊：/api/manager/projects/{id}/tasks
+                const response = await fetch(`/api/manager/projects/${id}/tasks`);
+                if (!response.ok) throw new Error('API 請求失敗');
+
+                const tasks = await response.json();
+                renderTasks(tasks);
+            } catch (error) {
+                console.error('無法取得任務:', error);
+                showError('資料載入失敗，請檢查後端伺服器狀態。');
+            }
+        }
+
+        // ==========================================
+        // 🌟 3. 動態渲染任務小卡到 HTML
+        // ==========================================
+        function renderTasks(tasks) {
+            if (!taskListContainer) return;
+            taskListContainer.innerHTML = ''; // 清空「載入中」提示
+
+            if (tasks.length === 0) {
+                taskListContainer.innerHTML = '<div class="text-center py-8 text-gray-500 font-bold bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">此專案目前尚無指派任務</div>';
+                updateStatusCounts(tasks); // 更新上方四個大按鈕的數字為 0
+                return;
+            }
+
+            tasks.forEach(task => {
+                // 根據狀態設定顏色
+                let statusColor = 'bg-gray-300 dark:bg-gray-600'; // 預設：待指派
+                let badgeClass = 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+                
+                if (task.status === '進行中') {
+                    statusColor = 'bg-blue-500';
+                    badgeClass = 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400';
+                } else if (task.status === '已完成' || task.status === '已結案') {
+                    statusColor = 'bg-green-500';
+                    badgeClass = 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400';
+                } else if (task.status === '卡關' || task.status === '需注意') {
+                    statusColor = 'bg-red-500';
+                    badgeClass = 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400';
+                } else if (task.status === '待處理' || task.status === '待審核') {
+                    statusColor = 'bg-amber-500';
+                    badgeClass = 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400';
+                }
+
+                // 防呆處理：依據 @ManyToOne 的寫法抓取關聯名稱
+                const serviceName = task.service ? task.service.name : (task.serviceName || `服務 #${task.serviceId || '未知'}`);
+                const deptName = task.department ? task.department.name : (task.deptName || `未指派`);
+                const updateTime = task.updateAt ? task.updateAt.replace('T', ' ').substring(0, 16) : '尚無更新紀錄';
+
+                // 生成任務卡片 HTML
+                const html = `
+                    <div class="task-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all hover:shadow-md" data-status="${task.status}">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 ${statusColor}"></div>
+                        <div class="flex justify-between items-start pl-3">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">${deptName}</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${task.status}</span>
+                                </div>
+                                <h4 class="text-base font-bold text-gray-900 dark:text-white">${serviceName}</h4>
+                                <p class="text-xs text-gray-400 mt-2 flex items-center">
+                                    <span class="material-icons text-[14px] mr-1">update</span> 最後更新: ${updateTime}
+                                </p>
+                            </div>
+                            <button class="text-gray-400 hover:text-indigo-600 transition-colors p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 btn-assign" data-task="${serviceName}" data-category="${deptName}" data-task-id="${task.taskId}">
+                                <span class="material-icons text-[20px]">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                taskListContainer.insertAdjacentHTML('beforeend', html);
+            });
+
+            // 資料渲染完畢後，更新上方四個大方塊的數字，並重新綁定篩選功能
+            updateStatusCounts(tasks);
+            rebindTaskFilters();
+        }
+
+        // ==========================================
+        // 🌟 4. 更新上方四個狀態按鈕的數字
+        // ==========================================
+        function updateStatusCounts(tasks) {
+            const counts = { pending: 0, active: 0, review: 0, completed: 0 };
             
-            // ================= 檔案上傳觸發邏輯 =================
-            const uploadBtn = document.getElementById('upload-doc-btn');
-            const fileInput = document.getElementById('file-upload-input');
-
-            if (uploadBtn && fileInput) {
-                // 點擊按鈕時，代為點擊隱藏的 input
-                uploadBtn.addEventListener('click', () => {
-                    fileInput.click();
-                });
-
-                // 當使用者選好檔案後的處理邏輯
-                fileInput.addEventListener('change', (e) => {
-                    if (e.target.files.length > 0) {
-                        // 取得選取的檔案名稱
-                        const fileNames = Array.from(e.target.files).map(file => file.name).join('\n');
-                        
-                        // 這裡可以替換成實際的 Toast 或後台上傳 API，目前先用 alert 模擬
-                        alert(`已成功選取並準備上傳以下檔案：\n\n${fileNames}\n\n(實務上這裡會呼叫後端 API 存入 documents 表格)`);
-                        
-                        // 清空 input 值，確保下次選同一個檔案也能觸發 change 事件
-                        fileInput.value = '';
-                    }
-                });
-            }
-
-            // ================= 分派任務 Modal 與即時 UI 更新邏輯 =================
-            const assignModal = document.getElementById('assignModal');
-            const closeAssignBtns = document.querySelectorAll('.close-assign-modal');
-            const submitAssignBtn = document.getElementById('submit-assign-btn');
-
-            // 儲存目前正在編輯的任務卡片元素
-            let currentTaskCard = null;
-
-            // 1. 打開 Modal，帶入任務名稱，並記錄是哪張卡片觸發的
-            // 使用事件委派 (Event Delegation)，確保後來動態生成的按鈕也能被點擊
-            document.body.addEventListener('click', (e) => {
-                const btn = e.target.closest('.btn-assign');
-                if (!btn) return;
-
-                e.preventDefault();
-
-                // 記錄是哪一個卡片區塊被點擊 (往上找最近的 .relative.pl-8)
-                currentTaskCard = btn.closest('.relative.pl-8');
-
-                const taskName = btn.getAttribute('data-task');
-                const taskCategory = btn.getAttribute('data-category');
-
-                document.getElementById('modal-task-name').textContent = taskName;
-                document.getElementById('modal-task-category').textContent = taskCategory;
-
-                // 清空之前打勾的選項
-                const checkboxes = assignModal.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(cb => cb.checked = false);
-
-                assignModal.classList.remove('hidden');
+            tasks.forEach(task => {
+                if (task.status === '待指派' || task.status === '卡關') counts.pending++;
+                else if (task.status === '進行中') counts.active++;
+                else if (task.status === '待審核') counts.review++;
+                else if (task.status === '已完成' || task.status === '已結案') counts.completed++;
             });
 
-            // 2. 關閉 Modal
-            const closeAssignModalFunc = () => {
-                assignModal.classList.add('hidden');
-                currentTaskCard = null; // 清除記錄
-            };
-            closeAssignBtns.forEach(btn => btn.addEventListener('click', closeAssignModalFunc));
-
-            // 3. 送出分派並「即時更新前端畫面」
-            if (submitAssignBtn) {
-                submitAssignBtn.addEventListener('click', () => {
-                    if (!currentTaskCard) return;
-
-                    // 取得所有被打勾的人員
-                    const checkedInputs = assignModal.querySelectorAll('input[type="checkbox"]:checked');
-                    if (checkedInputs.length === 0) {
-                        alert('請至少選擇一位負責人！');
-                        return;
-                    }
-
-                    // 收集選中人員的資訊 (頭像字與姓名)
-                    let assigneesHTML = '';
-                    let assigneesNames = [];
-
-                    checkedInputs.forEach((input, index) => {
-                        // 從 HTML 結構中抓取大頭貼的字與顏色 class
-                        const avatarDiv = input.nextElementSibling.querySelector('.rounded-full');
-                        const nameText = input.nextElementSibling.querySelector('span').textContent.split(' ')[0]; // 只取名字部分
-
-                        // 複製頭像的 class 並加上重疊效果的邊框
-                        const avatarClass = avatarDiv.className + ' border-2 border-white dark:border-gray-800';
-                        const avatarChar = avatarDiv.textContent;
-
-                        assigneesHTML += `<div class="${avatarClass}" title="${nameText}">${avatarChar}</div>`;
-                        assigneesNames.push(nameText);
-                    });
-
-                    // 把人名用逗號串起來 (如: 王大明, 李小華)
-                    const namesString = assigneesNames.join(', ');
-
-                    // --- 開始進行 UI 替換 ---
-
-                    // A. 替換左側圓點顏色 (灰色 -> 藍色)
-                    const dot = currentTaskCard.querySelector('.absolute.rounded-full');
-                    if (dot) dot.className = 'absolute -left-[13px] top-2 w-6 h-6 rounded-full bg-blue-500 border-4 border-white dark:border-gray-800 shadow-[0_0_0_3px_rgba(59,130,246,0.2)]';
-
-                    // B. 替換主卡片背景與邊框 (加上藍色風格)
-                    const cardBg = currentTaskCard.querySelector('.bg-white, .bg-gray-800\\/60');
-                    if (cardBg) {
-                        cardBg.className = 'bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl p-5 border border-blue-200 dark:border-blue-800/50 shadow-sm relative overflow-hidden';
-                    }
-
-                    // C. 移除右上角的紅色「急需派工」標籤
-                    const redBadge = currentTaskCard.querySelector('.bg-red-500');
-                    if (redBadge) redBadge.remove();
-
-                    // D. 將狀態標籤從「待指派」改成「進行中」
-                    const statusBadge = currentTaskCard.querySelector('.text-xs.font-bold');
-                    if (statusBadge) {
-                        statusBadge.className = 'text-xs font-bold text-blue-700 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full animate-pulse';
-                        statusBadge.textContent = '進行中';
-                    }
-
-                    // E. 替換下方的「指派人員」區塊，變成「人員頭像 + 修改名單按鈕」
-                    const bottomArea = currentTaskCard.querySelector('.flex.justify-between.items-center.mt-4, .flex.justify-between.items-center.border-t');
-                    if (bottomArea) {
-                        // 保留原本按鈕上的 data 屬性
-                        const oldBtn = bottomArea.querySelector('.btn-assign');
-                        const taskData = oldBtn ? oldBtn.getAttribute('data-task') : '';
-                        const catData = oldBtn ? oldBtn.getAttribute('data-category') : '';
-
-                        bottomArea.outerHTML = `
-                            <div class="mt-3 bg-white dark:bg-gray-800 rounded-lg p-3 flex justify-between items-center border border-blue-100 dark:border-blue-800/30">
-                                <div class="flex items-center space-x-3">
-                                    <div class="flex -space-x-2 overflow-hidden">
-                                        ${assigneesHTML}
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">內部協作</p>
-                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${namesString}</p>
-                                    </div>
-                                </div>
-                                <button class="btn-assign text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-md font-bold transition-colors shadow-sm" data-task="${taskData}" data-category="${catData}">+ 修改名單</button>
-                            </div>
-                        `;
-                    }
-
-                    // 完成後關閉 Modal
-                    closeAssignModalFunc();
-
-                    // (可選) 跳出成功提示
-                    setTimeout(() => {
-                        alert(`已成功將任務分派給：${namesString}！狀態已更新為「進行中」。`);
-                    }, 100);
-                });
-            }
-
-            // ================= 審核防呆與即時 UI 更新邏輯 =================
-            const resultModal = document.getElementById('resultModal');
-            const btnViewResult = document.querySelector('.btn-view-result');
-            const closeResultBtns = document.querySelectorAll('.close-result-modal');
-            const btnApprove = document.querySelector('.btn-approve');
-
-            // 1. 打開查看成果 Modal
-            if (btnViewResult && resultModal) {
-                btnViewResult.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    resultModal.classList.remove('hidden');
-                });
-
-                // 2. 關閉 Modal 並「解鎖」審核按鈕
-                closeResultBtns.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        resultModal.classList.add('hidden');
-
-                        // 解除防呆機制：變回黃色且可點擊
-                        if (btnApprove) {
-                            btnApprove.disabled = false;
-                            btnApprove.classList.remove('bg-gray-300', 'dark:bg-gray-700', 'text-gray-500', 'dark:text-gray-400', 'cursor-not-allowed');
-                            btnApprove.classList.add('bg-amber-500', 'text-white', 'hover:bg-amber-600');
-                            btnApprove.removeAttribute('title');
-                        }
-                    });
-                });
-            }
-
-            // 3. 點擊「審核通過」後的動態變更
-            if (btnApprove) {
-                btnApprove.addEventListener('click', function () {
-                    if (this.disabled) return;
-
-                    const taskCard = this.closest('.relative.pl-8');
-
-                    // A. 把發光的黃點變成綠點
-                    const dot = taskCard.querySelector('.task-dot');
-                    if (dot) dot.className = 'absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-green-500 border-4 border-white dark:border-gray-800 shadow-sm task-dot';
-
-                    // B. 把黃色背景變成已完成的灰白背景
-                    const cardBg = taskCard.querySelector('.task-card-bg');
-                    if (cardBg) cardBg.className = 'bg-white dark:bg-gray-800/80 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm transition-all task-card-bg';
-
-                    // C. 狀態標籤變成綠色已完成
-                    const badge = taskCard.querySelector('.status-badge');
-                    if (badge) {
-                        badge.className = 'status-badge text-xs font-bold text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-2.5 py-0.5 rounded-full';
-                        badge.textContent = '已完成';
-                    }
-
-                    // D. 隱藏審核按鈕群組 (連同駁回按鈕一起隱藏)
-                    const btnGroup = this.closest('.flex.space-x-2');
-                    if (btnGroup) {
-                        btnGroup.style.display = 'none';
-                    } else {
-                        this.style.display = 'none';
-                    }
-
-                    // E. 將「查看成果」按鈕變成「查看紀錄」
-                    if (btnViewResult) btnViewResult.textContent = '查看紀錄';
-
-                    // 模擬送出成功提示
-                    setTimeout(() => {
-                        alert('已審核通過！任務狀態已更新為「已完成」。');
-                    }, 100);
-                });
-            }
-
-            // ================= 任務協調留言板 Modal 邏輯 =================
-            // 定義在 window 讓 HTML onclick 可以直接呼叫
-            window.openChatModal = function (taskId) {
-                document.getElementById('chatModal').classList.remove('hidden');
-                // 可擴充：這裡可以透過 taskId 去向後端撈取歷史訊息
-            };
-
-            window.closeChatModal = function () {
-                document.getElementById('chatModal').classList.add('hidden');
-            };
-
-            // 留言發送模擬
-            document.addEventListener('click', function (e) {
-                const sendBtn = e.target.closest('.btn-send-msg');
-                if (sendBtn) {
-                    const input = sendBtn.previousElementSibling;
-                    if (input && input.value.trim() !== '') {
-                        // 模擬訊息發送成功
-                        alert(`訊息已送出：\n"${input.value}"`);
-
-                        // 實務上這裡會生成新的 DOM 塞入 #chat-content 中
-                        input.value = ''; // 清空輸入框
-                    } else {
-                        alert('請先輸入訊息內容！');
-                    }
+            // 更新按鈕中的大數字
+            document.querySelectorAll('.task-filter-btn').forEach(btn => {
+                const filter = btn.getAttribute('data-filter');
+                const span = btn.querySelector('.text-2xl');
+                if (span && counts[filter] !== undefined) {
+                    span.textContent = counts[filter];
                 }
             });
-            // ================= 對外客戶聯絡留言板 Modal 邏輯 =================
-            window.openClientChatModal = function (e) {
-                if (e) e.preventDefault();
-                document.getElementById('clientChatModal').classList.remove('hidden');
+        }
 
-                // 點擊後，隱藏新訊息的呼吸燈紅點
-                const unreadHint = document.getElementById('client-unread-hint');
-                if (unreadHint) {
-                    unreadHint.style.display = 'none';
-                }
-            };
-
-            window.closeClientChatModal = function () {
-                document.getElementById('clientChatModal').classList.add('hidden');
-            };
-
-            // 客戶對話框發送模擬
-            document.addEventListener('click', function (e) {
-                const sendBtn = e.target.closest('.btn-send-client-msg');
-                if (sendBtn) {
-                    const input = sendBtn.previousElementSibling;
-                    if (input && input.value.trim() !== '') {
-                        // 模擬訊息發送
-                        alert(`已傳送給客戶：\n"${input.value}"`);
-                        input.value = ''; // 清空輸入框
-
-                        // 將卷軸捲到最底
-                        const contentArea = document.getElementById('client-chat-content');
-                        if (contentArea) contentArea.scrollTop = contentArea.scrollHeight;
-                    } else {
-                        alert('請先輸入回覆客戶的內容！');
-                    }
-                }
-            });
-
-            window.openRejectModal = function (btn) {
-                // 記錄是哪一張卡片觸發了駁回
-                currentRejectCard = btn.closest('.relative.pl-8');
-                document.getElementById('rejectModal').classList.remove('hidden');
-                // (已移除清空 reject-reason 的邏輯，因為欄位已經拔除)
-            };
-
-            window.closeRejectModal = function () {
-                document.getElementById('rejectModal').classList.add('hidden');
-                currentRejectCard = null;
-            };
-
-            window.confirmRejectTask = function () {
-                if (currentRejectCard) {
-                    // (已移除抓取 reject-reason 的邏輯)
-
-                    // UI 即時變更：因資料庫限制，將卡片退回「待指派」狀態
-                    // 1. 左側圓點變回灰色
-                    const dot = currentRejectCard.querySelector('.task-dot');
-                    if (dot) dot.className = 'absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-4 border-white dark:border-gray-800 shadow-sm task-dot';
-
-                    // 2. 卡片背景變回灰色/白色 (移除黃色風格)
-                    const cardBg = currentRejectCard.querySelector('.task-card-bg');
-                    if (cardBg) cardBg.className = 'bg-white dark:bg-gray-800/60 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all task-card-bg';
-
-                    // 3. 狀態標籤變成灰色的「待指派」
-                    const badge = currentRejectCard.querySelector('.status-badge');
-                    if (badge) {
-                        badge.className = 'status-badge text-xs font-bold text-gray-600 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-gray-600';
-                        badge.textContent = '待指派';
-                    }
-
-                    // 4. 隱藏原本的審核與駁回按鈕群組
-                    const btnContainer = currentRejectCard.querySelector('.flex.space-x-2');
-                    if (btnContainer) btnContainer.style.display = 'none';
-
-                    // 5. 加入紅色警告小標籤，提示這個是「被退回重派」的
-                    if (cardBg && !cardBg.querySelector('.bg-red-500.text-white')) {
-                        const rejectAlert = document.createElement('div');
-                        rejectAlert.className = 'absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10';
-                        rejectAlert.textContent = '已駁回，需重派';
-                        cardBg.appendChild(rejectAlert);
-                    }
-
-                    // 6. 替換負責人區塊，變回可操作的「重新指派」按鈕 (帶有歷史屬性)
-                    const taskNameEl = currentRejectCard.querySelector('h4');
-                    const taskName = taskNameEl ? taskNameEl.textContent : '未知任務';
-
-                    const bottomArea = currentRejectCard.querySelector('.mt-3.bg-white, .flex.justify-between.items-center.border-t');
-                    if (bottomArea) {
-                        bottomArea.outerHTML = `
-                            <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                                <div class="flex items-center text-red-500 font-bold">
-                                    <span class="material-icons text-[16px] mr-1">person_off</span>
-                                    <span class="text-sm">被駁回，尚未指派</span>
-                                </div>
-                                <button class="btn-assign bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center" 
-                                    data-task="${taskName}" 
-                                    data-category="重新指派"
-                                    data-prev-assignees="emp3" 
-                                    data-prev-deadline="2026-03-20">
-                                    <span class="material-icons text-[16px] mr-1.5">person_add_alt</span> 重新指派
-                                </button>
-                            </div>
-                        `;
-                    }
-
-                    // 模擬送出成功提示 (文字修改)
-                    setTimeout(() => {
-                        alert('已駁回任務！任務狀態已退回為「待指派」。\n請點擊「重新指派」來填寫交辦備註與修改負責人。');
-                    }, 100);
-                }
-                closeRejectModal();
-            };
-
-            // ================= 任務狀態列 篩選邏輯 =================
-            const taskFilterBtns = document.querySelectorAll('.task-filter-btn');
+        // ==========================================
+        // 🌟 5. 綁定「任務篩選按鈕」的功能
+        // ==========================================
+        function rebindTaskFilters() {
+            const taskFilterBtns = document.querySelectorAll('.task-filter-btn'); 
             const taskItems = document.querySelectorAll('.task-item');
-            const showAllBtn = document.getElementById('show-all-tasks-btn');
 
             taskFilterBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    // 1. 移除其他按鈕的選取狀態 (邊框變深色)
-                    taskFilterBtns.forEach(b => {
+                // 為了避免重複綁定，先 Clone 一個乾淨的 Node 替換掉自己
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+
+                newBtn.addEventListener('click', (e) => {
+                    // 移除所有按鈕的選取樣式，並替當前按鈕加上選取樣式
+                    document.querySelectorAll('.task-filter-btn').forEach(b => {
                         b.classList.remove('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
                     });
-                    
-                    // 2. 標示當前被點擊的按鈕
-                    btn.classList.add('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
+                    newBtn.classList.add('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
 
-                    const filterValue = btn.getAttribute('data-filter');
+                    const filterValue = newBtn.getAttribute('data-filter');
                     
-                    // 3. 執行任務清單篩選
+                    // 執行篩選
                     taskItems.forEach(item => {
-                        if (item.getAttribute('data-status') === filterValue) {
+                        const itemStatus = item.getAttribute('data-status');
+                        let shouldShow = false;
+
+                        if (filterValue === 'all') shouldShow = true;
+                        else if (filterValue === 'pending' && (itemStatus === '待指派' || itemStatus === '卡關')) shouldShow = true;
+                        else if (filterValue === 'active' && itemStatus === '進行中') shouldShow = true;
+                        else if (filterValue === 'review' && itemStatus === '待審核') shouldShow = true;
+                        else if (filterValue === 'completed' && (itemStatus === '已完成' || itemStatus === '已結案')) shouldShow = true;
+
+                        if (shouldShow) {
                             item.style.display = '';
-                            // 加上簡單的淡入動畫
                             item.style.animation = 'fadeIn 0.3s ease-out';
                         } else {
                             item.style.display = 'none';
                         }
                     });
-
-                    // 4. 顯示「顯示全部任務」的還原按鈕
-                    if (showAllBtn) showAllBtn.classList.remove('hidden');
                 });
             });
+        }
 
-            // 「顯示全部任務」按鈕邏輯
-            if (showAllBtn) {
-                showAllBtn.addEventListener('click', () => {
-                    // 顯示所有任務
-                    taskItems.forEach(item => {
-                        item.style.display = '';
-                        item.style.animation = 'fadeIn 0.3s ease-out';
-                    });
-                    // 移除上方所有按鈕的選取狀態
-                    taskFilterBtns.forEach(b => b.classList.remove('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700'));
-                    // 隱藏自己
-                    showAllBtn.classList.add('hidden');
-                });
+        // 錯誤訊息顯示工具
+        function showError(msg) {
+            if(taskListContainer) {
+                taskListContainer.innerHTML = `<div class="text-center py-8 text-red-500">${msg}</div>`;
             }
-        
+        }
+
+    }); // DOMContentLoaded 結束
+
+    // ================= 檔案上傳觸發邏輯 (保留) =================
+    const uploadBtn = document.getElementById('upload-doc-btn');
+    const fileInput = document.getElementById('file-upload-input');
+
+    if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const fileNames = Array.from(e.target.files).map(file => file.name).join('\n');
+                alert(`已準備上傳以下檔案：\n\n${fileNames}`);
+                fileInput.value = '';
+            }
         });
-    </script>
+    }
+
+    // ================= Modal 控制邏輯 (簡化版) =================
+    
+    // 客服通道 Modal
+    window.openClientChatModal = function (e) {
+        if (e) e.preventDefault();
+        document.getElementById('clientChatModal').classList.remove('hidden');
+        const unreadHint = document.getElementById('client-unread-hint');
+        if (unreadHint) unreadHint.style.display = 'none';
+    };
+    window.closeClientChatModal = function () {
+        document.getElementById('clientChatModal').classList.add('hidden');
+    };
+
+    // 指派人員 Modal
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-assign');
+        if (!btn) return;
+        e.preventDefault();
+        
+        document.getElementById('modal-task-name').textContent = btn.getAttribute('data-task') || '未知任務';
+        document.getElementById('modal-task-category').textContent = btn.getAttribute('data-category') || '未指派';
+        document.getElementById('assignModal').classList.remove('hidden');
+    });
+
+    document.querySelectorAll('.close-assign-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('assignModal').classList.add('hidden');
+        });
+    });
+
+    // 模擬送出指派
+    const submitAssignBtn = document.getElementById('submit-assign-btn');
+    if (submitAssignBtn) {
+        submitAssignBtn.addEventListener('click', () => {
+            alert('已成功送出派工指令！(實務上此處將打 API 儲存至資料庫)');
+            document.getElementById('assignModal').classList.add('hidden');
+        });
+    }
+
+</script>
 </body>
 
 </html>

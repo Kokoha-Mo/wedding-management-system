@@ -69,8 +69,4 @@ public class Employee {
     @JsonIgnore
     @OneToMany(mappedBy = "createBy")
     private List<TaskCommunication> taskCommunications;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "createBy")
-    private List<ProjectCommunication> projectCommunications;
 }

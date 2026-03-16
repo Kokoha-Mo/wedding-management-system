@@ -28,9 +28,9 @@ public class ProjectCommunication {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @ManyToOne
-    @JoinColumn(name = "create_by")
-    private Employee createBy;
+    // 改成純字串對應，保留原欄位名稱 create_by
+    @Column(name = "create_by")
+    private String createBy;
 
     @Column(name = "create_at", insertable = false, updatable = false)
     private LocalDateTime createAt;

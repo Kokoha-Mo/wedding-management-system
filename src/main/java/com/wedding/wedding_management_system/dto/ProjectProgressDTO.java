@@ -15,6 +15,12 @@ public class ProjectProgressDTO {
     private String status;          // 來自 Project
     private LocalDate weddingDate;  // 來自 Book
 
+    // 🌟 新增：付款資訊陣列
+    private List<PaymentDTO> payments;
+
+    // 🌟 新增：專案正式文件列表 (對應 documents 表)
+    private List<DocumentDetail> documents;
+    
     // 時間軸 / 溝通紀錄
     private List<CommunicationDetail> timeline;
 
@@ -35,5 +41,13 @@ public class ProjectProgressDTO {
         private String name;            // 檔名 (對應 name)
         private String fileType;        // 類型 (對應 fileType)
         private String filePath;        // 下載路徑 (對應 filePath)
+    }
+
+    // 🌟 新增：用來裝單筆付款資訊的類別
+    @Data
+    public static class PaymentDTO {
+        private String title;   // 顯示文字 (例如：訂金 NT$ 19,000)
+        private String status;  // 狀態 (PAID, PENDING, NONE)
+        private String dueDate; // 期限 (例如：2026.09.24)
     }
 }

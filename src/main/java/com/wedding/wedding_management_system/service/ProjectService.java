@@ -185,6 +185,78 @@ public class ProjectService {
                     ? book.getWeddingDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                     : "Unknown";
             dto.setProjectNo("#WED-" + dateStr + "-" + project.getId());
+            // ==========================================
+            // 🌟 新增區塊：計算真實的付款資訊 (基於 projects 資料表)
+            // ==========================================
+            List<ProjectProgressDTO.PaymentDTO> paymentList = new java.util.ArrayList<>();
+
+            // 取得專案總金額與付款狀態 (加上 Null 防呆)
+            Integer total = project.getTotalPayment() != null ? project.getTotalPayment() : 0;
+            String pStatus = project.getPaymentStatus() != null ? project.getPaymentStatus() : "";
+
+            // 計算各階段金額 (訂金 20%, 期中款 50%, 尾款 30%)
+            int deposit = (int) (total * 0.2);
+            int midPayment = (int) (total * 0.5);
+            int finalPayment = total - deposit - midPayment; // 確保加總不漏小數點
+
+            // 狀態判定邏輯 (依照你的 SQL 註解設計)
+            boolean isDepositPaid = pStatus.contains("訂金") || pStatus.contains("期中") || pStatus.contains("尾款");
+            boolean isMidPaid = pStatus.contains("期中") || pStatus.contains("尾款");
+            boolean isFinalPaid = pStatus.contains("尾款");
+
+            // 基準日 (婚期)
+            LocalDate wedDate = book != null ? book.getWeddingDate() : null;
+
+            // 1. 訂金 20%
+            ProjectProgressDTO.PaymentDTO p1 = new ProjectProgressDTO.PaymentDTO();
+            p1.setTitle("訂金 20% (NT$ " + String.format("%,d", deposit) + ")");
+            p1.setStatus(isDepositPaid ? "PAID" : "PENDING");
+            p1.setDueDate(isDepositPaid ? "" : "請盡速繳納");
+            paymentList.add(p1);
+
+            // 2. 期中款 50%
+            ProjectProgressDTO.PaymentDTO p2 = new ProjectProgressDTO.PaymentDTO();
+            p2.setTitle("期中款 50% (NT$ " + String.format("%,d", midPayment) + ")");
+            p2.setStatus(isMidPaid ? "PAID" : (isDepositPaid ? "PENDING" : "NONE"));
+            if (isMidPaid) {
+                p2.setDueDate(""); // 已繳清不顯示日期
+            } else {
+                // 期中款預設為婚期前 3 個月
+                p2.setDueDate(wedDate != null ? wedDate.minusMonths(3).format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
+                        : "待確認");
+            }
+            paymentList.add(p2);
+
+            // 3. 尾款 30%
+            ProjectProgressDTO.PaymentDTO p3 = new ProjectProgressDTO.PaymentDTO();
+            p3.setTitle("尾款 30% (NT$ " + String.format("%,d", finalPayment) + ")");
+            p3.setStatus(isFinalPaid ? "PAID" : (isMidPaid ? "PENDING" : "NONE"));
+            if (isFinalPaid) {
+                p3.setDueDate("");
+            } else {
+                // 尾款預設為婚期前 14 天
+                p3.setDueDate(wedDate != null ? wedDate.minusDays(14).format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
+                        : "待確認");
+            }
+            paymentList.add(p3);
+
+            // 將結果存入 DTO
+            dto.setPayments(paymentList);
+        }
+
+        // ==========================================
+        // 🌟 新增區塊：載入專案正式文件 (Documents)
+        // ==========================================
+        if (project.getDocuments() != null) {
+            List<ProjectProgressDTO.DocumentDetail> formalDocs = project.getDocuments().stream().map(doc -> {
+                ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();
+                docDto.setId(doc.getId());
+                docDto.setName(doc.getName());
+                docDto.setFileType(doc.getFileType());
+                docDto.setFilePath(doc.getFilePath());
+                return docDto;
+            }).collect(Collectors.toList());
+            dto.setDocuments(formalDocs);
         }
 
         // 使用 Stream API 轉換留言與附件
@@ -224,4 +296,4 @@ public class ProjectService {
         return dto;
     }
 
-    }
+}

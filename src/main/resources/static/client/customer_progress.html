@@ -850,13 +850,26 @@
                                 <span v-else style="font-size: 11px; color: #ccc;">未結清</span>
                             </li>
                         </ul>
+
+                        <div
+                            style="font-size: 11px; color: var(--text-muted); margin-top: 24px; text-align: left; background: rgba(197, 160, 89, 0.05); padding: 12px 16px; border-radius: 8px; border: 1px dashed rgba(197, 160, 89, 0.2);">
+                            <div class="d-flex align-items-center gap-1 mb-1" style="color: var(--accent-gold);">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
+                                <span style="font-weight: 500;">繳款期限說明</span>
+                            </div>
+                            <div style="padding-left: 18px; line-height: 1.6; letter-spacing: 0.05em;">
+                                期中款：婚期前 3 個月<br>
+                                尾款：婚期前 14 天
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 文件 -->
                     <div class="lux-card text-center">
                         <span class="card-eyebrow mb-4">Documents</span>
                         <ul class="doc-list">
-                            <a v-for="doc in data.documents" :key="doc.name" href="#" class="doc-item">
+                            <a v-for="doc in data.documents" :key="doc.name" :href="doc.url" target="_blank"
+                                class="doc-item">
                                 <div class="d-flex align-items-center">
                                     <span class="material-symbols-outlined">{{ doc.icon }}</span>
                                     <span style="font-size: 13px;">{{ doc.name }}</span>
@@ -864,6 +877,10 @@
                                 <span class="material-symbols-outlined"
                                     style="font-size: 16px; color: #ccc;">download</span>
                             </a>
+                            <div v-if="!data.documents || data.documents.length === 0"
+                                style="font-size: 12px; color: #aaa; margin-top: 16px;">
+                                尚無正式文件
+                            </div>
                         </ul>
                     </div>
                 </div>
@@ -1204,7 +1221,32 @@
                             if (realData) {
                                 // 1. 更新基本資料
                                 if (realData.pmName) data.pmName = realData.pmName;
-                                if (realData.customerName) data.customerName = realData.customerName; // 🌟 新增這一行：把後端的客戶名稱存起來
+                                if (realData.customerName) data.customerName = realData.customerName;
+                                if (realData.payments) data.payments = realData.payments;
+
+                                // 🌟 新增：處理正式文件，並動態指派 Icon 與補全網址
+                                if (realData.documents) {
+                                    data.documents = realData.documents.map(doc => {
+                                        let fileUrl = doc.filePath || '#';
+                                        if (fileUrl.startsWith('/uploads')) {
+                                            fileUrl = 'http://localhost:8080' + fileUrl;
+                                        }
+
+                                        // 判斷 Icon：如果是圖片給 image 圖示，PDF 給 pdf 圖示，其他預設為 description
+                                        let iconType = 'description';
+                                        if (doc.fileType) {
+                                            if (doc.fileType.startsWith('image/')) iconType = 'image';
+                                            else if (doc.fileType.includes('pdf')) iconType = 'picture_as_pdf';
+                                        }
+
+                                        return {
+                                            name: doc.name,
+                                            icon: iconType,
+                                            url: fileUrl
+                                        };
+                                    });
+                                }
+
                                 if (realData.weddingDate) {
                                     // 把 "2026-10-24" 換成 "2026.10.24" 符合版面美學
                                     data.weddingDate = realData.weddingDate.replace(/-/g, '.');

@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
 
-    <script src="./js/bootstrap.bundle.js"></script>
+    <script src="../js/bootstrap.bundle.js"></script>
     <script src="./global.js"></script>
     <script src="./login.js"></script>
 
@@ -175,9 +175,11 @@
         .category-header::after {
             content: '';
             position: absolute;
-            bottom: 0; left: 0; right: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             height: 1px;
-            background: linear-gradient(to right, rgba(197,160,89,0.6) 0%, rgba(197,160,89,0.15) 40%, transparent 100%);
+            background: linear-gradient(to right, rgba(197, 160, 89, 0.6) 0%, rgba(197, 160, 89, 0.15) 40%, transparent 100%);
         }
 
         /* 左側金色豎線裝飾 */
@@ -190,7 +192,7 @@
         .category-accent-bar {
             width: 3px;
             height: 48px;
-            background: linear-gradient(to bottom, var(--accent-gold), rgba(197,160,89,0.2));
+            background: linear-gradient(to bottom, var(--accent-gold), rgba(197, 160, 89, 0.2));
             flex-shrink: 0;
             margin-top: 4px;
         }
@@ -287,7 +289,7 @@
         .card-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(5,4,3,0);
+            background: rgba(5, 4, 3, 0);
             transition: background 0.4s;
             display: flex;
             align-items: center;
@@ -295,10 +297,12 @@
         }
 
         .partner-card:hover .card-overlay {
-            background: rgba(5,4,3,0.18);
+            background: rgba(5, 4, 3, 0.18);
         }
 
-        .overlay-btn { display: none; }
+        .overlay-btn {
+            display: none;
+        }
 
         /* 右側文字區 */
         .card-body {
@@ -328,7 +332,9 @@
             transition: color 0.25s;
         }
 
-        .partner-card:hover .card-name { color: #8a6a2a; }
+        .partner-card:hover .card-name {
+            color: #8a6a2a;
+        }
 
         .card-years {
             font-size: 10px;
@@ -346,7 +352,9 @@
             transition: width 0.5s;
         }
 
-        .partner-card:hover .card-rule { width: 60px; }
+        .partner-card:hover .card-rule {
+            width: 60px;
+        }
 
         .card-cta {
             display: inline-flex;
@@ -371,23 +379,57 @@
             color: var(--accent-gold);
         }
 
-        .partner-card:hover .card-cta::after { width: 40px; }
+        .partner-card:hover .card-cta::after {
+            width: 40px;
+        }
 
-        .card-line { display: none; }
+        .card-line {
+            display: none;
+        }
 
         @media (max-width: 1199.98px) {
-            .partner-card { grid-template-columns: 160px 1fr; padding: 24px 16px; }
-            .card-img-wrap { width: 150px; height: 190px; }
-            .card-body { padding-left: 20px; }
-            .card-name { font-size: 20px; }
+            .partner-card {
+                grid-template-columns: 160px 1fr;
+                padding: 24px 16px;
+            }
+
+            .card-img-wrap {
+                width: 150px;
+                height: 190px;
+            }
+
+            .card-body {
+                padding-left: 20px;
+            }
+
+            .card-name {
+                font-size: 20px;
+            }
         }
 
         @media (max-width: 767.98px) {
-            .partner-grid { grid-template-columns: 1fr; }
-            .partner-card { grid-template-columns: 120px 1fr; padding: 20px 0; border-right: none; }
-            .card-img-wrap { width: 110px; height: 140px; }
-            .card-body { padding-left: 16px; }
-            .card-name { font-size: 18px; }
+            .partner-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .partner-card {
+                grid-template-columns: 120px 1fr;
+                padding: 20px 0;
+                border-right: none;
+            }
+
+            .card-img-wrap {
+                width: 110px;
+                height: 140px;
+            }
+
+            .card-body {
+                padding-left: 16px;
+            }
+
+            .card-name {
+                font-size: 18px;
+            }
         }
 
 
@@ -734,13 +776,15 @@
                     <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
                 </ul>
                 <div class="navbar-tools d-none d-lg-flex align-items-center gap-3 ms-auto">
-                    
+
                     <div class="nav-item dropdown" id="userDropdownWrap" style="display:none;">
                         <a class="nav-link nav-link-item" href="#" id="userDropdownBtn" data-bs-toggle="dropdown">歡迎</a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="./customer_system.html">我的婚禮規劃</a></li>
                             <li><a class="dropdown-item" href="./customer_progress.html">我的籌備進度</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
                         </ul>
                     </div>
@@ -764,7 +808,8 @@
             <div id="mobileUserMenu"
                 style="padding-bottom:12px; margin-bottom:4px; border-bottom:1px solid rgba(197,160,89,0.15);">
                 <p id="mobileWelcome"
-                    style="font-size:15px; letter-spacing:0.12em; color:var(--accent-gold); margin-bottom:4px; display:flex; align-items:center; gap:6px;"></p>
+                    style="font-size:15px; letter-spacing:0.12em; color:var(--accent-gold); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                </p>
                 <a href="./customer_system.html" class="nav-link nav-link-item"
                     style="padding:10px 0; display:block;">我的婚禮規劃</a>
                 <a href="./customer_progress.html" class="nav-link nav-link-item"
@@ -859,68 +904,21 @@
     <script>
         // ─── 類別定義（eyebrow 為 modal tag 顯示文字，不存資料庫）───
         const CATEGORIES = [
-            { id: 'planner', label: '婚禮顧問',     eyebrow: 'Wedding Planner'              },
-            { id: 'host',    label: '主持人',         eyebrow: 'MC · Wedding Host'            },
-            { id: 'photo',   label: '攝影師',         eyebrow: 'Photography · Film'           },
-            { id: 'sound',   label: '影音/燈光場控', eyebrow: 'Venue Space · Sound Control'  },
-            { id: 'makeup',  label: '新娘造型師',     eyebrow: 'Bridal Makeup · Hair'         },
+            { id: 'planner', label: '婚禮顧問', eyebrow: 'Wedding Planner' },
+            { id: 'host', label: '主持人', eyebrow: 'MC · Wedding Host' },
+            { id: 'photo', label: '攝影師', eyebrow: 'Photography · Film' },
+            { id: 'sound', label: '影音/燈光場控', eyebrow: 'Venue Space · Sound Control' },
+            { id: 'makeup', label: '新娘造型師', eyebrow: 'Bridal Makeup · Hair' },
         ];
 
-        // ─── dept_id → catId 對應表（串 API 後用）───
-        // dept_id: 1=planner, 2=host, 3=photo, 4=sound, 5=makeup
-        const DEPT_MAP = { 1:'planner', 2:'host', 3:'photo', 4:'sound', 5:'makeup' };
+        // ─── deptId → catId 對應表（對應後端 TeamDto.deptId）───
+        // deptId: 1=planner, 2=host, 3=photo, 4=sound, 5=makeup
+        const DEPT_MAP = { 1: 'planner', 5: 'host', 4: 'photo', 3: 'sound', 6: 'makeup' };
 
-        // ─── 靜態資料（串 API 後可直接替換這段，結構保持一致）───
-        // 欄位對應 SQL：name, years, bio, styles(逗號字串), photo_url
-        const MEMBERS = {
-            planner: [
-                { name:'李宜瑾 Tina',  years:'12+', bio:'李宜瑾 Tina 擁有超過 12 年的頂級婚禮策劃經驗，專精於五星飯店及莊園婚禮。她以精準的細節掌控和溫暖的溝通風格，讓每對新人在籌備過程中都感到從容優雅。曾協辦超過 300 場婚禮。',  styles:'奢華宴廳,戶外莊園,歐式古典,海外婚禮',   photo_url:'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80' },
-                { name:'王浩瀚 Tommy', years:'8+',  bio:'王浩瀚 Tommy 以理性縝密的規劃能力聞名，擅長大型宴席及企業聯合婚禮的流程管理。每場婚禮都如精密時鐘般運作，讓賓客留下深刻印象。同時具備豐富的跨文化婚禮籌辦經驗。',  styles:'大型宴席,飯店婚禮,中西合璧,海外接待',   photo_url:'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80' },
-                { name:'李村郊 Joy',   years:'5+',  bio:'李村郊 Joy 擁有靈活的創意與無比的熱情，擅長為新人打造充滿個人特色的主題婚禮。從場地佈置到流程細節，總能帶來令人驚喜的巧思，特別受年輕新人喜愛。',                styles:'主題婚禮,創意企劃,私密派對,年輕活力',   photo_url:'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80' },
-                { name:'王興耀 Ben',   years:'10+', bio:'王興耀 Ben 具備卓越的危機處理能力與統籌技巧，特別專精於結構複雜的海外婚禮與多天數包場活動，冷靜專業的態度使他成為許多政商名流指定的御用婚顧。',              styles:'海外渡假,多日活動,名人指定,頂級客製',   photo_url:'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80' },
-                { name:'陳妮 Jenny',   years:'15+', bio:'陳妮 Jenny 是業界資深前輩，經手過無數場世紀婚禮。她擁有豐富的人脈與資源，能為新人談妥最頂級的廠商配置，確保婚禮的每一個環節都達到極致完美與奢華。',        styles:'世紀婚禮,頂級資源,奢華排場,全方位統籌', photo_url:'https://images.pexels.com/photos/41539/attractive-beautiful-brunette-cute-41539.jpeg' },
-                { name:'林奇米 Kim',   years:'7+',  bio:'林奇米 Kim 擅長傾聽新人的愛情故事，並將這些點滴轉化為婚禮上的動人元素。她的規劃風格細膩感性，致力於打造充滿溫度與回憶的小型精緻婚禮。',                    styles:'感性細膩,故事帶入,溫馨小型,客製化流程', photo_url:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80' },
-            ],
-            host: [
-                { name:'張舒涵 Sarah', years:'12+', bio:'張舒涵 Sarah 是全台知名度最高的婚禮主持人之一，嗓音溫暖悅耳，台風穩健大方。她善於調動全場氣氛，無論是歡笑瞬間或感動淚點都拿捏得恰到好處，讓婚宴留下無數美好回憶。', styles:'感動淚點,活潑互動,中英雙語,海外婚禮', photo_url:'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80' },
-                { name:'陳建宏 Eric',  years:'8+',  bio:'陳建宏 Eric 擁有豐富的廣播與演藝背景，聲線渾厚有磁性，現場臨機應變能力極強。他擅長結合遊戲互動環節，讓婚宴氣氛持續高昂，是新人和來賓都讚不絕口的活力主持人。',  styles:'互動遊戲,活力歡樂,廣播質感,台語主持', photo_url:'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80' },
-                { name:'林怡君 Lily',  years:'6+',  bio:'林怡君 Lily 以甜美嗓音與親切的現場互動著稱，長期深耕南台灣婚禮市場，對高雄、台南等地的場地特性瞭若指掌。她的主持風格溫馨浪漫，特別擅長設計感人的橋段讓親友落淚。', styles:'溫馨浪漫,感人橋段,南台灣在地,戶外婚禮', photo_url:'https://images.unsplash.com/photo-1598550874175-4d0ef436c909?auto=format&fit=crop&w=600&q=80' },
-                { name:'王志明 Kevin', years:'10+', bio:'王志明 Kevin 擁有深厚的舞台表演底蘊，主持風格大氣而不失風趣。他特別擅長駕馭大場面，數百桌的宴席也能讓每位賓客都感受到被重視。近年更積極投入婚禮主持培訓課程。', styles:'大氣穩重,舞台表演,大型宴席,司儀培訓', photo_url:'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=600&q=80' },
-                { name:'陳嘉美 Jiny',  years:'10+', bio:'陳嘉美 Jiny 擁有深厚的舞台表演底蘊，主持風格大氣而不失風趣。她特別擅長駕馭大場面，數百桌的宴席也能讓每位賓客都感受到被重視。近年更積極投入婚禮主持培訓課程。', styles:'大氣穩重,舞台表演,大型宴席,司儀培訓', photo_url:'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=600&q=80' },
-            ],
-            photo: [
-                { name:'林國威 Kelvin', years:'16+', bio:'林國威 Kelvin 是台灣在國際婚禮攝影競賽中獲獎最多的攝影師之一，ISPWP 多屆得主。他的鏡頭善於捕捉最真實動人的情感瞬間，畫面構圖充滿電影張力。足跡遍及亞洲、歐洲各地。', styles:'報導紀實,情感瞬間,電影構圖,海外婚禮', photo_url:'https://images.pexels.com/photos/7206515/pexels-photo-7206515.jpeg' },
-                { name:'吳冠霖 James',  years:'9+',  bio:'吳冠霖 James 以 Fine Art 美術攝影風格享譽業界，作品色調如同油畫般細膩，常被刊登於國際婚禮雜誌。她擅長利用光線製造夢幻氛圍，將每張婚禮照片都昇華為珍藏藝術品。',     styles:'Fine Art,油畫光影,唯美浪漫,雜誌質感', photo_url:'https://images.pexels.com/photos/10188772/pexels-photo-10188772.jpeg' },
-                { name:'黃美娜 Mina',   years:'8+',  bio:'黃美娜 Mina 專注於底片風格的婚禮攝影，用真實的底片相機記錄婚禮，作品帶有獨一無二的顆粒感和溫度。他相信底片的不可預期性，反而能呈現最真實純粹的情感。',             styles:'底片風格,Film Style,復古溫度,自然紀實', photo_url:'https://images.pexels.com/photos/12802245/pexels-photo-12802245.jpeg' },
-                { name:'蔡俊仁 Alan',   years:'7+',  bio:'蔡俊仁 Alan 以自然光攝影聞名，不依賴閃光燈，善用環境光線捕捉最柔美的婚禮瞬間。她的作品色調明亮溫暖，笑容與眼淚都在她的鏡頭下顯得格外動人。',                     styles:'自然光,明亮溫暖,戶外婚禮,情感記錄',   photo_url:'https://images.pexels.com/photos/10030260/pexels-photo-10030260.jpeg' },
-            ],
-            sound: [
-                { name:'陳俊宇 Alex',  years:'10+', bio:'陳俊宇 Alex 擁有超過 10 年的婚禮現場音控經驗，曾與多位金曲歌手合作演出。他對音場佈局有極高敏感度，能在各種場地快速調整出最佳聲音效果，讓婚禮每個音符都清晰動人。', styles:'大型宴廳,戶外場地,現場演唱,五星飯店', photo_url:'https://images.pexels.com/photos/8197345/pexels-photo-8197345.jpeg' },
-                { name:'謝明哲 Max',   years:'8+',  bio:'謝明哲 Max 專精於戶外婚禮與莊園場地的音響架設，擅長應對各種環境噪音與自然回響挑戰。他配備頂級專業設備，確保無論風向如何改變，音質始終維持完美水準。',         styles:'戶外草坪,莊園婚禮,海景場地,空曠場域', photo_url:'https://images.pexels.com/photos/7682353/pexels-photo-7682353.jpeg' },
-                { name:'劉雅婷 Ivy',   years:'6+',  bio:'劉雅婷 Ivy 是南台灣少數具備完整婚禮音控執照的女性音響師，細膩的聽覺讓她能精準掌握每個場景所需的音量與情緒。她同時提供婚禮現場 BGM 客製規劃服務，深受新人喜愛。', styles:'室內宴廳,BGM規劃,細膩音場,南台灣在地', photo_url:'https://images.pexels.com/photos/5657659/pexels-photo-5657659.jpeg' },
-                { name:'楊承翰 Owen',  years:'14+', bio:'楊承翰 Owen 配備全台頂級的 L-Acoustics 專業音響系統，服務過超過 500 場婚禮與大型活動。他對每個場地事前進行聲學勘查，量身規劃音響配置，是高端婚禮的不二首選。', styles:'頂級設備,大型活動,聲學規劃,全台巡迴', photo_url:'https://images.unsplash.com/photo-1484515991647-c5760fcecfc7?auto=format&fit=crop&w=600&q=80' },
-            ],
-            makeup: [
-                { name:'艾比 Abby',   years:'11+', bio:'艾比 Abby 長期與 VOGUE Taiwan 合作，為雜誌封面及廣告拍攝提供造型服務。她對新娘妝容有著極高標準，擅長打造完美無瑕的長效妝感，確保新娘從早宴到晚宴始終光彩照人。', styles:'雜誌質感,歐式奢華,長效妝容,國際時尚', photo_url:'https://images.pexels.com/photos/13114208/pexels-photo-13114208.jpeg' },
-                { name:'朱可欣 Coco', years:'7+',  bio:'朱可欣 Coco 以「輕透感」妝容聞名，讓新娘呈現最自然美麗的狀態，攝影作品中的肌膚質感尤為出色。她相信最好的妝容是讓新娘看起來更像自己，而不是遮蓋本來的美麗。',       styles:'輕透自然,韓系裸妝,清新日系,婚紗寫真', photo_url:'https://images.pexels.com/photos/29812568/pexels-photo-29812568.jpeg' },
-                { name:'鄭雅妮 Nina', years:'8+',  bio:'鄭雅妮 Nina 是台灣韓系婚禮妝容的代表人物，曾赴首爾深造，帶回最前衛的新娘妝髮技術。她的客戶遍及兩岸，許多新人特地從外縣市前來預約，口碑極佳。',                     styles:'韓系風格,歐膩感,精緻五官,時尚前衛',   photo_url:'https://images.pexels.com/photos/27348983/pexels-photo-27348983.png' },
-                { name:'方貝兒 Belle', years:'9+', bio:'方貝兒 Belle 師承法國巴黎頂尖美妝學院，擅長打造高雅內斂的法式新娘妝容。她的作品不追求浮誇，而是以精緻的細節讓新娘散發由內而外的優雅氣質，廣受高端客群青睞。',    styles:'法式優雅,精緻內斂,高端質感,歐美風格', photo_url:'https://images.pexels.com/photos/19799251/pexels-photo-19799251.jpeg' },
-            ],
-        };
-
-        // ─── 串 API 後替換上方 MEMBERS，範例如下 ───
-        // fetch('http://localhost:8080/api/team')
-        //     .then(res => res.json())
-        //     .then(rows => {
-        //         // API 回傳陣列，每筆包含 dept_id, name, years, bio, styles, photo_url
-        //         CATEGORIES.forEach(cat => { MEMBERS[cat.id] = []; });
-        //         rows.forEach(row => {
-        //             const catId = DEPT_MAP[row.dept_id];
-        //             if (catId) MEMBERS[catId].push(row);
-        //         });
-        //         renderAll();
-        //         initPage();
-        //     });
+        // ─── 從 API 取得資料 ───
+        // API 回傳陣列，每筆包含 deptId, name, years, bio, styles, photoUrl（camelCase）
+        const MEMBERS = {};
+        CATEGORIES.forEach(cat => { MEMBERS[cat.id] = []; });
 
         // ─── 渲染卡片（欄位：photo_url, name, years；不含 icon/tag）───
         // ── renderCard ──
@@ -934,9 +932,9 @@
                 data-years="${member.years}"
                 data-bio="${member.bio.replace(/"/g, '&quot;')}"
                 data-styles="${member.styles}"
-                data-img="${member.photo_url}">
+                data-img="${member.photoUrl}">
                 <div class="card-img-wrap">
-                    <img src="${member.photo_url}" alt="${member.name}" loading="lazy">
+                    <img src="${member.photoUrl}" alt="${member.name}" loading="lazy">
                     <div class="card-overlay"></div>
                 </div>
                 <div class="card-body">
@@ -948,7 +946,7 @@
                 </div>
             </div>`;
         }
-        
+
 
         function renderAll() {
             const sidebarFilters = document.getElementById('sidebarFilters');
@@ -986,13 +984,24 @@
 
         // ─── 篩選 + 動畫 + Modal ───
         document.addEventListener('DOMContentLoaded', () => {
-            renderAll();
+            fetch('http://localhost:8080/api/team')
+                .then(res => res.json())
+                .then(rows => {
+                    CATEGORIES.forEach(cat => { MEMBERS[cat.id] = []; });
+                    rows.forEach(row => {
+                        const catId = DEPT_MAP[row.deptId];
+                        if (catId) MEMBERS[catId].push(row);
+                    });
+                    renderAll();
+                    initPage();
+                })
+                .catch(err => console.error('載入團隊資料失敗:', err));
 
             const gridArea = document.getElementById('gridArea');
 
-            function getSections()   { return document.querySelectorAll('.category-section'); }
-            function getDividers()   { return document.querySelectorAll('.category-divider'); }
-            function getSidebarBtns(){ return document.querySelectorAll('#sidebarFilters .filter-btn'); }
+            function getSections() { return document.querySelectorAll('.category-section'); }
+            function getDividers() { return document.querySelectorAll('.category-divider'); }
+            function getSidebarBtns() { return document.querySelectorAll('#sidebarFilters .filter-btn'); }
             function getMobileBtns() { return document.querySelectorAll('.mobile-filter-chip'); }
 
             function applyFilter(cat) {
@@ -1039,10 +1048,12 @@
                 document.querySelectorAll('.partner-card:not(.visible)').forEach(c => obs.observe(c));
             }
 
-            bindFilters();
-            setActive('planner');
-            applyFilter('planner');
-            triggerVisible();
+            function initPage() {
+                bindFilters();
+                setActive('planner');
+                applyFilter('planner');
+                triggerVisible();
+            }
 
             // ─── PROFILE MODAL ───
             const backdrop = document.getElementById('profileBackdrop');
@@ -1055,10 +1066,10 @@
                 const cat = CATEGORIES.find(c => c.id === d.cat);
                 document.getElementById('modalTag').textContent = cat ? cat.eyebrow : '';
 
-                document.getElementById('modalImg').src   = d.img || '';
-                document.getElementById('modalName').textContent  = d.name || '';
+                document.getElementById('modalImg').src = d.img || '';
+                document.getElementById('modalName').textContent = d.name || '';
                 document.getElementById('modalYears').textContent = d.years || '—';
-                document.getElementById('modalBio').textContent   = d.bio || '';
+                document.getElementById('modalBio').textContent = d.bio || '';
 
                 const tagWrap = document.getElementById('modalStyleTags');
                 tagWrap.innerHTML = '';

@@ -28,12 +28,11 @@ public class CustomerLoginController {
             CustomerLoginResponseDto result = customerLoginService.login(loginDto);
 
             // 2. 建立 HttpOnly Cookie，Controller 從 DTO 拿 token 來設定
-            // 這裡的 Max-Age 單位是秒 (10 * 60 = 600 秒)
             ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", result.getToken())
                     .httpOnly(true)
                     .secure(false) // 只有 HTTPS 時才能送出，本地開發先設為 false
                     .path("/") // 整個網站都可以帶這個 Cookie
-                    .maxAge(10 * 60)
+                    .maxAge(10 * 60) // 秒
                     .build();
 
             // 3. token 是給 Cookie 用的，不需要回傳給前端，把它清空

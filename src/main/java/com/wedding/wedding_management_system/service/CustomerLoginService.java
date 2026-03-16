@@ -1,6 +1,7 @@
 package com.wedding.wedding_management_system.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.wedding.wedding_management_system.dto.CustomerLoginDto;
 import com.wedding.wedding_management_system.dto.CustomerLoginResponseDto;
@@ -10,16 +11,21 @@ import com.wedding.wedding_management_system.util.JwtToken;
 
 @Service
 public class CustomerLoginService {
+
+    private final PasswordEncoder passwordEncoder;
     @Autowired
     private CustomerRepository customerRepository;
 
+    CustomerLoginService(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     public CustomerLoginResponseDto login(CustomerLoginDto dto) {
-        // 1. 查帳號是否存在
+
         Customer customer = customerRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("查無此帳號"));
 
-        // 2. 驗證密碼（目前是明碼比對，之後改成 BCrypt）
-        if (!customer.getPassword().equals(dto.getPassword())) {
+        if (!passwordEncoder.matches(dto.getPassword(), customer.getPassword())) {
             throw new RuntimeException("密碼錯誤");
         }
 

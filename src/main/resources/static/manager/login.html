@@ -91,7 +91,30 @@
 
 
     <script>
+        // 已經登入的狀態下導向正確頁面
+        function checkLoggedIn() {
+            const empId = sessionStorage.getItem("empId");
+            const position = sessionStorage.getItem("position");
+            if (empId) {
+                if (position === 'MANAGER') {
+                    window.location.replace("project.html");
+                } else if (position === 'STAFF') {
+                    window.location.replace("quest_staff.html");
+                } else {
+                    window.location.replace("project.html");
+                }
+            }
+        }
+
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) {
+                checkLoggedIn();
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
+            checkLoggedIn();
+
             const toggleBtn = document.getElementById('togglePassword');
             const passwordField = document.getElementById('password');
             const eyeIcon = document.getElementById('eyeIcon');
@@ -113,26 +136,74 @@
         });
 
 
-        // 模擬登入
-        const mockUsers = {
-            "A001": { password: "123456", role: "admin" },
-            "S001": { password: "123456", role: "staff" }
-        };
-
-        document.querySelector("form").addEventListener("submit", function (e) {
+        // 真實登入請求
+        document.querySelector("form").addEventListener("submit", async function (e) {
             e.preventDefault();
 
-            const id = document.getElementById("employeeId").value;
+            const id = document.getElementById("employeeId").value; // 使用者輸入的 Email 或帳號
             const pw = document.getElementById("password").value;
-            const user = mockUsers[id];
 
-            if (user && user.password === pw) {
-                sessionStorage.setItem("userRole", user.role); // 存入 role
-                window.location.href = "main_page.html"; // 跳轉
-            } else {
-                alert("帳號或密碼錯誤");
+            try {
+                const response = await fetch('/api/employee/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        emp_email: id,
+                        emp_password: pw
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // 將使用者的詳細資訊存入 sessionStorage
+                    sessionStorage.setItem("empId", data.empId);
+                    sessionStorage.setItem("empName", data.empName);
+                    sessionStorage.setItem("position", data.position);
+                    sessionStorage.setItem("deptId", data.deptId);
+
+                    // 根據職位跳轉
+                    if (data.position === 'MANAGER') {
+                        window.location.href = "project.html"; // 業務管理頁面
+                    } else if (data.position === 'STAFF') {
+                        window.location.href = "quest_staff.html"; // 員工任務頁面
+                    } else {
+                        window.location.href = "project.html"; // 預設跳轉
+                    }
+
+                } else if (response.status === 401) {
+                    alert("帳號或密碼錯誤，請重新輸入");
+                } else {
+                    alert("系統發生未知的錯誤，請稍後再試");
+                }
+            } catch (error) {
+                console.error("登入請求發生異常", error);
+                alert("連線失敗，請檢查網路狀態");
             }
         });
+
+        // 登出請求
+        async function logout() {
+            try {
+                const response = await fetch('/api/employee/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    sessionStorage.clear();
+                    window.location.href = "login.html"; // 返回登入頁
+                } else {
+                    alert("登出失敗，伺服器無回應");
+                }
+            } catch (error) {
+                console.error("登出請求發生異常", error);
+                alert("連線失敗，請檢查網路狀態");
+            }
+        }
 
 
     </script>

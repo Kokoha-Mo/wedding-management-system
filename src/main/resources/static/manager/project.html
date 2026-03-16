@@ -178,22 +178,19 @@
                     <div
                         class="flex items-center space-x-2 overflow-x-auto w-full lg:w-auto custom-scrollbar pb-1 lg:pb-0">
                         <button data-filter="all"
-                            class="filter-btn px-4 py-2 bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900 rounded-lg text-sm font-bold shadow-sm whitespace-nowrap transition-colors">全部專案
-                            (4)</button>
+                            class="filter-btn px-4 py-2 bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900 rounded-lg text-sm font-bold shadow-sm whitespace-nowrap transition-colors">全部專案</button>
                         <button data-filter="active"
-                            class="filter-btn px-4 py-2 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">進行中
-                            (3)</button>
+                            class="filter-btn px-4 py-2 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">進行中</button>
                         <button data-filter="completed"
-                            class="filter-btn px-4 py-2 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">已結案
-                            (1)</button>
+                            class="filter-btn px-4 py-2 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">已結案</button>
                     </div>
                     <div class="flex items-center w-full lg:w-auto space-x-3">
                         <div class="relative w-full lg:w-64">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><span
                                     class="material-icons text-sm">search</span></span>
-                            <input
+                            <input id="search-input"
                                 class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="搜尋專案編號或客戶名稱..." type="text" />
+                                placeholder="搜尋客戶名稱..." type="text" />
                         </div>
                     </div>
                 </div>
@@ -204,18 +201,33 @@
                             <thead>
                                 <tr
                                     class="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[40%]">
-                                        專案編號 / 客戶</th>
+                                    <th id="th-name"
+                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[40%] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none">
+                                        <div class="flex items-center">
+                                            客戶名稱
+                                            <span id="sort-icon-name"
+                                                class="material-icons text-[16px] ml-1 text-gray-300 dark:text-gray-600 transition-colors">unfold_more</span>
+                                        </div>
+                                    </th>
+
                                     <th
                                         class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[25%]">
-                                        專案進度</th>
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[20%]">
-                                        預計婚期 (Deadline)</th>
+                                        專案進度
+                                    </th>
+
+                                    <th id="th-date"
+                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[20%] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none">
+                                        <div class="flex items-center">
+                                            預計婚期 (Deadline)
+                                            <span id="sort-icon-date"
+                                                class="material-icons text-[16px] ml-1 text-indigo-500 dark:text-indigo-400">arrow_downward</span>
+                                        </div>
+                                    </th>
+
                                     <th
                                         class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">
-                                        操作</th>
+                                        操作
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="project-table-body" class="divide-y divide-gray-100 dark:divide-gray-700/50">
@@ -439,11 +451,92 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 🌟 全域變數設定
+            // 全域變數設定
             let allProjects = []; // 儲存從後端拿到的所有資料
             let currentFilter = 'all'; // 目前的篩選狀態 (all, active, completed)
             let currentPage = 1; // 目前頁數
             const itemsPerPage = 5; // 每頁顯示幾筆 (你可以依照需求修改，例如 5 筆)
+            let searchQuery = ''; // 目前的搜尋關鍵字
+            let sortKey = 'date'; // 預設排序欄位 (date 或 name)
+            let sortDirection = 1; // 1: 預設排序, -1: 反向排序s
+
+            // =================  排序核心邏輯 =================
+            function sortAllProjects() {
+                allProjects.sort((a, b) => {
+                    const isACompleted = (a.status === '已完成');
+                    const isBCompleted = (b.status === '已完成');
+
+                    // 1. 絕對優先權：進行中永遠排在已完成上面
+                    if (isACompleted && !isBCompleted) return 1;
+                    if (!isACompleted && isBCompleted) return -1;
+
+                    // 2. 狀態相同時，依據選擇的欄位與方向排序
+                    if (sortKey === 'projectId') {
+                        // 抓 projectNo (專案編號) 來當作排序依據
+                        const idA = a.projectId || 0;
+                        const idB = b.projectId || 0;
+                        // 字串比對 (英數字排序)
+                        return (idA - idB) * sortDirection;
+
+                    } else if (sortKey === 'date') {
+                        // 防呆：日期未定的專案永遠沉在底部，不受反向排序影響
+                        if (!a.weddingDate && !b.weddingDate) return 0;
+                        if (!a.weddingDate) return 1;
+                        if (!b.weddingDate) return -1;
+
+                        const dateA = new Date(a.weddingDate);
+                        const dateB = new Date(b.weddingDate);
+
+                        let res = 0;
+                        if (isACompleted) {
+                            res = dateB - dateA; // 已完成：預設降冪 (最近辦完的在上面)
+                        } else {
+                            res = dateA - dateB; // 進行中：預設升冪 (快到期的在上面)
+                        }
+                        return res * sortDirection;
+                    }
+                    return 0;
+                });
+            }
+
+            // 更新表頭的 Icon 顯示
+            function updateSortIcons() {
+                const iconName = document.getElementById('sort-icon-name');
+                const iconDate = document.getElementById('sort-icon-date');
+
+                // 重置所有 Icon 為預設灰色狀態
+                iconName.textContent = 'unfold_more';
+                iconName.className = 'material-icons text-[16px] ml-1 text-gray-300 dark:text-gray-600 transition-colors';
+                iconDate.textContent = 'unfold_more';
+                iconDate.className = 'material-icons text-[16px] ml-1 text-gray-300 dark:text-gray-600 transition-colors';
+
+                // 將被選中的欄位上色，並根據方向切換箭頭
+                const activeIcon = sortKey === 'projectId' ? iconName : iconDate;
+                activeIcon.classList.remove('text-gray-300', 'dark:text-gray-600');
+                activeIcon.classList.add('text-indigo-500', 'dark:text-indigo-400', 'font-bold');
+                activeIcon.textContent = sortDirection === 1 ? 'arrow_downward' : 'arrow_upward';
+            }
+
+            // 綁定點擊表頭事件
+            document.getElementById('th-name')?.addEventListener('click', () => {
+                if (sortKey === 'projectId') sortDirection *= -1; // 點擊同一個欄位，切換正逆序
+                else { sortKey = 'projectId'; sortDirection = 1; } // 點擊新欄位，重置為預設順序
+
+                updateSortIcons();
+                sortAllProjects();
+                currentPage = 1; // 重新排序後拉回第一頁
+                renderView();
+            });
+
+            document.getElementById('th-date')?.addEventListener('click', () => {
+                if (sortKey === 'date') sortDirection *= -1;
+                else { sortKey = 'date'; sortDirection = 1; }
+
+                updateSortIcons();
+                sortAllProjects();
+                currentPage = 1;
+                renderView();
+            });
 
             // ================= 1. 取得資料 =================
             async function loadProjects() {
@@ -458,6 +551,11 @@
                         throw new Error('API 發生錯誤');
                     }
                     allProjects = await response.json();
+
+                    // 直接呼叫排序函數與圖示更新
+                    sortAllProjects();
+                    updateSortIcons();
+
                     renderView(); // 取得資料後，啟動畫面渲染
                 } catch (error) {
                     console.error("無法取得專案資料:", error);
@@ -471,10 +569,20 @@
             function renderView() {
                 // --- A. 處理資料篩選 ---
                 let filteredProjects = allProjects;
+                //  1. 先進行「關鍵字搜尋」過濾
+                if (searchQuery.trim() !== '') {
+                    const keyword = searchQuery.toLowerCase(); // 轉小寫比較不挑大小寫
+                    filteredProjects = filteredProjects.filter(p => {
+                        // 檢查客戶名稱或專案編號有沒有包含關鍵字 (加防呆避免 null)
+                        return p.customerName && p.customerName.toLowerCase().includes(keyword);
+                    });
+                }
+
+                //  2. 再進行「狀態」過濾 (維持你原本的邏輯)
                 if (currentFilter === 'active') {
-                    filteredProjects = allProjects.filter(p => p.status !== '已完成');
+                    filteredProjects = filteredProjects.filter(p => p.status !== '已完成');
                 } else if (currentFilter === 'completed') {
-                    filteredProjects = allProjects.filter(p => p.status === '已完成');
+                    filteredProjects = filteredProjects.filter(p => p.status === '已完成');
                 }
 
                 // --- B. 處理陣列分頁計算 ---
@@ -661,6 +769,16 @@
             window.closeProjectRecordModal = function () {
                 document.getElementById('projectRecordModal').classList.add('hidden');
             };
+
+            // ---  綁定搜尋框的輸入事件 ---
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value; // 抓取使用者打的字
+                    currentPage = 1; // ⚠️ 搜尋時，一定要把頁碼重置回第 1 頁
+                    renderView(); // 重新渲染畫面
+                });
+            }
 
             // 🔥 程式進入點：載入資料
             loadProjects();

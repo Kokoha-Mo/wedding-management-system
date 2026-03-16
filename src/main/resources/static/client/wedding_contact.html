@@ -1006,7 +1006,7 @@
 
                     console.log('準備傳送給 Spring Boot 的資料：', payload);
 
-                    axios.post('http://localhost:8080/api/consultations', payload)
+                    axios.post('/api/consultations', payload)
                         .then(response => {
                             if (response.data.success) {
                                 alert(response.data.message); // 跳出成功提示

@@ -2,6 +2,7 @@ package com.wedding.wedding_management_system.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wedding.wedding_management_system.entity.Project;
 import com.wedding.wedding_management_system.entity.ProjectCommunication;
@@ -20,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -165,6 +167,7 @@ public class ProjectService {
      * 包含：右側的籌備進度(Tasks)，以及左側的基本資料、歷史留言紀錄(Timeline)
      * 對應頁面：customer_progress.html (畫面初次載入時呼叫)
      */
+    @Transactional(readOnly = true)
     public ProjectProgressDTO getProjectProgress(Integer projectId) {
 
         Project project = projectRepository.findById(projectId)
@@ -278,7 +281,7 @@ public class ProjectService {
                 commDto.setCreateBy(book.getManager().getName());
             } else {
                 // 防呆：如果是舊資料或是直接寫入的名字，就照原樣顯示
-                commDto.setCreateBy(role);
+                commDto.setCreateBy(role != null ? role : "");
             }
 
             commDto.setContent(comm.getContent());
@@ -331,12 +334,14 @@ public class ProjectService {
 
         // 💡 巧思：將 Timeline 中「最新的一筆 PM 留言」抓出來，顯示在進度框裡！
         String pmNameStr = book != null && book.getManager() != null ? book.getManager().getName() : "公司";
-        dto.getTimeline().stream()
-                .filter(c -> c.getCreateBy().equals(pmNameStr))
+        timeline.stream()
+                .filter(c -> Objects.equals(c.getCreateBy(), pmNameStr))
                 .findFirst() // 因為 timeline 已經是 OrderByDesc，第一筆就是最新
                 .ifPresent(latestComm -> {
                     p2.setPmMessage(latestComm.getContent());
-                    p2.setPmUpdateTime(latestComm.getCreateAt().format(DateTimeFormatter.ofPattern("MM/dd HH:mm")));
+                    if (latestComm.getCreateAt() != null) {
+                        p2.setPmUpdateTime(latestComm.getCreateAt().format(DateTimeFormatter.ofPattern("MM/dd HH:mm")));
+                    }
                 });
 
         // 依照 Department (部門/分類) 來分組任務

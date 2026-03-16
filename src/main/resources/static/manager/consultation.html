@@ -593,7 +593,7 @@
             methods: {
                 // 🚀 從後端獲取資料
                 fetchConsultations() {
-                    axios.get('http://localhost:8080/api/consultations')
+                    axios.get('/api/consultations')
                         .then(response => {
                             if (response.data.success) {
                                 // 資料轉換魔法：處理字串轉陣列、欄位名稱對齊
@@ -664,7 +664,7 @@
                     const newStatusStr = this.editForm.status;
 
                     // 呼叫後端 API 更新狀態
-                    axios.put(`http://localhost:8080/api/consultations/${this.selectedItem.id}/status`, { status: newStatusStr })
+                    axios.put(`/api/consultations/${this.selectedItem.id}/status`, { status: newStatusStr })
                         .then(response => {
                             if (response.data.success) {
                                 // 更新本地資料庫畫面

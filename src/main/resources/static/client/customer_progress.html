@@ -1151,7 +1151,7 @@
             setup() {
                 // 未來的寫法預告
                 const urlParams = new URLSearchParams(window.location.search);
-                const projectId = urlParams.get('id') || 6; // 💡 測試階段先寫死，抓不到就預設 6
+                const projectId = urlParams.get('id');// || 6 💡 測試階段先寫死，抓不到就預設 6
                 const isSubmitting = ref(false);
 
                 // 完整保留 UI 假資料框架
@@ -1269,7 +1269,7 @@
 
                 // 🚀 核心：向後端撈取專案進度與留言紀錄
                 const fetchProjectProgress = () => {
-                    axios.get(`http://localhost:8080/api/customer/projects/${projectId}/progress`)
+                    axios.get(`/api/customer/projects/${projectId}/progress`, { withCredentials: true })
                         .then(response => {
                             // 【修改重點 1】：直接把 response.data 當作 realData，不需要再解開 apiData.data
                             const realData = response.data;
@@ -1291,7 +1291,7 @@
                                     data.documents = realData.documents.map(doc => {
                                         let fileUrl = doc.filePath || '#';
                                         if (fileUrl.startsWith('/uploads')) {
-                                            fileUrl = 'http://localhost:8080' + fileUrl;
+                                            fileUrl = window.location.origin + fileUrl;
                                         }
 
                                         // 判斷 Icon：如果是圖片給 image 圖示，PDF 給 pdf 圖示，其他預設為 description
@@ -1332,7 +1332,7 @@
                                                 let fileUrl = doc.filePath || '#';
                                                 // 🌟 如果路徑是 /uploads 開頭，就強制幫它補上後端的網址與 Port！
                                                 if (fileUrl.startsWith('/uploads')) {
-                                                    fileUrl = 'http://localhost:8080' + fileUrl;
+                                                    fileUrl = window.location.origin + fileUrl;
                                                 }
                                                 return {
                                                     name: doc.name,
@@ -1430,10 +1430,11 @@
                     }
 
                     // 🌟 4. 透過 Axios 發送 POST 請求
-                    axios.post(`http://localhost:8080/api/customer/projects/${projectId}/communication`, formData, {
+                    axios.post(`/api/customer/projects/${projectId}/communication`, formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data' // 告訴後端：「嘿！我這包裡面有檔案喔！」
-                        }
+                        },
+                        withCredentials: true
                     })
                         .then(response => {
                             if (response.data.success) {
@@ -1486,7 +1487,7 @@
                     data, dashOffset, getCatIcon, hasUnread, clearUnread,
                     messages, newMessage, postMessage, selectedFiles,
                     handleFileUpload, removeSelectedFile,
-                    isPhaseCompleted 
+                    isPhaseCompleted, isSubmitting
                 }
             }
         }).mount('#app');

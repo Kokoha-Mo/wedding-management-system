@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/customer")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // 開發階段允許跨域
 public class CustomerController {
     /*
      * 使用 Lombok 的 @RequiredArgsConstructor 來自動生成建構子，並注入
@@ -62,11 +60,14 @@ public class CustomerController {
     @GetMapping("/projects/{projectId}/progress")
     public ResponseEntity<ProjectProgressDTO> getCustomerProjectProgress(@PathVariable Integer projectId) {
         try {
-            // 呼叫同一個 Service，這就是共用商業邏輯的優雅之處！
             ProjectProgressDTO progress = projectService.getProjectProgress(projectId);
             return ResponseEntity.ok(progress);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build(); // 找不到專案時回傳 404
+        } catch (Exception e) {
+            e.printStackTrace(); // 在後端 console 印出完整 stack trace
+            Map<String, Object> err = new HashMap<>();
+            err.put("error", e.getClass().getSimpleName());
+            err.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 

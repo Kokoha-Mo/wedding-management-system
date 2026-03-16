@@ -27,7 +27,7 @@ public class ConsultationService {
 
         // 1. 基本資料映射 (從 DTO 搬到 Entity)
         entity.setName(dto.getName());
-        entity.setPhone(dto.getPhone());
+        entity.setTel(dto.getTel());
         entity.setEmail(dto.getEmail());
         entity.setLineId(dto.getLineId());
 

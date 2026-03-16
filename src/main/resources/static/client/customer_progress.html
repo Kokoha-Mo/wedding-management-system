@@ -822,10 +822,28 @@
                                     :stroke-dashoffset="dashOffset" stroke-linecap="round"></circle>
                             </svg>
                             <div class="position-absolute top-50 start-50 translate-middle w-100">
-                                <div class="countdown-number">{{ data.countdownDays }}</div>
-                                <div style="font-size: 14px; letter-spacing: 0.15em; color: var(--text-muted);">
-                                    {{ data.countdownDays > 0 ? 'DAYS TO GO' : '圓滿完成' }}
-                                </div>
+
+                                <template v-if="data.countdownDays > 0">
+                                    <div class="countdown-number">{{ data.countdownDays }}</div>
+                                    <div style="font-size: 14px; letter-spacing: 0.15em; color: var(--text-muted);">
+                                        DAYS TO GO
+                                    </div>
+                                </template>
+
+                                <template v-else-if="data.countdownDays === 0">
+                                    <div
+                                        style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-gold); letter-spacing: 0.1em; font-weight: 400; line-height: 1.2;">
+                                        尚未開始
+                                    </div>
+                                </template>
+
+                                <template v-else>
+                                    <div
+                                        style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-gold); letter-spacing: 0.1em; font-weight: 400; line-height: 1.2;">
+                                        圓滿完成
+                                    </div>
+                                </template>
+
                             </div>
                         </div>
 
@@ -910,7 +928,7 @@
                     </div>
 
                     <div class="timeline-container">
-                        <div class="accordion" id="progressAccordion">
+                        <div class="accordion" id="progressAccordion" v-if="data.phases && data.phases.length > 1">
                             <div class="accordion-item timeline-item" :class="data.phases[0].status.toLowerCase()">
                                 <div class="timeline-marker"></div>
                                 <h2 class="accordion-header" id="heading0">
@@ -990,6 +1008,12 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div v-else class="text-center py-5" style="color: var(--accent-gold);">
+                            <div class="spinner-border" role="status"
+                                style="width: 2rem; height: 2rem; border-width: 0.2em;"></div>
+                            <div class="mt-3" style="font-size: 13px; letter-spacing: 0.15em;">婚禮進度載入中...</div>
                         </div>
 
                         <div class="happy-ending">
@@ -1149,9 +1173,6 @@
 
         createApp({
             setup() {
-                // 未來的寫法預告
-                const urlParams = new URLSearchParams(window.location.search);
-                const projectId = urlParams.get('id');// || 6 💡 測試階段先寫死，抓不到就預設 6
                 const isSubmitting = ref(false);
 
                 // 完整保留 UI 假資料框架
@@ -1164,73 +1185,7 @@
                     payments: [],
                     documents: [],
                     // 🌟 這裡把原本的假資料加回來了，畫面才不會找不到資料報錯
-                    phases: [
-                        {
-                            id: 1,
-                            title: '初步規劃',
-                            status: 'completed',
-                            pmMessage: null,
-                            startDate: null,
-                            tasks: [
-                                { id: 101, name: '婚宴資訊確認', isDone: true },
-                                { id: 102, name: '專屬顧問指派', isDone: true },
-                            ]
-                        },
-                        {
-                            id: 2,
-                            title: '婚禮籌備',
-                            status: 'active',
-                            pmMessage: null,
-                            pmUpdateTime: '2小時前',
-                            startDate: null,
-                            categories: [
-                                {
-                                    name: '婚禮團隊協調',
-                                    tasks: [
-                                        { id: 201, name: '新娘秘書/造型師確認', isDone: true },
-                                        { id: 202, name: '婚禮企劃主持人確認', isDone: false },
-                                        { id: 203, name: '平面/動態紀實攝影師確認', isDone: false },
-                                        { id: 204, name: '燈光音響場控確認', isDone: false }
-                                    ]
-                                },
-                                {
-                                    name: '場地佈置',
-                                    tasks: [
-                                        { id: 205, name: '場地場勘', isDone: false },
-                                        { id: 206, name: '空間動線規劃', isDone: false },
-                                        { id: 207, name: '花藝與裝飾規劃', isDone: false },
-                                        { id: 208, name: '主題佈置定稿', isDone: false }
-                                    ]
-                                },
-                                {
-                                    name: '顧問統籌',
-                                    tasks: [
-                                        { id: 209, name: '期程規劃建議', isDone: false },
-                                        { id: 210, name: '細節安排', isDone: false },
-                                        { id: 211, name: '廠商媒合推薦', isDone: false },
-                                        { id: 212, name: '細節確認會議', isDone: false }
-                                    ]
-                                },
-                                {
-                                    name: '宴會企劃執行',
-                                    tasks: [
-                                        { id: 213, name: '流程規劃', isDone: false },
-                                        { id: 214, name: '團隊協調', isDone: false },
-                                        { id: 215, name: '時程掌控', isDone: false },
-                                        { id: 216, name: '彩排引導', isDone: false }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            id: 3,
-                            title: 'Happy Ending',
-                            status: 'pending',
-                            pmMessage: null,
-                            startDate: null,
-                            tasks: []
-                        }
-                    ]
+                    phases: []
                 });
 
                 // 留言板陣列資料 (先清空，等 API 塞進來)
@@ -1269,97 +1224,110 @@
 
                 // 🚀 核心：向後端撈取專案進度與留言紀錄
                 const fetchProjectProgress = () => {
-                    axios.get(`/api/customer/projects/${projectId}/progress`, { withCredentials: true })
-                        .then(response => {
-                            // 【修改重點 1】：直接把 response.data 當作 realData，不需要再解開 apiData.data
-                            const realData = response.data;
+                    axios.get(`/api/customer/my-project/progress`, { withCredentials: true }).then(response => {
+                        // 【修改重點 1】：直接把 response.data 當作 realData，不需要再解開 apiData.data
+                        const realData = response.data;
 
-                            // 【修改重點 2】：移除 if (apiData.success) 判斷，直接綁定資料
-                            if (realData) {
-                                // 1. 更新基本資料
-                                if (realData.pmName) data.pmName = realData.pmName;
-                                if (realData.customerName) data.customerName = realData.customerName;
-                                if (realData.payments) data.payments = realData.payments;
-                                if (realData.phases) data.phases = realData.phases;
-                                if (realData.progressPercent !== undefined) {
-                                    // 加一點點延遲，讓圓環有從 0 跑上去的帥氣動畫
-                                    setTimeout(() => { data.progressPercent = realData.progressPercent; }, 300);
-                                }
-
-                                // 🌟 新增：處理正式文件，並動態指派 Icon 與補全網址
-                                if (realData.documents) {
-                                    data.documents = realData.documents.map(doc => {
-                                        let fileUrl = doc.filePath || '#';
-                                        if (fileUrl.startsWith('/uploads')) {
-                                            fileUrl = window.location.origin + fileUrl;
-                                        }
-
-                                        // 判斷 Icon：如果是圖片給 image 圖示，PDF 給 pdf 圖示，其他預設為 description
-                                        let iconType = 'description';
-                                        if (doc.fileType) {
-                                            if (doc.fileType.startsWith('image/')) iconType = 'image';
-                                            else if (doc.fileType.includes('pdf')) iconType = 'picture_as_pdf';
-                                        }
-
-                                        return {
-                                            name: doc.name,
-                                            icon: iconType,
-                                            url: fileUrl,
-                                        };
-                                    });
-                                }
-
-                                if (realData.weddingDate) {
-                                    // 把 "2026-10-24" 換成 "2026.10.24" 符合版面美學
-                                    data.weddingDate = realData.weddingDate.replace(/-/g, '.');
-
-                                    // 計算倒數天數 (順便幫你加了防呆：如果婚期已經過了，就顯示 0)
-                                    const today = new Date();
-                                    const wedding = new Date(realData.weddingDate);
-                                    const diffTime = wedding.getTime() - today.getTime();
-                                    data.countdownDays = diffTime > 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
-                                }
-
-                                // 2. 更新留言板
-                                if (realData.timeline && realData.timeline.length > 0) {
-                                    messages.splice(0, messages.length);
-                                    realData.timeline.reverse().forEach(comm => {
-                                        // 🌟 只要留言者不是「專屬顧問」，我們就一律當作是「客戶」！
-                                        const isClient = comm.createBy !== realData.pmName;
-                                        let mappedAttachments = [];
-                                        if (comm.documents && comm.documents.length > 0) {
-                                            mappedAttachments = comm.documents.map(doc => {
-                                                let fileUrl = doc.filePath || '#';
-                                                // 🌟 如果路徑是 /uploads 開頭，就強制幫它補上後端的網址與 Port！
-                                                if (fileUrl.startsWith('/uploads')) {
-                                                    fileUrl = window.location.origin + fileUrl;
-                                                }
-                                                return {
-                                                    name: doc.name,
-                                                    type: doc.fileType || 'application/pdf',
-                                                    url: fileUrl
-                                                };
-                                            });
-                                        }
-                                        // 🌟 2. 然後把 messages.push 改成這樣：
-                                        messages.push({
-                                            id: comm.id,
-                                            sender: isClient ? 'client' : 'pm',
-                                            senderName: comm.createBy || (isClient ? realData.customerName : realData.pmName),
-                                            text: comm.content,
-                                            time: comm.createAt ? comm.createAt.replace('T', ' ').substring(0, 16) : '',
-                                            attachments: mappedAttachments
-                                        });
-                                    });
-                                    nextTick(() => {
-                                        const container = document.getElementById('boardContainer');
-                                        if (container) container.scrollTop = container.scrollHeight;
-                                    });
-                                }
+                        // 【修改重點 2】：移除 if (apiData.success) 判斷，直接綁定資料
+                        if (realData) {
+                            // 1. 更新基本資料
+                            if (realData.pmName) data.pmName = realData.pmName;
+                            if (realData.customerName) data.customerName = realData.customerName;
+                            if (realData.payments) data.payments = realData.payments;
+                            if (realData.phases) data.phases = realData.phases;
+                            if (realData.progressPercent !== undefined) {
+                                // 加一點點延遲，讓圓環有從 0 跑上去的帥氣動畫
+                                setTimeout(() => { data.progressPercent = realData.progressPercent; }, 300);
                             }
-                        })
+
+                            // 🌟 新增：處理正式文件，並動態指派 Icon 與補全網址
+                            if (realData.documents) {
+                                data.documents = realData.documents.map(doc => {
+                                    let fileUrl = doc.filePath || '#';
+                                    if (fileUrl.startsWith('/uploads')) {
+                                        fileUrl = window.location.origin + fileUrl;
+                                    }
+
+                                    // 判斷 Icon：如果是圖片給 image 圖示，PDF 給 pdf 圖示，其他預設為 description
+                                    let iconType = 'description';
+                                    if (doc.fileType) {
+                                        if (doc.fileType.startsWith('image/')) iconType = 'image';
+                                        else if (doc.fileType.includes('pdf')) iconType = 'picture_as_pdf';
+                                    }
+
+                                    return {
+                                        name: doc.name,
+                                        icon: iconType,
+                                        url: fileUrl,
+                                    };
+                                });
+                            }
+
+                            if (realData.weddingDate) {
+                                // 把 "2026-10-24" 換成 "2026.10.24" 符合版面美學
+                                data.weddingDate = realData.weddingDate.replace(/-/g, '.');
+
+                                // 計算倒數天數 (順便幫你加了防呆：如果婚期已經過了，就顯示 0)
+                                const today = new Date();
+                                const wedding = new Date(realData.weddingDate);
+                                const diffTime = wedding.getTime() - today.getTime();
+                                data.countdownDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            }
+
+                            // 2. 更新留言板
+                            if (realData.timeline && realData.timeline.length > 0) {
+                                messages.splice(0, messages.length);
+                                realData.timeline.reverse().forEach(comm => {
+                                    // 🌟 只要留言者不是「專屬顧問」，我們就一律當作是「客戶」！
+                                    const isClient = comm.createBy !== realData.pmName;
+                                    let mappedAttachments = [];
+                                    if (comm.documents && comm.documents.length > 0) {
+                                        mappedAttachments = comm.documents.map(doc => {
+                                            let fileUrl = doc.filePath || '#';
+                                            // 🌟 如果路徑是 /uploads 開頭，就強制幫它補上後端的網址與 Port！
+                                            if (fileUrl.startsWith('/uploads')) {
+                                                fileUrl = window.location.origin + fileUrl;
+                                            }
+                                            return {
+                                                name: doc.name,
+                                                type: doc.fileType || 'application/pdf',
+                                                url: fileUrl
+                                            };
+                                        });
+                                    }
+                                    // 🌟 2. 然後把 messages.push 改成這樣：
+                                    messages.push({
+                                        id: comm.id,
+                                        sender: isClient ? 'client' : 'pm',
+                                        senderName: comm.createBy || (isClient ? realData.customerName : realData.pmName),
+                                        text: comm.content,
+                                        time: comm.createAt ? comm.createAt.replace('T', ' ').substring(0, 16) : '',
+                                        attachments: mappedAttachments
+                                    });
+                                });
+                                nextTick(() => {
+                                    const container = document.getElementById('boardContainer');
+                                    if (container) container.scrollTop = container.scrollHeight;
+                                });
+                            }
+                        }
+                    })
                         .catch(error => {
-                            console.error("無法載入進度:", error);
+                            // 🌟 加入這段：判斷如果是 404 (找不到專案資料)
+                            if (error.response && error.response.status === 404) {
+                                console.log("提示：", error.response.data);
+                                // 把進度條歸零，顯示友善訊息
+                                data.progressPercent = 0;
+                                data.countdownDays = 0;
+                                data.weddingDate = '籌備準備中';
+                                data.pmName = '專屬顧問安排中';
+                                data.phases = []; // 清空進度階段
+                                data.payments = [];
+                                alert("目前尚無您的專案進度資料，您的專屬顧問正在為您建檔中，請稍後再試！");
+                            } else {
+                                console.error("無法載入進度:", error);
+                                alert("系統連線異常，請稍後再試。");
+                            }
                         });
                 };
 
@@ -1430,11 +1398,11 @@
                     }
 
                     // 🌟 4. 透過 Axios 發送 POST 請求
-                    axios.post(`/api/customer/projects/${projectId}/communication`, formData, {
+                    axios.post(`/api/customer/my-project/communication`, formData, {
                         headers: {
-                            'Content-Type': 'multipart/form-data' // 告訴後端：「嘿！我這包裡面有檔案喔！」
+                            'Content-Type': 'multipart/form-data'
                         },
-                        withCredentials: true
+                        withCredentials: true // 🌟 關鍵：這會讓瀏覽器自動帶上 HttpOnly Cookie
                     })
                         .then(response => {
                             if (response.data.success) {
@@ -1466,10 +1434,11 @@
                 });
 
                 onMounted(() => {
-                    fetchProjectProgress();
-                    let targetProgress = data.progressPercent;
+                    // 🌟 強制將起點歸零，確保稍後 API 資料回來時，動畫 100% 都是順時鐘「生長」出來的！
                     data.progressPercent = 0;
-                    setTimeout(() => { data.progressPercent = targetProgress; }, 300);
+
+                    // 接著去向後端要資料
+                    fetchProjectProgress();
                 });
 
                 // 🌟 取得圖示的函式加回來了

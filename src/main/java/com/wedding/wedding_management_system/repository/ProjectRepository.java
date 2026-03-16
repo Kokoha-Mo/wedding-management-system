@@ -2,6 +2,7 @@ package com.wedding.wedding_management_system.repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.wedding.wedding_management_system.entity.Project;
@@ -17,4 +18,6 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
     // 3. 查詢特定狀態，且專案更新時間(結案時間)落在指定時間範圍內 (本年度已完成)
     Long countByStatusAndUpdateAtBetween(String status, LocalDateTime startDateTime, LocalDateTime endDateTime);
 
+    // 4. 查詢特定客戶的最新專案 (根據專案建立時間排序，取第一筆)
+    Optional<Project> findFirstByBook_Customer_EmailOrderByCreateAtDesc(String email);
 }

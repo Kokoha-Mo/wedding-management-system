@@ -10,6 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
     document.getElementById('logoutBtnMobile')?.addEventListener('click', handleLogout);
+
+    // 監聽其他分頁的 localStorage 變化 → 即時同步登入/登出狀態
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'dv_username') {
+            if (event.newValue === null) {
+                syncNavbarUI(false);
+            } else {
+                syncNavbarUI(true, event.newValue);
+            }
+        }
+    });
 });
 
 /* 檢查現在是誰在線 */
@@ -72,7 +83,7 @@ async function performLoginAction() {
 
     try {
         // 1. POST 請求給後端
-        const response = await fetch('http://localhost:8080/api/customer/login', {
+        const response = await fetch('http://127.0.0.1:8080/api/customer/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -96,15 +107,11 @@ async function performLoginAction() {
         const data = await response.json();
         // JWT Token 已經被瀏覽器自動存在 HttpOnly Cookie 裡面了，我們不用管它！
 
-        // 3. 儲存其他的非機密資訊 (例如用來顯示的 username)
-        const storage = rememberMe ? localStorage : sessionStorage;
+        // 3. dv_username / dv_login_time 存 localStorage 新分頁也能讀到登入狀態
+        localStorage.setItem('dv_username', data.name || data.email);
+        localStorage.setItem('dv_login_time', Date.now());
 
-        // 直接把從後端拿到的名字 (data.name) 存進 dv_username 裡 
-        // (如果因為某些原因沒有 name，就退而求其次用 email)
-        storage.setItem('dv_username', data.name || data.email);
-        storage.setItem('dv_login_time', Date.now());
-
-        // 只有「記住我」的邏輯才跟 dv_remember_email 有關，不要跟 dv_username 混在一起
+        // 「記住我」只控制 email 是否預先填入，與登入狀態無關
         if (rememberMe) {
             localStorage.setItem('dv_remember_email', email);
         } else {
@@ -129,7 +136,18 @@ function handleLogout(e) {
     forceLogout();
 }
 
-function forceLogout() {
+async function forceLogout() {
+
+    try {
+        await fetch('http://127.0.0.1:8080/api/customer/logout', {
+            method: 'POST',
+            credentials: 'include' // 帶 Cookie 才能讓後端識別並覆蓋cookie
+        });
+    } catch (e) {
+        // 網路失敗，前端仍繼續清除本地
+    }
+
+    // 清除localStorage
     localStorage.removeItem('dv_token');
     localStorage.removeItem('dv_username');
     localStorage.removeItem('dv_login_time');

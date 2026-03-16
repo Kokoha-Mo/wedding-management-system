@@ -26,9 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2. 回到頂部按鈕顯示邏輯 (超過 400px 顯示)
         if (st > 400) {
-            backToTopBtn.classList.add('show');
+            backToTopBtn?.classList.add('show');
         } else {
-            backToTopBtn.classList.remove('show');
+            backToTopBtn?.classList.remove('show');
         }
     });
 
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ─── 點擊按鈕回到最上方 ───
-    backToTopBtn.addEventListener('click', () => {
+    backToTopBtn?.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 

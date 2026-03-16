@@ -15,4 +15,5 @@ public class TaskDTO {
     private LocalDateTime deadline;
     private String managerContent;
     private LocalDateTime updateAt;
+    private String status;
 }

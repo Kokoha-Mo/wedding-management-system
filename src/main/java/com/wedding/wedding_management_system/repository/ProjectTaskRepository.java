@@ -10,13 +10,13 @@ import java.util.List;
 public interface ProjectTaskRepository extends JpaRepository<ProjectTask, Integer> {
 
     @Query("SELECT new com.wedding.wedding_management_system.dto.TaskDTO(" +
-            "t.id, s.name, c.name, t.deadline, t.managerContent, t.updateAt) " +
+            "t.id, s.name, c.name, t.deadline, t.managerContent, t.updateAt, t.status) " +
             "FROM ProjectTask t " +
             "JOIN t.service s " +
             "JOIN t.project p " +
             "JOIN p.book b " +
             "JOIN b.customer c " +
-            "JOIN t.taskOwners to " +
-            "WHERE to.employee.id = :empId AND t.status IN :statuses")
+            "JOIN t.taskOwners own " +
+            "WHERE own.employee.id = :empId AND t.status IN :statuses")
     List<TaskDTO> findTasksByEmployeeIdAndStatuses(@Param("empId") Integer empId, @Param("statuses") List<String> statuses);
 }

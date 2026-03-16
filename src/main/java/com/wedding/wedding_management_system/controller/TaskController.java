@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.wedding.wedding_management_system.dto.TaskStatusRequestDTO;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api/employee")
 public class TaskController {
 
     @Autowired
@@ -28,19 +30,19 @@ public class TaskController {
     @Autowired
     private TaskCommunicationService taskCommunicationService;
 
-    @GetMapping("/api/employee/task/{emp_id}")
+    @GetMapping("/task/{emp_id}")
     public ResponseEntity<List<TaskDTO>> getTasksByEmployee(@PathVariable("emp_id") Integer empId) {
         List<TaskDTO> tasks = projectTaskService.getInProgressTasksByEmployeeId(empId);
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/api/employee/task/history/{emp_id}")
+    @GetMapping("/task/history/{emp_id}")
     public ResponseEntity<List<TaskDTO>> getHistoryTasksByEmployee(@PathVariable("emp_id") Integer empId) {
         List<TaskDTO> tasks = projectTaskService.getHistoryTasksByEmployeeId(empId);
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/api/employee/tc/{task_id}")
+    @GetMapping("/tc/{task_id}")
     public ResponseEntity<List<TaskCommunicationDTO>> getTaskCommunications(@PathVariable("task_id") Integer taskId) {
         List<TaskCommunicationDTO> communications = taskCommunicationService.getCommunicationsByTaskId(taskId);
         return ResponseEntity.ok(communications);
@@ -53,7 +55,7 @@ public class TaskController {
      * "content": "String"
      * }
      */
-    @PostMapping("/api/employee/tc/mesg")
+    @PostMapping("/tc/mesg")
     public ResponseEntity<Map<String, String>> createMessage(@RequestBody MessageRequestDTO request) {
         boolean success = taskCommunicationService.saveCommunication(request);
         if (success) {
@@ -65,7 +67,7 @@ public class TaskController {
         }
     }
 
-    @PutMapping("/api/employee/task/status")
+    @PutMapping("/task/status")
     public ResponseEntity<Map<String, String>> updateTaskStatus(@RequestBody TaskStatusRequestDTO request) {
         boolean success = projectTaskService.updateTaskStatus(request.getTaskId(), request.getStatus());
         if (success) {

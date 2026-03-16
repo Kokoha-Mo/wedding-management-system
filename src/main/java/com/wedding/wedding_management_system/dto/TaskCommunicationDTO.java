@@ -9,7 +9,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaskCommunicationDTO {
-    private String createBy;
+    private Integer creatorId;
+    private String creatorName;
+    private String creatorPosition;
     private LocalDateTime createAt;
     private String content;
 }

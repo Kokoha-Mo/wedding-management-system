@@ -170,7 +170,8 @@ async function loadBooks(status = '處理中') {
 // API：建立預約
 // ════════════════════════════════════════
 async function submitCreateBook() {
-    const name  = document.getElementById('input-names').value.trim();
+    const nameA  = document.getElementById('input-nameA').value.trim();
+    const nameB  = document.getElementById('input-nameB').value.trim();
     const tel   = document.getElementById('input-tel').value.trim();
     const email = document.getElementById('input-email').value.trim();
 
@@ -323,7 +324,7 @@ function renderPendingCards(books) {
                 </button>
                 <button onclick="updateBookStatus(${book.bookId}, '已簽約')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
-                    接案處理
+                    轉為簽約
                 </button>
                 <button onclick="updateBookStatus(${book.bookId}, '取消')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-red-400 hover:bg-red-50 transition-colors">

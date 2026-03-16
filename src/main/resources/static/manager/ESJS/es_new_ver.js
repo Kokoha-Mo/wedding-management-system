@@ -4,7 +4,7 @@
 function checkAuth() {
     // 若 sessionStorage 被清空，代表未登入或已登出
     if (!sessionStorage.getItem('empId')) {
-        window.location.replace('login.html'); // replace 避免產生無效的歷史紀錄
+        //window.location.replace('login.html'); // replace 避免產生無效的歷史紀錄
     }
 }
 

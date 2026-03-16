@@ -79,11 +79,8 @@ public class BookController {
         counts.put("取消", bookRepository.countByStatus("取消"));
         return ResponseEntity.ok(counts);
     }
-//    @GetMapping("/cancelled")
-//    public ResponseEntity<List<Book>> getCancelledBooks() {
-//        List<Book> cancelledBooks = bookService.getCancelledBooks();
-//        return ResponseEntity.ok(cancelledBooks);
-//    }
+
+
 
 
 }

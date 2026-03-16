@@ -1,0 +1,1126 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ES Admin - 主頁儀表板</title>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="./ESCss/es_new_ver.css">
+    <script src="./ESJS/es_new_ver.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#1F2937",
+                        "sidebar-bg": "#21252D",
+                        "sidebar-hover": "#2C313C",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    }
+                },
+            },
+        };
+    </script>
+    <style>
+        /* 隱藏原生捲軸但保留滾動功能 (適用於橫向頁籤) */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        /* 圓環進度條動畫 */
+        @keyframes drawRing {
+            from {
+                stroke-dashoffset: 339.29;
+            }
+
+            to {
+                stroke-dashoffset: 84.82;
+            }
+
+            /* 對應 75% */
+        }
+
+        .progress-ring-circle {
+            animation: drawRing 1.5s ease-out forwards;
+        }
+
+        /* ─── 新訊息呼吸燈提示 ─── */
+        .pulse-hint {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            background-color: #EF4444;
+            /* Red 500 用於提醒 PM */
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: pulse-alert 2s infinite cubic-bezier(0.66, 0, 0, 1);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @keyframes pulse-alert {
+            to {
+                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
+
+    <div id="sidebar-overlay"
+        class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity hidden cursor-pointer">
+    </div>
+    <aside id="sidebar"
+        class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative -translate-x-full lg:translate-x-0">
+        <div class="h-16 flex items-center justify-center">
+            <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
+            <div class="text-white font-bold text-lg tracking-wide menu-category p-0 m-0">Admin</div>
+        </div>
+
+        <div class="px-4 py-4 mt-2 sidebar-user">
+            <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
+                <img alt="Joy Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover"
+                    src="./Img/smile.jpg" />
+                <div class="menu-category p-0 m-0">
+                    <div class="text-white font-medium">Joy</div>
+                    <div class="text-xs text-gray-400 mt-1">PM 權限</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
+            <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
+                GENERAL</div>
+            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="consultation.html">
+                <span
+                    class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
+            </a>
+            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="book.html">
+                <span
+                    class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
+            </a>
+            <a class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
+                href="project.html">
+                <span
+                    class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap text-white">專案管理</div>
+            </a>
+            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="quest_staff.html">
+                <span
+                    class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">任務管理</div>
+            </a>
+
+            <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
+                系統設定</div>
+
+            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="account.html">
+                <span
+                    class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">個人資訊</div>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-full overflow-hidden relative">
+
+        <header
+            class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
+            <div class="flex items-center flex-1">
+                <button id="sidebar-hamburger"
+                    class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
+                    <span class="material-icons">menu</span>
+                </button>
+                <h1 class="text-xl font-bold tracking-wider text-gray-100 hidden sm:block">預約管理</h1>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <div id="user-menu-button"
+                        class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
+                        <img alt="Joy Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
+                            src="./Img/smile.jpg" />
+                        <span class="text-sm font-medium mr-1 text-gray-200">Joy</span>
+                        <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
+                    </div>
+
+                    <div id="user-dropdown"
+                        class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">
+                        <a href="account.html"
+                            class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span> Profile
+                        </a>
+                        <hr class="my-1 border-gray-100">
+                        <a href="login.html"
+                            class="flex items-center px-4 py-2.5 text-sm text-danger hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-danger">logout</span> Log Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main
+            class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-6 lg:p-8">
+            <div class="w-full max-w-[1600px] mx-auto space-y-6">
+
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+                    <div>
+                        <a href="project.html"
+                            class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors mb-3 group">
+                            <span
+                                class="material-icons text-[18px] mr-1 transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                            返回專案總覽
+                        </a>
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center tracking-wide">
+                            <span class="material-icons text-indigo-500 mr-3 text-3xl">account_tree</span>
+                            專案進度追蹤：陳志明 & 林春嬌
+                        </h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium">專案編號：#WED-20261015<span
+                                class="mx-3">|</span>預計婚期：2026-10-15</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <input type="file" id="file-upload-input" class="hidden" multiple
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
+
+                        <button id="upload-doc-btn"
+                            class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 flex items-center shadow-sm transition-colors">
+                            <span class="material-icons text-[18px] mr-2">upload_file</span> 文件上傳
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                    <div class="lg:col-span-4 xl:col-span-3 space-y-6">
+                        <div class="glass-card rounded-2xl p-6 flex flex-col items-center shadow-sm relative">
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-white w-full mb-5 flex items-center">
+                                <span class="material-icons text-indigo-500 mr-2">analytics</span> 任務狀態統計
+                            </h3>
+                            <div class="w-full space-y-3">
+                                <div
+                                    class="flex justify-between items-center text-sm p-3.5 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                                    <span class="text-gray-600 dark:text-gray-400 font-bold flex items-center"><span
+                                            class="material-icons text-[18px] mr-1.5">person_add_alt</span>待指派</span>
+                                    <span class="font-bold text-gray-700 dark:text-gray-300 text-base">3 項</span>
+                                </div>
+                                <div
+                                    class="flex justify-between items-center text-sm p-3.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                                    <span class="text-blue-700 dark:text-blue-400 font-bold flex items-center"><span
+                                            class="material-icons text-[18px] mr-1.5">play_circle</span>進行中</span>
+                                    <span class="font-bold text-blue-700 dark:text-blue-400 text-base">4 項</span>
+                                </div>
+                                <div
+                                    class="flex justify-between items-center text-sm p-3.5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800/30">
+                                    <span class="text-amber-700 dark:text-amber-400 font-bold flex items-center"><span
+                                            class="material-icons text-[18px] mr-1.5">pending_actions</span>待審核</span>
+                                    <span class="font-bold text-amber-700 dark:text-amber-400 text-base">1 項</span>
+                                </div>
+                                <div
+                                    class="flex justify-between items-center text-sm p-3.5 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800/30">
+                                    <span class="text-green-700 dark:text-green-400 font-bold flex items-center"><span
+                                            class="material-icons text-[18px] mr-1.5">check_circle</span>已完成</span>
+                                    <span class="font-bold text-green-700 dark:text-green-400 text-base">15 項</span>
+                                </div>
+                            </div>
+
+                            <div
+                                class="w-full mt-6 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                                <div class="flex flex-col">
+                                    <span
+                                        class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-0.5">專屬客服通道</span>
+                                    <span class="text-sm font-bold text-gray-800 dark:text-white">聯繫客戶</span>
+                                </div>
+                                <div class="relative inline-block">
+                                    <button onclick="openClientChatModal(event)"
+                                        class="bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-900/30 dark:hover:bg-indigo-500 dark:text-indigo-400 dark:hover:text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm flex items-center transition-colors border border-indigo-100 dark:border-indigo-800">
+                                        <span class="material-icons text-[18px] mr-1.5">chat</span>
+                                        留言討論
+                                    </button>
+                                    <span id="client-unread-hint"
+                                        class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full shadow-[0_0_0_rgba(239,68,68,0.7)] animate-[pulse-alert_2s_infinite_cubic-bezier(0.66,0,0,1)] pointer-events-none"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8 xl:col-span-9 flex flex-col h-full">
+                        <div class="glass-card rounded-2xl p-6 lg:p-8 shadow-sm flex-1">
+
+                            <div class="flex justify-between items-center mb-8">
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-white flex items-center">
+                                    <span class="material-icons text-indigo-500 mr-2">format_list_bulleted</span> 專案任務總覽
+                                </h3>
+                                <div
+                                    class="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
+                                    <span class="text-sm font-medium text-gray-500 px-2">排序：</span>
+                                    <select
+                                        class="text-sm border-none bg-transparent rounded-md py-1 pl-2 pr-8 focus:ring-0 cursor-pointer font-bold text-gray-700 dark:text-gray-200">
+                                        <option>依狀態排序 (需處理優先)</option>
+                                        <option>依時間先後</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div
+                                class="relative border-l-2 border-gray-200 dark:border-gray-700 ml-4 space-y-8 pb-4 mt-2">
+
+                                <div class="relative pl-8">
+                                    <div
+                                        class="absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-4 border-white dark:border-gray-800">
+                                    </div>
+                                    <div
+                                        class="bg-white dark:bg-gray-800/60 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden">
+                                        <div
+                                            class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10">
+                                            急需派工</div>
+                                        <span
+                                            class="text-xs font-bold text-gray-600 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-gray-600">待指派</span>
+                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-2">婚禮主持人面談定稿</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">需與主持部門確認流程與風格。</p>
+
+                                        <div
+                                            class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                            <div class="flex items-center text-gray-400">
+                                                <span class="material-icons text-[16px] mr-1">person_off</span>
+                                                <span class="text-sm font-medium">尚未指派負責人</span>
+                                            </div>
+                                            <button
+                                                class="btn-assign bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center"
+                                                data-task="婚禮主持人面談定稿" data-category="主持部">
+                                                <span class="material-icons text-[16px] mr-1.5">person_add_alt</span>
+                                                指派人員
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="relative pl-8">
+                                    <div
+                                        class="absolute -left-[13px] top-2 w-6 h-6 rounded-full bg-amber-500 border-4 border-white dark:border-gray-800 shadow-[0_0_0_3px_rgba(245,158,11,0.2)] task-dot">
+                                    </div>
+                                    <div
+                                        class="bg-amber-50/30 dark:bg-amber-900/10 rounded-2xl p-5 border border-amber-200 dark:border-amber-800/50 shadow-sm task-card-bg">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <span
+                                                    class="status-badge text-xs font-bold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-0.5 rounded-full animate-pulse">待審核</span>
+                                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-2">
+                                                    確認攝影師與錄影師檔期</h4>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button
+                                                    class="btn-reject bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 px-4 py-1.5 rounded-lg text-sm font-bold transition-colors shadow-sm"
+                                                    onclick="openRejectModal(this)">
+                                                    駁回
+                                                </button>
+                                                <button
+                                                    class="btn-approve bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm transition-colors"
+                                                    disabled title="請先點擊下方查看成果">
+                                                    審核通過
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="mt-3 bg-white dark:bg-gray-800 rounded-lg p-3 flex justify-between items-center border border-amber-100 dark:border-amber-800/30">
+                                            <div class="flex items-center space-x-3">
+                                                <div
+                                                    class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                                                    張</div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">內部影像團隊
+                                                    </p>
+                                                    <p class="text-sm font-bold text-gray-800 dark:text-gray-200">張小飛
+                                                        (攝影部)</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                class="btn-view-result text-xs text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-md transition-colors shadow-sm">查看成果</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="relative pl-8">
+                                    <div
+                                        class="absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-blue-500 border-4 border-white dark:border-gray-800">
+                                    </div>
+                                    <div
+                                        class="bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl p-5 border border-blue-200 dark:border-blue-800/50 shadow-sm">
+                                        <span
+                                            class="text-xs font-bold text-blue-700 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full">進行中</span>
+                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-2">新娘秘書試妝</h4>
+
+                                        <div
+                                            class="mt-3 bg-white dark:bg-gray-800 rounded-lg p-3 flex justify-between items-center border border-blue-100 dark:border-blue-800/30">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="flex -space-x-2 overflow-hidden">
+                                                    <div class="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white dark:border-gray-800 flex items-center justify-center font-bold text-xs text-indigo-600"
+                                                        title="王大明">王</div>
+                                                    <div class="w-8 h-8 rounded-full bg-pink-100 border-2 border-white dark:border-gray-800 flex items-center justify-center font-bold text-xs text-pink-600"
+                                                        title="LinLi 婚紗">L</div>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">跨部門</p>
+                                                    <p class="text-sm font-bold text-gray-800 dark:text-gray-200">企劃部
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                class="btn-assign text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-md font-bold transition-colors shadow-sm"
+                                                data-task="新娘秘書試妝與合約" data-category="新娘秘書">+ 修改名單</button>
+                                        </div>
+                                        <button onclick="openChatModal('task_1')"
+                                            class="mt-4 w-full flex items-center justify-center py-2 px-4 border border-indigo-100 dark:border-indigo-800/30 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-xl transition-colors text-sm font-bold shadow-sm group">
+                                            <span
+                                                class="material-icons text-[18px] mr-2 group-hover:scale-110 transition-transform">forum</span>
+                                            任務協調留言板
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="relative pl-8">
+                                    <div
+                                        class="absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-green-500 border-4 border-white dark:border-gray-800 shadow-sm">
+                                    </div>
+                                    <div
+                                        class="bg-white dark:bg-gray-800/80 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                        <span
+                                            class="text-xs font-bold text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-2.5 py-0.5 rounded-full">已完成</span>
+                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-2">初步諮詢與需求確認</h4>
+                                        <div
+                                            class="mt-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 flex items-center space-x-3 border border-gray-100 dark:border-gray-600">
+                                            <div class="flex -space-x-2 overflow-hidden">
+                                                <div
+                                                    class="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center font-bold text-xs text-indigo-600">
+                                                    王</div>
+                                                <div
+                                                    class="w-8 h-8 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center font-bold text-xs text-blue-600">
+                                                    李</div>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-800 dark:text-gray-200">王大明, 李小華
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <div id="assignModal"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm transition-opacity">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[500px] max-w-[95%] transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
+
+            <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                    <span class="material-icons text-indigo-500 mr-2">person_add_alt</span> 分派任務負責人
+                </h3>
+                <button
+                    class="close-assign-modal text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-5">
+                <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">任務名稱</p>
+                    <p id="modal-task-name" class="text-base font-bold text-gray-800 dark:text-gray-200">任務名稱載入中...</p>
+                    <div
+                        class="mt-2 inline-flex items-center px-2 py-1 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 text-xs font-bold border border-indigo-200 dark:border-indigo-800">
+                        <span class="material-icons text-[14px] mr-1">label</span>
+                        <span id="modal-task-category">類別載入中...</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">指定負責人 <span
+                            class="text-gray-400 font-normal text-xs ml-1">(可複選)</span> <span
+                            class="text-red-500">*</span></label>
+                    <div
+                        class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-2 max-h-48 overflow-y-auto custom-scrollbar space-y-1 shadow-inner">
+
+                        <div
+                            class="text-xs font-bold text-gray-400 px-2 py-1.5 uppercase tracking-wider bg-gray-50 dark:bg-gray-800 rounded mb-1">
+                            內部各部門專員</div>
+                        <label
+                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
+                            <input type="checkbox"
+                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
+                            <div class="flex items-center space-x-3">
+                                <div
+                                    class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                                    王</div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">王大明 (企劃部)</span>
+                            </div>
+                        </label>
+                        <label
+                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
+                            <input type="checkbox"
+                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
+                            <div class="flex items-center space-x-3">
+                                <div
+                                    class="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
+                                    李</div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">李小華 (設計部)</span>
+                            </div>
+                        </label>
+                        <label
+                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
+                            <input type="checkbox"
+                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
+                            <div class="flex items-center space-x-3">
+                                <div
+                                    class="w-7 h-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-xs">
+                                    張</div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">張小飛 (攝影部)</span>
+                            </div>
+                        </label>
+                        <label
+                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
+                            <input type="checkbox"
+                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
+                            <div class="flex items-center space-x-3">
+                                <div
+                                    class="w-7 h-7 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold text-xs">
+                                    陳</div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">陳美玲 (造型部)</span>
+                            </div>
+                        </label>
+                        <label
+                            class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
+                            <input type="checkbox"
+                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
+                            <div class="flex items-center space-x-3">
+                                <div
+                                    class="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs">
+                                    林</div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">林志明 (主持部)</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">要求完成期限 <span
+                            class="text-red-500">*</span></label>
+                    <input type="date"
+                        class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">交辦事項與備註</label>
+                    <textarea
+                        class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                        rows="3" placeholder="例如：請特別注意客戶對花藝顏色有特殊要求..."></textarea>
+                </div>
+            </div>
+
+            <div
+                class="p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-2xl flex justify-end space-x-3">
+                <button
+                    class="close-assign-modal px-5 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">取消</button>
+                <button id="submit-assign-btn"
+                    class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center">
+                    <span class="material-icons text-[16px] mr-1.5">send</span> 確認分派
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultModal"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm transition-opacity">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[500px] max-w-[95%] transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
+
+            <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                    <span class="material-icons text-amber-500 mr-2">plagiarism</span> 任務成果審查
+                </h3>
+                <button
+                    class="close-result-modal text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-5">
+                <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">任務名稱</p>
+                    <p class="text-base font-bold text-gray-800 dark:text-gray-200">確認攝影師與錄影師檔期</p>
+                </div>
+
+                <div>
+                    <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">負責人員</p>
+                    <div
+                        class="flex items-center space-x-3 bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
+                        <div
+                            class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                            張</div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">張小飛 (攝影部)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">回報附檔 (現場照片 / 截圖)</p>
+                    <div
+                        class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-2 bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center group hover:border-indigo-400 transition-colors cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                            alt="成果截圖"
+                            class="w-full h-48 object-cover rounded-lg shadow-sm group-hover:opacity-90 transition-opacity">
+                        <div
+                            class="mt-3 flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-indigo-600 transition-colors">
+                            <span class="material-icons text-[18px] mr-1.5">image</span> 檔期確認對話截圖.jpg
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">負責人備註</p>
+                    <p
+                        class="text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-inner">
+                        已經跟內部錄影組與李大師確認過 10/15 檔期OK，對話截圖如附檔，請主管審核確認！
+                    </p>
+                </div>
+            </div>
+
+            <div
+                class="p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-2xl flex justify-end space-x-3">
+                <button
+                    class="close-result-modal px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center">
+                    <span class="material-icons text-[16px] mr-1.5">done_all</span> 我已確認成果
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="chatModal"
+        class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[450px] max-w-[95%] flex flex-col h-[550px] border border-gray-100 dark:border-gray-700 transform transition-all">
+            <div
+                class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50 rounded-t-2xl">
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white flex items-center">
+                    <span class="material-icons text-indigo-500 mr-2">forum</span> 任務協調留言板
+                </h3>
+                <button onclick="closeChatModal()"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full p-1 transition-colors">
+                    <span class="material-icons text-sm">close</span>
+                </button>
+            </div>
+
+            <div id="chat-content"
+                class="flex-1 overflow-y-auto p-5 space-y-5 bg-gray-50 dark:bg-gray-900/50 custom-scrollbar">
+                <div class="flex flex-col items-start">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium flex items-center"><span
+                            class="w-2 h-2 rounded-full bg-gray-400 mr-1.5"></span>王大明 (企劃部) • 10:30</span>
+                    <div
+                        class="bg-white dark:bg-gray-800 p-3.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] text-sm text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700 leading-relaxed">
+                        這場婚禮的色調客戶想改為粉櫻色，請確認目前的佈置材料與花藝設定是否需要調整？
+                    </div>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium flex items-center">本人 (PM)
+                        • 11:15<span class="w-2 h-2 rounded-full bg-indigo-500 ml-1.5"></span></span>
+                    <div
+                        class="bg-indigo-500 p-3.5 rounded-2xl rounded-tr-none shadow-md max-w-[85%] text-sm text-white leading-relaxed">
+                        收到！我立刻與設計部及花藝組確認庫存，預計下午回覆更新方案。
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl">
+                <div class="flex items-center space-x-3">
+                    <input type="text" placeholder="輸入要溝通的訊息..."
+                        class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 dark:text-white transition-colors">
+                    <button
+                        class="btn-send-msg p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0">
+                        <span class="material-icons text-[20px]">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="clientChatModal"
+        class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-[28px] shadow-2xl w-[500px] max-w-[95%] flex flex-col h-[600px] border border-gray-100 dark:border-gray-700 transform transition-all">
+            <div
+                class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-[#faf7f2] dark:bg-gray-800/80 rounded-t-[28px]">
+                <div class="flex items-center gap-2">
+                    <span class="material-icons text-indigo-600 font-light text-[28px]">forum</span>
+                    <div>
+                        <h3 class="font-serif text-xl text-gray-900 dark:text-white tracking-wide mb-0 leading-none">
+                            對外客服討論區</h3>
+                        <span class="text-[10px] tracking-widest text-gray-500 uppercase mt-1 block">Client
+                            Communication</span>
+                    </div>
+                </div>
+                <button onclick="closeClientChatModal()"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none p-1 transition-opacity opacity-50 hover:opacity-100">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            <div id="client-chat-content"
+                class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#faf7f2] dark:bg-gray-900/50 custom-scrollbar">
+
+                <div class="flex flex-col items-start gap-1">
+                    <div class="flex gap-2 items-center mb-1">
+                        <div
+                            class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-serif text-sm shadow-sm">
+                            王</div>
+                        <span class="text-xs text-gray-500 font-bold">王先生 & 陳小姐 • 2026-03-09 09:15</span>
+                    </div>
+                    <div
+                        class="bg-white p-4 rounded-2xl rounded-tl-sm shadow-sm max-w-[85%] text-sm text-gray-800 border border-gray-100 leading-relaxed">
+                        我們目前比較偏好「莫蘭迪粉」或是「燕麥色」系，等我們整理好幾張照片再傳給妳參考喔！
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-end gap-1">
+                    <div class="flex gap-2 items-center flex-row-reverse mb-1">
+                        <div
+                            class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-serif text-sm shadow-sm">
+                            李</div>
+                        <span class="text-xs text-gray-500 font-bold">本人 (PM) • 2026-03-09 10:05</span>
+                    </div>
+                    <div
+                        class="bg-indigo-50 p-4 rounded-2xl rounded-tr-sm shadow-sm max-w-[85%] text-sm text-indigo-900 border border-indigo-100 leading-relaxed text-right">
+                        沒問題！收到參考圖後，我會請佈置團隊先出第一版的 3D 模擬圖讓你們確認。
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="p-5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-[28px]">
+                <div class="flex items-center space-x-3">
+                    <button class="text-gray-400 hover:text-indigo-600 transition-colors p-2 flex-shrink-0"
+                        title="上傳檔案">
+                        <span class="material-icons">attach_file</span>
+                    </button>
+
+                    <input type="text" placeholder="回覆客戶訊息..."
+                        class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 dark:text-white transition-colors">
+
+                    <button
+                        class="btn-send-client-msg p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0">
+                        <span class="material-icons text-[20px]">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rejectModal"
+        class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-[95%] transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col p-6">
+
+            <div
+                class="flex items-center justify-center w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 text-red-500 mb-4 mx-auto">
+                <span class="material-icons text-3xl">warning</span>
+            </div>
+
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">確定要駁回此任務嗎？</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-5">駁回後，任務將重新指派負責人</p>
+            <div class="flex space-x-3">
+                <button onclick="closeRejectModal()"
+                    class="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold transition-colors">取消</button>
+                <button onclick="confirmRejectTask()"
+                    class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold shadow-sm transition-colors flex items-center justify-center">
+                    <span class="material-icons text-[18px] mr-1.5">reply</span> 確認駁回
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ================= 分派任務 Modal 與即時 UI 更新邏輯 =================
+            const assignModal = document.getElementById('assignModal');
+            const closeAssignBtns = document.querySelectorAll('.close-assign-modal');
+            const submitAssignBtn = document.getElementById('submit-assign-btn');
+
+            // 儲存目前正在編輯的任務卡片元素
+            let currentTaskCard = null;
+
+            // 1. 打開 Modal，帶入任務名稱，並記錄是哪張卡片觸發的
+            // 使用事件委派 (Event Delegation)，確保後來動態生成的按鈕也能被點擊
+            document.body.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn-assign');
+                if (!btn) return;
+
+                e.preventDefault();
+
+                // 記錄是哪一個卡片區塊被點擊 (往上找最近的 .relative.pl-8)
+                currentTaskCard = btn.closest('.relative.pl-8');
+
+                const taskName = btn.getAttribute('data-task');
+                const taskCategory = btn.getAttribute('data-category');
+
+                document.getElementById('modal-task-name').textContent = taskName;
+                document.getElementById('modal-task-category').textContent = taskCategory;
+
+                // 清空之前打勾的選項
+                const checkboxes = assignModal.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => cb.checked = false);
+
+                assignModal.classList.remove('hidden');
+            });
+
+            // 2. 關閉 Modal
+            const closeAssignModalFunc = () => {
+                assignModal.classList.add('hidden');
+                currentTaskCard = null; // 清除記錄
+            };
+            closeAssignBtns.forEach(btn => btn.addEventListener('click', closeAssignModalFunc));
+
+            // 3. 送出分派並「即時更新前端畫面」
+            if (submitAssignBtn) {
+                submitAssignBtn.addEventListener('click', () => {
+                    if (!currentTaskCard) return;
+
+                    // 取得所有被打勾的人員
+                    const checkedInputs = assignModal.querySelectorAll('input[type="checkbox"]:checked');
+                    if (checkedInputs.length === 0) {
+                        alert('請至少選擇一位負責人！');
+                        return;
+                    }
+
+                    // 收集選中人員的資訊 (頭像字與姓名)
+                    let assigneesHTML = '';
+                    let assigneesNames = [];
+
+                    checkedInputs.forEach((input, index) => {
+                        // 從 HTML 結構中抓取大頭貼的字與顏色 class
+                        const avatarDiv = input.nextElementSibling.querySelector('.rounded-full');
+                        const nameText = input.nextElementSibling.querySelector('span').textContent.split(' ')[0]; // 只取名字部分
+
+                        // 複製頭像的 class 並加上重疊效果的邊框
+                        const avatarClass = avatarDiv.className + ' border-2 border-white dark:border-gray-800';
+                        const avatarChar = avatarDiv.textContent;
+
+                        assigneesHTML += `<div class="${avatarClass}" title="${nameText}">${avatarChar}</div>`;
+                        assigneesNames.push(nameText);
+                    });
+
+                    // 把人名用逗號串起來 (如: 王大明, 李小華)
+                    const namesString = assigneesNames.join(', ');
+
+                    // --- 開始進行 UI 替換 ---
+
+                    // A. 替換左側圓點顏色 (灰色 -> 藍色)
+                    const dot = currentTaskCard.querySelector('.absolute.rounded-full');
+                    if (dot) dot.className = 'absolute -left-[13px] top-2 w-6 h-6 rounded-full bg-blue-500 border-4 border-white dark:border-gray-800 shadow-[0_0_0_3px_rgba(59,130,246,0.2)]';
+
+                    // B. 替換主卡片背景與邊框 (加上藍色風格)
+                    const cardBg = currentTaskCard.querySelector('.bg-white, .bg-gray-800\\/60');
+                    if (cardBg) {
+                        cardBg.className = 'bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl p-5 border border-blue-200 dark:border-blue-800/50 shadow-sm relative overflow-hidden';
+                    }
+
+                    // C. 移除右上角的紅色「急需派工」標籤
+                    const redBadge = currentTaskCard.querySelector('.bg-red-500');
+                    if (redBadge) redBadge.remove();
+
+                    // D. 將狀態標籤從「待指派」改成「進行中」
+                    const statusBadge = currentTaskCard.querySelector('.text-xs.font-bold');
+                    if (statusBadge) {
+                        statusBadge.className = 'text-xs font-bold text-blue-700 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full animate-pulse';
+                        statusBadge.textContent = '進行中';
+                    }
+
+                    // E. 替換下方的「指派人員」區塊，變成「人員頭像 + 修改名單按鈕」
+                    const bottomArea = currentTaskCard.querySelector('.flex.justify-between.items-center.mt-4, .flex.justify-between.items-center.border-t');
+                    if (bottomArea) {
+                        // 保留原本按鈕上的 data 屬性
+                        const oldBtn = bottomArea.querySelector('.btn-assign');
+                        const taskData = oldBtn ? oldBtn.getAttribute('data-task') : '';
+                        const catData = oldBtn ? oldBtn.getAttribute('data-category') : '';
+
+                        bottomArea.outerHTML = `
+                            <div class="mt-3 bg-white dark:bg-gray-800 rounded-lg p-3 flex justify-between items-center border border-blue-100 dark:border-blue-800/30">
+                                <div class="flex items-center space-x-3">
+                                    <div class="flex -space-x-2 overflow-hidden">
+                                        ${assigneesHTML}
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">內部協作</p>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${namesString}</p>
+                                    </div>
+                                </div>
+                                <button class="btn-assign text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-md font-bold transition-colors shadow-sm" data-task="${taskData}" data-category="${catData}">+ 修改名單</button>
+                            </div>
+                        `;
+                    }
+
+                    // 完成後關閉 Modal
+                    closeAssignModalFunc();
+
+                    // (可選) 跳出成功提示
+                    setTimeout(() => {
+                        alert(`已成功將任務分派給：${namesString}！狀態已更新為「進行中」。`);
+                    }, 100);
+                });
+            }
+
+            // ================= 審核防呆與即時 UI 更新邏輯 =================
+            const resultModal = document.getElementById('resultModal');
+            const btnViewResult = document.querySelector('.btn-view-result');
+            const closeResultBtns = document.querySelectorAll('.close-result-modal');
+            const btnApprove = document.querySelector('.btn-approve');
+
+            // 1. 打開查看成果 Modal
+            if (btnViewResult && resultModal) {
+                btnViewResult.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    resultModal.classList.remove('hidden');
+                });
+
+                // 2. 關閉 Modal 並「解鎖」審核按鈕
+                closeResultBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        resultModal.classList.add('hidden');
+
+                        // 解除防呆機制：變回黃色且可點擊
+                        if (btnApprove) {
+                            btnApprove.disabled = false;
+                            btnApprove.classList.remove('bg-gray-300', 'dark:bg-gray-700', 'text-gray-500', 'dark:text-gray-400', 'cursor-not-allowed');
+                            btnApprove.classList.add('bg-amber-500', 'text-white', 'hover:bg-amber-600');
+                            btnApprove.removeAttribute('title');
+                        }
+                    });
+                });
+            }
+
+            // 3. 點擊「審核通過」後的動態變更
+            if (btnApprove) {
+                btnApprove.addEventListener('click', function () {
+                    if (this.disabled) return;
+
+                    const taskCard = this.closest('.relative.pl-8');
+
+                    // A. 把發光的黃點變成綠點
+                    const dot = taskCard.querySelector('.task-dot');
+                    if (dot) dot.className = 'absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-green-500 border-4 border-white dark:border-gray-800 shadow-sm task-dot';
+
+                    // B. 把黃色背景變成已完成的灰白背景
+                    const cardBg = taskCard.querySelector('.task-card-bg');
+                    if (cardBg) cardBg.className = 'bg-white dark:bg-gray-800/80 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm transition-all task-card-bg';
+
+                    // C. 狀態標籤變成綠色已完成
+                    const badge = taskCard.querySelector('.status-badge');
+                    if (badge) {
+                        badge.className = 'status-badge text-xs font-bold text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-2.5 py-0.5 rounded-full';
+                        badge.textContent = '已完成';
+                    }
+
+                    // D. 隱藏審核按鈕群組 (連同駁回按鈕一起隱藏)
+                    const btnGroup = this.closest('.flex.space-x-2');
+                    if (btnGroup) {
+                        btnGroup.style.display = 'none';
+                    } else {
+                        this.style.display = 'none';
+                    }
+
+                    // E. 將「查看成果」按鈕變成「查看紀錄」
+                    if (btnViewResult) btnViewResult.textContent = '查看紀錄';
+
+                    // 模擬送出成功提示
+                    setTimeout(() => {
+                        alert('已審核通過！任務狀態已更新為「已完成」。');
+                    }, 100);
+                });
+            }
+
+            // ================= 任務協調留言板 Modal 邏輯 =================
+            // 定義在 window 讓 HTML onclick 可以直接呼叫
+            window.openChatModal = function (taskId) {
+                document.getElementById('chatModal').classList.remove('hidden');
+                // 可擴充：這裡可以透過 taskId 去向後端撈取歷史訊息
+            };
+
+            window.closeChatModal = function () {
+                document.getElementById('chatModal').classList.add('hidden');
+            };
+
+            // 留言發送模擬
+            document.addEventListener('click', function (e) {
+                const sendBtn = e.target.closest('.btn-send-msg');
+                if (sendBtn) {
+                    const input = sendBtn.previousElementSibling;
+                    if (input && input.value.trim() !== '') {
+                        // 模擬訊息發送成功
+                        alert(`訊息已送出：\n"${input.value}"`);
+
+                        // 實務上這裡會生成新的 DOM 塞入 #chat-content 中
+                        input.value = ''; // 清空輸入框
+                    } else {
+                        alert('請先輸入訊息內容！');
+                    }
+                }
+            });
+            // ================= 對外客戶聯絡留言板 Modal 邏輯 =================
+            window.openClientChatModal = function (e) {
+                if (e) e.preventDefault();
+                document.getElementById('clientChatModal').classList.remove('hidden');
+
+                // 點擊後，隱藏新訊息的呼吸燈紅點
+                const unreadHint = document.getElementById('client-unread-hint');
+                if (unreadHint) {
+                    unreadHint.style.display = 'none';
+                }
+            };
+
+            window.closeClientChatModal = function () {
+                document.getElementById('clientChatModal').classList.add('hidden');
+            };
+
+            // 客戶對話框發送模擬
+            document.addEventListener('click', function (e) {
+                const sendBtn = e.target.closest('.btn-send-client-msg');
+                if (sendBtn) {
+                    const input = sendBtn.previousElementSibling;
+                    if (input && input.value.trim() !== '') {
+                        // 模擬訊息發送
+                        alert(`已傳送給客戶：\n"${input.value}"`);
+                        input.value = ''; // 清空輸入框
+
+                        // 將卷軸捲到最底
+                        const contentArea = document.getElementById('client-chat-content');
+                        if (contentArea) contentArea.scrollTop = contentArea.scrollHeight;
+                    } else {
+                        alert('請先輸入回覆客戶的內容！');
+                    }
+                }
+            });
+
+            window.openRejectModal = function (btn) {
+                // 記錄是哪一張卡片觸發了駁回
+                currentRejectCard = btn.closest('.relative.pl-8');
+                document.getElementById('rejectModal').classList.remove('hidden');
+                // (已移除清空 reject-reason 的邏輯，因為欄位已經拔除)
+            };
+
+            window.closeRejectModal = function () {
+                document.getElementById('rejectModal').classList.add('hidden');
+                currentRejectCard = null;
+            };
+
+            window.confirmRejectTask = function () {
+                if (currentRejectCard) {
+                    // (已移除抓取 reject-reason 的邏輯)
+
+                    // UI 即時變更：因資料庫限制，將卡片退回「待指派」狀態
+                    // 1. 左側圓點變回灰色
+                    const dot = currentRejectCard.querySelector('.task-dot');
+                    if (dot) dot.className = 'absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-4 border-white dark:border-gray-800 shadow-sm task-dot';
+
+                    // 2. 卡片背景變回灰色/白色 (移除黃色風格)
+                    const cardBg = currentRejectCard.querySelector('.task-card-bg');
+                    if (cardBg) cardBg.className = 'bg-white dark:bg-gray-800/60 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all task-card-bg';
+
+                    // 3. 狀態標籤變成灰色的「待指派」
+                    const badge = currentRejectCard.querySelector('.status-badge');
+                    if (badge) {
+                        badge.className = 'status-badge text-xs font-bold text-gray-600 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-gray-600';
+                        badge.textContent = '待指派';
+                    }
+
+                    // 4. 隱藏原本的審核與駁回按鈕群組
+                    const btnContainer = currentRejectCard.querySelector('.flex.space-x-2');
+                    if (btnContainer) btnContainer.style.display = 'none';
+
+                    // 5. 加入紅色警告小標籤，提示這個是「被退回重派」的
+                    if (cardBg && !cardBg.querySelector('.bg-red-500.text-white')) {
+                        const rejectAlert = document.createElement('div');
+                        rejectAlert.className = 'absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10';
+                        rejectAlert.textContent = '已駁回，需重派';
+                        cardBg.appendChild(rejectAlert);
+                    }
+
+                    // 6. 替換負責人區塊，變回可操作的「重新指派」按鈕 (帶有歷史屬性)
+                    const taskNameEl = currentRejectCard.querySelector('h4');
+                    const taskName = taskNameEl ? taskNameEl.textContent : '未知任務';
+
+                    const bottomArea = currentRejectCard.querySelector('.mt-3.bg-white, .flex.justify-between.items-center.border-t');
+                    if (bottomArea) {
+                        bottomArea.outerHTML = `
+                            <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center text-red-500 font-bold">
+                                    <span class="material-icons text-[16px] mr-1">person_off</span>
+                                    <span class="text-sm">被駁回，尚未指派</span>
+                                </div>
+                                <button class="btn-assign bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center" 
+                                    data-task="${taskName}" 
+                                    data-category="重新指派"
+                                    data-prev-assignees="emp3" 
+                                    data-prev-deadline="2026-03-20">
+                                    <span class="material-icons text-[16px] mr-1.5">person_add_alt</span> 重新指派
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    // 模擬送出成功提示 (文字修改)
+                    setTimeout(() => {
+                        alert('已駁回任務！任務狀態已退回為「待指派」。\n請點擊「重新指派」來填寫交辦備註與修改負責人。');
+                    }, 100);
+                }
+                closeRejectModal();
+            };
+        });
+    </script>
+</body>
+
+</html>

@@ -133,46 +133,6 @@
         <main
             class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-6 lg:p-8">
             <div class="w-full max-w-[1600px] mx-auto space-y-6">
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
-                    <div
-                        class="glass-card rounded-2xl p-5 shadow-sm border-l-4 border-indigo-500 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">執行中專案
-                            </p>
-                            <p class="text-3xl font-black text-gray-800 dark:text-white mt-1">24</p>
-                        </div>
-                        <div
-                            class="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-500">
-                            <span class="material-icons text-xl">account_tree</span>
-                        </div>
-                    </div>
-                    <div
-                        class="glass-card rounded-2xl p-5 shadow-sm border-l-4 border-amber-500 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">
-                                本月即將結案</p>
-                            <p class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">5</p>
-                        </div>
-                        <div
-                            class="w-10 h-10 bg-amber-50 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-amber-500">
-                            <span class="material-icons text-xl">event_available</span>
-                        </div>
-                    </div>
-                    <div
-                        class="glass-card rounded-2xl p-5 shadow-sm border-l-4 border-green-500 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">
-                                本年度已完成</p>
-                            <p class="text-3xl font-black text-gray-800 dark:text-white mt-1">42</p>
-                        </div>
-                        <div
-                            class="w-10 h-10 bg-green-50 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-500">
-                            <span class="material-icons text-xl">task_alt</span>
-                        </div>
-                    </div>
-                </div>
-
                 <div
                     class="glass-card rounded-t-2xl px-6 py-4 flex flex-col lg:flex-row justify-between items-center gap-4 border-b border-gray-100 dark:border-gray-700">
                     <div
@@ -202,26 +162,31 @@
                                 <tr
                                     class="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
                                     <th id="th-name"
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[40%] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none">
+                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[18%] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none">
                                         <div class="flex items-center">
-                                            客戶名稱
+                                            專案編號 / 客戶
                                             <span id="sort-icon-name"
                                                 class="material-icons text-[16px] ml-1 text-gray-300 dark:text-gray-600 transition-colors">unfold_more</span>
                                         </div>
                                     </th>
 
                                     <th
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[25%]">
-                                        專案進度
+                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[12%]">
+                                        整體狀態
                                     </th>
 
                                     <th
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[20%]">
+                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[30%]">
+                                        各部執行概況
+                                    </th>
+
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">
                                         專案更新日期
                                     </th>
 
                                     <th id="th-date"
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[20%] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none">
+                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none">
                                         <div class="flex items-center">
                                             預計婚期 (Deadline)
                                             <span id="sort-icon-date"
@@ -230,7 +195,7 @@
                                     </th>
 
                                     <th
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">
+                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right w-[10%]">
                                         操作
                                     </th>
                                 </tr>
@@ -460,10 +425,10 @@
             let allProjects = []; // 儲存從後端拿到的所有資料
             let currentFilter = 'all'; // 目前的篩選狀態 (all, active, completed)
             let currentPage = 1; // 目前頁數
-            const itemsPerPage = 5; // 每頁顯示幾筆 (你可以依照需求修改，例如 5 筆)
+            const itemsPerPage = 5; // 每頁顯示幾筆
             let searchQuery = ''; // 目前的搜尋關鍵字
             let sortKey = 'date'; // 預設排序欄位 (date 或 name)
-            let sortDirection = 1; // 1: 預設排序, -1: 反向排序s
+            let sortDirection = 1; // 1: 預設排序, -1: 反向排序
 
             // =================  排序核心邏輯 =================
             function sortAllProjects() {
@@ -565,25 +530,21 @@
                 } catch (error) {
                     console.error("無法取得專案資料:", error);
                     const tbody = document.getElementById('project-table-body') || document.querySelector('tbody');
-                    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-red-500">資料載入失敗，請稍後再試。</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red-500">資料載入失敗，請稍後再試。</td></tr>`;
                 }
             }
 
             // ================= 2. 核心渲染控制器 =================
-            // 每次切換篩選或換頁時，都會呼叫這個函數重新計算
             function renderView() {
                 // --- A. 處理資料篩選 ---
                 let filteredProjects = allProjects;
-                //  1. 先進行「關鍵字搜尋」過濾
                 if (searchQuery.trim() !== '') {
-                    const keyword = searchQuery.toLowerCase(); // 轉小寫比較不挑大小寫
+                    const keyword = searchQuery.toLowerCase();
                     filteredProjects = filteredProjects.filter(p => {
-                        // 檢查客戶名稱或專案編號有沒有包含關鍵字 (加防呆避免 null)
                         return p.customerName && p.customerName.toLowerCase().includes(keyword);
                     });
                 }
 
-                //  2. 再進行「狀態」過濾 (維持你原本的邏輯)
                 if (currentFilter === 'active') {
                     filteredProjects = filteredProjects.filter(p => p.status !== '已完成');
                 } else if (currentFilter === 'completed') {
@@ -592,13 +553,10 @@
 
                 // --- B. 處理陣列分頁計算 ---
                 const totalItems = filteredProjects.length;
-                // 計算總頁數 (無條件進位，如果沒資料就預設 1 頁)
                 const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
-                // 防呆：如果切換分類後，目前的頁碼大於總頁數，就把頁碼拉回最後一頁
                 if (currentPage > totalPages) currentPage = totalPages;
 
-                // 計算要從陣列切出哪一段 (例如第一頁是 index 0~5，第二頁是 5~10)
                 const startIndex = (currentPage - 1) * itemsPerPage;
                 const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
                 const paginatedProjects = filteredProjects.slice(startIndex, endIndex);
@@ -611,12 +569,11 @@
 
             // ================= 3. 渲染表格 =================
             function renderTableHTML(projects) {
-                // 兼容處理：有 id 抓 id，沒有就抓第一個 tbody
                 const tbody = document.getElementById('project-table-body') || document.querySelector('tbody');
                 tbody.innerHTML = '';
 
                 if (projects.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-500">此分類目前沒有專案資料</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">此分類目前沒有專案資料</td></tr>`;
                     return;
                 }
 
@@ -624,10 +581,9 @@
                     let statusHtml = '';
                     let dateHtml = '';
                     let actionHtml = '';
+                    let deptStatusHtml = ''; // 🔥 新增：各部執行概況 HTML
 
-                    // 🌟 新增：更新日期的 HTML 組合
-                    // 這裡假設後端會傳一個 updateAt 欄位過來，如果沒有就顯示 '無更新紀錄'
-                    // .substring(0, 10) 是為了把 "2026-10-24T15:30:00" 切成 "2026-10-24"
+                    // 更新日期的 HTML 組合
                     let updateHtml = `
                         <div class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">最後更新於：</div>
                         <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -635,51 +591,81 @@
                         </div>
                     `;
 
+                    // 🔥 各部執行概況預設假資料 UI（實務上可根據 project.tasks 去跑 foreach 動態產生）
+                    deptStatusHtml = `
+                        <div class="flex flex-col gap-1.5 w-11/12 max-w-[360px]">
+                            <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
+                                <span class="text-[11px] font-bold text-gray-500 w-12 flex-shrink-0">企劃部</span>
+                                <span class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate flex-1">婚禮流程表初稿確認</span>
+                                <span class="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 rounded font-bold ml-2">進行中</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
+                                <span class="text-[11px] font-bold text-gray-500 w-12 flex-shrink-0">攝影部</span>
+                                <span class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate flex-1">婚紗外拍行程與地點定稿</span>
+                                <span class="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 rounded font-bold ml-2">進行中</span>
+                            </div>
+                        </div>
+                    `;
+
                     let rowClass = 'project-row transition-colors group ';
+                    
                     // 判斷狀態：已完成
                     if (project.status === '已完成') {
                         rowClass += 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
                         statusHtml = `
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                        <span class="material-icons text-[14px] mr-1">task_alt</span> 已完成
-                    </span>`;
-                        dateHtml = `
-                    <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">${project.weddingDate || '未定'}</div>
-                    <div class="text-xs text-gray-500 mt-1">專案已完成</div>`;
-                        actionHtml = `
-                    <a href="#" onclick="openProjectRecordModal(${project.projectId}, event)" class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
-                        查看紀錄 <span class="material-icons text-[16px] ml-1">history</span>
-                    </a>`;
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                            <span class="material-icons text-[14px] mr-1">task_alt</span> 已結案
+                        </span>`;
+                        
+                        // 🔥 如果已結案，部門概況直接顯示歸檔字樣
+                        deptStatusHtml = `
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+                            <span class="material-icons text-[18px] mr-2 text-green-500">done_all</span>
+                            <span>全數任務皆已完成並歸檔。</span>
+                        </div>`;
 
-                        // 判斷狀態：緊急 (剩餘 <= 45 天)
+                        dateHtml = `
+                        <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">${project.weddingDate || '未定'}</div>
+                        <div class="text-xs text-gray-500 mt-1">專案已完成</div>`;
+                        
+                        actionHtml = `
+                        <a href="#" onclick="openProjectRecordModal(${project.projectId}, event)" class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                            查看紀錄 <span class="material-icons text-[16px] ml-1">history</span>
+                        </a>`;
+
+                    // 判斷狀態：緊急 (剩餘 <= 45 天)
                     } else if (project.daysRemaining !== null && project.daysRemaining <= 45) {
                         rowClass += 'hover:bg-red-50/30 dark:hover:bg-red-900/10';
                         statusHtml = `
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/50">
-                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5 animate-pulse"></span> 進行中
-                    </span>`;
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/50">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5 animate-pulse"></span> 需注意
+                        </span>`;
+                        
                         dateHtml = `
-                    <div class="text-sm text-red-600 dark:text-red-400 font-bold">${project.weddingDate || '未定'}</div>
-                    <div class="text-xs text-red-500 mt-1 font-medium">即將到期 (剩餘 ${project.daysRemaining} 天)</div>`;
+                        <div class="text-sm text-red-600 dark:text-red-400 font-bold">${project.weddingDate || '未定'}</div>
+                        <div class="text-xs text-red-500 mt-1 font-medium">即將到期 (剩餘 ${project.daysRemaining} 天)</div>`;
+                        
                         actionHtml = `
-                    <a href="project1.html?id=${project.projectId}" class="inline-flex items-center justify-center px-4 py-2 bg-red-500 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-red-600 transition-colors shadow-sm">
-                        緊急處理 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
-                    </a>`;
+                        <a href="project1.html?id=${project.projectId}" class="inline-flex items-center justify-center px-4 py-2 bg-red-500 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-red-600 transition-colors shadow-sm">
+                            緊急處理 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
+                        </a>`;
 
-                        // 判斷狀態：一般進行中
+                    // 判斷狀態：一般進行中
                     } else {
                         rowClass += 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
                         statusHtml = `
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800/50">
-                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> 進行中
-                    </span>`;
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800/50">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> 進行中
+                        </span>`;
+                        
                         dateHtml = `
-                    <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">${project.weddingDate || '未定'}</div>
-                    <div class="text-xs text-gray-500 mt-1">剩餘 ${project.daysRemaining || 0} 天</div>`;
+                        <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">${project.weddingDate || '未定'}</div>
+                        <div class="text-xs text-gray-500 mt-1">剩餘 ${project.daysRemaining || 0} 天</div>`;
+                        
                         actionHtml = `
-                    <a href="project1.html?id=${project.projectId}" class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
-                        進入專案 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
-                    </a>`;
+                        <a href="project1.html?id=${project.projectId}" class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                            進入專案 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
+                        </a>`;
                     }
 
                     const tr = document.createElement('tr');
@@ -690,8 +676,10 @@
                             <div class="text-xs text-gray-500 mt-1">${project.projectNo || ''}</div>
                         </td>
                         <td class="px-6 py-4">${statusHtml}</td>
-                        <td class="px-6 py-4">${updateHtml}</td> <td class="px-6 py-4">${dateHtml}</td>
-                        <td class="px-6 py-4">${actionHtml}</td>
+                        <td class="px-6 py-4">${deptStatusHtml}</td>
+                        <td class="px-6 py-4">${updateHtml}</td> 
+                        <td class="px-6 py-4">${dateHtml}</td>
+                        <td class="px-6 py-4 text-right">${actionHtml}</td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -699,7 +687,6 @@
 
             // ================= 4. 渲染動態頁碼 =================
             function renderPaginationHTML(startIndex, endIndex, totalItems, totalPages) {
-                // A. 左下角：顯示 X 到 Y 筆
                 const summaryText = document.querySelector('.px-6.py-4.border-t .text-sm.text-gray-500');
                 if (summaryText) {
                     const statusName = currentFilter === 'all' ? '專案' : (currentFilter === 'active' ? '進行中專案' : '已完成專案');
@@ -710,14 +697,11 @@
                     }
                 }
 
-                // B. 右下角：上一頁 | 頁數/總頁數 | 下一頁
                 const paginationContainer = document.querySelector('.flex.space-x-1');
                 if (paginationContainer) {
-                    // 判斷按鈕是否該反灰 (第一頁不能按上一頁，最後一頁不能按下一頁)
                     const prevDisabled = currentPage === 1 ? 'disabled cursor-not-allowed opacity-50' : 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer';
                     const nextDisabled = currentPage === totalPages || totalPages === 0 ? 'disabled cursor-not-allowed opacity-50' : 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer';
 
-                    // 替換成你想要的 [上一頁 | 頁數/總頁數 | 下一頁] 樣式
                     paginationContainer.innerHTML = `
                 <button id="prev-page" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors ${prevDisabled}">上一頁</button>
                 <div class="flex items-center px-3 font-bold text-indigo-600 dark:text-indigo-400 text-sm">
@@ -726,20 +710,19 @@
                 <button id="next-page" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors ${nextDisabled}">下一頁</button>
             `;
 
-                    // 綁定上一頁與下一頁的點擊事件
                     const prevBtn = document.getElementById('prev-page');
                     const nextBtn = document.getElementById('next-page');
 
                     if (prevBtn && currentPage > 1) {
                         prevBtn.addEventListener('click', () => {
                             currentPage--;
-                            renderView(); // 換頁後重新渲染表格
+                            renderView();
                         });
                     }
                     if (nextBtn && currentPage < totalPages) {
                         nextBtn.addEventListener('click', () => {
                             currentPage++;
-                            renderView(); // 換頁後重新渲染表格
+                            renderView();
                         });
                     }
                 }
@@ -750,12 +733,10 @@
                 const completedCount = allProjects.filter(p => p.status === '已完成').length;
                 const activeCount = allProjects.length - completedCount;
 
-                // 更新按鈕數字
                 document.querySelector('button[data-filter="all"]').textContent = `全部專案 (${allProjects.length})`;
                 document.querySelector('button[data-filter="active"]').textContent = `進行中 (${activeCount})`;
                 document.querySelector('button[data-filter="completed"]').textContent = `已完成 (${completedCount})`;
 
-                // 更新按鈕黑底樣式
                 const filterBtns = document.querySelectorAll('.filter-btn');
                 filterBtns.forEach(btn => {
                     if (btn.getAttribute('data-filter') === currentFilter) {
@@ -766,11 +747,10 @@
                 });
             }
 
-            // --- 綁定上方篩選按鈕的點擊事件 ---
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     currentFilter = btn.getAttribute('data-filter');
-                    currentPage = 1; // ⚠️ 切換分類時，一定要把頁碼重置回第 1 頁，不然會顯示空白
+                    currentPage = 1; 
                     renderView();
                 });
             });
@@ -785,13 +765,12 @@
                 document.getElementById('projectRecordModal').classList.add('hidden');
             };
 
-            // ---  綁定搜尋框的輸入事件 ---
             const searchInput = document.getElementById('search-input');
             if (searchInput) {
                 searchInput.addEventListener('input', (e) => {
-                    searchQuery = e.target.value; // 抓取使用者打的字
-                    currentPage = 1; // ⚠️ 搜尋時，一定要把頁碼重置回第 1 頁
-                    renderView(); // 重新渲染畫面
+                    searchQuery = e.target.value;
+                    currentPage = 1;
+                    renderView();
                 });
             }
 

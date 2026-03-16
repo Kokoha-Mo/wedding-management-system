@@ -195,253 +195,186 @@
             </div>
         </header>
 
-        <main
-            class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-6 lg:p-8">
-            <div class="w-full max-w-[1600px] mx-auto space-y-6">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6">
+            <div class="w-full max-w-[1600px] mx-auto space-y-5">
 
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
-                    <div>
-                        <a href="project.html"
-                            class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors mb-3 group">
-                            <span
-                                class="material-icons text-[18px] mr-1 transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-indigo-50 dark:bg-indigo-900/20 rounded-full -mr-16 -mt-16 opacity-50 pointer-events-none"></div>
+                    
+                    <div class="relative z-10">
+                        <a href="project.html" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors mb-3 group">
+                            <span class="material-icons text-[18px] mr-1 transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
                             返回專案總覽
                         </a>
                         <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center tracking-wide">
                             <span class="material-icons text-indigo-500 mr-3 text-3xl">account_tree</span>
                             專案進度追蹤：陳志明 & 林春嬌
                         </h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium">專案編號：#WED-20261015<span
-                                class="mx-3">|</span>預計婚期：2026-10-15</p>
+                        <div class="flex items-center gap-4 mt-3">
+                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">#WED-20261015</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium flex items-center"><span class="material-icons text-[16px] mr-1">event</span> 預計婚期：2026-10-15</span>
+                        </div>
                     </div>
-                    <div class="flex space-x-3">
-                        <input type="file" id="file-upload-input" class="hidden" multiple
-                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
 
-                        <button id="upload-doc-btn"
-                            class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 flex items-center shadow-sm transition-colors">
+                    <div class="relative z-10 flex flex-wrap items-center gap-3">
+                        <div class="relative inline-block">
+                            <button onclick="openClientChatModal(event)" class="bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-900/30 dark:hover:bg-indigo-500 dark:text-indigo-400 dark:hover:text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm flex items-center transition-colors border border-indigo-100 dark:border-indigo-800">
+                                <span class="material-icons text-[18px] mr-1.5">forum</span>
+                                專屬客服通道
+                            </button>
+                            <span id="client-unread-hint" class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full shadow-[0_0_0_rgba(239,68,68,0.7)] animate-[pulse-alert_2s_infinite_cubic-bezier(0.66,0,0,1)] pointer-events-none border-2 border-white"></span>
+                        </div>
+
+                        <input type="file" id="file-upload-input" class="hidden" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
+                        <button id="upload-doc-btn" class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-600 flex items-center shadow-sm transition-colors">
                             <span class="material-icons text-[18px] mr-2">upload_file</span> 文件上傳
                         </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button data-filter="pending" class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gray-300 dark:bg-gray-600"></div>
+                        <div class="flex justify-between items-center w-full mb-1 pl-2">
+                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center"><span class="material-icons text-[18px] mr-1.5">person_add_alt</span>待指派</span>
+                            <span class="text-2xl font-black text-gray-700 dark:text-gray-300">3</span>
+                        </div>
+                    </button>
 
-                    <div class="lg:col-span-4 xl:col-span-3 space-y-6">
-                        <div class="glass-card rounded-2xl p-6 flex flex-col items-center shadow-sm relative">
-                            <h3 class="text-lg font-bold text-gray-800 dark:text-white w-full mb-5 flex items-center">
-                                <span class="material-icons text-indigo-500 mr-2">analytics</span> 任務狀態統計
-                            </h3>
-                            <div class="w-full space-y-3">
-                                <div
-                                    class="flex justify-between items-center text-sm p-3.5 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                                    <span class="text-gray-600 dark:text-gray-400 font-bold flex items-center"><span
-                                            class="material-icons text-[18px] mr-1.5">person_add_alt</span>待指派</span>
-                                    <span class="font-bold text-gray-700 dark:text-gray-300 text-base">3 項</span>
-                                </div>
-                                <div
-                                    class="flex justify-between items-center text-sm p-3.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/30">
-                                    <span class="text-blue-700 dark:text-blue-400 font-bold flex items-center"><span
-                                            class="material-icons text-[18px] mr-1.5">play_circle</span>進行中</span>
-                                    <span class="font-bold text-blue-700 dark:text-blue-400 text-base">4 項</span>
-                                </div>
-                                <div
-                                    class="flex justify-between items-center text-sm p-3.5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800/30">
-                                    <span class="text-amber-700 dark:text-amber-400 font-bold flex items-center"><span
-                                            class="material-icons text-[18px] mr-1.5">pending_actions</span>待審核</span>
-                                    <span class="font-bold text-amber-700 dark:text-amber-400 text-base">1 項</span>
-                                </div>
-                                <div
-                                    class="flex justify-between items-center text-sm p-3.5 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800/30">
-                                    <span class="text-green-700 dark:text-green-400 font-bold flex items-center"><span
-                                            class="material-icons text-[18px] mr-1.5">check_circle</span>已完成</span>
-                                    <span class="font-bold text-green-700 dark:text-green-400 text-base">15 項</span>
-                                </div>
-                            </div>
+                    <button data-filter="active" class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-blue-100 dark:border-blue-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500"></div>
+                        <div class="flex justify-between items-center w-full mb-1 pl-2">
+                            <span class="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center"><span class="material-icons text-[18px] mr-1.5">play_circle</span>進行中</span>
+                            <span class="text-2xl font-black text-blue-600 dark:text-blue-400">4</span>
+                        </div>
+                    </button>
 
-                            <div
-                                class="w-full mt-6 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                                <div class="flex flex-col">
-                                    <span
-                                        class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-0.5">專屬客服通道</span>
-                                    <span class="text-sm font-bold text-gray-800 dark:text-white">聯繫客戶</span>
-                                </div>
-                                <div class="relative inline-block">
-                                    <button onclick="openClientChatModal(event)"
-                                        class="bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-900/30 dark:hover:bg-indigo-500 dark:text-indigo-400 dark:hover:text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm flex items-center transition-colors border border-indigo-100 dark:border-indigo-800">
-                                        <span class="material-icons text-[18px] mr-1.5">chat</span>
-                                        留言討論
-                                    </button>
-                                    <span id="client-unread-hint"
-                                        class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full shadow-[0_0_0_rgba(239,68,68,0.7)] animate-[pulse-alert_2s_infinite_cubic-bezier(0.66,0,0,1)] pointer-events-none"></span>
-                                </div>
+                    <button data-filter="review" class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-amber-100 dark:border-amber-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-amber-500"></div>
+                        <div class="flex justify-between items-center w-full mb-1 pl-2">
+                            <span class="text-sm font-bold text-amber-600 dark:text-amber-400 flex items-center"><span class="material-icons text-[18px] mr-1.5">pending_actions</span>待審核</span>
+                            <span class="text-2xl font-black text-amber-600 dark:text-amber-400">1</span>
+                        </div>
+                    </button>
+
+                    <button data-filter="completed" class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-green-100 dark:border-green-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-green-500"></div>
+                        <div class="flex justify-between items-center w-full mb-1 pl-2">
+                            <span class="text-sm font-bold text-green-600 dark:text-green-400 flex items-center"><span class="material-icons text-[18px] mr-1.5">check_circle</span>已完成</span>
+                            <span class="text-2xl font-black text-green-600 dark:text-green-400">15</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 lg:p-8 shadow-sm">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-gray-100 dark:border-gray-700 pb-4">
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-white flex items-center">
+                            <span class="material-icons text-indigo-500 mr-2">format_list_bulleted</span> 任務執行清單
+                        </h3>
+                        <div class="flex items-center space-x-3">
+                            <button id="show-all-tasks-btn" class="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-lg transition-colors hidden shadow-sm border border-indigo-100 dark:border-indigo-800">
+                                顯示全部任務
+                            </button>
+                            <div class="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 border border-gray-200 dark:border-gray-700">
+                                <span class="text-sm font-medium text-gray-500 pl-2">排序：</span>
+                                <select class="text-sm border-none bg-transparent rounded-md py-1 pl-1 pr-8 focus:ring-0 cursor-pointer font-bold text-gray-700 dark:text-gray-200">
+                                    <option>依狀態 (需處理優先)</option>
+                                    <option>依建立時間</option>
+                                </select>
                             </div>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-8 xl:col-span-9 flex flex-col h-full">
-                        <div class="glass-card rounded-2xl p-6 lg:p-8 shadow-sm flex-1">
+                    <div class="relative border-l-2 border-gray-200 dark:border-gray-700 ml-3 space-y-6 pb-6 mt-6">
 
-                            <div class="flex justify-between items-center mb-8">
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-white flex items-center">
-                                    <span class="material-icons text-indigo-500 mr-2">format_list_bulleted</span> 專案任務總覽
-                                </h3>
-                                <div
-                                    class="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
-                                    <span class="text-sm font-medium text-gray-500 px-2">排序：</span>
-                                    <select
-                                        class="text-sm border-none bg-transparent rounded-md py-1 pl-2 pr-8 focus:ring-0 cursor-pointer font-bold text-gray-700 dark:text-gray-200">
-                                        <option>依狀態排序 (需處理優先)</option>
-                                        <option>依時間先後</option>
-                                    </select>
+                        <div class="relative pl-8 task-item" data-status="pending">
+                            <div class="absolute -left-[9px] top-6 w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-4 border-white dark:border-gray-800"></div>
+                            <div class="bg-white dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10">急需派工</div>
+                                <span class="text-xs font-bold text-gray-600 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-gray-600">待指派</span>
+                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-3">婚禮主持人面談定稿</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1.5">需與主持部門確認流程與風格。</p>
+
+                                <div class="flex justify-between items-center mt-5 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                    <div class="flex items-center text-gray-400">
+                                        <span class="material-icons text-[16px] mr-1.5">person_off</span>
+                                        <span class="text-sm font-medium">尚未指派負責人</span>
+                                    </div>
+                                    <button class="btn-assign bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center" data-task="婚禮主持人面談定稿" data-category="主持部">
+                                        <span class="material-icons text-[16px] mr-1.5">person_add_alt</span> 指派人員
+                                    </button>
                                 </div>
-                            </div>
-
-                            <div
-                                class="relative border-l-2 border-gray-200 dark:border-gray-700 ml-4 space-y-8 pb-4 mt-2">
-
-                                <div class="relative pl-8">
-                                    <div
-                                        class="absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-4 border-white dark:border-gray-800">
-                                    </div>
-                                    <div
-                                        class="bg-white dark:bg-gray-800/60 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden">
-                                        <div
-                                            class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10">
-                                            急需派工</div>
-                                        <span
-                                            class="text-xs font-bold text-gray-600 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-gray-600">待指派</span>
-                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-2">婚禮主持人面談定稿</h4>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">需與主持部門確認流程與風格。</p>
-
-                                        <div
-                                            class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                                            <div class="flex items-center text-gray-400">
-                                                <span class="material-icons text-[16px] mr-1">person_off</span>
-                                                <span class="text-sm font-medium">尚未指派負責人</span>
-                                            </div>
-                                            <button
-                                                class="btn-assign bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center"
-                                                data-task="婚禮主持人面談定稿" data-category="主持部">
-                                                <span class="material-icons text-[16px] mr-1.5">person_add_alt</span>
-                                                指派人員
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="relative pl-8">
-                                    <div
-                                        class="absolute -left-[13px] top-2 w-6 h-6 rounded-full bg-amber-500 border-4 border-white dark:border-gray-800 shadow-[0_0_0_3px_rgba(245,158,11,0.2)] task-dot">
-                                    </div>
-                                    <div
-                                        class="bg-amber-50/30 dark:bg-amber-900/10 rounded-2xl p-5 border border-amber-200 dark:border-amber-800/50 shadow-sm task-card-bg">
-                                        <div class="flex justify-between items-start mb-3">
-                                            <div>
-                                                <span
-                                                    class="status-badge text-xs font-bold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-0.5 rounded-full animate-pulse">待審核</span>
-                                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-2">
-                                                    確認攝影師與錄影師檔期</h4>
-                                            </div>
-                                            <div class="flex items-center space-x-2">
-                                                <button
-                                                    class="btn-reject bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 px-4 py-1.5 rounded-lg text-sm font-bold transition-colors shadow-sm"
-                                                    onclick="openRejectModal(this)">
-                                                    駁回
-                                                </button>
-                                                <button
-                                                    class="btn-approve bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm transition-colors"
-                                                    disabled title="請先點擊下方查看成果">
-                                                    審核通過
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="mt-3 bg-white dark:bg-gray-800 rounded-lg p-3 flex justify-between items-center border border-amber-100 dark:border-amber-800/30">
-                                            <div class="flex items-center space-x-3">
-                                                <div
-                                                    class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
-                                                    張</div>
-                                                <div>
-                                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">內部影像團隊
-                                                    </p>
-                                                    <p class="text-sm font-bold text-gray-800 dark:text-gray-200">張小飛
-                                                        (攝影部)</p>
-                                                </div>
-                                            </div>
-                                            <button
-                                                class="btn-view-result text-xs text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-md transition-colors shadow-sm">查看成果</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="relative pl-8">
-                                    <div
-                                        class="absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-blue-500 border-4 border-white dark:border-gray-800">
-                                    </div>
-                                    <div
-                                        class="bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl p-5 border border-blue-200 dark:border-blue-800/50 shadow-sm">
-                                        <span
-                                            class="text-xs font-bold text-blue-700 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full">進行中</span>
-                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-2">新娘秘書試妝</h4>
-
-                                        <div
-                                            class="mt-3 bg-white dark:bg-gray-800 rounded-lg p-3 flex justify-between items-center border border-blue-100 dark:border-blue-800/30">
-                                            <div class="flex items-center space-x-3">
-                                                <div class="flex -space-x-2 overflow-hidden">
-                                                    <div class="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white dark:border-gray-800 flex items-center justify-center font-bold text-xs text-indigo-600"
-                                                        title="王大明">王</div>
-                                                    <div class="w-8 h-8 rounded-full bg-pink-100 border-2 border-white dark:border-gray-800 flex items-center justify-center font-bold text-xs text-pink-600"
-                                                        title="LinLi 婚紗">L</div>
-                                                </div>
-                                                <div>
-                                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">跨部門</p>
-                                                    <p class="text-sm font-bold text-gray-800 dark:text-gray-200">企劃部
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <button
-                                                class="btn-assign text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-md font-bold transition-colors shadow-sm"
-                                                data-task="新娘秘書試妝與合約" data-category="新娘秘書">+ 修改名單</button>
-                                        </div>
-                                        <button onclick="openChatModal('task_1')"
-                                            class="mt-4 w-full flex items-center justify-center py-2 px-4 border border-indigo-100 dark:border-indigo-800/30 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-xl transition-colors text-sm font-bold shadow-sm group">
-                                            <span
-                                                class="material-icons text-[18px] mr-2 group-hover:scale-110 transition-transform">forum</span>
-                                            任務協調留言板
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="relative pl-8">
-                                    <div
-                                        class="absolute -left-[11px] top-2 w-5 h-5 rounded-full bg-green-500 border-4 border-white dark:border-gray-800 shadow-sm">
-                                    </div>
-                                    <div
-                                        class="bg-white dark:bg-gray-800/80 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm">
-                                        <span
-                                            class="text-xs font-bold text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-2.5 py-0.5 rounded-full">已完成</span>
-                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-2">初步諮詢與需求確認</h4>
-                                        <div
-                                            class="mt-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 flex items-center space-x-3 border border-gray-100 dark:border-gray-600">
-                                            <div class="flex -space-x-2 overflow-hidden">
-                                                <div
-                                                    class="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center font-bold text-xs text-indigo-600">
-                                                    王</div>
-                                                <div
-                                                    class="w-8 h-8 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center font-bold text-xs text-blue-600">
-                                                    李</div>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-bold text-gray-800 dark:text-gray-200">王大明, 李小華
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
+
+                        <div class="relative pl-8 task-item" data-status="review">
+                            <div class="absolute -left-[11px] top-5 w-6 h-6 rounded-full bg-amber-500 border-4 border-white dark:border-gray-800 shadow-[0_0_0_3px_rgba(245,158,11,0.2)] task-dot"></div>
+                            <div class="bg-amber-50/30 dark:bg-amber-900/10 rounded-2xl p-6 border border-amber-200 dark:border-amber-800/50 shadow-sm task-card-bg">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <span class="status-badge text-xs font-bold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-0.5 rounded-full animate-pulse">待審核</span>
+                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-3">確認攝影師與錄影師檔期</h4>
+                                    </div>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <button class="btn-reject bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm" onclick="openRejectModal(this)">駁回</button>
+                                        <button class="btn-approve bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors" disabled title="請先點擊下方查看成果">審核通過</button>
+                                    </div>
+                                </div>
+                                <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl p-3.5 flex justify-between items-center border border-amber-100 dark:border-amber-800/30 shadow-sm">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">張</div>
+                                        <div>
+                                            <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-0.5 font-bold uppercase tracking-wider">內部影像團隊</p>
+                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">張小飛 (攝影部)</p>
+                                        </div>
+                                    </div>
+                                    <button class="btn-view-result text-sm text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors shadow-sm">查看成果</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative pl-8 task-item" data-status="active">
+                            <div class="absolute -left-[9px] top-6 w-5 h-5 rounded-full bg-blue-500 border-4 border-white dark:border-gray-800"></div>
+                            <div class="bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl p-6 border border-blue-200 dark:border-blue-800/50 shadow-sm">
+                                <span class="text-xs font-bold text-blue-700 bg-blue-100 dark:bg-blue-900/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full">進行中</span>
+                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-3">新娘秘書試妝</h4>
+
+                                <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl p-3.5 flex justify-between items-center border border-blue-100 dark:border-blue-800/30 shadow-sm">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="flex -space-x-2 overflow-hidden">
+                                            <div class="w-9 h-9 rounded-full bg-indigo-100 border-2 border-white dark:border-gray-800 flex items-center justify-center font-bold text-xs text-indigo-600" title="王大明">王</div>
+                                            <div class="w-9 h-9 rounded-full bg-pink-100 border-2 border-white dark:border-gray-800 flex items-center justify-center font-bold text-xs text-pink-600" title="陳美玲">陳</div>
+                                        </div>
+                                        <div>
+                                            <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-0.5 font-bold uppercase tracking-wider">跨部門</p>
+                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">企劃部, 造型部</p>
+                                        </div>
+                                    </div>
+                                    <button class="btn-assign text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg font-bold transition-colors shadow-sm border border-indigo-100 dark:border-indigo-800" data-task="新娘秘書試妝與合約" data-category="新娘秘書">+ 修改名單</button>
+                                </div>
+                                <button onclick="openChatModal('task_1')" class="mt-4 w-full flex items-center justify-center py-2.5 px-4 border border-indigo-200 dark:border-indigo-800/50 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-indigo-900/10 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-colors text-sm font-bold shadow-sm group">
+                                    <span class="material-icons text-[18px] mr-2 group-hover:scale-110 transition-transform">forum</span> 任務協調留言板
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="relative pl-8 task-item" data-status="completed">
+                            <div class="absolute -left-[9px] top-6 w-5 h-5 rounded-full bg-green-500 border-4 border-white dark:border-gray-800 shadow-sm"></div>
+                            <div class="bg-white dark:bg-gray-800/80 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                <span class="text-xs font-bold text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-2.5 py-0.5 rounded-full">已完成</span>
+                                <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-3">初步諮詢與需求確認</h4>
+                                <div class="mt-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3.5 flex items-center space-x-3 border border-gray-100 dark:border-gray-600">
+                                    <div class="flex -space-x-2 overflow-hidden">
+                                        <div class="w-9 h-9 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center font-bold text-xs text-indigo-600">王</div>
+                                        <div class="w-9 h-9 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center font-bold text-xs text-blue-600">李</div>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">王大明, 李小華</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -786,6 +719,32 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // ================= 檔案上傳觸發邏輯 =================
+            const uploadBtn = document.getElementById('upload-doc-btn');
+            const fileInput = document.getElementById('file-upload-input');
+
+            if (uploadBtn && fileInput) {
+                // 點擊按鈕時，代為點擊隱藏的 input
+                uploadBtn.addEventListener('click', () => {
+                    fileInput.click();
+                });
+
+                // 當使用者選好檔案後的處理邏輯
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        // 取得選取的檔案名稱
+                        const fileNames = Array.from(e.target.files).map(file => file.name).join('\n');
+                        
+                        // 這裡可以替換成實際的 Toast 或後台上傳 API，目前先用 alert 模擬
+                        alert(`已成功選取並準備上傳以下檔案：\n\n${fileNames}\n\n(實務上這裡會呼叫後端 API 存入 documents 表格)`);
+                        
+                        // 清空 input 值，確保下次選同一個檔案也能觸發 change 事件
+                        fileInput.value = '';
+                    }
+                });
+            }
+
             // ================= 分派任務 Modal 與即時 UI 更新邏輯 =================
             const assignModal = document.getElementById('assignModal');
             const closeAssignBtns = document.querySelectorAll('.close-assign-modal');
@@ -1119,6 +1078,55 @@
                 }
                 closeRejectModal();
             };
+
+            // ================= 任務狀態列 篩選邏輯 =================
+            const taskFilterBtns = document.querySelectorAll('.task-filter-btn');
+            const taskItems = document.querySelectorAll('.task-item');
+            const showAllBtn = document.getElementById('show-all-tasks-btn');
+
+            taskFilterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 1. 移除其他按鈕的選取狀態 (邊框變深色)
+                    taskFilterBtns.forEach(b => {
+                        b.classList.remove('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
+                    });
+                    
+                    // 2. 標示當前被點擊的按鈕
+                    btn.classList.add('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
+
+                    const filterValue = btn.getAttribute('data-filter');
+                    
+                    // 3. 執行任務清單篩選
+                    taskItems.forEach(item => {
+                        if (item.getAttribute('data-status') === filterValue) {
+                            item.style.display = '';
+                            // 加上簡單的淡入動畫
+                            item.style.animation = 'fadeIn 0.3s ease-out';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    // 4. 顯示「顯示全部任務」的還原按鈕
+                    if (showAllBtn) showAllBtn.classList.remove('hidden');
+                });
+            });
+
+            // 「顯示全部任務」按鈕邏輯
+            if (showAllBtn) {
+                showAllBtn.addEventListener('click', () => {
+                    // 顯示所有任務
+                    taskItems.forEach(item => {
+                        item.style.display = '';
+                        item.style.animation = 'fadeIn 0.3s ease-out';
+                    });
+                    // 移除上方所有按鈕的選取狀態
+                    taskFilterBtns.forEach(b => b.classList.remove('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700'));
+                    // 隱藏自己
+                    showAllBtn.classList.add('hidden');
+                });
+            }
+        
         });
     </script>
 </body>

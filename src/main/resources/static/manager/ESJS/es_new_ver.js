@@ -1,5 +1,23 @@
 // ES-Helper.js - 系統共用互動邏輯
 
+// ================= 0. 登入狀態檢查 (處理重新整理與上一頁) =================
+function checkAuth() {
+    // 若 sessionStorage 被清空，代表未登入或已登出
+    if (!sessionStorage.getItem('empId')) {
+        window.location.replace('login.html'); // replace 避免產生無效的歷史紀錄
+    }
+}
+
+// 首次載入執行檢查
+checkAuth();
+
+// 從 bfcache 喚醒 (上一頁返回) 時重新檢查
+window.addEventListener('pageshow', function (e) {
+    if (e.persisted) {
+        checkAuth();
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // ================= 1. 側邊欄開合邏輯 =================
@@ -79,4 +97,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ================= 3. 綁定登出 API 與清除 Session =================
+    const logoutLinks = document.querySelectorAll('a[href="login.html"]'); // 抓取所有登出連結
+    logoutLinks.forEach(link => {
+        link.addEventListener('click', async (e) => {
+            e.preventDefault(); // 阻擋預設跳轉
+            try {
+                // 發送登出請求至後端清除 Cookie
+                await fetch('/api/employee/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error("登出請求異常", error);
+            } finally {
+                // 無論後端是否成功，前端徹底抹除紀錄並跳轉
+                sessionStorage.clear();
+                window.location.replace("login.html");
+            }
+        });
+    });
 });

@@ -1495,6 +1495,14 @@
             const container = document.getElementById('boardContainer');
             if (container) container.scrollTop = container.scrollHeight;
         });
+
+
+        // ── 登入檢查：未登入直接踢回登入頁 ──
+        if (!localStorage.getItem('dv_username')) {
+            alert('請先登入會員');
+            window.location.href = './client_login.html';
+        }
+
     </script>
 </body>
 

@@ -26,9 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2. 回到頂部按鈕顯示邏輯 (超過 400px 顯示)
         if (st > 400) {
-            backToTopBtn.classList.add('show');
+            backToTopBtn?.classList.add('show');
         } else {
-            backToTopBtn.classList.remove('show');
+            backToTopBtn?.classList.remove('show');
         }
     });
 
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ─── 點擊按鈕回到最上方 ───
-    backToTopBtn.addEventListener('click', () => {
+    backToTopBtn?.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 動態插入 HTML
         const banner = document.createElement('div');
         banner.id = 'cookieBanner';
-        banner.style.cssText = `
+        banner.style.cssText = /*css*/ `
         position: fixed;
         bottom: 0;
         left: 0;
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         transform: translateY(100%);
         transition: transform 0.5s ease;
     `;
-        banner.innerHTML = `
+        banner.innerHTML = /*html*/ `
         <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
             <span style="font-size:18px; color:rgba(197,160,89,0.8); flex-shrink:0;">✦</span>
             <p style="margin:0; font-size:12.5px; color:#6a6053; letter-spacing:0.1em; line-height:1.9;">

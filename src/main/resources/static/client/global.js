@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 動態插入 HTML
         const banner = document.createElement('div');
         banner.id = 'cookieBanner';
-        banner.style.cssText = `
+        banner.style.cssText = /*css*/ `
         position: fixed;
         bottom: 0;
         left: 0;
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         transform: translateY(100%);
         transition: transform 0.5s ease;
     `;
-        banner.innerHTML = `
+        banner.innerHTML = /*html*/ `
         <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
             <span style="font-size:18px; color:rgba(197,160,89,0.8); flex-shrink:0;">✦</span>
             <p style="margin:0; font-size:12.5px; color:#6a6053; letter-spacing:0.1em; line-height:1.9;">

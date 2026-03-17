@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     method: 'POST',
                     credentials: 'include'
                 });
-            } catch (error) {
                 console.error("登出請求異常", error);
             } finally {
                 // 無論後端是否成功，前端徹底抹除紀錄並跳轉

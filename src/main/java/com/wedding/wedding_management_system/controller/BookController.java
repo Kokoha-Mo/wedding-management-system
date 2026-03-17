@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/employee/books")
 @RequiredArgsConstructor // 🌟 讓 Spring 自動幫你注入 final 變數
 public class BookController {
 

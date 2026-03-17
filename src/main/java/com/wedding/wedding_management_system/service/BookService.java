@@ -53,6 +53,7 @@ public class BookService {
     private static final String TEMP_PASSWORD = "12345678";
 
 
+
     // ════════════════════════════════════════════════════════
     // 找或建立顧客（不動）
     // ════════════════════════════════════════════════════════
@@ -135,12 +136,22 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
+    // 依員工 ID + 狀態查詢（只看自己負責的）
     @Transactional(readOnly = true)
-    public Map<String, Long> statusCounts() {
+    public List<BookResponseDTO> findByManagerAndStatus(Integer managerId, String status) {
+        return bookRepository.findByManager_IdAndStatus(managerId, status)
+                .stream()
+                .map(book -> BookResponseDTO.from(book, book.getCustomer()))
+                .collect(Collectors.toList());
+    }
+
+    // 依員工 ID 查各狀態數量
+    @Transactional(readOnly = true)
+    public Map<String, Long> statusCountsByManager(Integer managerId) {
         return Map.of(
-                "處理中",  bookRepository.countByStatus("處理中"),
-                "已簽約",  bookRepository.countByStatus("已簽約"),
-                "取消預約", bookRepository.countByStatus("取消預約")
+                "處理中", bookRepository.countByManager_IdAndStatus(managerId, "處理中"),
+                "已簽約", bookRepository.countByManager_IdAndStatus(managerId, "已簽約"),
+                "取消",   bookRepository.countByManager_IdAndStatus(managerId, "取消")
         );
     }
 

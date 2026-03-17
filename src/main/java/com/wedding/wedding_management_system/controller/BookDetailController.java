@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/customer/books")
 @RequiredArgsConstructor
 public class BookDetailController {
 

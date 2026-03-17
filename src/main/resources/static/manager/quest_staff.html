@@ -368,8 +368,18 @@
             document.getElementById('header-emp-name').textContent = empName || '未知員工';
             document.getElementById('sidebar-position').textContent = position === 'MANAGER' ? '業務管理' : '員工';
             
-            const welcomeTitle = document.getElementById('welcome-title');
-            if (welcomeTitle) welcomeTitle.textContent = `歡迎，${empName}`;
+            const welcomeTitleEl = document.getElementById('welcome-title');
+            if (welcomeTitleEl) welcomeTitleEl.textContent = `歡迎，${empName}`;
+
+            // 顯示頭像
+            const imgPath = sessionStorage.getItem('imgPath');
+            if (imgPath) {
+                const fullPath = imgPath.startsWith('http') ? imgPath : '/' + imgPath;
+                const sidebarAv = document.getElementById('sidebar-avatar');
+                const headerAv = document.getElementById('header-avatar');
+                if (sidebarAv) sidebarAv.src = fullPath;
+                if (headerAv) headerAv.src = fullPath;
+            }
 
             // 2. 側邊欄權限控制
             const navConsultation = document.getElementById('nav-consultation');

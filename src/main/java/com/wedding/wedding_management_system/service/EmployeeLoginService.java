@@ -41,6 +41,8 @@ public class EmployeeLoginService {
         if (employee.getDepartment() != null) {
             result.setDeptId(employee.getDepartment().getId());
         }
+        
+        result.setImgPath(employee.getImgPath());
 
         return result;
     }

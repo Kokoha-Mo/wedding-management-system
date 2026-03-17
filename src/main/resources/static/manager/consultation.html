@@ -614,6 +614,16 @@
                     if (headerEmpName) headerEmpName.textContent = empName || '未知員工';
                     if (sidebarPosition) sidebarPosition.textContent = position === 'MANAGER' ? '業務管理' : '員工';
 
+                // 顯示頭像
+                const imgPath = sessionStorage.getItem('imgPath');
+                if (imgPath) {
+                    const fullPath = imgPath.startsWith('http') ? imgPath : '/' + imgPath;
+                    const sidebarAv = document.getElementById('sidebar-avatar');
+                    const headerAv = document.getElementById('header-avatar');
+                    if (sidebarAv) sidebarAv.src = fullPath;
+                    if (headerAv) headerAv.src = fullPath;
+                }
+
                     // 側邊欄權限控制
                     const navIds = ['nav-consultation', 'nav-book', 'nav-project', 'nav-task'];
                     navIds.forEach(id => {

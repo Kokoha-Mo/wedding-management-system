@@ -20,7 +20,9 @@ public interface ProjectTaskRepository extends JpaRepository<ProjectTask, Intege
             + "JOIN b.customer c "
             + "JOIN t.taskOwners to "
             + "WHERE to.employee.id = :empId AND t.status IN :statuses")
-    List<TaskDTO> findTasksByEmployeeIdAndStatuses(@Param("empId") Integer empId, @Param("statuses") List<String> statuses);
+    List<TaskDTO> findTasksByEmployeeIdAndStatuses(@Param("empId") Integer empId,
+            @Param("statuses") List<String> statuses);
 
-    List<ProjectTask> findByProject_Id(Integer projectId);
+    // 🌟 新增：找出該專案的所有籌備任務
+    List<ProjectTask> findByProjectId(Integer projectId);
 }

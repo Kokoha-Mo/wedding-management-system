@@ -89,6 +89,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/manager/**").hasAnyRole("MANAGER")
                                                 .requestMatchers("/api/staff/**").hasAnyRole("MANAGER", "STAFF")
                                                 .requestMatchers("/api/customer/login").permitAll() // 開放客戶登入 API
+                                                .requestMatchers("/api/customer/logout").permitAll() // 開放客戶登出 API
                                                 .requestMatchers("/api/employee/login").permitAll() // 開放員工登入 API
                                                 .requestMatchers("/api/employee/logout").permitAll() // 開放員工登出 API
                                                 .requestMatchers("/api/employee/**").authenticated() // 其他員工路由需要 JWT 驗證
@@ -96,8 +97,9 @@ public class SecurityConfig {
                                                 .anyRequest().permitAll());
                 // .httpBasic(Customizer.withDefaults()); // 可以移除 Basic Auth，改用 JWT
 
-                http.addFilterBefore(new com.wedding.wedding_management_system.filter.JwtFilter(),
+                 http.addFilterBefore(new com.wedding.wedding_management_system.filter.JwtFilter(),
                                 org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+
 
                 return http.build();
         }

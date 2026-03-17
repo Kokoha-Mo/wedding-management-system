@@ -57,6 +57,22 @@ public class ProjectService {
             }
         }
         dto.setUpdateAt(project.getUpdateAt());
+
+        if (project.getProjectTasks() != null) {
+            List<ProjectResponse.ListDTO.TaskSummaryDTO> taskDTOs = project.getProjectTasks().stream().map(task -> {
+                ProjectResponse.ListDTO.TaskSummaryDTO ts = new ProjectResponse.ListDTO.TaskSummaryDTO();
+                ts.setStatus(task.getStatus());
+                if (task.getService() != null) {
+                    ts.setTaskName(task.getService().getName());
+                    if (task.getService().getDepartment() != null) {
+                        ts.setDeptName(task.getService().getDepartment().getDeptName());
+                    }
+                }
+                return ts;
+            }).collect(Collectors.toList());
+            dto.setTasks(taskDTOs);
+        }
+
         return dto;
     }
 

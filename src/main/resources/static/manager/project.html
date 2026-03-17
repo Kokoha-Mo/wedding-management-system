@@ -610,21 +610,45 @@
                         </div>
                     `;
 
-                    // 🔥 各部執行概況預設假資料 UI（實務上可根據 project.tasks 去跑 foreach 動態產生）
-                    deptStatusHtml = `
-                        <div class="flex flex-col gap-1.5 w-11/12 max-w-[360px]">
+                    // 🔥 各部執行概況動態產生（根據 project.tasks 去跑 dynamic render）
+                    if (project.tasks && project.tasks.length > 0) {
+                        let tasksHtml = project.tasks.map(task => {
+                            let statusClasses = '';
+                            if (task.status === '待指派') {
+                                statusClasses = 'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400';
+                            } else if (task.status === '待審核') {
+                                statusClasses = 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400';
+                            } else if (task.status === '進行中') {
+                                statusClasses = 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400';
+                            } else if (task.status === '已完成') {
+                                statusClasses = 'text-green-500 bg-green-50 dark:bg-green-900/30 dark:text-green-400';
+                            } else {
+                                statusClasses = 'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400';
+                            }
+                            
+                            return `
                             <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
-                                <span class="text-[11px] font-bold text-gray-500 w-12 flex-shrink-0">企劃部</span>
-                                <span class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate flex-1">婚禮流程表初稿確認</span>
-                                <span class="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 rounded font-bold ml-2">進行中</span>
+                                <span class="text-[11px] font-bold text-gray-500 w-[50px] flex-shrink-0 truncate" title="${task.deptName || '未定'}">${task.deptName || '未定'}</span>
+                                <span class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate flex-1 ml-1" title="${task.taskName || '未命名任務'}">${task.taskName || '未命名任務'}</span>
+                                <span class="text-[10px] ${statusClasses} px-1.5 rounded font-bold ml-2 flex-shrink-0">${task.status || '未知'}</span>
                             </div>
-                            <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
-                                <span class="text-[11px] font-bold text-gray-500 w-12 flex-shrink-0">攝影部</span>
-                                <span class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate flex-1">婚紗外拍行程與地點定稿</span>
-                                <span class="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 rounded font-bold ml-2">進行中</span>
+                            `;
+                        }).join('');
+
+                        deptStatusHtml = `
+                        <div class="flex flex-col gap-1.5 w-11/12 max-w-[360px] max-h-[100px] overflow-y-auto custom-scrollbar pr-1">
+                            ${tasksHtml}
+                        </div>
+                        `;
+                    } else {
+                        deptStatusHtml = `
+                        <div class="flex flex-col gap-1.5 w-11/12 max-w-[360px]">
+                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
+                                <span class="text-xs">尚無任務資料</span>
                             </div>
                         </div>
-                    `;
+                        `;
+                    }
 
                     let rowClass = 'project-row transition-colors group ';
                     

@@ -117,8 +117,8 @@ function applyFilters() {
         const guests = parseInt(card.dataset.guests || '0');
         const bucket = guests < 100 ? 'small' : guests <= 200 ? 'medium' : 'large';
         const ok = (activeFilters.staff.size  === 0 || activeFilters.staff.has(staff))
-                && (activeFilters.theme.size  === 0 || activeFilters.theme.has(theme))
-                && (activeFilters.guests.size === 0 || activeFilters.guests.has(bucket));
+            && (activeFilters.theme.size  === 0 || activeFilters.theme.has(theme))
+            && (activeFilters.guests.size === 0 || activeFilters.guests.has(bucket));
         card.style.display = ok ? '' : 'none';
     });
 }
@@ -172,11 +172,12 @@ async function loadBooks(status = '處理中') {
 async function submitCreateBook() {
     const nameA  = document.getElementById('input-nameA').value.trim();
     const nameB  = document.getElementById('input-nameB').value.trim();
-    const tel   = document.getElementById('input-tel').value.trim();
-    const email = document.getElementById('input-email').value.trim();
+    const name   = nameB ? `${nameA} & ${nameB}` : nameA;  // 合併成 "A & B"，B 選填
+    const tel    = document.getElementById('input-tel').value.trim();
+    const email  = document.getElementById('input-email').value.trim();
 
-    if (!name || !tel) {
-        alert('請填寫姓名與手機號碼');
+    if (!nameA || !tel) {
+        alert('請填寫新郎/新娘姓名與手機號碼');
         return;
     }
 

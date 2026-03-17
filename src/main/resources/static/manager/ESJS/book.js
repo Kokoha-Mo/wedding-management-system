@@ -199,23 +199,25 @@ async function loadBooks(status = '處理中') {
 
         // --- 3. 解析 JSON 資料 ---
         let result = await res.json();
+        //console.log("從後端拿到的第一筆資料時間是：", result[0].createAt);
 
         // ★★★ 關鍵：印出後端回傳的原始資料 ★★★
-        console.log(`[載入列表 - ${status}] 後端回傳的原始資料:`, result);
+        result.sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
+        //console.log(`[載入列表 - ${status}] 後端回傳的原始資料:`, result);
 
         // --- 4. 檢查是否為陣列 (防護二) ---
         if (!Array.isArray(result)) {
-            console.warn(`[資料格式警告] 後端回傳的不是陣列！目前格式為:`, typeof result);
+            //console.warn(`[資料格式警告] 後端回傳的不是陣列！目前格式為:`, typeof result);
 
             // 嘗試從常見的分頁/包裝格式中取出陣列
             if (result && Array.isArray(result.data)) {
-                console.log('✔ 已從 result.data 中取出陣列');
+                //console.log('✔ 已從 result.data 中取出陣列');
                 result = result.data;
             } else if (result && Array.isArray(result.content)) {
-                console.log('✔ 已從 result.content 中取出陣列');
+                //console.log('✔ 已從 result.content 中取出陣列');
                 result = result.content;
             } else {
-                console.error('❌ 無法在回傳物件中找到陣列，強制設為空陣列 [] 避免報錯');
+                //console.error('❌ 無法在回傳物件中找到陣列，強制設為空陣列 [] 避免報錯');
                 result = [];
             }
         }
@@ -234,7 +236,9 @@ async function loadBooks(status = '處理中') {
 // API：建立預約
 // ════════════════════════════════════════
 async function submitCreateBook() {
-    const name  = document.getElementById('input-names').value.trim();
+    const nameA = document.getElementById('input-nameA').value.trim();
+    const nameB = document.getElementById('input-nameB').value.trim();
+    const name = nameB ? `${nameA} & ${nameB}` : nameA;
     const tel   = document.getElementById('input-tel').value.trim();
     const email = document.getElementById('input-email').value.trim();
 
@@ -321,22 +325,132 @@ async function updateBookStatus(bookId, newStatus) {
     }
 }
 
+// 🌟 1. 服務對照表 (放在檔案最上方或函數外面)
+let currentEditingBookId = null;
+const SERVICE_MAP = [
+    { id: 1, price: 18000, name: "新秘造型師", selector: '#main-makeup' },
+    { id: 2, price: 5000,  name: "新郎妝髮造型", selector: null },
+    { id: 3, price: 2000,  name: "主婚人/親友妝髮", selector: null },
+    { id: 4, price: 18000, name: "婚禮企劃主持人", selector: '#main-host' },
+    { id: 5, price: 18000, name: "平面/動態紀實攝影師", selector: '#main-photo' },
+    { id: 6, price: 18000, name: "燈光音響與影音場控", selector: '#main-audio' },
+    { id: 7, price: 35000, name: "迎賓與拍照區主題設計", selector: null },
+    { id: 8, price: 20000, name: "宴客桌景與舞台視覺", selector: null },
+    { id: 9, price: 25000, name: "鮮花花藝佈置", selector: null },
+    { id: 10, price: 15000, name: "品牌級平面視覺套組", selector: null },
+];
+
+function findCheckbox(service) {
+    if (service.selector) return document.querySelector(service.selector);
+    const labels = Array.from(document.querySelectorAll('#modal-modify label'));
+    const label = labels.find(l => l.textContent.includes(service.name));
+    if (label) return label.querySelector('input') || document.getElementById(label.getAttribute('for'));
+    return null;
+}
+
 // ════════════════════════════════════════
-// API：查看 book_details（查看需求按鈕）
+// 1. 讀取 API (外送員)
 // ════════════════════════════════════════
 async function viewBookDetails(bookId) {
+    currentEditingBookId = bookId;
     try {
-        const res     = await fetch(`http://localhost:8080/api/employee/books/${bookId}/details`, {
+        const res     = await fetch(`${API_BASE}/books/${bookId}/details`, {
             credentials: 'include'
         });
-        const details = await res.json();
-        // TODO: 下一步串接 modal 顯示細項
-        console.log('book_details:', details);
+        const data = await res.json();
+
+        // 填入備註
+        const notesEl = document.getElementById('modify-notes');
+        if (notesEl) notesEl.value = data.notes || '';
+
+        // 顯示服務清單（假資料階段：data.services 是名稱陣列）
+        const serviceListEl = document.getElementById('modify-service-list');
+        if (serviceListEl && data.services) {
+            serviceListEl.innerHTML = data.services.map(s =>
+                `<li class="text-sm text-gray-700 flex items-center gap-2">
+                    <span class="material-icons text-primary text-base">check_circle</span>${s}
+                </li>`
+            ).join('');
+        }
+
+        // 開啟 modal
+        toggleModal('modal-modify');
+
     } catch (err) {
         console.error('[API] 載入細項失敗:', err);
+        showToast('載入失敗，請稍後再試', 'error');
     }
 }
 
+// ════════════════════════════════════════
+// 2. 填寫畫面 (擺盤師) 👈 就是它，絕對要留著！
+// ════════════════════════════════════════
+function fillModifyModal(data) {
+    const modal = document.getElementById('modal-modify');
+    if (!modal) return;
+
+    // 清空舊的勾選
+    modal.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+        input.checked = false;
+        if (input.onchange) input.onchange();
+    });
+
+    // 把拿到的新資料打勾
+    const detailsList = data.details || [];
+    detailsList.forEach(item => {
+        const service = SERVICE_MAP.find(s => s.id === item.service_id);
+        if (service) {
+            const input = findCheckbox(service);
+            if (input) {
+                input.checked = true;
+                if (input.onchange) input.onchange();
+            }
+        }
+    });
+
+    // 填寫備註
+    const textarea = modal.querySelector('textarea');
+    if (textarea) textarea.value = data.notes || '';
+}
+
+// ════════════════════════════════════════
+// 3. 儲存 API (負責把修改後的資料送回後端)
+// ════════════════════════════════════════
+async function saveBookDetails() {
+    if (!currentEditingBookId) return;
+
+    // 收集備註
+    const notes = document.getElementById('modify-notes')?.value.trim() || '';
+
+    // 收集所有勾選的 checkbox（有 data-service-id 的）
+    const details = [];
+    document.querySelectorAll('#modal-modify input[type="checkbox"][data-service-id]:checked').forEach(cb => {
+        details.push({
+            service_id: parseInt(cb.getAttribute('data-service-id')),
+            unit_price: parseInt(cb.getAttribute('data-price') || 0),
+            ceremony_date: null
+        });
+    });
+
+    try {
+        const res = await fetch(`${API_BASE}/books/${currentViewBookId}/details`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+            body: JSON.stringify({notes, details})
+        });
+
+        if (res.ok) {
+            toggleModal('modal-modify');
+            showToast('需求設定已儲存！');
+        } else {
+            showToast('儲存失敗，請稍後再試', 'error');
+        }
+    } catch (err) {
+        console.error('[API] 儲存失敗:', err);
+        showToast('連線失敗', 'error');
+    }
+}
 // ════════════════════════════════════════
 // 渲染：處理中卡片
 // ════════════════════════════════════════
@@ -400,15 +514,15 @@ function renderPendingCards(books) {
                 </div>
             </div>
             <div class="flex border-t border-gray-100 bg-gray-50/30">
-                <button onclick="viewBookDetails(${book.bookId})"
+                <button onclick="viewBookDetails(${book.id})"
                     class="flex-1 py-2.5 text-[12px] font-medium text-gray-500 hover:text-gray-700 border-r border-gray-100 transition-colors">
                     查看需求
                 </button>
-                <button onclick="updateBookStatus(${book.bookId}, '已簽約')"
+                <button onclick="updateBookStatus(${book.id}, '已簽約')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
                     接案處理
                 </button>
-                <button onclick="updateBookStatus(${book.bookId}, '取消')"
+                <button onclick="updateBookStatus(${book.id}, '取消')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-red-400 hover:bg-red-50 transition-colors">
                     取消
                 </button>

@@ -17,7 +17,7 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
     Long countByStatus(String 處理中);
 
-    List<Book> findByManager_IdAndStatus(Integer managerId, String status);
+    List<Book> findByStatusAndManagerIdOrderByCreateAtDesc(String status,Integer managerId);
     long countByManager_IdAndStatus(Integer managerId, String status);
 
 

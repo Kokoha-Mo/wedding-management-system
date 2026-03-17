@@ -393,6 +393,16 @@
 
             <div class="relative p-6 flex-auto space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
 
+                <!-- 顧客已選服務清單（從 API 載入）-->
+                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
+                    <h4 class="text-sm font-bold text-blue-700 dark:text-blue-300 mb-3 flex items-center">
+                        <span class="material-icons text-base mr-2">list_alt</span> 顧客已選服務項目
+                    </h4>
+                    <ul id="modify-service-list" class="space-y-1 text-gray-500 text-sm">
+                        <li>載入中...</li>
+                    </ul>
+                </div>
+
                 <!-- B方案：婚禮團隊 -->
                 <div>
                     <h4 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -544,14 +554,14 @@
                     <h4 class="text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
                         <span class="material-icons text-primary mr-2 text-xl">edit_note</span> 婚宴備註 Notes
                     </h4>
-                    <textarea rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2.5 px-3 resize-none focus:ring-primary focus:border-primary text-gray-700 dark:text-gray-300" placeholder="輸入客戶的特殊需求或補充說明..."></textarea>
+                    <textarea id="modify-notes" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2.5 px-3 resize-none focus:ring-primary focus:border-primary text-gray-700 dark:text-gray-300" placeholder="輸入客戶的特殊需求或補充說明..."></textarea>
                 </div>
 
             </div>
 
             <div class="p-5 border-t border-gray-100 dark:border-gray-700 flex justify-end space-x-3 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-xl">
                 <button class="px-5 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" onclick="toggleModal('modal-modify')">取消修改</button>
-                <button class="bg-primary text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-600 transition-colors" onclick="toggleModal('modal-modify')">儲存需求設定</button>
+                <button class="bg-primary text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-600 transition-colors" onclick="saveBookDetails()">儲存需求設定</button>
             </div>
         </div>
     </div>

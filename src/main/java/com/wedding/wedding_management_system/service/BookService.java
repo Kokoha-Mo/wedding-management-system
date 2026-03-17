@@ -139,7 +139,7 @@ public class BookService {
     // 依員工 ID + 狀態查詢（只看自己負責的）
     @Transactional(readOnly = true)
     public List<BookResponseDTO> findByManagerAndStatus(Integer managerId, String status) {
-        return bookRepository.findByManager_IdAndStatus(managerId, status)
+        return bookRepository.findByStatusAndManagerIdOrderByCreateAtDesc(status,managerId)
                 .stream()
                 .map(book -> BookResponseDTO.from(book, book.getCustomer()))
                 .collect(Collectors.toList());

@@ -1,6 +1,7 @@
 package com.wedding.wedding_management_system.controller;
 
 import com.wedding.wedding_management_system.dto.BookDetailRequestDTO;
+import com.wedding.wedding_management_system.dto.UpdateBookDetailsRequestDTO;
 import com.wedding.wedding_management_system.entity.Book;
 import com.wedding.wedding_management_system.entity.BookDetail;
 import com.wedding.wedding_management_system.entity.Service;
@@ -12,12 +13,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/customer/books")
+@RequestMapping("/api/employee/books")
 @RequiredArgsConstructor
 public class BookDetailController {
 
@@ -45,6 +48,24 @@ public class BookDetailController {
                 "styles",      book.getStyles()       != null ? book.getStyles()       : "",
                 "content",     book.getContent()      != null ? book.getContent()      : ""
         ));
+    }
+
+    @PutMapping("/{bookId}/details")
+    public ResponseEntity<?> updateBookDetails(
+            @PathVariable Integer bookId,
+            @RequestBody UpdateBookDetailsRequestDTO request) {
+
+        // TODO: 1. 更新資料庫中該張預約單 (bookId) 的「備註 (content/notes)」
+        System.out.println("準備更新單號 " + bookId + " 的備註: " + request.getNotes());
+
+        // TODO: 2. 更新資料庫中的「服務細項」
+        // 業界標準作法：先「刪除」該 bookId 底下所有的舊細項，然後把 request.getDetails() 裡的「重新新增」進去
+        System.out.println("收到新的細項數量: " + request.getDetails().size());
+
+        // 回傳成功訊息給前端
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "需求與方案已成功更新！");
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -93,7 +114,15 @@ public class BookDetailController {
      * 查詢某 book 的所有細項
      */
     @GetMapping("/{bookId}/details")
-    public ResponseEntity<List<BookDetail>> getDetails(@PathVariable Integer bookId) {
-        return ResponseEntity.ok(bookDetailRepository.findByBookId(bookId));
+    public ResponseEntity<?> getBookDetails(@PathVariable Integer bookId) {
+        // 這裡去呼叫 Service / Repository 撈取資料
+        // BookDetailsDTO details = bookService.getBookDetails(bookId);
+
+        // 這裡先隨便塞個假資料測試看看前端會不會動：
+        Map<String, Object> fakeData = new HashMap<>();
+        fakeData.put("services", Arrays.asList("新秘造型師", "空拍機壯闊空景拍攝", "迎賓與拍照區主題設計"));
+        fakeData.put("notes", "這是我後端傳過來的備註測試！");
+
+        return ResponseEntity.ok(fakeData);
     }
 }

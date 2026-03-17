@@ -252,10 +252,10 @@
                             class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
                             <span class="material-icons text-[14px] mr-1">archive</span> 已歸檔結案
                         </span>
-                        <span class="text-sm text-gray-500 font-bold">#WED-20260808</span>
+                        <span id="record-project-no" class="text-sm text-gray-500 font-bold">讀取中...</span>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                        劉德華 & Angelababy 世紀婚禮專案
+                    <h3 id="record-customer-name" class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                        讀取中...
                     </h3>
                 </div>
                 <button onclick="closeProjectRecordModal()"
@@ -270,26 +270,27 @@
                     <div
                         class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
                         <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">負責 PM</p>
-                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center"><span
-                                class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] mr-2">J</span>
-                            Joy</p>
+                        <p id="record-pm-name" class="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center">
+                            讀取中...
+                        </p>
                     </div>
                     <div
                         class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
                         <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">實際婚期</p>
-                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">2026-08-08</p>
+                        <p id="record-wedding-date" class="text-sm font-bold text-gray-800 dark:text-gray-200">讀取中...</p>
                     </div>
                     <div
                         class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
                         <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">專案歷時</p>
-                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">215 天</p>
+                        <p id="record-duration" class="text-sm font-bold text-gray-800 dark:text-gray-200">讀取中...</p>
                     </div>
                     <div
                         class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-green-200 dark:border-green-800/50 shadow-sm relative overflow-hidden">
                         <div class="absolute right-0 top-0 h-full w-1 bg-green-500"></div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">帳務狀態</p>
-                        <p class="text-sm font-bold text-green-600 dark:text-green-400 flex items-center"><span
-                                class="material-icons text-[16px] mr-1">check_circle</span> 尾款已結清</p>
+                        <p id="record-payment-status" class="text-sm font-bold text-green-600 dark:text-green-400 flex items-center">
+                            <span class="material-icons text-[16px] mr-1">check_circle</span> 讀取中...
+                        </p>
                     </div>
                 </div>
 
@@ -299,111 +300,19 @@
                         <h4
                             class="text-sm font-bold text-gray-400 tracking-wider uppercase border-b border-gray-200 dark:border-gray-700 pb-2">
                             最終成果與歸檔文件</h4>
-                        <div
-                            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-1">
-                            <a href="#"
-                                class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors group">
-                                <div class="flex items-center">
-                                    <div
-                                        class="w-10 h-10 rounded-lg bg-red-50 text-red-500 flex items-center justify-center mr-3">
-                                        <span class="material-icons">picture_as_pdf</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">婚宴定案合約書與請款單.pdf
-                                        </p>
-                                        <p class="text-xs text-gray-500">2.4 MB • 2026-08-10 歸檔</p>
-                                    </div>
-                                </div>
-                                <span class="material-icons text-gray-400 group-hover:text-indigo-600">download</span>
-                            </a>
-                            <a href="#"
-                                class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors group border-t border-gray-100 dark:border-gray-700">
-                                <div class="flex items-center">
-                                    <div
-                                        class="w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center mr-3">
-                                        <span class="material-icons">movie</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">婚禮精華 SDE 影片
-                                            (高畫質).mp4</p>
-                                        <p class="text-xs text-gray-500">1.2 GB • 攝影部上傳</p>
-                                    </div>
-                                </div>
-                                <span class="material-icons text-gray-400 group-hover:text-indigo-600">download</span>
-                            </a>
-                        </div>
-                        <div class="flex gap-2">
-                            <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
-                                class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
-                                alt="婚禮紀錄">
-                            <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
-                                class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
-                                alt="婚禮紀錄">
-                            <div
-                                class="w-20 h-20 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                                <span class="material-icons text-gray-400">photo_library</span>
-                                <span class="text-[10px] font-bold text-gray-500 mt-1">查看全部</span>
-                            </div>
+                        <div id="record-documents"
+                            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-1 flex flex-col">
+                            <!-- 動態填入 Documents -->
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <h4
                             class="text-sm font-bold text-gray-400 tracking-wider uppercase border-b border-gray-200 dark:border-gray-700 pb-2">
-                            任務執行稽核軌跡</h4>
-                        <div
-                            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm h-full max-h-[300px] overflow-y-auto custom-scrollbar">
-                            <div class="relative border-l-2 border-gray-200 dark:border-gray-700 ml-3 space-y-6">
-
-                                <div class="relative pl-6">
-                                    <div
-                                        class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white dark:border-gray-800">
-                                    </div>
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">場地佈置撤場與點收</p>
-                                            <p class="text-xs text-gray-500 mt-0.5">負責人：李小華 (設計部)</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-xs font-bold text-green-600 dark:text-green-400">任務完成</p>
-                                            <p class="text-[10px] text-gray-400 mt-0.5">2026-08-09 10:30</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="relative pl-6">
-                                    <div
-                                        class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800">
-                                    </div>
-                                    <div class="flex justify-between items-start opacity-70">
-                                        <div>
-                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">婚禮全場攝影與錄影</p>
-                                            <p class="text-xs text-gray-500 mt-0.5">負責人：張小飛 (攝影部)</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-xs font-bold text-gray-600 dark:text-gray-400">任務完成</p>
-                                            <p class="text-[10px] text-gray-400 mt-0.5">2026-08-08 22:00</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="relative pl-6">
-                                    <div
-                                        class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800">
-                                    </div>
-                                    <div class="flex justify-between items-start opacity-70">
-                                        <div>
-                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">專案正式啟動</p>
-                                            <p class="text-xs text-gray-500 mt-0.5">建立人：Joy (PM)</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-xs font-bold text-gray-600 dark:text-gray-400">立案</p>
-                                            <p class="text-[10px] text-gray-400 mt-0.5">2026-01-15 09:00</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
+                            任務執行</h4>
+                        <div id="record-tasks"
+                            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm h-full max-h-[300px] overflow-y-auto custom-scrollbar space-y-3">
+                            <!-- 動態填入 Tasks -->
                         </div>
                     </div>
 
@@ -412,11 +321,7 @@
             </div>
 
             <div
-                class="p-5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl flex justify-between items-center">
-                <button
-                    class="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center transition-colors">
-                    <span class="material-icons text-[18px] mr-1">print</span> 匯出結案報告 PDF
-                </button>
+                class="p-5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl flex justify-end items-center">
                 <button onclick="closeProjectRecordModal()"
                     class="px-6 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold transition-colors">
                     關閉紀錄
@@ -859,9 +764,88 @@
             });
 
             // ================= 6. Modal 控制 =================
-            window.openProjectRecordModal = function (id, e) {
+            window.openProjectRecordModal = async function (id, e) {
                 if (e) e.preventDefault();
-                document.getElementById('projectRecordModal').classList.remove('hidden');
+                
+                try {
+                    const res = await fetch(`/api/manager/projects/${id}/record`);
+                    if (!res.ok) throw new Error('取得紀錄失敗');
+                    const data = await res.json();
+                    
+                    document.getElementById('record-project-no').textContent = data.projectNo || `#WED-UNKNOWN`;
+                    document.getElementById('record-customer-name').textContent = `${data.customerName || '未命名'} 專案`;
+
+                    const firstChar = data.pmName ? data.pmName.charAt(0) : '無';
+                    document.getElementById('record-pm-name').innerHTML = `<span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] mr-2">${firstChar}</span> ${data.pmName || '尚未指派'}`;
+
+                    document.getElementById('record-wedding-date').textContent = data.weddingDate || '未定';
+                    document.getElementById('record-duration').textContent = (data.durationDays || 0) + ' 天';
+                    document.getElementById('record-payment-status').innerHTML = `<span class="material-icons text-[16px] mr-1">check_circle</span> ${data.paymentStatus || '尚未付款'}`;
+                    
+                    const docsContainer = document.getElementById('record-documents');
+                    if (data.documents && data.documents.length > 0) {
+                        docsContainer.innerHTML = data.documents.map((doc, idx) => {
+                            const icon = doc.fileName && doc.fileName.toLowerCase().endsWith('.pdf') ? 'picture_as_pdf' : 'description';
+                            const iconBg = doc.fileName && doc.fileName.toLowerCase().endsWith('.pdf') ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500';
+                            const borderClass = idx > 0 ? 'border-t border-gray-100 dark:border-gray-700' : '';
+                            return `
+                                <a href="${doc.downloadUrl || '#'}"
+                                    class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors group ${borderClass}" target="_blank">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center mr-3">
+                                            <span class="material-icons">${icon}</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${doc.fileName || '未知檔名'}</p>
+                                            <p class="text-xs text-gray-500">${doc.uploadInfo}</p>
+                                        </div>
+                                    </div>
+                                    <span class="material-icons text-gray-400 group-hover:text-indigo-600">download</span>
+                                </a>
+                            `;
+                        }).join('');
+                    } else {
+                        docsContainer.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center">沒有已核准的文件</div>';
+                    }
+
+                    const tasksContainer = document.getElementById('record-tasks');
+                    if (data.taskHistories && data.taskHistories.length > 0) {
+                        tasksContainer.innerHTML = data.taskHistories.map(task => {
+                            let statusClasses = '';
+                            if (task.status === '待指派') {
+                                statusClasses = 'text-gray-500 bg-gray-100';
+                            } else if (task.status === '待審核') {
+                                statusClasses = 'text-yellow-600 bg-yellow-50';
+                            } else if (task.status === '進行中') {
+                                statusClasses = 'text-blue-500 bg-blue-50';
+                            } else if (task.status === '已完成') {
+                                statusClasses = 'text-green-500 bg-green-50';
+                            } else {
+                                statusClasses = 'text-gray-500 bg-gray-100';
+                            }
+                            
+                            return `
+                                <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${task.taskName}</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">${task.ownerInfo}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs font-bold ${statusClasses} px-2 py-0.5 rounded inline-block">${task.status}</p>
+                                        <p class="text-[10px] text-gray-400 mt-1">${task.time || ''}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        tasksContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">沒有任務紀錄</p>';
+                    }
+                    
+                    document.getElementById('projectRecordModal').classList.remove('hidden');
+                } catch(err) {
+                    console.error(err);
+                    alert("無法載入紀錄，請稍後再試。");
+                }
             };
 
             window.closeProjectRecordModal = function () {

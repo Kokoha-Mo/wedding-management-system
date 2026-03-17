@@ -178,19 +178,55 @@ public class ProjectService {
 
         // 轉換 Documents 列表
         if (project.getDocuments() != null) {
-            List<ProjectResponse.RecordDTO.DocumentDTO> docDTOs = project.getDocuments().stream().map(doc -> {
-                ProjectResponse.RecordDTO.DocumentDTO docDto = new ProjectResponse.RecordDTO.DocumentDTO();
-                docDto.setFileName(doc.getName());
-                docDto.setFileType(doc.getFileType());
-                docDto.setUploadInfo("上傳者: " + (doc.getUploadedBy() != null ? doc.getUploadedBy().getName() : "未知"));
-                docDto.setDownloadUrl(doc.getFilePath());
-                return docDto;
+            List<ProjectResponse.RecordDTO.DocumentDTO> docDTOs = project.getDocuments().stream()
+                .filter(doc -> "已核准".equals(doc.getStatus()))
+                .map(doc -> {
+                    ProjectResponse.RecordDTO.DocumentDTO docDto = new ProjectResponse.RecordDTO.DocumentDTO();
+                    docDto.setFileName(doc.getName());
+                    docDto.setFileType(doc.getFileType());
+                    
+                    String uploadDept = "未知";
+                    if (doc.getUploadedBy() != null && doc.getUploadedBy().getDepartment() != null) {
+                        uploadDept = doc.getUploadedBy().getDepartment().getDeptName();
+                    }
+                    docDto.setUploadInfo("上傳者: " + (doc.getUploadedBy() != null ? doc.getUploadedBy().getName() : "未知") + " (" + uploadDept + ")");
+                    docDto.setDownloadUrl(doc.getFilePath());
+                    return docDto;
             }).collect(Collectors.toList());
             dto.setDocuments(docDTOs);
         }
 
-        // 轉換 Tasks 歷史軌跡列表 (同理轉換...)
-        // 如果你需要，我也可以把 TaskHistoryDTO 的 mapping 寫出來
+        // 轉換 Tasks 歷史軌跡列表
+        if (project.getProjectTasks() != null) {
+            List<ProjectResponse.RecordDTO.TaskHistoryDTO> taskDTOs = project.getProjectTasks().stream().map(task -> {
+                ProjectResponse.RecordDTO.TaskHistoryDTO tDto = new ProjectResponse.RecordDTO.TaskHistoryDTO();
+                tDto.setTaskName(task.getService() != null ? task.getService().getName() : "未知任務");
+                
+                String assigneeText = "尚未指派";
+                if (task.getTaskOwners() != null && !task.getTaskOwners().isEmpty()) {
+                    assigneeText = task.getTaskOwners().stream().map(owner -> {
+                        String name = owner.getEmployee() != null ? owner.getEmployee().getName() : "未知";
+                        String dept = owner.getEmployee() != null && owner.getEmployee().getDepartment() != null ? owner.getEmployee().getDepartment().getDeptName() : "未知部門";
+                        return name + " (" + dept + ")";
+                    }).collect(Collectors.joining(", "));
+                }
+                
+                tDto.setOwnerInfo("負責人: " + assigneeText);
+                tDto.setStatus(task.getStatus());
+                
+                if (task.getUpdateAt() != null) {
+                    tDto.setTime(task.getUpdateAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                } else {
+                    tDto.setTime("");
+                }
+                
+                tDto.setCompleted(! "待指派".equals(task.getStatus()) && ! "進行中".equals(task.getStatus()));
+                
+                return tDto;
+            }).collect(Collectors.toList());
+            dto.setTaskHistories(taskDTOs);
+        }
+
         return dto;
     }
 }

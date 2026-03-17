@@ -575,7 +575,7 @@
                         // 如果是 401/403，代表沒登入或權限不足
                         if (response.status === 401 || response.status === 403) {
                             alert("請先登入！");
-                            window.location.href = 'login.html';
+                            //window.location.href = 'login.html';
                             return;
                         }
                         throw new Error('API 發生錯誤');

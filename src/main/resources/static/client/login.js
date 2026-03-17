@@ -83,7 +83,7 @@ async function performLoginAction() {
 
     try {
         // 1. POST 請求給後端
-        const response = await fetch('http://127.0.0.1:8080/api/customer/login', {
+        const response = await fetch('/api/customer/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -192,7 +192,7 @@ function handleLogout(e) {
 async function forceLogout() {
 
     try {
-        await fetch('http://127.0.0.1:8080/api/customer/logout', {
+        await fetch('/api/customer/logout', {
             method: 'POST',
             credentials: 'include' // 帶 Cookie 才能讓後端識別並覆蓋cookie
         });

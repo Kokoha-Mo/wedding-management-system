@@ -10,12 +10,10 @@ import jakarta.persistence.OneToMany;
 import lombok.Data;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "customers")
 @Data
-@NoArgsConstructor
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +28,9 @@ public class Customer {
 
     @Column(length = 255, unique = true)
     private String email;
+
+    @Column(columnDefinition = "TEXT")
+    private String address;
 
     @Column(name = "line_id", length = 50)
     private String lineId;

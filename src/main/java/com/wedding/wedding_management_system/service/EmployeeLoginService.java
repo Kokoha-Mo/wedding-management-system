@@ -33,7 +33,7 @@ public class EmployeeLoginService {
         }
 
         EmployeeLoginResponseDto result = new EmployeeLoginResponseDto();
-        result.setToken(JwtToken.createToken(employee.getEmail()));
+        result.setToken(JwtToken.createTokenWithRole(employee.getEmail(), employee.getRole()));
         result.setEmpId(employee.getId());
         result.setEmpName(employee.getName());
         result.setPosition(employee.getRole()); // Assumed 'role' serves as 'position'
@@ -41,6 +41,8 @@ public class EmployeeLoginService {
         if (employee.getDepartment() != null) {
             result.setDeptId(employee.getDepartment().getId());
         }
+        
+        result.setImgPath(employee.getImgPath());
 
         return result;
     }

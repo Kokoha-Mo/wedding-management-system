@@ -10,4 +10,5 @@ public class CustomerLoginResponseDto {
     private Integer customerId;
     // 用來告訴前端，這個客人是不是首次登入
     private boolean forcePasswordChange;
+    private Integer projectId;
 }

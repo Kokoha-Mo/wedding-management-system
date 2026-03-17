@@ -125,11 +125,11 @@
 
         <div class="px-4 py-4 mt-2 sidebar-user">
             <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
-                <img alt="Joy Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover"
+                <img id="sidebar-avatar" alt="Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover"
                     src="./Img/smile.jpg" />
                 <div class="menu-category p-0 m-0">
-                    <div class="text-white font-medium">Joy</div>
-                    <div class="text-xs text-gray-400 mt-1">櫃台人員</div>
+                    <div id="sidebar-emp-name" class="text-white font-medium">載入中...</div>
+                    <div id="sidebar-position" class="text-xs text-gray-400 mt-1">...</div>
                 </div>
             </div>
         </div>
@@ -137,25 +137,25 @@
         <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
             <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 GENERAL</div>
-            <a class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
+            <a id="nav-consultation" class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
                 href="consultation.html">
                 <span
                     class="material-icons text-accent-gold mr-3 group-hover:scale-110 transition-transform">support_agent</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-book" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="book.html">
                 <span
                     class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-project" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="project.html">
                 <span
                     class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-task" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="quest_staff.html">
                 <span
                     class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
@@ -163,7 +163,7 @@
             </a>
             <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 系統設定</div>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-account" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="account.html">
                 <span
                     class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
@@ -190,9 +190,9 @@
                 <div class="relative">
                     <div id="user-menu-button"
                         class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
-                        <img alt="Joy Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
+                        <img id="header-avatar" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
                             src="./Img/smile.jpg" />
-                        <span class="text-sm font-medium mr-1 text-gray-200">Joy</span>
+                        <span id="header-emp-name" class="text-sm font-medium mr-1 text-gray-200">User</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                     </div>
 
@@ -225,6 +225,7 @@
                             class="form-select text-sm border-gray-200 rounded-lg shadow-sm focus:ring-accent-gold focus:border-accent-gold w-full md:w-40 bg-white py-2">
                             <option value="all">顯示全部</option>
                             <option value="pending">待處理 (Pending)</option>
+                            <option value="contacted">已聯絡 (Contacted)</option>
                             <option value="confirmed">轉預約 (Booking)</option>
                             <option value="cancelled">無效 / 取消 (Cancelled)</option>
                         </select>
@@ -291,7 +292,7 @@
 
                                     <td
                                         class="px-6 py-4 text-gray-600 text-sm font-mono hidden lg:table-cell whitespace-nowrap">
-                                        {{ formatPhone(item.phone) }}
+                                        {{ formatTel(item.tel) }}
                                     </td>
 
                                     <td class="px-6 py-4 hidden lg:table-cell">
@@ -395,7 +396,7 @@
                             </div>
                             <div>
                                 <div class="readonly-label">聯絡電話</div>
-                                <div class="readonly-value flex items-center">{{ selectedItem.phone }}</div>
+                                <div class="readonly-value flex items-center">{{ selectedItem.tel }}</div>
                             </div>
                         </div>
 
@@ -469,6 +470,7 @@
                         <select v-model="editForm.status"
                             class="form-select border-gray-300 rounded-lg focus:ring-accent-gold focus:border-accent-gold flex-1 py-2">
                             <option value="待處理">待處理</option>
+                            <option value="已聯絡">已聯絡</option>
                             <option value="轉預約">轉預約</option>
                             <option value="無效單">無效單</option>
                         </select>
@@ -483,8 +485,7 @@
     </div>
 
     <!-- 載入 Bootstrap JS 用於 Offcanvas & Modal -->
-    <script src="../js/bootstrap.bundle.min.js"></script>
-
+    <script src="./ESJS/bootstrap.bundle.min.js"></script>
     <script>
         const { createApp } = Vue;
 
@@ -517,6 +518,7 @@
                     if (this.statusFilter !== 'all') {
                         const statusMap = {
                             'pending': '待處理',
+                            'contacted': '已聯絡',
                             'confirmed': '轉預約',
                             'cancelled': '無效單'
                         };
@@ -530,10 +532,10 @@
                             const servicesMatch = (c.services || []).join(',').toLowerCase().includes(kw);
                             const stylesMatch = (c.styles || []).join(',').toLowerCase().includes(kw);
                             const name = c.name ? c.name.toLowerCase() : '';
-                            const phone = c.phone || '';
+                            const tel = c.tel || '';
                             const id = c.id ? c.id.toString() : '';
 
-                            return id.includes(kw) || name.includes(kw) || phone.includes(kw) || servicesMatch || stylesMatch;
+                            return id.includes(kw) || name.includes(kw) || tel.includes(kw) || servicesMatch || stylesMatch;
                         });
                     }
                     return result;
@@ -587,11 +589,64 @@
 
                 // 畫面載入時，立刻向 Spring Boot 要資料！
                 this.fetchConsultations();
+
+                // 🌟 新增：個人資訊與側邊欄權限控制
+                this.initSidebar();
             },
             methods: {
+                initSidebar() {
+                    const empId = sessionStorage.getItem('empId');
+                    const empName = sessionStorage.getItem('empName');
+                    const position = sessionStorage.getItem('position');
+                    const deptId = sessionStorage.getItem('deptId');
+
+                    if (!empId) {
+                        window.location.replace('login.html');
+                        return;
+                    }
+
+                    // 顯示人員資訊
+                    const sidebarEmpName = document.getElementById('sidebar-emp-name');
+                    const headerEmpName = document.getElementById('header-emp-name');
+                    const sidebarPosition = document.getElementById('sidebar-position');
+
+                    if (sidebarEmpName) sidebarEmpName.textContent = empName || '未知員工';
+                    if (headerEmpName) headerEmpName.textContent = empName || '未知員工';
+                    if (sidebarPosition) sidebarPosition.textContent = position === 'MANAGER' ? '業務管理' : '員工';
+
+                // 顯示頭像
+                const imgPath = sessionStorage.getItem('imgPath');
+                if (imgPath) {
+                    const fullPath = imgPath.startsWith('http') ? imgPath : '/' + imgPath;
+                    const sidebarAv = document.getElementById('sidebar-avatar');
+                    const headerAv = document.getElementById('header-avatar');
+                    if (sidebarAv) sidebarAv.src = fullPath;
+                    if (headerAv) headerAv.src = fullPath;
+                }
+
+                    // 側邊欄權限控制
+                    const navIds = ['nav-consultation', 'nav-book', 'nav-project', 'nav-task'];
+                    navIds.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.style.display = 'none';
+                    });
+
+                    if (deptId === '1') {
+                        ['nav-book', 'nav-project'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.style.display = 'flex';
+                        });
+                    } else if (deptId === '7') {
+                        const el = document.getElementById('nav-consultation');
+                        if (el) el.style.display = 'flex';
+                    } else {
+                        const el = document.getElementById('nav-task');
+                        if (el) el.style.display = 'flex';
+                    }
+                },
                 // 🚀 從後端獲取資料
                 fetchConsultations() {
-                    axios.get('http://localhost:8080/api/consultations')
+                    axios.get('/api/consultations')
                         .then(response => {
                             if (response.data.success) {
                                 // 資料轉換魔法：處理字串轉陣列、欄位名稱對齊
@@ -623,6 +678,7 @@
                 },
                 getStatusClass(status) {
                     if (status === '待處理') return 'status-pending';
+                    if (status === '已聯絡') return 'status-contacting';
                     if (status === '轉預約') return 'status-confirmed';
                     if (status === '無效單') return 'status-cancelled';
                     return 'status-pending'; // 預設
@@ -630,20 +686,21 @@
                 // 🌟 1. 狀態 Icon 對應邏輯
                 getStatusIcon(status) {
                     if (status === '待處理') return 'schedule';         // 時鐘圖示
+                    if (status === '已聯絡') return 'call';             // 電話圖示
                     if (status === '轉預約') return 'check_circle';     // 打勾圖示
                     if (status === '無效單') return 'cancel';           // 叉叉圖示
                     return 'help_outline'; // 預設
                 },
                 // 🌟 2. 電話號碼格式化邏輯
-                formatPhone(phone) {
-                    if (!phone) return '未提供';
+                formatTel(tel) {
+                    if (!tel) return '未提供';
                     // 利用正則表達式，把 0912345678 轉換成 0912-345-678
-                    const cleaned = ('' + phone).replace(/\D/g, ''); // 先濾掉非數字的雜質
+                    const cleaned = ('' + tel).replace(/\D/g, ''); // 先濾掉非數字的雜質
                     const match = cleaned.match(/^(\d{4})(\d{3})(\d{3})$/);
                     if (match) {
                         return `${match[1]}-${match[2]}-${match[3]}`;
                     }
-                    return phone; // 如果不是標準的 10 碼台灣手機，就維持原樣顯示
+                    return tel; // 如果不是標準的 10 碼台灣手機，就維持原樣顯示
                 },
 
                 openDetailPanel(item) {
@@ -660,7 +717,7 @@
                     const newStatusStr = this.editForm.status;
 
                     // 呼叫後端 API 更新狀態
-                    axios.put(`http://localhost:8080/api/consultations/${this.selectedItem.id}/status`, { status: newStatusStr })
+                    axios.put(`/api/consultations/${this.selectedItem.id}/status`, { status: newStatusStr })
                         .then(response => {
                             if (response.data.success) {
                                 // 更新本地資料庫畫面

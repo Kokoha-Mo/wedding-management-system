@@ -1,16 +1,5 @@
 package com.wedding.wedding_management_system.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.wedding.wedding_management_system.entity.Project;
-import com.wedding.wedding_management_system.entity.ProjectCommunication;
-import com.wedding.wedding_management_system.entity.Book;
-import com.wedding.wedding_management_system.repository.ProjectCommunicationRepository;
-import com.wedding.wedding_management_system.repository.ProjectRepository;
-import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
-import com.wedding.wedding_management_system.dto.ProjectResponse;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -18,6 +7,17 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
+import com.wedding.wedding_management_system.dto.ProjectResponse;
+import com.wedding.wedding_management_system.entity.Book;
+import com.wedding.wedding_management_system.entity.Project;
+import com.wedding.wedding_management_system.entity.ProjectCommunication;
+import com.wedding.wedding_management_system.repository.ProjectCommunicationRepository;
+import com.wedding.wedding_management_system.repository.ProjectRepository;
 
 @Service
 public class ProjectService {
@@ -59,6 +59,8 @@ public class ProjectService {
                     dto.setCustomerName(book.getCustomer().getName());
                 }
             }
+            dto.setUpdateAt(project.getUpdateAt());
+
             return dto;
         }).collect(Collectors.toList());
     }
@@ -150,13 +152,11 @@ public class ProjectService {
 
         // 轉換 Tasks 歷史軌跡列表 (同理轉換...)
         // 如果你需要，我也可以把 TaskHistoryDTO 的 mapping 寫出來
-
         return dto;
     }
 
     /**
-     * 4. 取得專案整體資訊 (GET)
-     * 包含：右側的籌備進度(Tasks)，以及左側的基本資料、歷史留言紀錄(Timeline)
+     * 4. 取得專案整體資訊 (GET) 包含：右側的籌備進度(Tasks)，以及左側的基本資料、歷史留言紀錄(Timeline)
      * 對應頁面：customer_progress.html (畫面初次載入時呼叫)
      */
     public ProjectProgressDTO getProjectProgress(Integer projectId) {
@@ -176,10 +176,12 @@ public class ProjectService {
         Book book = project.getBook();
         if (book != null) {
             dto.setWeddingDate(book.getWeddingDate());
-            if (book.getCustomer() != null)
+            if (book.getCustomer() != null) {
                 dto.setCustomerName(book.getCustomer().getName());
-            if (book.getManager() != null)
+            }
+            if (book.getManager() != null) {
                 dto.setPmName(book.getManager().getName());
+            }
 
             String dateStr = book.getWeddingDate() != null
                     ? book.getWeddingDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
@@ -224,4 +226,4 @@ public class ProjectService {
         return dto;
     }
 
-    }
+}

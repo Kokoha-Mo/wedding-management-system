@@ -48,4 +48,24 @@ public class JwtToken {
 		}
 	}
 
+	public static String createResetToken(String email) {
+		return Jwts.builder()
+				.setSubject(email)
+				.claim("purpose", "reset_password") // 標記用途
+				.setIssuedAt(new Date())
+				.setExpiration(new Date(System.currentTimeMillis() + RESET_EXP_TIME))
+				.signWith(key, io.jsonwebtoken.SignatureAlgorithm.HS256)
+				.compact();
+	}
+
+	// 驗證是不是重設密碼專用的 token
+	public static boolean isResetToken(String token) {
+		try {
+			Claims claims = parse(token).getBody();
+			return "reset_password".equals(claims.get("purpose", String.class));
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 }

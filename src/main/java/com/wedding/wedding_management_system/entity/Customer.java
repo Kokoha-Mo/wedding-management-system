@@ -41,6 +41,6 @@ public class Customer {
     @OneToMany(mappedBy = "customer")
     private List<Book> books;
 
-//    public void setPasswordResetRequired(boolean b) {
-//    } 登入方式
+    @Column(name = "reset_token", length = 255)
+    private String resetToken;
 }

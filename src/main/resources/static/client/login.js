@@ -73,7 +73,7 @@ function syncNavbarUI(isLoggedIn, username = "") {
     }
 }
 
-/* 登入執行 (修改後版本) */
+/* 登入執行 (包含首次強制修改密碼邏輯) */
 async function performLoginAction() {
     const email = document.getElementById('loginName')?.value.trim();
     const pass = document.getElementById('passwordInput')?.value.trim();
@@ -88,46 +88,98 @@ async function performLoginAction() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            // [非常重要] 這個設定讓瀏覽器跨域時也願意帶上/收下 Cookie
             credentials: 'include',
             body: JSON.stringify({
                 email: email,
-                password: pass  // 記得這裡要對應 DTO 的屬性名稱喔
+                password: pass
             })
         });
 
-        // 如果 HTTP 狀態碼不是 2xx (例如 401密碼錯誤)
         if (!response.ok) {
             const errorData = await response.json();
             alert(errorData.message || '登入失敗，請檢查帳號密碼');
             return;
         }
 
-        // 2. 登入成功，解析後端回傳的使用者基本資料
         const data = await response.json();
-        // JWT Token 已經被瀏覽器自動存在 HttpOnly Cookie 裡面了，我們不用管它！
 
-        // 3. dv_username / dv_login_time 存 localStorage 新分頁也能讀到登入狀態
+        // 🌟 2. 判斷是否被後端標記為「首次登入強制修改密碼」
+        if (data.forcePasswordChange) {
 
-        localStorage.setItem('dv_username', data.name || data.email);
-        localStorage.setItem('dv_login_time', Date.now());
+            // 顯示強制修改密碼的 Modal (此時還不把 username 寫進 localStorage，避免他亂跳頁)
+            const forceResetOverlay = document.getElementById('forceResetOverlay');
+            if (forceResetOverlay) forceResetOverlay.classList.add('show');
 
-        // 「記住我」只控制 email 是否預先填入，與登入狀態無關
-        if (rememberMe) {
-            localStorage.setItem('dv_remember_email', email);
-        } else {
-            localStorage.removeItem('dv_remember_email');
+            // 綁定修改密碼表單的送出事件
+            const forceResetForm = document.getElementById('forceResetForm');
+            if (forceResetForm) {
+                forceResetForm.onsubmit = async function (e) {
+                    e.preventDefault(); // 防止表單重整頁面
+
+                    const newPwd = document.getElementById('newPasswordInput').value;
+                    const confirmPwd = document.getElementById('confirmPasswordInput').value;
+
+                    if (newPwd !== confirmPwd) {
+                        alert('兩次輸入的密碼不一致！');
+                        return;
+                    }
+
+                    try {
+                        // 呼叫更新密碼 API (記得也要帶 credentials: 'include' 才能傳送剛登入的 Cookie)
+                        const updateRes = await fetch('http://127.0.0.1:8080/api/customer/update-password', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ newPassword: newPwd })
+                        });
+
+                        if (updateRes.ok) {
+                            // 🌟 修改成功！關閉強制重設視窗，繼續走正常的登入成功流程
+                            forceResetOverlay.classList.remove('show');
+
+                            completeLoginProcess(data, email, rememberMe);
+
+                        } else {
+                            const errData = await updateRes.json();
+                            alert('修改失敗：' + (errData.message || '請稍後再試'));
+                        }
+                    } catch (err) {
+                        console.error('修改密碼發生錯誤:', err);
+                        alert('伺服器連線失敗，請稍後再試');
+                    }
+                };
+            }
+            return; // 卡在這裡，不繼續往下執行
         }
 
-        showSuccessModal(data.name || data.email);
-        setTimeout(() => {
-            window.location.href = './index.html';
-        }, 1800);
+        // 🌟 3. 如果是正常的老客戶登入，直接執行成功流程
+        completeLoginProcess(data, email, rememberMe);
 
     } catch (error) {
         console.error('登入發生錯誤:', error);
         alert('伺服器連線失敗，請稍後再試');
     }
+}
+
+/* 登入成功的共用流程 (寫入 Storage、顯示成功畫面、跳轉) */
+function completeLoginProcess(data, email, rememberMe) {
+    localStorage.setItem('dv_username', data.name || data.email);
+    localStorage.setItem('dv_login_time', Date.now());
+
+    if (data.customerId) {
+        localStorage.setItem('dv_customer_id', data.customerId);
+    }
+
+    if (rememberMe) {
+        localStorage.setItem('dv_remember_email', email);
+    } else {
+        localStorage.removeItem('dv_remember_email');
+    }
+
+    showSuccessModal(data.name || data.email);
+    setTimeout(() => {
+        window.location.href = './index.html';
+    }, 1800);
 }
 
 
@@ -152,6 +204,7 @@ async function forceLogout() {
     localStorage.removeItem('dv_token');
     localStorage.removeItem('dv_username');
     localStorage.removeItem('dv_login_time');
+    localStorage.removeItem('dv_customer_id');
     sessionStorage.clear();
     alert('您已成功登出');
     window.location.href = './index.html';

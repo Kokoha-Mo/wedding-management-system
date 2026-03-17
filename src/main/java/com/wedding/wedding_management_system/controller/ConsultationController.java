@@ -89,7 +89,7 @@ public class ConsultationController {
         
         try {
             // 從前端傳來的 JSON 中取出 "status" 的值
-            String newStatus = requestBody.get("status");
+            String newStatus = requestBody.get("static");
             
             // 基礎的防呆驗證
             if (newStatus == null || newStatus.trim().isEmpty()) {

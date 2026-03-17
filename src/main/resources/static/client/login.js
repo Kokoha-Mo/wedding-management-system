@@ -211,15 +211,45 @@ async function forceLogout() {
 }
 
 /* 初始化：記住帳號、綁定按鈕與 Enter */
+/* 初始化：記住帳號、綁定按鈕與 Enter */
 function initLoginFeatures() {
     const savedEmail = localStorage.getItem('dv_remember_email');
     const emailField = document.getElementById('loginName');
     if (savedEmail && emailField) emailField.value = savedEmail;
 
-    // 只在登入頁才綁定（避免其他頁面找不到元素報錯）
+    // 登入綁定
     document.getElementById('loginSubmitBtn')?.addEventListener('click', performLoginAction);
     document.getElementById('passwordInput')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') performLoginAction();
+    });
+
+    // 忘記密碼按鈕綁定
+    document.getElementById('forgotBtn')?.addEventListener('click', async (e) => {
+        e.preventDefault(); // 防止網頁亂跳
+
+        // 1. 跳出瀏覽器內建的輸入框，請客人輸入 Email
+        const email = prompt('請輸入您預約時使用的電子郵件：\n(我們將寄送重設密碼的連結給您)');
+
+        if (!email) return; // 如果客人按取消或沒輸入，就什麼都不做
+        if (!email.includes('@')) return alert('請輸入有效的電子郵件格式！');
+
+        try {
+            // 2. 呼叫我們後端寫好的忘記密碼 API
+            const res = await fetch('http://127.0.0.1:8080/api/customer/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+
+            const data = await res.json();
+
+            // 3. 顯示後端回傳的訊息 (也就是那句完美的模糊化回覆)
+            alert(data.message);
+
+        } catch (error) {
+            console.error('忘記密碼發生錯誤:', error);
+            alert('系統連線失敗，請稍後再試。');
+        }
     });
 }
 

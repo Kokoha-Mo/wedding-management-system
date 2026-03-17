@@ -19,7 +19,7 @@ window.addEventListener('pageshow', function (e) {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     // ================= 1. 側邊欄開合邏輯 =================
     const sidebar = document.getElementById('sidebar');
     const hamburgerBtn = document.getElementById('sidebar-hamburger');
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 【手機/平板版邏輯】：滑出/滑入 (Offcanvas 效果)
                 sidebar.classList.toggle('-translate-x-full');
                 sidebar.classList.toggle('translate-x-0');
-                
+
                 // 同時切換黑色遮罩的顯示狀態
                 if (overlay) {
                     overlay.classList.toggle('hidden');

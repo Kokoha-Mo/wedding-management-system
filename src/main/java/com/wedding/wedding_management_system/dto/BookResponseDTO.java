@@ -45,7 +45,7 @@ public class BookResponseDTO {
         if (book.getManager() != null) {
             String fullName = book.getManager().getName();
             String englishName = fullName.replaceAll("[^a-zA-Z\\s]", "").trim();
-            dto.managerName = englishName.isEmpty() ? fullName : englishName;// ← 加這個
+            dto.managerName = englishName.isEmpty() ? fullName : englishName;//
         }
         return dto;
     }

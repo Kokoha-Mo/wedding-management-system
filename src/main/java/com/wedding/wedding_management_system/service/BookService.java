@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wedding.wedding_management_system.entity.Book;
 import com.wedding.wedding_management_system.repository.BookRepository;
 
-@Slf4j //log
+@Slf4j // log
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -50,7 +50,7 @@ public class BookService {
     private ConsultationRepository consultationRepository;
 
     // 臨時密碼固定值，客戶登入後必須重設
-    private static final String TEMP_PASSWORD = "Wedding@2026";
+    private static final String TEMP_PASSWORD = "12345678";
 
     private Customer findOrCreateCustomer(CreateBookRequestDTO dto) {
         log.info("嘗試找客戶，email={}", dto.getEmail());
@@ -63,19 +63,26 @@ public class BookService {
                     c.setEmail(dto.getEmail());
                     c.setLineId(dto.getLineId());
                     c.setPassword(passwordEncoder.encode(TEMP_PASSWORD));
-                    //c.setPasswordResetRequired(true);
+                    // c.setPasswordResetRequired(true);
+
+                    // 1. 這裡才是把密碼設為「手機號碼」！
+                    c.setPassword(passwordEncoder.encode(dto.getTel()));
+
+                    // 2. 這裡打上「強制修改密碼」的暗號！
+                    c.setResetToken("FORCE_RESET");
                     return customerRepository.save(c);
                 });
     }
 
     private @NonNull String ReName(String raw) {
-        if (raw == null || raw.isBlank()) return "";
+        if (raw == null || raw.isBlank())
+            return "";
 
         // 把所有常見分隔符號（含多個空白）統一換成 & 分隔
         String cleaned = raw.trim()
-                .replaceAll("[&＆/／、,，]+", "&")  // 標點換成 &
-                .replaceAll("\\s+", "&")            // 空白也換成 &
-                .replaceAll("&+", " & ");           // 多個連續 & 合併，並加空格
+                .replaceAll("[&＆/／、,，]+", "&") // 標點換成 &
+                .replaceAll("\\s+", "&") // 空白也換成 &
+                .replaceAll("&+", " & "); // 多個連續 & 合併，並加空格
 
         // 去掉頭尾可能殘留的 & 或空白
         return cleaned.replaceAll("^[\\s&]+|[\\s&]+$", "");
@@ -106,24 +113,24 @@ public class BookService {
         return result;
     }
 
-//    public List<Book> getBooksByCustomerId(int customerId) {
-//        return bookRepository.findByCustomer_Id(customerId);
-//    }
-//
-//    public List<Book> getAllBooks() {
-//        return bookRepository.findAll();
-//    }
-//
-//    public List<Book> getBooksByCancel() {
-//        return bookRepository.findByStatus(toString());
-//    }
+    // public List<Book> getBooksByCustomerId(int customerId) {
+    // return bookRepository.findByCustomer_Id(customerId);
+    // }
+    //
+    // public List<Book> getAllBooks() {
+    // return bookRepository.findAll();
+    // }
+    //
+    // public List<Book> getBooksByCancel() {
+    // return bookRepository.findByStatus(toString());
+    // }
 
     public List<CustomerDTO> findSimilarCustomers(String email) {
         List<CustomerDTO> result = new ArrayList<>();
 
         if (email != null && !email.isBlank()) {
-            Optional<Customer>found =customerRepository.findByEmail(email);
-            if(found.isPresent()){
+            Optional<Customer> found = customerRepository.findByEmail(email);
+            if (found.isPresent()) {
                 result.add(CustomerDTO.from(found.get()));
             }
         }
@@ -148,7 +155,6 @@ public class BookService {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("目前沒有可分配的業務人員"));
-
 
         // ── Step 3: 建立新 book ────────────────────────────────
         Book book = new Book();
@@ -186,8 +192,7 @@ public class BookService {
         return Map.of(
                 "處理中", bookRepository.countByStatus("處理中"),
                 "已簽約", bookRepository.countByStatus("已簽約"),
-                "取消預約", bookRepository.countByStatus("取消預約")
-        );
+                "取消預約", bookRepository.countByStatus("取消預約"));
     }
 
     /**

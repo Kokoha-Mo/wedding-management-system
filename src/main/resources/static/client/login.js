@@ -73,7 +73,7 @@ function syncNavbarUI(isLoggedIn, username = "") {
     }
 }
 
-/* 登入執行 (修改後版本) */
+/* 登入執行 (包含首次強制修改密碼邏輯) */
 async function performLoginAction() {
     const email = document.getElementById('loginName')?.value.trim();
     const pass = document.getElementById('passwordInput')?.value.trim();
@@ -88,45 +88,62 @@ async function performLoginAction() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            // [非常重要] 這個設定讓瀏覽器跨域時也願意帶上/收下 Cookie
             credentials: 'include',
             body: JSON.stringify({
                 email: email,
-                password: pass  // 記得這裡要對應 DTO 的屬性名稱喔
+                password: pass
             })
         });
 
-        // 如果 HTTP 狀態碼不是 2xx (例如 401密碼錯誤)
         if (!response.ok) {
             const errorData = await response.json();
             alert(errorData.message || '登入失敗，請檢查帳號密碼');
             return;
         }
 
-        // 2. 登入成功，解析後端回傳的使用者基本資料
         const data = await response.json();
-        // JWT Token 已經被瀏覽器自動存在 HttpOnly Cookie 裡面了，我們不用管它！
 
-        // 3. dv_username / dv_login_time 存 localStorage 新分頁也能讀到登入狀態
-        localStorage.setItem('dv_username', data.name || data.email);
-        localStorage.setItem('dv_login_time', Date.now());
+        // 🌟 2. 判斷是否被後端標記為「首次登入強制修改密碼」
+        if (data.forcePasswordChange) {
+            // 為了讓他在改完密碼後能順利登入，我們先把資料暫存在 sessionStorage
+            sessionStorage.setItem('temp_force_name', data.name || data.email);
+            if (data.customerId) {
+                sessionStorage.setItem('temp_force_id', data.customerId);
+            }
 
-        // 「記住我」只控制 email 是否預先填入，與登入狀態無關
-        if (rememberMe) {
-            localStorage.setItem('dv_remember_email', email);
-        } else {
-            localStorage.removeItem('dv_remember_email');
+            // 直接跳轉到重設密碼頁面，並加上專屬的 mode=force 標記
+            window.location.href = './reset_password.html?mode=force';
+            return; // 🌟 卡在這裡，不寫入 localStorage，其他頁面他就進不去！
         }
 
-        showSuccessModal(data.name || data.email);
-        setTimeout(() => {
-            window.location.href = './index.html';
-        }, 1800);
+        // 3. 如果是正常的老客戶登入，直接執行成功流程
+        completeLoginProcess(data, email, rememberMe);
 
     } catch (error) {
         console.error('登入發生錯誤:', error);
         alert('伺服器連線失敗，請稍後再試');
     }
+}
+
+/* 登入成功的共用流程 (寫入 Storage、顯示成功畫面、跳轉) */
+function completeLoginProcess(data, email, rememberMe) {
+    localStorage.setItem('dv_username', data.name || data.email);
+    localStorage.setItem('dv_login_time', Date.now());
+
+    if (data.customerId) {
+        localStorage.setItem('dv_customer_id', data.customerId);
+    }
+
+    if (rememberMe) {
+        localStorage.setItem('dv_remember_email', email);
+    } else {
+        localStorage.removeItem('dv_remember_email');
+    }
+
+    showSuccessModal(data.name || data.email);
+    setTimeout(() => {
+        window.location.href = './index.html';
+    }, 1800);
 }
 
 
@@ -151,21 +168,52 @@ async function forceLogout() {
     localStorage.removeItem('dv_token');
     localStorage.removeItem('dv_username');
     localStorage.removeItem('dv_login_time');
+    localStorage.removeItem('dv_customer_id');
     sessionStorage.clear();
     alert('您已成功登出');
     window.location.href = './index.html';
 }
 
 /* 初始化：記住帳號、綁定按鈕與 Enter */
+/* 初始化：記住帳號、綁定按鈕與 Enter */
 function initLoginFeatures() {
     const savedEmail = localStorage.getItem('dv_remember_email');
     const emailField = document.getElementById('loginName');
     if (savedEmail && emailField) emailField.value = savedEmail;
 
-    // 只在登入頁才綁定（避免其他頁面找不到元素報錯）
+    // 登入綁定
     document.getElementById('loginSubmitBtn')?.addEventListener('click', performLoginAction);
     document.getElementById('passwordInput')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') performLoginAction();
+    });
+
+    // 忘記密碼按鈕綁定
+    document.getElementById('forgotBtn')?.addEventListener('click', async (e) => {
+        e.preventDefault(); // 防止網頁亂跳
+
+        // 1. 跳出瀏覽器內建的輸入框，請客人輸入 Email
+        const email = prompt('請輸入您預約時使用的電子郵件：\n(我們將寄送重設密碼的連結給您)');
+
+        if (!email) return; // 如果客人按取消或沒輸入，就什麼都不做
+        if (!email.includes('@')) return alert('請輸入有效的電子郵件格式！');
+
+        try {
+            // 2. 呼叫我們後端寫好的忘記密碼 API
+            const res = await fetch('/api/customer/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+
+            const data = await res.json();
+
+            // 3. 顯示後端回傳的訊息 (也就是那句完美的模糊化回覆)
+            alert(data.message);
+
+        } catch (error) {
+            console.error('忘記密碼發生錯誤:', error);
+            alert('系統連線失敗，請稍後再試。');
+        }
     });
 }
 

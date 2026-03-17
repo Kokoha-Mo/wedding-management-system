@@ -76,9 +76,22 @@ function switchTab(tabId) {
     });
 
     // 切換 tab 時載入對應資料
-    if (tabId === 'tab-pending')   loadBooks('處理中');
-    if (tabId === 'tab-signed')    loadBooks('已簽約');
+    if (tabId === 'tab-pending') loadBooks('處理中');
+    if (tabId === 'tab-signed') loadBooks('已簽約');
     if (tabId === 'tab-cancelled') loadBooks('取消');
+}
+
+async function loadStatusCounts() {
+    try {
+        const res = await fetch(`${API_BASE}/books/status-counts`);
+        const counts = await res.json();
+
+        document.getElementById('badge-pending').textContent = counts['處理中'] ?? 0;
+        document.getElementById('badge-signed').textContent = counts['已簽約'] ?? 0;
+        document.getElementById('badge-cancelled').textContent = counts['取消'] ?? 0;
+    } catch (err) {
+        console.error('[API] 載入狀態數量失敗:', err);
+    }
 }
 
 // ════════════════════════════════════════
@@ -108,9 +121,9 @@ function toggleFilterPanel() {
 }
 
 // 點擊外部關閉篩選面板
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     const panel = document.getElementById('filter-panel');
-    const btn   = document.getElementById('btn-filter');
+    const btn = document.getElementById('btn-filter');
     if (!panel.contains(e.target) && !btn.contains(e.target)) {
         panel.classList.add('hidden');
     }
@@ -150,13 +163,13 @@ function updateFilterDot() {
 
 function applyFilters() {
     document.querySelectorAll('#card-slider > div[data-staff]').forEach(card => {
-        const staff  = card.dataset.staff  || '';
-        const theme  = card.dataset.theme  || '';
+        const staff = card.dataset.staff || '';
+        const theme = card.dataset.theme || '';
         const guests = parseInt(card.dataset.guests || '0');
         const bucket = guests < 100 ? 'small' : guests <= 200 ? 'medium' : 'large';
-        const ok = (activeFilters.staff.size  === 0 || activeFilters.staff.has(staff))
-                && (activeFilters.theme.size  === 0 || activeFilters.theme.has(theme))
-                && (activeFilters.guests.size === 0 || activeFilters.guests.has(bucket));
+        const ok = (activeFilters.staff.size === 0 || activeFilters.staff.has(staff))
+            && (activeFilters.theme.size === 0 || activeFilters.theme.has(theme))
+            && (activeFilters.guests.size === 0 || activeFilters.guests.has(bucket));
         card.style.display = ok ? '' : 'none';
     });
 }
@@ -192,12 +205,12 @@ function toggleSubItems(mainCheckbox, subContainerId) {
 // ════════════════════════════════════════
 async function loadBooks(status = '處理中') {
     try {
-        const res    = await fetch(`${API_BASE}/books?status=${encodeURIComponent(status)}`);
+        const res = await fetch(`${API_BASE}/books?status=${encodeURIComponent(status)}`);
         const result = await res.json();
 
         if (status === '處理中') renderPendingCards(result);
         if (status === '已簽約') renderSignedTable(result);
-        if (status === '取消')   renderCancelledTable(result);
+        if (status === '取消') renderCancelledTable(result);
 
     } catch (err) {
         console.error('[API] 載入列表失敗:', err);
@@ -208,12 +221,14 @@ async function loadBooks(status = '處理中') {
 // API：建立預約
 // ════════════════════════════════════════
 async function submitCreateBook() {
-    const name  = document.getElementById('input-names').value.trim();
-    const tel   = document.getElementById('input-tel').value.trim();
+    const nameA = document.getElementById('input-nameA').value.trim();
+    const nameB = document.getElementById('input-nameB').value.trim();
+    const name = nameB ? `${nameA} & ${nameB}` : nameA;  // 合併成 "A & B"，B 選填
+    const tel = document.getElementById('input-tel').value.trim();
     const email = document.getElementById('input-email').value.trim();
 
-    if (!name || !tel) {
-        alert('請填寫姓名與手機號碼');
+    if (!nameA || !tel) {
+        alert('請填寫新郎/新娘姓名與手機號碼');
         return;
     }
 
@@ -243,19 +258,19 @@ async function submitCreateBook() {
 
     const payload = {
         name, tel, email,
-        line_id:      document.getElementById('input-lineid').value.trim(),
+        line_id: document.getElementById('input-lineid').value.trim(),
         wedding_date: document.getElementById('input-wedding-date').value || null,
-        guest_scale:  parseInt(document.getElementById('input-guest-count').value) || null,
-        place:        document.getElementById('input-venue').value.trim(),
+        guest_scale: parseInt(document.getElementById('input-guest-count').value) || null,
+        place: document.getElementById('input-venue').value.trim(),
         styles,
-        content:      document.getElementById('input-notes').value.trim()
+        content: document.getElementById('input-notes').value.trim()
     };
 
     try {
-        const res    = await fetch(`${API_BASE}/books`, {
-            method:  'POST',
+        const res = await fetch(`${API_BASE}/books`, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify(payload)
+            body: JSON.stringify(payload)
         });
         const result = await res.json();
 
@@ -278,13 +293,14 @@ async function submitCreateBook() {
 async function updateBookStatus(bookId, newStatus) {
     try {
         const res = await fetch(`${API_BASE}/books/${bookId}/status`, {
-            method:  'PATCH',
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ status: newStatus })
+            body: JSON.stringify({ status: newStatus })
         });
 
         if (res.ok) {
             showToast('狀態已更新');
+            loadStatusCounts();
             loadBooks('處理中');
         }
     } catch (err) {
@@ -307,9 +323,9 @@ function renderPendingCards(books) {
     books.forEach(book => {
         const card = document.createElement('div');
         card.className = 'snap-start shrink-0 w-[calc(33.333%-11px)] min-w-[420px] bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden hover:shadow-md transition-shadow';
-        card.dataset.staff  = book.managerName || '';
-        card.dataset.theme  = book.styles      || '';
-        card.dataset.guests = book.guestScale  || '0';
+        card.dataset.staff = book.managerName || '';
+        card.dataset.theme = book.styles || '';
+        card.dataset.guests = book.guestScale || '0';
 
         card.innerHTML = `
             <div class="p-4 flex-1">
@@ -360,7 +376,7 @@ function renderPendingCards(books) {
                 </button>
                 <button onclick="updateBookStatus(${book.bookId}, '已簽約')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
-                    接案處理
+                    轉為簽約
                 </button>
                 <button onclick="updateBookStatus(${book.bookId}, '取消')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-red-400 hover:bg-red-50 transition-colors">
@@ -440,7 +456,7 @@ function renderCancelledTable(books) {
 // ════════════════════════════════════════
 function showToast(message, type = 'success') {
     const colors = { success: '#22c55e', error: '#ef4444' };
-    const toast  = document.createElement('div');
+    const toast = document.createElement('div');
     toast.textContent = message;
     toast.style.cssText = `
         position:fixed; bottom:24px; right:24px; z-index:9999;

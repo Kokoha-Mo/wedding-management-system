@@ -50,11 +50,11 @@
 
         <div class="px-4 py-4 mt-2 sidebar-user">
             <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
-                <img alt="Joy Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover"
-                    src="./Img/smile.jpg" />
+                <img id="sidebar-avatar" alt="Avatar"
+                    class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
                 <div class="menu-category p-0 m-0">
-                    <div class="text-white font-medium">Joy</div>
-                    <div class="text-xs text-gray-400 mt-1">PM 權限</div>
+                    <div id="sidebar-emp-name" class="text-white font-medium">載入中...</div>
+                    <div id="sidebar-position" class="text-xs text-gray-400 mt-1">...</div>
                 </div>
             </div>
         </div>
@@ -62,25 +62,29 @@
         <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
             <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 GENERAL</div>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-consultation"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="consultation.html">
                 <span
                     class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-book"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="book.html">
                 <span
                     class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-project"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="project.html">
                 <span
                     class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-task"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="quest_staff.html">
                 <span
                     class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
@@ -90,7 +94,8 @@
             <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 系統設定</div>
 
-            <a class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
+            <a id="nav-account"
+                class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
                 href="account.html">
                 <span
                     class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
@@ -116,9 +121,10 @@
                 <div class="relative">
                     <div id="user-menu-button"
                         class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
-                        <img alt="Joy Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
+                        <img id="header-avatar" alt="Avatar"
+                            class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
                             src="./Img/smile.jpg" />
-                        <span class="text-sm font-medium mr-1 text-gray-200">Joy</span>
+                        <span id="header-emp-name" class="text-sm font-medium mr-1 text-gray-200">User</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                     </div>
 
@@ -145,24 +151,25 @@
                     <div
                         class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
                         <div class="relative">
-                            <img alt="Joy Chen Avatar"
+                            <img id="profile-avatar" alt="Profile Avatar"
                                 class="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-sm"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAqx_Atie42QLhYnhUJtRmpKKYzxbHlA4xijHyKwKexmnTZ2Us9tOz2NIGlI7RGS_1fPF5rtb9NhGSErt5p82jGur4H0hs5zyLGLANAxIGnFkJDlzU7U88jMr8ellzbzAdaiEoBQInAG-gu73qWr64lnfRYl1AtOuFcgEGoX7Wm13NCTzdQh0-HKArkc160-ooalGj6sJPaGSUZXOQgXkobwQR304jXpjWm8iYtTiZkA60DSt4SmrE2JpPWkG9ABCQ2rWXdG9ksl5I" />
-                            <button
+                                src="./Img/smile.jpg" />
+                            <input type="file" id="avatar-input" class="hidden" accept="image/*">
+                            <button onclick="document.getElementById('avatar-input').click()"
                                 class="absolute bottom-0 right-0 bg-gray-200 dark:bg-gray-600 rounded-full p-1.5 shadow-sm text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
                                 <span class="material-icons text-sm">camera_alt</span>
                             </button>
                         </div>
                         <div class="text-center md:text-left">
-                            <h1
+                            <h1 id="top-name"
                                 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center justify-center md:justify-start">
-                                Joy Chen
+                                載入中...
                             </h1>
-                            <p class="text-primary font-medium mt-1">Full-stack Developer</p>
+                            <p id="top-role" class="text-primary font-medium mt-1">...</p>
                         </div>
                     </div>
                     <div class="mt-6 md:mt-0">
-                        <button
+                        <button id="change-password-btn"
                             class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center transition-colors shadow-sm">
                             <span class="material-icons text-sm mr-2">lock</span>
                             更改密碼
@@ -195,54 +202,44 @@
                             <div id="basic-view" class="grid grid-cols-2 gap-y-6 gap-x-4">
                                 <div>
                                     <p class="text-xs text-gray-500 mb-1">姓名</p>
-                                    <p id="view-name" class="text-sm font-medium text-gray-900 dark:text-gray-100">Joy
-                                        Chen</p>
+                                    <p id="view-name" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 mb-1">員工編號 (ID)</p>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">00001</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-500 mb-1">身分證字號</p>
-                                    <p id="view-idcard" class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                        S123456789</p>
+                                    <p id="view-empId" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 mb-1">手機號碼</p>
-                                    <p id="view-phone" class="text-sm font-medium text-gray-900">0912-234566</p>
+                                    <p id="view-phone" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 mb-1">電子郵件</p>
-                                    <p id="view-email" class="text-sm font-medium text-gray-900">joy.chen@company.com
+                                    <p id="view-email" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
                                     </p>
                                 </div>
                             </div>
                             <form id="basic-form" class="hidden grid grid-cols-2 gap-y-5 gap-x-4">
                                 <div>
-                                    <label class="text-xs text-gray-500 mb-1 block">姓名</label>
-                                    <input type="text" id="edit-name" value="Joy Chen"
-                                        class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3">
-                                </div>
-                                <div>
-                                    <label class="text-xs text-gray-500 mb-1 block">員工編號 (ID)</label>
-                                    <input type="text" value="00001" disabled
+                                    <label class="text-xs text-gray-500 mb-1 block">姓名 (不可修改)</label>
+                                    <input type="text" id="edit-name" disabled
                                         class="w-full rounded-md border-gray-200 bg-gray-100 text-gray-500 text-sm py-1.5 px-3 cursor-not-allowed">
                                 </div>
                                 <div>
-                                    <label class="text-xs text-gray-500 mb-1 block">身分證字號</label>
-                                    <input type="text" id="edit-idcard" value="S123456789"
-                                        class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3">
+                                    <label class="text-xs text-gray-500 mb-1 block">員工編號 (ID)</label>
+                                    <input type="text" id="edit-empId" disabled
+                                        class="w-full rounded-md border-gray-200 bg-gray-100 text-gray-500 text-sm py-1.5 px-3 cursor-not-allowed">
                                 </div>
                                 <div>
                                     <label class="text-xs text-gray-500 mb-1 block">手機號碼</label>
-                                    <input type="text" id="edit-phone" value="0912-234566"
+                                    <input type="text" id="edit-phone"
                                         class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3 transition-colors">
-                                    <p id="phone-error" class="text-red-500 text-xs mt-1 font-medium hidden">
-                                        格式錯誤，請輸入正確的手機號碼</p>
                                 </div>
                                 <div>
                                     <label class="text-xs text-gray-500 mb-1 block">電子郵件</label>
-                                    <input type="email" id="edit-email" value="joy.chen@company.com"
+                                    <input type="email" id="edit-email"
                                         class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3">
                                 </div>
                             </form>
@@ -260,18 +257,13 @@
                         <div class="p-6 flex-1">
                             <div class="grid grid-cols-2 gap-y-6 gap-x-4">
                                 <div>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">職位名稱</p>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Full-stack
-                                        Developer</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">權限角色</p>
+                                    <p id="view-role" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">所屬部門</p>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Operations
-                                        Department</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">直屬主管</p>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">王大明 (Manager)
+                                    <p id="view-dept" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
                                     </p>
                                 </div>
                             </div>
@@ -318,8 +310,90 @@
     <div class="fixed bottom-6 right-6 z-[100] flex flex-col space-y-3 pointer-events-none" id="toastContainer"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // === 1. 基本資料切換邏輯 ===
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. 初始化驗證
+            const empId = sessionStorage.getItem('empId');
+            if (!empId) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            // 2. 獲取個人資料
+            async function loadProfile() {
+                try {
+                    const response = await fetch('/api/employee/profile', { credentials: 'include' });
+                    if (response.ok) {
+                        const data = await response.json();
+                        renderProfile(data);
+                    } else {
+                        console.error('無法載入個人資料');
+                    }
+                } catch (error) {
+                    console.error('載入資料發生錯誤:', error);
+                }
+            }
+
+            function renderProfile(data) {
+                // 頂部與側邊欄
+                document.getElementById('sidebar-emp-name').textContent = data.name;
+                document.getElementById('header-emp-name').textContent = data.name;
+                document.getElementById('top-name').textContent = data.name;
+                document.getElementById('top-role').textContent = data.role;
+                document.getElementById('sidebar-position').textContent = data.role === 'MANAGER' ? '業務管理' : '員工';
+
+                if (data.imgPath) {
+                    const path = data.imgPath.startsWith('http') ? data.imgPath : '/' + data.imgPath;
+                    if (document.getElementById('sidebar-avatar')) document.getElementById('sidebar-avatar').src = path;
+                    if (document.getElementById('header-avatar')) document.getElementById('header-avatar').src = path;
+                    if (document.getElementById('profile-avatar')) document.getElementById('profile-avatar').src = path;
+                    sessionStorage.setItem('imgPath', data.imgPath);
+                }
+
+                // 基本資料
+                document.getElementById('view-name').textContent = data.name;
+                document.getElementById('view-empId').textContent = data.empId;
+                document.getElementById('view-phone').textContent = data.tel || '未設定';
+                document.getElementById('view-email').textContent = data.email;
+
+                // 編輯表單
+                document.getElementById('edit-name').value = data.name;
+                document.getElementById('edit-empId').value = data.empId;
+                document.getElementById('edit-phone').value = data.tel || '';
+                document.getElementById('edit-email').value = data.email;
+
+                // 職務資料
+                document.getElementById('view-role').textContent = data.role === 'MANAGER' ? '管理者 (MANAGER)' : '一般員工 (STAFF)';
+                document.getElementById('view-dept').textContent = data.departmentName;
+
+                // 側邊欄權限
+                const deptId = sessionStorage.getItem('deptId');
+                handleSidebarPermissions(deptId);
+            }
+
+            function handleSidebarPermissions(deptId) {
+                const navIds = ['nav-consultation', 'nav-book', 'nav-project', 'nav-task'];
+                navIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = 'none';
+                });
+
+                if (deptId === '1') {
+                    ['nav-book', 'nav-project'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.style.display = 'flex';
+                    });
+                } else if (deptId === '7') {
+                    const el = document.getElementById('nav-consultation');
+                    if (el) el.style.display = 'flex';
+                } else {
+                    const el = document.getElementById('nav-task');
+                    if (el) el.style.display = 'flex';
+                }
+            }
+
+            await loadProfile();
+
+            // === 3. 基本資料切換邏輯 ===
             const basicContainer = document.getElementById('basic-container');
             const basicView = document.getElementById('basic-view');
             const basicForm = document.getElementById('basic-form');
@@ -332,100 +406,122 @@
                 basicForm.classList.toggle('hidden', !isEdit);
                 basicEditBtn.classList.toggle('hidden', isEdit);
                 basicActionBtns.classList.toggle('hidden', !isEdit);
-                // 進入編輯時，外框顯示淺藍色，增加對比感
                 isEdit ? basicContainer.classList.add('border-blue-200', 'ring-1', 'ring-blue-100') : basicContainer.classList.remove('border-blue-200', 'ring-1', 'ring-blue-100');
             }
 
             basicEditBtn.addEventListener('click', () => toggleBasicMode(true));
             basicCancelBtn.addEventListener('click', () => toggleBasicMode(false));
 
-            basicForm.addEventListener('submit', (e) => {
+            basicForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                // 同步資料回檢視模式
-                document.getElementById('view-name').textContent = document.getElementById('edit-name').value;
-                document.getElementById('view-nickname').textContent = document.getElementById('edit-nickname').value;
-                document.getElementById('view-gender').textContent = document.getElementById('edit-gender').value;
-                document.getElementById('view-birthday').textContent = document.getElementById('edit-birthday').value;
-                document.getElementById('view-idcard').textContent = document.getElementById('edit-idcard').value;
-                toggleBasicMode(false);
+                const dto = {
+                    tel: document.getElementById('edit-phone').value,
+                    email: document.getElementById('edit-email').value
+                };
+
+                try {
+                    const response = await fetch('/api/employee/profile', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(dto)
+                    });
+
+                    if (response.ok) {
+                        alert('基本資料更新成功');
+                        await loadProfile(); // 重新載入
+                        toggleBasicMode(false);
+                    } else {
+                        alert('更新失敗，請重試');
+                    }
+                } catch (error) {
+                    console.error('更新資料失敗:', error);
+                }
             });
 
+            // === 4. 頭像上傳 ===
+            const avatarInput = document.getElementById('avatar-input');
+            const profileAvatar = document.getElementById('profile-avatar');
+            const headerAvatar = document.getElementById('header-avatar');
+            const sidebarAvatar = document.getElementById('sidebar-avatar');
 
-            // === 2. 聯絡資訊切換與防呆驗證邏輯 ===
-            const contactContainer = document.getElementById('contact-container');
-            const contactView = document.getElementById('contact-view');
-            const contactForm = document.getElementById('contact-form');
-            const contactEditBtn = document.getElementById('contact-edit-btn');
-            const contactActionBtns = document.getElementById('contact-action-btns');
-            const contactCancelBtn = document.getElementById('contact-cancel-btn');
+            avatarInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
 
-            const phoneInput = document.getElementById('edit-phone');
-            const phoneError = document.getElementById('phone-error');
-            const emPhoneInput = document.getElementById('edit-em-phone');
+                // 立即預覽 (讀取本地檔案)
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const localSrc = event.target.result;
+                    if (profileAvatar) profileAvatar.src = localSrc;
+                };
+                reader.readAsDataURL(file);
 
-            function toggleContactMode(isEdit) {
-                contactView.classList.toggle('hidden', isEdit);
-                contactForm.classList.toggle('hidden', !isEdit);
-                contactEditBtn.classList.toggle('hidden', isEdit);
-                contactActionBtns.classList.toggle('hidden', !isEdit);
-                isEdit ? contactContainer.classList.add('border-blue-200', 'ring-1', 'ring-blue-100') : contactContainer.classList.remove('border-blue-200', 'ring-1', 'ring-blue-100');
+                // 執行上傳
+                const formData = new FormData();
+                formData.append('file', file);
 
-                // 取消時重置錯誤狀態
-                if (!isEdit) {
-                    resetErrorState(phoneInput, phoneError);
-                    resetErrorState(emPhoneInput, null);
-                }
-            }
+                try {
+                    const response = await fetch('/api/employee/profile/avatar', {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData
+                    });
 
-            // 重置紅框與錯誤文字
-            function resetErrorState(inputEl, errorEl) {
-                inputEl.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500', 'text-red-600');
-                inputEl.classList.add('border-gray-300', 'focus:border-blue-500', 'focus:ring-blue-500');
-                if (errorEl) errorEl.classList.add('hidden');
-            }
-
-            // 設定紅框與錯誤文字
-            function setErrorState(inputEl, errorEl) {
-                inputEl.classList.remove('border-gray-300', 'focus:border-blue-500', 'focus:ring-blue-500');
-                inputEl.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500', 'text-red-600');
-                if (errorEl) errorEl.classList.remove('hidden');
-            }
-
-            contactEditBtn.addEventListener('click', () => toggleContactMode(true));
-            contactCancelBtn.addEventListener('click', () => toggleContactMode(false));
-
-            // 輸入時自動取消紅框
-            phoneInput.addEventListener('input', () => resetErrorState(phoneInput, phoneError));
-            emPhoneInput.addEventListener('input', () => resetErrorState(emPhoneInput, null));
-
-            contactForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-
-                // 簡易台灣手機號碼防呆 (09開頭，接受09xx-xxxxxx 或 09xxxxxxxx)
-                const phoneRegex = /^09\d{2}-?\d{6}$/;
-                let isValid = true;
-
-                if (!phoneRegex.test(phoneInput.value.trim())) {
-                    setErrorState(phoneInput, phoneError);
-                    isValid = false;
-                }
-
-                if (!phoneRegex.test(emPhoneInput.value.trim())) {
-                    setErrorState(emPhoneInput, null); // 截圖中緊急聯絡人只有紅框無紅字
-                    isValid = false;
-                }
-
-                if (isValid) {
-                    // 驗證成功：同步資料回檢視模式
-                    document.getElementById('view-phone').textContent = phoneInput.value;
-                    document.getElementById('view-email').textContent = document.getElementById('edit-email').value;
-                    document.getElementById('view-address').textContent = document.getElementById('edit-address').value;
-                    document.getElementById('view-em-name').textContent = document.getElementById('edit-em-name').value;
-                    document.getElementById('view-em-relation').textContent = document.getElementById('edit-em-relation').value;
-                    document.getElementById('view-em-phone').textContent = emPhoneInput.value;
-                    toggleContactMode(false);
+                    if (response.ok) {
+                        const result = await response.json();
+                        // 上傳成功後，強制更新所有頭像位置 (使用後端回傳的路徑)
+                        const path = result.path.startsWith('http') ? result.path : '/' + result.path;
+                        // 加上時間戳防止快取
+                        const finalPath = `${path}?t=${new Date().getTime()}`;
+                        
+                        if (profileAvatar) profileAvatar.src = finalPath;
+                        if (headerAvatar) headerAvatar.src = finalPath;
+                        if (sidebarAvatar) sidebarAvatar.src = finalPath;
+                        
+                        sessionStorage.setItem('imgPath', result.path);
+                        alert('頭像上傳成功！');
+                    } else {
+                        alert('頭像上傳失敗，請檢查檔案格式或大小');
+                    }
+                } catch (error) {
+                    console.error('上傳頭像失敗:', error);
+                    alert('系統錯誤，無法上傳圖片');
                 }
             });
+
+            // === 5. 密碼修改 ===
+            const changePasswordBtn = document.getElementById('change-password-btn');
+            if (changePasswordBtn) {
+                changePasswordBtn.onclick = async () => {
+                    const oldPassword = prompt('請輸入舊密碼:');
+                    if (!oldPassword) return;
+                    const newPassword = prompt('請輸入新密碼:');
+                    if (!newPassword) return;
+                    if (newPassword.length < 6) {
+                        alert('新密碼長度至少需要 6 個字元');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/employee/profile/password', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ oldPassword, newPassword })
+                        });
+
+                        if (response.ok) {
+                            alert('密碼修改成功！下次請使用新密碼登入。');
+                        } else {
+                            const err = await response.json();
+                            alert('修改失敗: ' + (err.message || '舊密碼錯誤'));
+                        }
+                    } catch (error) {
+                        console.error('密碼修改網路錯誤:', error);
+                    }
+                };
+            }
         });
     </script>
 </body>

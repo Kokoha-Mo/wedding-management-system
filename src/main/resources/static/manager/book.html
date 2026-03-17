@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 
 <head>
@@ -46,10 +46,10 @@
 
     <div class="px-4 py-4 mt-2 sidebar-user">
         <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
-            <img alt="Joy Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
+            <img id="sidebar-avatar" alt="Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
             <div class="menu-category p-0 m-0">
-                <div class="text-white font-medium">Joy</div>
-                <div class="text-xs text-gray-400 mt-1">PM 權限</div>
+                <div id="sidebar-emp-name" class="text-white font-medium">載入中...</div>
+                <div id="sidebar-position" class="text-xs text-gray-400 mt-1">...</div>
             </div>
         </div>
     </div>
@@ -57,26 +57,26 @@
     <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
         <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">GENERAL</div>
 
-        <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]" href="consultation.html">
+        <a id="nav-consultation" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]" href="consultation.html">
             <span class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
             <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
         </a>
-        <a class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]" href="book.html">
+        <a id="nav-book" class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]" href="book.html">
             <span class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
             <div class="menu-category p-0 m-0 text-sm whitespace-nowrap text-white">預約管理</div>
         </a>
-        <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]" href="project.html">
+        <a id="nav-project" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]" href="project.html">
             <span class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
             <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
         </a>
-        <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]" href="quest_staff.html">
+        <a id="nav-task" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]" href="quest_staff.html">
             <span class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
             <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">任務管理</div>
         </a>
 
         <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">系統設定</div>
 
-        <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]" href="account.html">
+        <a id="nav-account" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]" href="account.html">
             <span class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
             <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">個人資訊</div>
         </a>
@@ -99,8 +99,8 @@
         <div class="flex items-center space-x-4">
             <div class="relative">
                 <div id="user-menu-button" class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
-                    <img alt="Joy Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover" src="./Img/smile.jpg" />
-                    <span class="text-sm font-medium mr-1 text-gray-200">Joy</span>
+                    <img id="header-avatar" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover" src="./Img/smile.jpg" />
+                    <span id="header-emp-name" class="text-sm font-medium mr-1 text-gray-200">User</span>
                     <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                 </div>
                 <div id="user-dropdown" class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">

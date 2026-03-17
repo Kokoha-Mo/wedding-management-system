@@ -30,6 +30,7 @@ public class ProjectCommunicationDocument {
     @Column(name = "file_path", length = 1000)
     private String filePath;
 
+    // TODO: 之後要將 file_type 欄位長度擴充到 255，因為有些檔案類型可能會比較長
     @Column(name = "file_type", length = 50)
     private String fileType;
 }

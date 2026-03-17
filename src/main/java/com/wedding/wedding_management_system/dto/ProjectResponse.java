@@ -1,25 +1,43 @@
 package com.wedding.wedding_management_system.dto;
 
-import lombok.Data;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Data;
 
 public class ProjectResponse {
 
     // 1. 列表用
     @Data
     public static class ListDTO {
+
         private Integer projectId;
         private String projectNo;
         private String customerName;
         private String status;
         private LocalDate weddingDate;
         private Long daysRemaining;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+        private LocalDateTime updateAt;
+
+        private List<TaskSummaryDTO> tasks;
+
+        @Data
+        public static class TaskSummaryDTO {
+            private String deptName;
+            private String taskName;
+            private String status;
+        }
     }
 
     // 2. 結案紀錄 Modal 用
     @Data
     public static class RecordDTO {
+
         private String projectNo; // 專案編號
         private String customerName; // 客戶姓名
         private String pmName; // 負責 PM 姓名 (來自 Project -> Book -> Manager)
@@ -35,6 +53,7 @@ public class ProjectResponse {
 
         @Data
         public static class DocumentDTO {
+
             private String fileName; // 檔案名稱
             private String fileType; // 檔案類型 (決定前端顯示 pdf 還是影片 icon)
             private String fileSize; // 檔案大小 (可選，若資料庫沒存可略)
@@ -44,6 +63,7 @@ public class ProjectResponse {
 
         @Data
         public static class TaskHistoryDTO {
+
             private String taskName; // 任務名稱 (如：場地佈置撤場與點收)
             private String ownerInfo; // 負責人資訊 (如：李小華 (設計部))
             private String status; // 狀態 (任務完成、立案)
@@ -55,6 +75,7 @@ public class ProjectResponse {
     // 3. 統計卡片用
     @Data
     public static class DashboardDTO {
+
         private Long activeProjectsCount;
         private Long endingThisMonthCount;
         private Long completedThisYearCount;

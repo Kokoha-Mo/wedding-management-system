@@ -1,7 +1,6 @@
 const API_BASE = 'http://localhost:8080/api';
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadStatusCounts();
     loadBooks('處理中');
 });
 
@@ -28,19 +27,6 @@ function switchTab(tabId) {
     if (tabId === 'tab-pending')   loadBooks('處理中');
     if (tabId === 'tab-signed')    loadBooks('已簽約');
     if (tabId === 'tab-cancelled') loadBooks('取消');
-}
-
-async function loadStatusCounts() {
-    try {
-        const res    = await fetch(`${API_BASE}/books/status-counts`);
-        const counts = await res.json();
-
-        document.getElementById('badge-pending').textContent   = counts['處理中']  ?? 0;
-        document.getElementById('badge-signed').textContent    = counts['已簽約']  ?? 0;
-        document.getElementById('badge-cancelled').textContent = counts['取消']    ?? 0;
-    } catch (err) {
-        console.error('[API] 載入狀態數量失敗:', err);
-    }
 }
 
 // ════════════════════════════════════════
@@ -117,8 +103,8 @@ function applyFilters() {
         const guests = parseInt(card.dataset.guests || '0');
         const bucket = guests < 100 ? 'small' : guests <= 200 ? 'medium' : 'large';
         const ok = (activeFilters.staff.size  === 0 || activeFilters.staff.has(staff))
-            && (activeFilters.theme.size  === 0 || activeFilters.theme.has(theme))
-            && (activeFilters.guests.size === 0 || activeFilters.guests.has(bucket));
+                && (activeFilters.theme.size  === 0 || activeFilters.theme.has(theme))
+                && (activeFilters.guests.size === 0 || activeFilters.guests.has(bucket));
         card.style.display = ok ? '' : 'none';
     });
 }
@@ -170,14 +156,12 @@ async function loadBooks(status = '處理中') {
 // API：建立預約
 // ════════════════════════════════════════
 async function submitCreateBook() {
-    const nameA  = document.getElementById('input-nameA').value.trim();
-    const nameB  = document.getElementById('input-nameB').value.trim();
-    const name   = nameB ? `${nameA} & ${nameB}` : nameA;  // 合併成 "A & B"，B 選填
-    const tel    = document.getElementById('input-tel').value.trim();
-    const email  = document.getElementById('input-email').value.trim();
+    const name  = document.getElementById('input-names').value.trim();
+    const tel   = document.getElementById('input-tel').value.trim();
+    const email = document.getElementById('input-email').value.trim();
 
-    if (!nameA || !tel) {
-        alert('請填寫新郎/新娘姓名與手機號碼');
+    if (!name || !tel) {
+        alert('請填寫姓名與手機號碼');
         return;
     }
 
@@ -249,7 +233,6 @@ async function updateBookStatus(bookId, newStatus) {
 
         if (res.ok) {
             showToast('狀態已更新');
-            loadStatusCounts();
             loadBooks('處理中');
         }
     } catch (err) {
@@ -325,7 +308,7 @@ function renderPendingCards(books) {
                 </button>
                 <button onclick="updateBookStatus(${book.bookId}, '已簽約')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
-                    轉為簽約
+                    接案處理
                 </button>
                 <button onclick="updateBookStatus(${book.bookId}, '取消')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-red-400 hover:bg-red-50 transition-colors">

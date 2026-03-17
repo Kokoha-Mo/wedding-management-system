@@ -714,8 +714,8 @@
                                         required />
                                 </div>
                                 <div class="col-md-6 contact-field">
-                                    <label class="contact-label">電話 Phone <span class="text-danger">*</span></label>
-                                    <input class="lux-input" placeholder="0900-000-000" type="tel" v-model="form.phone"
+                                    <label class="contact-label">電話 Tel <span class="text-danger">*</span></label>
+                                    <input class="lux-input" placeholder="0900-000-000" type="tel" v-model="form.tel"
                                         required />
                                 </div>
                                 <div class="col-md-6 contact-field">
@@ -961,7 +961,7 @@
                 // ── 表單資料 ──
                 const form = reactive({
                     name: '',
-                    phone: '',
+                    tel: '',
                     line_id: '',
                     email: '',
                     consultation_date: '',              // 🌟 新增這行：綁定諮詢日期
@@ -1006,7 +1006,7 @@
 
                     console.log('準備傳送給 Spring Boot 的資料：', payload);
 
-                    axios.post('http://localhost:8080/api/consultations', payload)
+                    axios.post('/api/consultations', payload)
                         .then(response => {
                             if (response.data.success) {
                                 alert(response.data.message); // 跳出成功提示

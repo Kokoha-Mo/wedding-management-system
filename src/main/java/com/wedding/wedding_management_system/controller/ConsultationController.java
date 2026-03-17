@@ -15,7 +15,6 @@ import java.util.Map;
 @RestController // 回傳的資料會自動轉成 JSON
 @RequestMapping("/api/consultations") // Controller 統一網址前綴
 @RequiredArgsConstructor // Lombok 自動生成建構子，用來注入 Service
-@CrossOrigin(origins = "*") // 🚧 開發階段小撇步：允許跨網域請求，避免 Vue 和 Spring Boot 跑在不同 Port 時被瀏覽器擋下來 (CORS)
 public class ConsultationController {
 
     private final ConsultationService consultationService;
@@ -82,14 +81,14 @@ public class ConsultationController {
      */
     @PutMapping("/{id}/status")
     public ResponseEntity<Map<String, Object>> updateStatus(
-            @PathVariable Integer id, 
+            @PathVariable("id") Integer id, 
             @RequestBody Map<String, String> requestBody) {
         
         Map<String, Object> response = new HashMap<>();
         
         try {
             // 從前端傳來的 JSON 中取出 "status" 的值
-            String newStatus = requestBody.get("static");
+            String newStatus = requestBody.get("status");
             
             // 基礎的防呆驗證
             if (newStatus == null || newStatus.trim().isEmpty()) {

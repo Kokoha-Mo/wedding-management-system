@@ -1,5 +1,7 @@
 package com.wedding.wedding_management_system.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,5 +15,9 @@ public class EmployeeService {
 
     public Employee findByEmail(String email) {
         return employeeRepository.findByEmail(email).orElse(null);
+    }
+
+    public List<Employee> getEmployeesByDeptId(Integer deptId) {
+        return employeeRepository.findByDepartment_Id(deptId);
     }
 }

@@ -5,6 +5,7 @@ import com.wedding.wedding_management_system.entity.Employee;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+
 import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
@@ -15,4 +16,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
             "GROUP BY e " +
             "ORDER BY COUNT(b) ASC")
     List<Employee> findEmployeeWithLeastBooks();
+
+    List<Employee> findByDepartment_Id(Integer deptId);
 }

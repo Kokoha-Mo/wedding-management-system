@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wedding.wedding_management_system.dto.ProjectResponse;
+import com.wedding.wedding_management_system.dto.TaskDTO;
+import com.wedding.wedding_management_system.entity.ProjectTask;
 import com.wedding.wedding_management_system.service.ProjectService;
+import com.wedding.wedding_management_system.service.ProjectTaskService;
 
 @RestController
 @RequestMapping("/api/manager/projects")
@@ -20,6 +23,9 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private ProjectTaskService projectTaskService;
 
     /**
      * 1. 取得專案列表 對應前端：Table 列表顯示 測試網址：GET
@@ -46,5 +52,19 @@ public class ProjectController {
             // 未來如果我們加上「全域例外處理 (Global Exception Handler)」，這層 try-catch 就可以完全省略！
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // 獲取該專案底下的所有任務清單
+    @GetMapping("/{projectId}/tasks")
+    public ResponseEntity<List<TaskDTO>> getProjectTasks(@PathVariable Integer projectId) {
+        try {
+            // 接收 Service 傳來的一包 DTO
+            List<TaskDTO> tasks = projectTaskService.getTasksByProjectId(projectId);
+            return ResponseEntity.ok(tasks);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.notFound().build();
+        }
+
     }
 }

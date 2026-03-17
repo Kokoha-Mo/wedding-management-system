@@ -35,14 +35,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class BookService {
 
-    @Autowired private BookRepository       bookRepository;
-    @Autowired private BookDetailRepository bookDetailRepository;   // ← 新增
-    @Autowired private CustomerRepository   customerRepository;
-    @Autowired private EmployeeRepository   employeeRepository;
-    @Autowired private PasswordEncoder      passwordEncoder;
-    @Autowired private ConsultationRepository consultationRepository;
+    @Autowired
+    private BookRepository bookRepository;
 
-    private static final String TEMP_PASSWORD = "Wedding@2026";
+    @Autowired
+    private BookDetailRepository bookDetailRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder; // 🌟 用來加密初始密碼
+
+    private static final String TEMP_PASSWORD = "12345678";
+
 
     // ════════════════════════════════════════════════════════
     // 找或建立顧客（不動）
@@ -105,33 +114,6 @@ public class BookService {
         return BookResponseDTO.from(saved, customer);
     }
 
-    // ════════════════════════════════════════════════════════
-    // 從諮詢單轉預約（不動）
-    // ════════════════════════════════════════════════════════
-    @Transactional
-    public BookResponseDTO convertFromConsultation(Integer consultationId) {
-        Consultation consultation = consultationRepository.findById(consultationId)
-                .orElseThrow(() -> new EntityNotFoundException("找不到諮詢單，id=" + consultationId));
-
-        CreateBookRequestDTO dto = new CreateBookRequestDTO();
-        dto.setName(consultation.getName());
-        dto.setTel(consultation.getTel());
-        dto.setEmail(consultation.getEmail());
-        dto.setLineId(consultation.getLineId());
-        dto.setWeddingDate(consultation.getWeddingDate());
-        dto.setStyles(consultation.getStyles());
-        dto.setContent(consultation.getAdditionalNotes());
-        // 諮詢單轉預約不帶 services，book_details 留空，後續由業務補填
-
-        BookResponseDTO result = createBook(dto);
-        consultation.setStatus("轉預約");
-        consultationRepository.save(consultation);
-        return result;
-    }
-
-    // ════════════════════════════════════════════════════════
-    // 其餘方法不動
-    // ════════════════════════════════════════════════════════
     public List<CustomerDTO> findSimilarCustomers(String email) {
         List<CustomerDTO> result = new ArrayList<>();
         if (email != null && !email.isBlank()) {
@@ -141,6 +123,10 @@ public class BookService {
         return result;
     }
 
+
+    /**
+     * 依狀態查詢列表（對應前端三個 tab）
+     */
     @Transactional(readOnly = true)
     public List<BookResponseDTO> findByStatus(String status) {
         return bookRepository.findByStatus(status)

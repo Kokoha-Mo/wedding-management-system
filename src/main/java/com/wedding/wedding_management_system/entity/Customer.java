@@ -41,6 +41,6 @@ public class Customer {
     @OneToMany(mappedBy = "customer")
     private List<Book> books;
 
-    @Column(name = "reset_token", length = 255)
-    private String resetToken;
+     @Column(name = "reset_token", length = 255)
+     private String resetToken;
 }

@@ -111,6 +111,24 @@ public class BookService {
             throw new RuntimeException("此諮詢單已經轉換過了，請勿重複操作！");
         }
 
+        // ==========================================
+        // 🌟 升級版防護網：檢查信箱或電話是否已經存在
+        // ==========================================
+        // 1. 檢查信箱
+        if (consultation.getEmail() != null && !consultation.getEmail().trim().isEmpty()) {
+            if (customerRepository.findByEmail(consultation.getEmail()).isPresent()) {
+                throw new RuntimeException("資料衝突！此信箱 (" + consultation.getEmail() + ") 已有建檔紀錄，請確認是否為舊客戶。");
+            }
+        }
+
+        // 2. 檢查電話 (🌟 這裡改成 findFirstByTel)
+        if (consultation.getTel() != null && !consultation.getTel().trim().isEmpty()) {
+            if (customerRepository.findFirstByTel(consultation.getTel()).isPresent()) {
+                throw new RuntimeException("資料衝突！此電話 (" + consultation.getTel() + ") 已有建檔紀錄，請確認是否為舊客戶。");
+            }
+        }
+        // ==========================================
+
         // 1. 建立新客戶 (Customer)
         Customer customer = new Customer();
         String fullName = consultation.getName();

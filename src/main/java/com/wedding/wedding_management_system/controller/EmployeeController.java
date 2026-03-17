@@ -27,7 +27,7 @@ public class EmployeeController {
     private EmployeeRepository employeeRepository;
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<Employee> getEmployeeByEmail(@PathVariable String email) {
+    public ResponseEntity<Employee> getEmployeeByEmail(@PathVariable("email") String email) {
         Employee employee = employeeService.findByEmail(email);
         if (employee == null) {
             return ResponseEntity.notFound().build();
@@ -36,7 +36,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/department/{deptId}")
-    public ResponseEntity<List<TaskDTO.AssigneeDTO>> getEmployeesByDept(@PathVariable Integer deptId) {
+    public ResponseEntity<List<TaskDTO.AssigneeDTO>> getEmployeesByDept(@PathVariable("deptId") Integer deptId) {
         List<Employee> employees = employeeService.getEmployeesByDeptId(deptId);
 
         List<TaskDTO.AssigneeDTO> responseList = employees.stream().map(emp -> {

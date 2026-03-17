@@ -23,6 +23,15 @@ public class ProjectResponse {
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
         private LocalDateTime updateAt;
+
+        private List<TaskSummaryDTO> tasks;
+
+        @Data
+        public static class TaskSummaryDTO {
+            private String deptName;
+            private String taskName;
+            private String status;
+        }
     }
 
     // 2. 結案紀錄 Modal 用

@@ -21,12 +21,12 @@
     <script>
         // 從 sessionStorage 拿出剛剛存好的部門 ID
         const deptId = sessionStorage.getItem('deptId');
-        
+
         // 防呆：如果沒登入，或是部門 ID 不是 7 (接待部)
         if (!deptId || String(deptId) !== '7') {
             alert('【權限不足】此頁面為接待部專屬，您無法訪問！');
             // 踢回後台首頁 (配合你的系統，導向專案管理頁)
-            window.location.replace('./project.html'); 
+            window.location.replace('./project.html');
         }
     </script>
 
@@ -239,7 +239,7 @@
                             <option value="all">顯示全部</option>
                             <option value="pending">待處理 (Pending)</option>
                             <option value="contacted">已聯絡 (Contacted)</option>
-                            <option value="confirmed">轉預約 (Booking)</option>
+                            <option value="confirmed">轉預約 (Booked)</option>
                             <option value="cancelled">無效 / 取消 (Cancelled)</option>
                         </select>
                     </div>
@@ -328,10 +328,18 @@
                                     </td>
 
                                     <td class="px-6 py-4 text-center">
-                                        <button @click="openDetailPanel(item)"
-                                            class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center justify-center mx-auto transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50 whitespace-nowrap">
-                                            <span class="material-icons text-base mr-1">visibility</span> 檢視
-                                        </button>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button @click="openDetailPanel(item)"
+                                                class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50 whitespace-nowrap">
+                                                <span class="material-icons text-base mr-1">visibility</span> 檢視
+                                            </button>
+
+                                            <button v-if="item.status === '待處理' || item.status === '已聯絡'"
+                                                @click="openConvertModal(item)"
+                                                class="text-accent-gold hover:text-yellow-700 font-medium text-sm flex items-center transition-colors px-3 py-1.5 rounded-lg hover:bg-yellow-50 whitespace-nowrap">
+                                                <span class="material-icons text-base mr-1">person_add</span> 轉預約
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr v-if="filteredConsultations.length === 0">
@@ -479,17 +487,80 @@
                     <h6 class="text-sm font-bold text-gray-800 tracking-wider mb-3 flex items-center uppercase">
                         <span class="material-icons text-accent-gold text-lg mr-2">edit_note</span> 狀態管理
                     </h6>
-                    <div class="flex items-center gap-3">
-                        <select v-model="editForm.status"
-                            class="form-select border-gray-300 rounded-lg focus:ring-accent-gold focus:border-accent-gold flex-1 py-2">
-                            <option value="待處理">待處理</option>
-                            <option value="已聯絡">已聯絡</option>
-                            <option value="轉預約">轉預約</option>
-                            <option value="無效單">無效單</option>
-                        </select>
-                        <button @click="updateStatusFromOffcanvas"
-                            class="btn bg-[#C5A059] hover:bg-[#B08D4D] text-white font-medium px-5 py-2 rounded-lg transition-colors flex items-center shadow-sm">
-                            <span class="material-icons text-sm mr-1">save</span> 儲存變更
+
+                    <div v-if="selectedItem.status === '轉預約'"
+                        class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-lg flex items-center text-sm shadow-sm">
+                        <span class="material-icons mr-2 text-emerald-600">check_circle</span>
+                        此諮詢單已成功轉為正式預約，狀態已鎖定不可更改。
+                    </div>
+
+                    <div v-else class="flex flex-col gap-3">
+                        <div class="flex items-center gap-3">
+                            <select v-model="editForm.status"
+                                class="form-select border-gray-300 rounded-lg focus:ring-accent-gold focus:border-accent-gold flex-1 py-2 text-sm">
+                                <option value="待處理">待處理</option>
+                                <option value="已聯絡">已聯絡</option>
+                                <option value="無效單">無效單</option>
+                            </select>
+                            <button @click="updateStatusFromOffcanvas"
+                                class="btn bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-5 py-2 rounded-lg transition-colors flex items-center shadow-sm text-sm">
+                                <span class="material-icons text-sm mr-1">save</span> 儲存狀態
+                            </button>
+                        </div>
+
+                        <button @click="openConvertModalFromOffcanvas"
+                            class="w-full btn bg-[#C5A059] hover:bg-[#B08D4D] text-white font-medium px-5 py-2.5 rounded-lg transition-colors flex items-center justify-center shadow-sm mt-1">
+                            <span class="material-icons text-[18px] mr-2">person_add</span> 將此單據轉為正式預約
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="convertToBookModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content"
+                    style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                    <div class="modal-header"
+                        style="border-bottom: 1px solid rgba(197, 160, 89, 0.2); background: #faf7f2;">
+                        <h5 class="modal-title" style="color: var(--accent-gold); font-family: var(--font-serif);"><span
+                                class="material-icons align-text-bottom mr-2">stars</span>轉為正式預約</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="bg-blue-50 text-blue-800 p-3 rounded-lg text-sm mb-4 border border-blue-100">
+                            系統將為 <strong>{{ convertForm.primaryName }}</strong> 建立「客戶帳號」及「預約單」。<br>
+                            <span class="text-xs text-blue-600 mt-1 block">💡 預設登入密碼將自動設定為該客戶的手機號碼。</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label
+                                class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1 block">主要聯絡人</label>
+                            <input type="text" class="form-control bg-gray-100 text-gray-700"
+                                v-model="convertForm.primaryName" disabled>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1 block">伴侶姓名
+                                <span class="font-normal text-gray-400 lowercase">(選填)</span></label>
+                            <input type="text"
+                                class="form-control border-gray-300 focus:border-accent-gold focus:ring-accent-gold"
+                                v-model="convertForm.partnerName" placeholder="例如：林雅文">
+
+                            <div class="text-xs text-gray-500 mt-2" v-if="convertForm.partnerName">
+                                建檔後客戶名稱將顯示為：<strong class="text-gray-800">{{ convertForm.primaryName }} & {{
+                                    convertForm.partnerName }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 pb-4 px-4 flex justify-end gap-2">
+                        <button type="button"
+                            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                            data-bs-dismiss="modal">取消</button>
+                        <button type="button"
+                            class="px-4 py-2 bg-[#C5A059] hover:bg-[#B08D4D] text-white rounded-lg text-sm font-medium transition-colors"
+                            @click="submitConvert" :disabled="isConverting">
+                            {{ isConverting ? '處理中...' : '確認建立' }}
                         </button>
                     </div>
                 </div>
@@ -519,8 +590,16 @@
                     pageSize: 10, // 每頁顯示幾筆資料，你可以隨時調整
                     // 🌟 新增：排序狀態紀錄
                     sortKey: 'id',       // 預設以「單號」排序
-                    sortOrder: 'desc'    // 預設「倒序」 (最新的單在最上面)
+                    sortOrder: 'desc',    // 預設「倒序」 (最新的單在最上面)
 
+                    // 🌟 新增：轉預約表單變數
+                    convertForm: {
+                        consultationId: null,
+                        primaryName: '',
+                        partnerName: ''
+                    },
+                    isConverting: false,
+                    convertModalInstance: null
                 }
             },
             computed: {
@@ -600,6 +679,12 @@
                     this.modalInstance = new bootstrap.Modal(modalEl);
                 }
 
+                // 🌟 新增：初始化轉預約 Modal
+                const convertModalEl = document.getElementById('convertToBookModal');
+                if (convertModalEl && window.bootstrap) {
+                    this.convertModalInstance = new bootstrap.Modal(convertModalEl);
+                }
+
                 // 畫面載入時，立刻向 Spring Boot 要資料！
                 this.fetchConsultations();
             },
@@ -639,7 +724,7 @@
                 getStatusClass(status) {
                     if (status === '待處理') return 'status-pending';
                     if (status === '已聯絡') return 'status-contacting';
-                    if (status === '轉預約') return 'status-confirmed';
+                    if (status === '轉預約') return 'status-confirmed'; 
                     if (status === '無效單') return 'status-cancelled';
                     return 'status-pending'; // 預設
                 },
@@ -743,6 +828,54 @@
                 },
                 goToPage(page) {
                     this.currentPage = page;
+                },
+                // 🌟 新增：開啟轉預約 Modal
+                openConvertModal(item) {
+                    this.convertForm.consultationId = item.id;
+                    this.convertForm.primaryName = item.name;
+                    this.convertForm.partnerName = ''; // 每次打開時清空上次的輸入
+                    if (this.convertModalInstance) {
+                        this.convertModalInstance.show();
+                    }
+                },
+                // 🌟 新增：從 Offcanvas 直接打開轉預約 Modal 的橋樑方法
+                openConvertModalFromOffcanvas() {
+                    // 1. 先把 Offcanvas 隱藏收起來
+                    if (this.offcanvasInstance) {
+                        this.offcanvasInstance.hide();
+                    }
+
+                    // 2. 稍微延遲 300 毫秒，等側邊欄縮回去的動畫跑完，再彈出中間的 Modal (視覺體驗最佳)
+                    setTimeout(() => {
+                        // 重複利用上一回合寫好的 Modal 打開邏輯，並帶入當下正在看的這筆單據
+                        this.openConvertModal(this.selectedItem);
+                    }, 300);
+                },
+
+                // 🌟 新增：送出轉預約 API
+                submitConvert() {
+                    this.isConverting = true;
+
+                    // 呼叫我們剛剛在 BookController 寫好的 API
+                    axios.post(`/api/books/from-consultation/${this.convertForm.consultationId}`, {
+                        partnerName: this.convertForm.partnerName
+                    }, { withCredentials: true })
+                        .then(response => {
+                            alert('🎉 成功轉為正式預約！已建立客戶帳號。');
+                            this.convertModalInstance.hide();
+                            this.fetchConsultations(); // 重新撈取畫面，該筆狀態會自動變成「轉預約」
+                        })
+                        .catch(error => {
+                            let errorMsg = '發生未知錯誤';
+                            if (error.response && error.response.data && error.response.data.message) {
+                                errorMsg = error.response.data.message;
+                            }
+                            console.error(error);
+                            alert('轉換失敗：' + errorMsg);
+                        })
+                        .finally(() => {
+                            this.isConverting = false;
+                        });
                 }
             }
         }).mount('#app');

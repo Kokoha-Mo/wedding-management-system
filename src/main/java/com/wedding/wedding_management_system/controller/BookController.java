@@ -41,12 +41,28 @@ public class BookController {
                 .body(result);
     }
 
-    @PostMapping("/convert/{consultationId}")
-    public ResponseEntity<BookResponseDTO> convertFromConsultation(
-            @PathVariable Integer consultationId) {
+    // 從諮詢單轉預約
+    @PostMapping("/from-consultation/{consultationId}")
+    public ResponseEntity<?> convertFromConsultation(
+            @PathVariable Integer consultationId,
+            @RequestBody Map<String, String> payload) { // 🌟 新增：用來接收前端傳來的 JSON
 
-        BookResponseDTO result = bookService.convertFromConsultation(consultationId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        try {
+            // 從 payload 中取出前端填寫的 partnerName
+            String partnerName = payload.get("partnerName");
+            
+            // 將伴侶姓名一併傳給 Service 處理
+            BookResponseDTO result = bookService.convertFromConsultation(consultationId, partnerName);
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "轉預約失敗：" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
 
     @GetMapping("/check-duplicate")

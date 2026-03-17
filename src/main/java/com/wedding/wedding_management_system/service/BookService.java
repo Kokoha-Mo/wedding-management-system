@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wedding.wedding_management_system.entity.Book;
 import com.wedding.wedding_management_system.repository.BookRepository;
 
-@Slf4j //log
+@Slf4j // log
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -44,7 +44,7 @@ public class BookService {
     private EmployeeRepository employeeRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder; // 🌟 用來加密初始密碼
 
     @Autowired
     private ConsultationRepository consultationRepository;
@@ -63,67 +63,116 @@ public class BookService {
                     c.setEmail(dto.getEmail());
                     c.setLineId(dto.getLineId());
                     c.setPassword(passwordEncoder.encode(TEMP_PASSWORD));
-                    //c.setPasswordResetRequired(true);
+                    // c.setPasswordResetRequired(true);
                     return customerRepository.save(c);
                 });
     }
 
     private @NonNull String ReName(String raw) {
-        if (raw == null || raw.isBlank()) return "";
+        if (raw == null || raw.isBlank())
+            return "";
 
         // 把所有常見分隔符號（含多個空白）統一換成 & 分隔
         String cleaned = raw.trim()
-                .replaceAll("[&＆/／、,，]+", "&")  // 標點換成 &
-                .replaceAll("\\s+", "&")            // 空白也換成 &
-                .replaceAll("&+", " & ");           // 多個連續 & 合併，並加空格
+                .replaceAll("[&＆/／、,，]+", "&") // 標點換成 &
+                .replaceAll("\\s+", "&") // 空白也換成 &
+                .replaceAll("&+", " & "); // 多個連續 & 合併，並加空格
 
         // 去掉頭尾可能殘留的 & 或空白
         return cleaned.replaceAll("^[\\s&]+|[\\s&]+$", "");
     }
 
+    // 🌟 聰明解析器：把字串 "100-150" 轉成數字 100，"尚未決定" 轉成 null
+    private Integer parseGuestScale(String scaleStr) {
+        if (scaleStr == null || scaleStr.isBlank() || scaleStr.contains("尚未")) {
+            return null; // 如果是尚未決定，直接回傳 null
+        }
+        try {
+            // 利用正則表達式濾出數字，例如 "100-150人" 會被切成 ["100", "150"]
+            String[] nums = scaleStr.split("\\D+");
+            for (String num : nums) {
+                if (!num.isEmpty()) {
+                    return Integer.parseInt(num); // 抓取第一個出現的數字存入
+                }
+            }
+        } catch (Exception e) {
+            log.warn("無法解析 guestScale: {}", scaleStr);
+        }
+        return null;
+    }
+
     @Transactional
-    public BookResponseDTO convertFromConsultation(Integer consultationId) {
+    public BookResponseDTO convertFromConsultation(Integer consultationId, String partnerName) {
 
         Consultation consultation = consultationRepository.findById(consultationId)
-                .orElseThrow(() -> new EntityNotFoundException("找不到諮詢單，id=" + consultationId));
+                .orElseThrow(() -> new RuntimeException("找不到此諮詢單 ID: " + consultationId));
 
-        CreateBookRequestDTO dto = new CreateBookRequestDTO();
-        dto.setName(consultation.getName());
-        dto.setTel(consultation.getTel());
-        dto.setEmail(consultation.getEmail());
-        dto.setLineId(consultation.getLineId());
-        dto.setWeddingDate(consultation.getWeddingDate());
-        dto.setStyles(consultation.getStyles());
-        dto.setContent(consultation.getAdditionalNotes());
+        if ("轉預約".equals(consultation.getStatus())) {
+            throw new RuntimeException("此諮詢單已經轉換過了，請勿重複操作！");
+        }
 
-        // 建立 customer + book
-        BookResponseDTO result = createBook(dto);
+        // 1. 建立新客戶 (Customer)
+        Customer customer = new Customer();
+        String fullName = consultation.getName();
+        if (partnerName != null && !partnerName.trim().isEmpty()) {
+            fullName = fullName + " & " + partnerName.trim();
+        }
 
-        // 更新諮詢單狀態為「轉預約」
+        customer.setName(fullName);
+        customer.setEmail(consultation.getEmail());
+        customer.setTel(consultation.getTel());
+        customer.setLineId(consultation.getLineId());
+
+        String defaultPassword = consultation.getTel() != null ? consultation.getTel() : "12345678";
+        customer.setPassword(passwordEncoder.encode(defaultPassword));
+        customer = customerRepository.save(customer);
+
+        // 🌟 2. 自動分配接案數最少的婚顧部 MANAGER
+        Employee manager = employeeRepository.findManagerWithLeastBooks()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("目前沒有可分配的婚顧部業務人員"));
+
+        // 3. 建立新預約單 (Book)
+        Book book = new Book();
+        book.setCustomer(customer);
+        book.setManager(manager); // 🌟 綁定負責業務
+        book.setWeddingDate(consultation.getWeddingDate());
+        book.setStyles(consultation.getStyles());
+        book.setStatus("處理中");
+
+        // 🌟 綁定客戶的補充說明到預約單的 Content
+        book.setContent(consultation.getAdditionalNotes());
+
+        // 🌟 使用我們寫好的聰明解析器來處理賓客數
+        book.setGuestScale(parseGuestScale(consultation.getGuestScale()));
+
+        book = bookRepository.save(book);
+
+        // 4. 更新諮詢單狀態
         consultation.setStatus("轉預約");
         consultationRepository.save(consultation);
 
-        return result;
+        return new BookResponseDTO();
     }
-
-//    public List<Book> getBooksByCustomerId(int customerId) {
-//        return bookRepository.findByCustomer_Id(customerId);
-//    }
-//
-//    public List<Book> getAllBooks() {
-//        return bookRepository.findAll();
-//    }
-//
-//    public List<Book> getBooksByCancel() {
-//        return bookRepository.findByStatus(toString());
-//    }
+    // public List<Book> getBooksByCustomerId(int customerId) {
+    // return bookRepository.findByCustomer_Id(customerId);
+    // }
+    //
+    // public List<Book> getAllBooks() {
+    // return bookRepository.findAll();
+    // }
+    //
+    // public List<Book> getBooksByCancel() {
+    // return bookRepository.findByStatus(toString());
+    // }
 
     public List<CustomerDTO> findSimilarCustomers(String email) {
         List<CustomerDTO> result = new ArrayList<>();
 
         if (email != null && !email.isBlank()) {
-            Optional<Customer>found =customerRepository.findByEmail(email);
-            if(found.isPresent()){
+            Optional<Customer> found = customerRepository.findByEmail(email);
+            if (found.isPresent()) {
                 result.add(CustomerDTO.from(found.get()));
             }
         }
@@ -143,12 +192,11 @@ public class BookService {
             log.info("刪除客戶舊有預約，customer_id={}, 共{}筆", customer.getId(), existingBooks.size());
         }
 
-        // 自動分配接案數最少的 manager
-        Employee manager = employeeRepository.findEmployeeWithLeastBooks()
+        // 🌟 修改：自動分配接案數最少的 "婚顧部 MANAGER"
+        Employee manager = employeeRepository.findManagerWithLeastBooks()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("目前沒有可分配的業務人員"));
-
 
         // ── Step 3: 建立新 book ────────────────────────────────
         Book book = new Book();
@@ -186,8 +234,7 @@ public class BookService {
         return Map.of(
                 "處理中", bookRepository.countByStatus("處理中"),
                 "已簽約", bookRepository.countByStatus("已簽約"),
-                "取消預約", bookRepository.countByStatus("取消預約")
-        );
+                "取消預約", bookRepository.countByStatus("取消預約"));
     }
 
     /**

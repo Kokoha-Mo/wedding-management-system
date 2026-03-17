@@ -16,6 +16,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
+import com.wedding.wedding_management_system.dto.ProjectResponse;
+import com.wedding.wedding_management_system.entity.Book;
+import com.wedding.wedding_management_system.entity.Project;
+import com.wedding.wedding_management_system.entity.ProjectCommunication;
+import com.wedding.wedding_management_system.repository.ProjectCommunicationRepository;
+import com.wedding.wedding_management_system.repository.ProjectRepository;
+
 @Service
 public class ProjectService {
 
@@ -53,6 +64,8 @@ public class ProjectService {
                     dto.setCustomerName(book.getCustomer().getName());
                 }
             }
+            dto.setUpdateAt(project.getUpdateAt());
+
             return dto;
         }).collect(Collectors.toList());
     }
@@ -144,7 +157,6 @@ public class ProjectService {
 
         // 轉換 Tasks 歷史軌跡列表 (同理轉換...)
         // 如果你需要，我也可以把 TaskHistoryDTO 的 mapping 寫出來
-
         return dto;
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 public interface TaskCommunicationRepository extends JpaRepository<TaskCommunication, Integer> {
     
     @Query("SELECT new com.wedding.wedding_management_system.dto.TaskCommunicationDTO(" +
-           "e.name, tc.createAt, tc.content) " +
+           "e.id, e.name, e.role, tc.createAt, tc.content) " +
            "FROM TaskCommunication tc " +
            "JOIN tc.createBy e " +
            "WHERE tc.task.id = :taskId " +

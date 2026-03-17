@@ -18,7 +18,7 @@
     <script src="./global.js"></script>
     <script src="./login.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
+
     <style>
         /* 籌備進度版面 */
         .dashboard-wrap {
@@ -1329,6 +1329,14 @@
             const container = document.getElementById('boardContainer');
             if (container) container.scrollTop = container.scrollHeight;
         });
+
+
+        // ── 登入檢查：未登入直接踢回登入頁 ──
+        if (!localStorage.getItem('dv_username')) {
+            alert('請先登入會員');
+            window.location.href = './client_login.html';
+        }
+
     </script>
 </body>
 

@@ -39,6 +39,12 @@ public class JwtToken {
 		return token;
 	}
 
+	public static String getRole(String token){
+		String role = parse(token).getBody().get("role", String.class);
+		return role != null ? role: "CUSTOMER";
+
+	}
+
 	public static String parseToken(String token) {
 		JwtParser parser = Jwts.parserBuilder().setSigningKey(key).build();
 		String subject = parser.parseClaimsJws(token).getBody().getSubject();

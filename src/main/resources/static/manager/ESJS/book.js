@@ -1,8 +1,50 @@
 const API_BASE = 'http://localhost:8080/api';
 
 document.addEventListener('DOMContentLoaded', () => {
+    initSidebar();
     loadBooks('處理中');
 });
+
+function initSidebar() {
+    const empId = sessionStorage.getItem('empId');
+    const empName = sessionStorage.getItem('empName');
+    const position = sessionStorage.getItem('position');
+    const deptId = sessionStorage.getItem('deptId');
+
+    if (!empId) {
+        window.location.replace('login.html');
+        return;
+    }
+
+    // 顯示人員資訊
+    const sidebarEmpName = document.getElementById('sidebar-emp-name');
+    const headerEmpName = document.getElementById('header-emp-name');
+    const sidebarPosition = document.getElementById('sidebar-position');
+
+    if (sidebarEmpName) sidebarEmpName.textContent = empName || '未知員工';
+    if (headerEmpName) headerEmpName.textContent = empName || '未知員工';
+    if (sidebarPosition) sidebarPosition.textContent = position === 'MANAGER' ? '業務管理' : '員工';
+
+    // 側邊欄權限控制
+    const navIds = ['nav-consultation', 'nav-book', 'nav-project', 'nav-task'];
+    navIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    if (deptId === '1') {
+        ['nav-book', 'nav-project'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'flex';
+        });
+    } else if (deptId === '7') {
+        const el = document.getElementById('nav-consultation');
+        if (el) el.style.display = 'flex';
+    } else {
+        const el = document.getElementById('nav-task');
+        if (el) el.style.display = 'flex';
+    }
+}
 
 // Tab 切換
 function switchTab(tabId) {

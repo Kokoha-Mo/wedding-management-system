@@ -41,4 +41,7 @@ public class Customer {
     @JsonIgnore
     @OneToMany(mappedBy = "customer")
     private List<Book> books;
+
+    @Column(name = "reset_token", length = 255)
+    private String resetToken;
 }

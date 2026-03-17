@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>隱私權政策 | DREAM VENUES</title>
+
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="./global.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500&family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <script src="./js/bootstrap.bundle.js"></script>
+    <script src="./global.js"></script>
+    <script src="./login.js"></script>
+
+    <style>
+        /* 隱私權頁面專屬版面樣式 (參考 UNIQLO 簡潔感) */
+        .privacy-page {
+            background-color: #faf7f2;
+            /* 延續你的專案背景色 */
+            padding-top: 120px;
+            padding-bottom: 80px;
+            min-height: 80vh;
+        }
+
+        .privacy-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 60px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 767px) {
+            .privacy-container {
+                padding: 30px 20px;
+                margin: 0 15px;
+            }
+        }
+
+        .privacy-title {
+            font-family: var(--font-serif, 'Noto Serif TC', serif);
+            font-size: 28px;
+            font-weight: 500;
+            color: #2b2520;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 25px;
+            margin-bottom: 40px;
+            text-align: center;
+            letter-spacing: 0.1em;
+        }
+
+        .privacy-section {
+            margin-bottom: 35px;
+        }
+
+        .section-header {
+            font-family: var(--font-serif, 'Noto Serif TC', serif);
+            font-size: 18px;
+            font-weight: 600;
+            color: #2b2520;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .section-content {
+            font-size: 14.5px;
+            line-height: 2;
+            color: #555;
+            text-align: justify;
+            padding-left: 0;
+        }
+
+        .privacy-intro {
+            font-size: 14.5px;
+            line-height: 1.8;
+            color: #666;
+            margin-bottom: 40px;
+            background: #fdfcfb;
+            padding: 20px;
+            border-left: 3px solid var(--accent-gold, #c5a059);
+        }
+
+        .privacy-footer-note {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px dashed #eee;
+            font-size: 13px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid" style="max-width:1600px; margin:0 auto;">
+            <a class="navbar-brand" href="./index.html">
+                <span class="brand-name">DREAM VENUES</span>
+                <span class="brand-sub">High-End Wedding Journal</span>
+            </a>
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenuDesktop">
+                <ul class="navbar-nav ms-lg-4 gap-lg-1">
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">婚禮團隊</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
+                </ul>
+                <div class="navbar-tools d-none d-lg-flex align-items-center gap-3 ms-auto">
+                    <div class="nav-item dropdown" id="userDropdownWrap" style="display:none;">
+                        <a class="nav-link nav-link-item" href="#" id="userDropdownBtn" data-bs-toggle="dropdown">歡迎</a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="./customer_system.html">我的婚禮規劃</a></li>
+                            <li><a class="dropdown-item" href="./customer_progress.html">我的籌備進度</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
+                        </ul>
+                    </div>
+                    <a class="nav-link nav-link-item" href="client_login.html" id="loginLinkDesktop">會員登入</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="privacy-page">
+        <div class="privacy-container">
+            <h1 class="privacy-title">隱私權保護政策</h1>
+
+            <div class="privacy-intro">
+                本公司（以下稱「本平台」）為提供優質的婚禮顧問服務，將依照個人資料保護法規定，蒐集、處理及利用您的個人資料。當您填寫諮詢表單或使用本網站服務時，即視為您已同意本政策之內容。
+            </div>
+
+            <div class="privacy-section">
+                <div class="section-header">
+                    <span>一、</span>
+                    <span>蒐集之目的與類別</span>
+                </div>
+                <div class="section-content">
+                    我們蒐集資料是為了提供諮詢回覆、婚禮規劃服務、顧客管理、市場分析及相關行銷訊息。蒐集範圍包括：姓名、電話、電子郵件、通訊地址、性別、預計婚期及偏好風格等足以辨識個人身分或描述個人特徵之資訊。
+                </div>
+            </div>
+
+            <div class="privacy-section">
+                <div class="section-header">
+                    <span>二、</span>
+                    <span>利用之期間、地區及對象</span>
+                </div>
+                <div class="section-content">
+                    於提供服務期間、蒐集目的消失或依法令規定之保存期限內，本公司將於營運地區內，將您的資料提供予本公司及受本公司委託處理事務之合作單位（如：婚禮場地、攝影團隊、婚紗廠商等）於必要範圍內利用。
+                </div>
+            </div>
+
+            <div class="privacy-section">
+                <div class="section-header">
+                    <span>三、</span>
+                    <span>您的權利</span>
+                </div>
+                <div class="section-content">
+                    依個資法第三條規定，您可以隨時向本公司請求查詢、閱覽、製給複製本、補充、更正，或要求停止蒐集、處理、利用及刪除您的個人資料。若您欲行使上述權利，請聯繫我們的客服團隊。
+                </div>
+            </div>
+
+            <div class="privacy-section">
+                <div class="section-header">
+                    <span>四、</span>
+                    <span>資訊安全與技術</span>
+                </div>
+                <div class="section-content">
+                    本網站使用通行標準的 TLS 加密保護系統，確保您的資料於傳輸過程中受到保護。同時，我們使用 Cookie 技術以優化瀏覽體驗，您可以透過瀏覽器設定拒絕
+                    Cookie，但可能導致部分個人化服務無法正常運作。
+                </div>
+            </div>
+
+            <div class="privacy-section">
+                <div class="section-header">
+                    <span>五、</span>
+                    <span>政策修訂</span>
+                </div>
+                <div class="section-content">
+                    為因應服務內容變更及法律規範修正，本公司將不定時修訂本政策並於網站公告。若您在修訂後繼續使用服務，將視為您已瞭解並同意修訂內容。
+                </div>
+            </div>
+
+            <div class="privacy-footer-note">
+                最近更新日期：2026 年 3 月
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
+    </footer>
+</body>
+
+</html>

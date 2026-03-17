@@ -11,4 +11,5 @@ public class EmployeeLoginResponseDto {
     private String empName;
     private String position;
     private Integer deptId;
+    private String imgPath;
 }

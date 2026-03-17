@@ -1,22 +1,9 @@
 package com.wedding.wedding_management_system.controller;
 
 import com.wedding.wedding_management_system.dto.EmployeeProfileDTO;
-import com.wedding.wedding_management_system.entity.Employee;
-import com.wedding.wedding_management_system.service.EmployeeProfileService;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.wedding.wedding_management_system.dto.TaskDTO;
 import com.wedding.wedding_management_system.entity.Employee;
-import com.wedding.wedding_management_system.repository.EmployeeRepository;
+import com.wedding.wedding_management_system.service.EmployeeProfileService;
 import com.wedding.wedding_management_system.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,10 +12,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/manager/employees")
+@RequestMapping("/api/employee")
 public class EmployeeController {
 
     @Autowired
@@ -103,6 +92,5 @@ public class EmployeeController {
         }).collect(Collectors.toList());
 
         return ResponseEntity.ok(responseList);
-
     }
 }

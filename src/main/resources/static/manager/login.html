@@ -94,14 +94,15 @@
         // 已經登入的狀態下導向正確頁面
         function checkLoggedIn() {
             const empId = sessionStorage.getItem("empId");
-            const position = sessionStorage.getItem("position");
+            const deptId = sessionStorage.getItem("deptId");
             if (empId) {
-                if (position === 'MANAGER') {
+                const deptIdStr = String(deptId);
+                if (deptIdStr === '1') {
                     window.location.replace("project.html");
-                } else if (position === 'STAFF') {
-                    window.location.replace("quest_staff.html");
+                } else if (deptIdStr === '7') {
+                    window.location.replace("consultation.html");
                 } else {
-                    window.location.replace("project.html");
+                    window.location.replace("quest_staff.html");
                 }
             }
         }
@@ -164,14 +165,16 @@
                     sessionStorage.setItem("empName", data.empName);
                     sessionStorage.setItem("position", data.position);
                     sessionStorage.setItem("deptId", data.deptId);
+                    sessionStorage.setItem("imgPath", data.imgPath || '');
 
-                    // 根據職位跳轉
-                    if (data.position === 'MANAGER') {
-                        window.location.href = "project.html"; // 業務管理頁面
-                    } else if (data.position === 'STAFF') {
-                        window.location.href = "quest_staff.html"; // 員工任務頁面
+                    // 根據部門跳轉
+                    const deptIdStr = String(data.deptId);
+                    if (deptIdStr === '1') {
+                        window.location.href = "project.html";
+                    } else if (deptIdStr === '7') {
+                        window.location.href = "consultation.html";
                     } else {
-                        window.location.href = "project.html"; // 預設跳轉
+                        window.location.href = "quest_staff.html";
                     }
 
                 } else if (response.status === 401) {

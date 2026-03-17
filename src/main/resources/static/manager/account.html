@@ -169,7 +169,7 @@
                         </div>
                     </div>
                     <div class="mt-6 md:mt-0">
-                        <button
+                        <button id="change-password-btn"
                             class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center transition-colors shadow-sm">
                             <span class="material-icons text-sm mr-2">lock</span>
                             更改密碼
@@ -343,9 +343,10 @@
 
                 if (data.imgPath) {
                     const path = data.imgPath.startsWith('http') ? data.imgPath : '/' + data.imgPath;
-                    document.getElementById('sidebar-avatar').src = path;
-                    document.getElementById('header-avatar').src = path;
-                    document.getElementById('profile-avatar').src = path;
+                    if (document.getElementById('sidebar-avatar')) document.getElementById('sidebar-avatar').src = path;
+                    if (document.getElementById('header-avatar')) document.getElementById('header-avatar').src = path;
+                    if (document.getElementById('profile-avatar')) document.getElementById('profile-avatar').src = path;
+                    sessionStorage.setItem('imgPath', data.imgPath);
                 }
 
                 // 基本資料
@@ -370,25 +371,23 @@
             }
 
             function handleSidebarPermissions(deptId) {
-                // 這裡假設 account.html 的 sidebar id 與 quest_staff.html 相同。
-                // 我在之前的修改中已經為 side bar 加上了 id。
-                const navItems = {
-                    'nav-consultation': document.querySelector('a[href="consultation.html"]'),
-                    'nav-book': document.querySelector('a[href="book.html"]'),
-                    'nav-project': document.querySelector('a[href="project.html"]'),
-                    'nav-task': document.querySelector('a[href="quest_staff.html"]')
-                };
-
-                // 先隱藏
-                Object.values(navItems).forEach(el => { if (el) el.style.display = 'none'; });
+                const navIds = ['nav-consultation', 'nav-book', 'nav-project', 'nav-task'];
+                navIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = 'none';
+                });
 
                 if (deptId === '1') {
-                    if (navItems['nav-book']) navItems['nav-book'].style.display = 'flex';
-                    if (navItems['nav-project']) navItems['nav-project'].style.display = 'flex';
+                    ['nav-book', 'nav-project'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.style.display = 'flex';
+                    });
                 } else if (deptId === '7') {
-                    if (navItems['nav-consultation']) navItems['nav-consultation'].style.display = 'flex';
+                    const el = document.getElementById('nav-consultation');
+                    if (el) el.style.display = 'flex';
                 } else {
-                    if (navItems['nav-task']) navItems['nav-task'].style.display = 'flex';
+                    const el = document.getElementById('nav-task');
+                    if (el) el.style.display = 'flex';
                 }
             }
 
@@ -442,10 +441,23 @@
 
             // === 4. 頭像上傳 ===
             const avatarInput = document.getElementById('avatar-input');
+            const profileAvatar = document.getElementById('profile-avatar');
+            const headerAvatar = document.getElementById('header-avatar');
+            const sidebarAvatar = document.getElementById('sidebar-avatar');
+
             avatarInput.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
 
+                // 立即預覽 (讀取本地檔案)
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const localSrc = event.target.result;
+                    if (profileAvatar) profileAvatar.src = localSrc;
+                };
+                reader.readAsDataURL(file);
+
+                // 執行上傳
                 const formData = new FormData();
                 formData.append('file', file);
 
@@ -458,50 +470,58 @@
 
                     if (response.ok) {
                         const result = await response.json();
-                        alert('頭像上傳成功');
+                        // 上傳成功後，強制更新所有頭像位置 (使用後端回傳的路徑)
                         const path = result.path.startsWith('http') ? result.path : '/' + result.path;
-                        document.getElementById('profile-avatar').src = path;
-                        document.getElementById('header-avatar').src = path;
-                        document.getElementById('sidebar-avatar').src = path;
+                        // 加上時間戳防止快取
+                        const finalPath = `${path}?t=${new Date().getTime()}`;
+                        
+                        if (profileAvatar) profileAvatar.src = finalPath;
+                        if (headerAvatar) headerAvatar.src = finalPath;
+                        if (sidebarAvatar) sidebarAvatar.src = finalPath;
+                        
+                        sessionStorage.setItem('imgPath', result.path);
+                        alert('頭像上傳成功！');
                     } else {
-                        alert('頭像上傳失敗');
+                        alert('頭像上傳失敗，請檢查檔案格式或大小');
                     }
                 } catch (error) {
                     console.error('上傳頭像失敗:', error);
+                    alert('系統錯誤，無法上傳圖片');
                 }
             });
 
             // === 5. 密碼修改 ===
-            // 這裡假設點擊「更改密碼」按鈕會彈出一個 prompt 或有一個簡單的 Modal
-            // 我們先實作一個簡單的提示框邏輯
-            document.querySelector('button.bg-primary').onclick = async () => {
-                const oldPassword = prompt('請輸入舊密碼:');
-                if (!oldPassword) return;
-                const newPassword = prompt('請輸入新密碼:');
-                if (!newPassword) return;
-                if (newPassword.length < 6) {
-                    alert('新密碼長度至少需要 6 個字元');
-                    return;
-                }
-
-                try {
-                    const response = await fetch('/api/employee/profile/password', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'include',
-                        body: JSON.stringify({ oldPassword, newPassword })
-                    });
-
-                    if (response.ok) {
-                        alert('密碼修改成功！下次請使用新密碼登入。');
-                    } else {
-                        const err = await response.json();
-                        alert('修改失敗: ' + (err.message || '舊密碼錯誤'));
+            const changePasswordBtn = document.getElementById('change-password-btn');
+            if (changePasswordBtn) {
+                changePasswordBtn.onclick = async () => {
+                    const oldPassword = prompt('請輸入舊密碼:');
+                    if (!oldPassword) return;
+                    const newPassword = prompt('請輸入新密碼:');
+                    if (!newPassword) return;
+                    if (newPassword.length < 6) {
+                        alert('新密碼長度至少需要 6 個字元');
+                        return;
                     }
-                } catch (error) {
-                    console.error('密碼修改網路錯誤:', error);
-                }
-            };
+
+                    try {
+                        const response = await fetch('/api/employee/profile/password', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ oldPassword, newPassword })
+                        });
+
+                        if (response.ok) {
+                            alert('密碼修改成功！下次請使用新密碼登入。');
+                        } else {
+                            const err = await response.json();
+                            alert('修改失敗: ' + (err.message || '舊密碼錯誤'));
+                        }
+                    } catch (error) {
+                        console.error('密碼修改網路錯誤:', error);
+                    }
+                };
+            }
         });
     </script>
 </body>

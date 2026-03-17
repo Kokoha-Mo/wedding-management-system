@@ -59,6 +59,18 @@ public class EmployeeProfileService {
         Employee employee = employeeRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
+        // 1. 處理舊檔刪除 (如果不是預設圖片)
+        String oldPathStr = employee.getImgPath();
+        if (oldPathStr != null && !oldPathStr.isEmpty() && !oldPathStr.contains("smile.jpg")) {
+            try {
+                Path oldPath = Paths.get(oldPathStr);
+                Files.deleteIfExists(oldPath);
+            } catch (Exception e) {
+                System.err.println("刪除舊頭像失敗: " + e.getMessage());
+            }
+        }
+
+        // 2. 儲存新檔
         Path uploadPath = Paths.get(AVATAR_DIR);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);

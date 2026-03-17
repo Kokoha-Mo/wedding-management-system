@@ -31,7 +31,8 @@ public class TaskDTO {
     private List<AssigneeDTO> assignees;
 
     // 給 EmployeeController / ProjectTaskRepository 的 JPQL 使用的建構子！
-    public TaskDTO(Integer taskId, String status, String serviceName, String customerName, LocalDateTime deadline, String managerContent, LocalDateTime updateAt) {
+    public TaskDTO(Integer taskId, String status, String serviceName, String customerName, LocalDateTime deadline,
+            String managerContent, LocalDateTime updateAt) {
         this.taskId = taskId;
         this.status = status;
         this.serviceName = serviceName;

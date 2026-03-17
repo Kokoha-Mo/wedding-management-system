@@ -50,8 +50,8 @@
 
         <div class="px-4 py-4 mt-2 sidebar-user">
             <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
-                <img id="sidebar-avatar" alt="Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover"
-                    src="./Img/smile.jpg" />
+                <img id="sidebar-avatar" alt="Avatar"
+                    class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
                 <div class="menu-category p-0 m-0">
                     <div id="sidebar-emp-name" class="text-white font-medium">載入中...</div>
                     <div id="sidebar-position" class="text-xs text-gray-400 mt-1">...</div>
@@ -62,25 +62,29 @@
         <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
             <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 GENERAL</div>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-consultation"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="consultation.html">
                 <span
                     class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-book"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="book.html">
                 <span
                     class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-project"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="project.html">
                 <span
                     class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-task"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="quest_staff.html">
                 <span
                     class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
@@ -90,7 +94,8 @@
             <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 系統設定</div>
 
-            <a class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
+            <a id="nav-account"
+                class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
                 href="account.html">
                 <span
                     class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
@@ -116,7 +121,8 @@
                 <div class="relative">
                     <div id="user-menu-button"
                         class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
-                        <img id="header-avatar" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
+                        <img id="header-avatar" alt="Avatar"
+                            class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
                             src="./Img/smile.jpg" />
                         <span id="header-emp-name" class="text-sm font-medium mr-1 text-gray-200">User</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
@@ -196,19 +202,23 @@
                             <div id="basic-view" class="grid grid-cols-2 gap-y-6 gap-x-4">
                                 <div>
                                     <p class="text-xs text-gray-500 mb-1">姓名</p>
-                                    <p id="view-name" class="text-sm font-medium text-gray-900 dark:text-gray-100">...</p>
+                                    <p id="view-name" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 mb-1">員工編號 (ID)</p>
-                                    <p id="view-empId" class="text-sm font-medium text-gray-900 dark:text-gray-100">...</p>
+                                    <p id="view-empId" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 mb-1">手機號碼</p>
-                                    <p id="view-phone" class="text-sm font-medium text-gray-900 dark:text-gray-100">...</p>
+                                    <p id="view-phone" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 mb-1">電子郵件</p>
-                                    <p id="view-email" class="text-sm font-medium text-gray-900 dark:text-gray-100">...</p>
+                                    <p id="view-email" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                             </div>
                             <form id="basic-form" class="hidden grid grid-cols-2 gap-y-5 gap-x-4">
@@ -248,11 +258,13 @@
                             <div class="grid grid-cols-2 gap-y-6 gap-x-4">
                                 <div>
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">權限角色</p>
-                                    <p id="view-role" class="text-sm font-medium text-gray-900 dark:text-gray-100">...</p>
+                                    <p id="view-role" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">所屬部門</p>
-                                    <p id="view-dept" class="text-sm font-medium text-gray-900 dark:text-gray-100">...</p>
+                                    <p id="view-dept" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -328,7 +340,7 @@
                 document.getElementById('top-name').textContent = data.name;
                 document.getElementById('top-role').textContent = data.role;
                 document.getElementById('sidebar-position').textContent = data.role === 'MANAGER' ? '業務管理' : '員工';
-                
+
                 if (data.imgPath) {
                     const path = data.imgPath.startsWith('http') ? data.imgPath : '/' + data.imgPath;
                     document.getElementById('sidebar-avatar').src = path;
@@ -368,15 +380,15 @@
                 };
 
                 // 先隱藏
-                Object.values(navItems).forEach(el => { if(el) el.style.display = 'none'; });
+                Object.values(navItems).forEach(el => { if (el) el.style.display = 'none'; });
 
                 if (deptId === '1') {
-                    if(navItems['nav-book']) navItems['nav-book'].style.display = 'flex';
-                    if(navItems['nav-project']) navItems['nav-project'].style.display = 'flex';
+                    if (navItems['nav-book']) navItems['nav-book'].style.display = 'flex';
+                    if (navItems['nav-project']) navItems['nav-project'].style.display = 'flex';
                 } else if (deptId === '7') {
-                    if(navItems['nav-consultation']) navItems['nav-consultation'].style.display = 'flex';
+                    if (navItems['nav-consultation']) navItems['nav-consultation'].style.display = 'flex';
                 } else {
-                    if(navItems['nav-task']) navItems['nav-task'].style.display = 'flex';
+                    if (navItems['nav-task']) navItems['nav-task'].style.display = 'flex';
                 }
             }
 

@@ -17,6 +17,19 @@
 
     <!-- 引入 Vue 3 用作前端資料綁定 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+        // 從 sessionStorage 拿出剛剛存好的部門 ID
+        const deptId = sessionStorage.getItem('deptId');
+        
+        // 防呆：如果沒登入，或是部門 ID 不是 7 (接待部)
+        if (!deptId || String(deptId) !== '7') {
+            alert('【權限不足】此頁面為接待部專屬，您無法訪問！');
+            // 踢回後台首頁 (配合你的系統，導向專案管理頁)
+            window.location.replace('./project.html'); 
+        }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>

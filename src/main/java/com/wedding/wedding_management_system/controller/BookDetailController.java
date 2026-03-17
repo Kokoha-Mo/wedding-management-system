@@ -55,10 +55,9 @@ public class BookDetailController {
             @PathVariable Integer bookId,
             @RequestBody UpdateBookDetailsRequestDTO request) {
 
-        // TODO: 1. 更新資料庫中該張預約單 (bookId) 的「備註 (content/notes)」
+
         System.out.println("準備更新單號 " + bookId + " 的備註: " + request.getNotes());
 
-        // TODO: 2. 更新資料庫中的「服務細項」
         // 業界標準作法：先「刪除」該 bookId 底下所有的舊細項，然後把 request.getDetails() 裡的「重新新增」進去
         System.out.println("收到新的細項數量: " + request.getDetails().size());
 

@@ -31,6 +31,12 @@ public class ProjectController {
     @Autowired
     private ProjectTaskService projectTaskService;
 
+    @Autowired
+    private com.wedding.wedding_management_system.service.CustomerProgressService customerProgressService;
+
+    @Autowired
+    private com.wedding.wedding_management_system.service.ProjectCommunicationService projectCommunicationService;
+
     /**
      * 1. 取得指定 Manager 負責的專案列表
      * 對應前端：project.html Table 列表顯示
@@ -132,6 +138,45 @@ public class ProjectController {
                 response.put("message", "Failed to update task status");
                 return ResponseEntity.badRequest().body(response);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // Get project communication timeline
+    @GetMapping("/projects/{projectId}/communication")
+    public ResponseEntity<?> getProjectCommunication(
+            @PathVariable("projectId") Integer projectId) {
+        try {
+            com.wedding.wedding_management_system.dto.ProjectProgressDTO progress = customerProgressService.getProjectProgress(projectId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("pmName", progress.getPmName());
+            response.put("customerName", progress.getCustomerName());
+            response.put("timeline", progress.getTimeline());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Post project communication
+    @PostMapping("/projects/{projectId}/communication")
+    public ResponseEntity<?> postProjectCommunication(
+            @PathVariable("projectId") Integer projectId,
+            @org.springframework.web.bind.annotation.RequestParam(value = "content", required = false) String content,
+            @org.springframework.web.bind.annotation.RequestParam("createBy") String createBy,
+            @org.springframework.web.bind.annotation.RequestParam(value = "files", required = false) org.springframework.web.multipart.MultipartFile[] files) {
+        try {
+            java.util.List<org.springframework.web.multipart.MultipartFile> fileList = new java.util.ArrayList<>();
+            if (files != null && files.length > 0) {
+                fileList = java.util.Arrays.asList(files);
+            }
+            projectCommunicationService.addProjectCommunicationWithFiles(projectId, createBy, content, fileList);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();

@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
 import com.wedding.wedding_management_system.dto.ProjectResponse;
 import com.wedding.wedding_management_system.entity.Book;
-import com.wedding.wedding_management_system.entity.Project;
+
 import com.wedding.wedding_management_system.entity.ProjectCommunication;
 import com.wedding.wedding_management_system.repository.ProjectCommunicationRepository;
 import com.wedding.wedding_management_system.repository.ProjectRepository;

@@ -214,13 +214,13 @@
                         </a>
                         <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center tracking-wide">
                             <span class="material-icons text-indigo-500 mr-3 text-3xl">account_tree</span>
-                            專案進度追蹤：陳志明 & 林春嬌
+                            專案進度追蹤：<span id="header-project-name">載入中...</span>
                         </h2>
                         <div class="flex items-center gap-4 mt-3">
-                            <span
-                                class="text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">#WED-20261015</span>
+                            <span id="header-project-no"
+                                class="text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">載入中...</span>
                             <span class="text-sm text-gray-500 dark:text-gray-400 font-medium flex items-center"><span
-                                    class="material-icons text-[16px] mr-1">event</span> 預計婚期：2026-10-15</span>
+                                    class="material-icons text-[16px] mr-1">event</span> 預計婚期：<span id="header-wedding-date">載入中...</span></span>
                         </div>
                     </div>
 
@@ -504,47 +504,26 @@
 
             <div id="client-chat-content"
                 class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#faf7f2] dark:bg-gray-900/50 custom-scrollbar">
-
-                <div class="flex flex-col items-start gap-1">
-                    <div class="flex gap-2 items-center mb-1">
-                        <div
-                            class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-serif text-sm shadow-sm">
-                            王</div>
-                        <span class="text-xs text-gray-500 font-bold">王先生 & 陳小姐 • 2026-03-09 09:15</span>
-                    </div>
-                    <div
-                        class="bg-white p-4 rounded-2xl rounded-tl-sm shadow-sm max-w-[85%] text-sm text-gray-800 border border-gray-100 leading-relaxed">
-                        我們目前比較偏好「莫蘭迪粉」或是「燕麥色」系，等我們整理好幾張照片再傳給妳參考喔！
-                    </div>
+                <div class="text-center py-10 text-gray-500 text-sm">
+                    <span class="material-icons animate-spin text-indigo-500 mb-2">autorenew</span>
+                    <p>正在載入討論紀錄...</p>
                 </div>
-
-                <div class="flex flex-col items-end gap-1">
-                    <div class="flex gap-2 items-center flex-row-reverse mb-1">
-                        <div
-                            class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-serif text-sm shadow-sm">
-                            李</div>
-                        <span class="text-xs text-gray-500 font-bold">本人 (PM) • 2026-03-09 10:05</span>
-                    </div>
-                    <div
-                        class="bg-indigo-50 p-4 rounded-2xl rounded-tr-sm shadow-sm max-w-[85%] text-sm text-indigo-900 border border-indigo-100 leading-relaxed text-right">
-                        沒問題！收到參考圖後，我會請佈置團隊先出第一版的 3D 模擬圖讓你們確認。
-                    </div>
-                </div>
-
             </div>
 
             <div class="p-5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-[28px]">
+                <div id="client-file-preview-wrapper" class="hidden flex flex-wrap justify-end gap-2 w-full mb-2"></div>
                 <div class="flex items-center space-x-3">
-                    <button class="text-gray-400 hover:text-indigo-600 transition-colors p-2 flex-shrink-0"
+                    <input type="file" id="clientFileUploadInput" class="hidden" accept="image/*,.pdf,.doc,.docx" multiple>
+                    <button onclick="document.getElementById('clientFileUploadInput').click()" class="text-gray-400 hover:text-indigo-600 transition-colors p-2 flex-shrink-0"
                         title="上傳檔案">
                         <span class="material-icons">attach_file</span>
                     </button>
 
-                    <input type="text" placeholder="回覆客戶訊息..."
+                    <input type="text" id="client-chat-input" placeholder="回覆客戶訊息..."
                         class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 dark:text-white transition-colors">
 
-                    <button
-                        class="btn-send-client-msg p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0">
+                    <button id="btn-send-client-msg"
+                        class="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0 disabled:opacity-50">
                         <span class="material-icons text-[20px]">send</span>
                     </button>
                 </div>
@@ -590,13 +569,41 @@
             const projectId = urlParams.get('id') || urlParams.get('projectId') || 1;
 
             if (projectId) {
+                fetchProjectInfo(projectId);
                 fetchProjectTasks(projectId);
             } else {
                 showError('缺少專案 ID，無法載入任務！請從專案總覽點擊進入。');
             }
 
             // ==========================================
-            // 🌟 2. 呼叫 Spring Boot API
+            // 🌟 2-1. 呼叫 Spring Boot API 取得專案基本資料
+            // ==========================================
+            async function fetchProjectInfo(id) {
+                try {
+                    const response = await fetch(`/api/manager/projects/${id}/record`);
+                    if (response.ok) {
+                        const projectInfo = await response.json();
+                        if (projectInfo.customerName) {
+                            document.getElementById('header-project-name').textContent = projectInfo.customerName;
+                        } else {
+                            document.getElementById('header-project-name').textContent = '未定客戶';
+                        }
+                        if (projectInfo.projectNo) document.getElementById('header-project-no').textContent = projectInfo.projectNo;
+                        
+                        // 處理預計婚期，如果有需要的話可能要依賴 record 或是 book API 裡的預計婚期，目前用傳回來的實際婚期當作婚期
+                        if (projectInfo.weddingDate) {
+                            document.getElementById('header-wedding-date').textContent = projectInfo.weddingDate;
+                        } else {
+                            document.getElementById('header-wedding-date').textContent = '未定';
+                        }
+                    }
+                } catch (error) {
+                    console.error('無法取得專案基本資訊:', error);
+                }
+            }
+
+            // ==========================================
+            // 🌟 2-2. 呼叫 Spring Boot API 取得任務
             // ==========================================
             async function fetchProjectTasks(id) {
                 try {
@@ -1115,6 +1122,194 @@
                 document.getElementById('rejectModal').classList.add('hidden');
             }
         };
+
+        // ================= 專屬客服通道 =================
+        let clientChatFiles = [];
+        
+        window.openClientChatModal = function(e) {
+            e.preventDefault();
+            document.getElementById('clientChatModal').classList.remove('hidden');
+            let projectId = new URLSearchParams(window.location.search).get('id') || new URLSearchParams(window.location.search).get('projectId') || 1;
+            loadClientChat(projectId);
+        };
+
+        window.closeClientChatModal = function() {
+            document.getElementById('clientChatModal').classList.add('hidden');
+            clientChatFiles = [];
+            document.getElementById('clientFileUploadInput').value = '';
+            document.getElementById('client-chat-input').value = '';
+            renderClientFilePreview();
+        };
+
+        async function loadClientChat(projectId) {
+            const container = document.getElementById('client-chat-content');
+            try {
+                const response = await fetch(`/api/manager/projects/${projectId}/communication`);
+                if (!response.ok) throw new Error('Failed to load communication');
+                const data = await response.json();
+                const timeline = data.timeline;
+                const pmName = data.pmName;
+                
+                if (timeline && timeline.length > 0) {
+                    container.innerHTML = timeline.reverse().map(msg => renderClientMessage(msg, pmName)).join('');
+                    setTimeout(() => container.scrollTop = container.scrollHeight, 100);
+                } else {
+                    container.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">尚無討論紀錄</div>';
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div class="text-center py-10 text-red-400 text-sm">無法載入討論紀錄</div>';
+            }
+        }
+
+        function renderClientMessage(msg, pmName) {
+            const isPM = msg.createBy === pmName || msg.createBy === '公司' || msg.createBy.includes('PM');
+            const senderName = msg.createBy || '未知';
+            const firstChar = senderName.charAt(0);
+            const time = msg.createAt ? msg.createAt.replace('T', ' ').substring(0, 16) : '';
+            
+            let attachmentsHtml = '';
+            if (msg.documents && msg.documents.length > 0) {
+                attachmentsHtml = '<div class="d-flex flex-wrap gap-2 mt-2">';
+                msg.documents.forEach(doc => {
+                    let url = doc.filePath && doc.filePath.startsWith('/uploads') ? window.location.origin + doc.filePath : doc.filePath;
+                    if (doc.fileType && doc.fileType.startsWith('image/')) {
+                        attachmentsHtml += `<img src="${url}" onerror="this.outerHTML='<span class=\\'text-xs text-gray-500\\'><span class=\\'material-icons text-[14px]\\'>broken_image</span>圖片錯誤</span>'" class="max-w-[160px] max-h-[160px] rounded object-cover border border-gray-200 shadow-sm mt-2">`;
+                    } else {
+                        attachmentsHtml += `<a href="${url}" target="_blank" class="inline-flex items-center gap-1 p-2 bg-white/60 dark:bg-gray-800/60 border border-indigo-200 dark:border-indigo-800 rounded text-indigo-600 dark:text-indigo-400 text-xs mt-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors"><span class="material-icons text-[14px]">description</span>${doc.name}</a>`;
+                    }
+                });
+                attachmentsHtml += '</div>';
+            }
+
+            if (isPM) {
+                return `
+                    <div class="flex flex-col items-end gap-1">
+                        <div class="flex gap-2 items-center flex-row-reverse mb-1">
+                            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-serif text-sm shadow-sm">${firstChar}</div>
+                            <span class="text-xs text-gray-500 font-bold">${senderName} (PM) • ${time}</span>
+                        </div>
+                        <div class="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-2xl rounded-tr-sm shadow-sm max-w-[85%] text-sm text-indigo-900 dark:text-indigo-100 border border-indigo-100 dark:border-indigo-800 leading-relaxed text-right flex flex-col items-end">
+                            ${msg.content ? `<p class="m-0 whitespace-pre-wrap text-left">${msg.content}</p>` : ''}
+                            ${attachmentsHtml}
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="flex flex-col items-start gap-1">
+                        <div class="flex gap-2 items-center mb-1">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center font-serif text-sm shadow-sm">${firstChar}</div>
+                            <span class="text-xs text-gray-500 font-bold">${senderName} • ${time}</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-sm shadow-sm max-w-[85%] text-sm text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 leading-relaxed">
+                            ${msg.content ? `<p class="m-0 whitespace-pre-wrap">${msg.content}</p>` : ''}
+                            ${attachmentsHtml}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        document.getElementById('clientFileUploadInput').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            const MAX_FILE_SIZE = 10 * 1024 * 1024;
+            let oversize = false;
+
+            files.forEach(file => {
+                if (file.size > MAX_FILE_SIZE) { oversize = true; return; }
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        clientChatFiles.push({ file: file, name: file.name, type: file.type, preview: ev.target.result });
+                        renderClientFilePreview();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    clientChatFiles.push({ file: file, name: file.name, type: file.type, preview: null });
+                    renderClientFilePreview();
+                }
+            });
+
+            if (oversize) alert("部分檔案超過 10MB 限制，已自動忽略！");
+            e.target.value = ''; // clear input
+        });
+
+        function renderClientFilePreview() {
+            const wrapper = document.getElementById('client-file-preview-wrapper');
+            if (clientChatFiles.length === 0) {
+                wrapper.classList.add('hidden');
+                wrapper.innerHTML = '';
+                return;
+            }
+            wrapper.classList.remove('hidden');
+            wrapper.innerHTML = clientChatFiles.map((item, index) => {
+                let content = item.type.startsWith('image/') 
+                    ? `<img src="${item.preview}" class="h-12 w-auto border border-gray-200 rounded object-cover">`
+                    : `<span class="inline-flex items-center gap-1 bg-gray-100 text-xs px-2 py-1 rounded border border-gray-200 text-gray-600"><span class="material-icons text-[14px]">description</span><span class="truncate max-w-[80px]">${item.name}</span></span>`;
+                return `
+                    <div class="relative inline-block mt-2">
+                        ${content}
+                        <button onclick="removeClientChatFile(${index})" class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-sm hover:scale-110 transition-transform"><span class="material-icons text-[12px]">close</span></button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.removeClientChatFile = function(index) {
+            clientChatFiles.splice(index, 1);
+            renderClientFilePreview();
+        };
+
+        const postClientChat = async () => {
+            const btn = document.getElementById('btn-send-client-msg');
+            const input = document.getElementById('client-chat-input');
+            const content = input.value.trim();
+            
+            if (!content && clientChatFiles.length === 0) return;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-icons animate-spin text-[20px]">autorenew</span>';
+
+            const formData = new FormData();
+            formData.append('createBy', '公司'); // Or dynamically fetch PM name
+            if (content) formData.append('content', content);
+            
+            clientChatFiles.forEach(item => {
+                formData.append('files', item.file);
+            });
+
+            const projectId = new URLSearchParams(window.location.search).get('id') || new URLSearchParams(window.location.search).get('projectId') || 1;
+
+            try {
+                const response = await fetch(`/api/manager/projects/${projectId}/communication`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                if (response.ok) {
+                    input.value = '';
+                    clientChatFiles = [];
+                    renderClientFilePreview();
+                    loadClientChat(projectId);
+                } else {
+                    alert('發送失敗！');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('系統異常，請聯絡管理員');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-icons text-[20px]">send</span>';
+            }
+        };
+
+        document.getElementById('btn-send-client-msg').addEventListener('click', postClientChat);
+        document.getElementById('client-chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') postClientChat();
+        });
 
     </script>
 </body>

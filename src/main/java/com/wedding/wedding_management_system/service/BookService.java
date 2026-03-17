@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wedding.wedding_management_system.entity.Book;
 import com.wedding.wedding_management_system.repository.BookRepository;
 
-@Slf4j //log
+@Slf4j // log
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -52,6 +52,12 @@ public class BookService {
     // 臨時密碼固定值，客戶登入後必須重設
     private static final String TEMP_PASSWORD = "Wedding@2026";
 
+    @Autowired
+    private CustomerLoginService customerLoginService;
+
+    @Autowired
+    private EmailService emailService;
+
     private Customer findOrCreateCustomer(CreateBookRequestDTO dto) {
         log.info("嘗試找客戶，email={}", dto.getEmail());
         return customerRepository.findByEmail(dto.getEmail())
@@ -62,20 +68,33 @@ public class BookService {
                     c.setTel(dto.getTel());
                     c.setEmail(dto.getEmail());
                     c.setLineId(dto.getLineId());
-                    c.setPassword(passwordEncoder.encode(TEMP_PASSWORD));
-                    //c.setPasswordResetRequired(true);
+                    // c.setPassword(passwordEncoder.encode(TEMP_PASSWORD));
+                    // c.setPasswordResetRequired(true);
+                    // 先存檔取得有 ID 的 Customer
+                    Customer savedCustomer = customerRepository.save(c);
+
+                    // 寄送「設定密碼信件」的邏輯
+                    try {
+                        String token = customerLoginService.generateAndSaveResetToken(savedCustomer.getEmail());
+                        emailService.sendResetPasswordEmail(savedCustomer.getEmail(), savedCustomer.getName(), token);
+                        log.info("已成功寄送帳號設定信給新客戶: {}", savedCustomer.getEmail());
+                    } catch (Exception e) {
+                        log.error("寄送帳號設定信失敗，email={}, 錯誤: {}", savedCustomer.getEmail(), e.getMessage());
+                    }
+
                     return customerRepository.save(c);
                 });
     }
 
     private @NonNull String ReName(String raw) {
-        if (raw == null || raw.isBlank()) return "";
+        if (raw == null || raw.isBlank())
+            return "";
 
         // 把所有常見分隔符號（含多個空白）統一換成 & 分隔
         String cleaned = raw.trim()
-                .replaceAll("[&＆/／、,，]+", "&")  // 標點換成 &
-                .replaceAll("\\s+", "&")            // 空白也換成 &
-                .replaceAll("&+", " & ");           // 多個連續 & 合併，並加空格
+                .replaceAll("[&＆/／、,，]+", "&") // 標點換成 &
+                .replaceAll("\\s+", "&") // 空白也換成 &
+                .replaceAll("&+", " & "); // 多個連續 & 合併，並加空格
 
         // 去掉頭尾可能殘留的 & 或空白
         return cleaned.replaceAll("^[\\s&]+|[\\s&]+$", "");
@@ -106,24 +125,24 @@ public class BookService {
         return result;
     }
 
-//    public List<Book> getBooksByCustomerId(int customerId) {
-//        return bookRepository.findByCustomer_Id(customerId);
-//    }
-//
-//    public List<Book> getAllBooks() {
-//        return bookRepository.findAll();
-//    }
-//
-//    public List<Book> getBooksByCancel() {
-//        return bookRepository.findByStatus(toString());
-//    }
+    // public List<Book> getBooksByCustomerId(int customerId) {
+    // return bookRepository.findByCustomer_Id(customerId);
+    // }
+    //
+    // public List<Book> getAllBooks() {
+    // return bookRepository.findAll();
+    // }
+    //
+    // public List<Book> getBooksByCancel() {
+    // return bookRepository.findByStatus(toString());
+    // }
 
     public List<CustomerDTO> findSimilarCustomers(String email) {
         List<CustomerDTO> result = new ArrayList<>();
 
         if (email != null && !email.isBlank()) {
-            Optional<Customer>found =customerRepository.findByEmail(email);
-            if(found.isPresent()){
+            Optional<Customer> found = customerRepository.findByEmail(email);
+            if (found.isPresent()) {
                 result.add(CustomerDTO.from(found.get()));
             }
         }
@@ -148,7 +167,6 @@ public class BookService {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("目前沒有可分配的業務人員"));
-
 
         // ── Step 3: 建立新 book ────────────────────────────────
         Book book = new Book();
@@ -186,8 +204,7 @@ public class BookService {
         return Map.of(
                 "處理中", bookRepository.countByStatus("處理中"),
                 "已簽約", bookRepository.countByStatus("已簽約"),
-                "取消預約", bookRepository.countByStatus("取消預約")
-        );
+                "取消預約", bookRepository.countByStatus("取消預約"));
     }
 
     /**

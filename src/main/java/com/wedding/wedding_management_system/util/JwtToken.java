@@ -26,6 +26,19 @@ public class JwtToken {
 		return token;
 	}
 
+	// 新增：支持帶 role 的 token 生成（用於員工登入）
+	public static String createTokenWithRole(String subject, String role) {
+		String token = Jwts.builder()
+				.setSubject(subject)
+				.claim("role", role)
+				.setIssuedAt(new Date())
+				.setExpiration(new Date(System.currentTimeMillis() + EXP_TIME))
+				.signWith(key, io.jsonwebtoken.SignatureAlgorithm.HS256)
+				.compact();
+
+		return token;
+	}
+
 	public static String parseToken(String token) {
 		JwtParser parser = Jwts.parserBuilder().setSigningKey(key).build();
 		String subject = parser.parseClaimsJws(token).getBody().getSubject();

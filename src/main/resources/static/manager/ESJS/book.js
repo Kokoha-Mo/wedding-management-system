@@ -1,6 +1,7 @@
 const API_BASE = 'http://localhost:8080/api';
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadStatusCounts();
     loadBooks('處理中');
 });
 
@@ -27,6 +28,19 @@ function switchTab(tabId) {
     if (tabId === 'tab-pending')   loadBooks('處理中');
     if (tabId === 'tab-signed')    loadBooks('已簽約');
     if (tabId === 'tab-cancelled') loadBooks('取消');
+}
+
+async function loadStatusCounts() {
+    try {
+        const res    = await fetch(`${API_BASE}/books/status-counts`);
+        const counts = await res.json();
+
+        document.getElementById('badge-pending').textContent   = counts['處理中']  ?? 0;
+        document.getElementById('badge-signed').textContent    = counts['已簽約']  ?? 0;
+        document.getElementById('badge-cancelled').textContent = counts['取消']    ?? 0;
+    } catch (err) {
+        console.error('[API] 載入狀態數量失敗:', err);
+    }
 }
 
 // ════════════════════════════════════════
@@ -156,7 +170,8 @@ async function loadBooks(status = '處理中') {
 // API：建立預約
 // ════════════════════════════════════════
 async function submitCreateBook() {
-    const name  = document.getElementById('input-names').value.trim();
+    const nameA  = document.getElementById('input-nameA').value.trim();
+    const nameB  = document.getElementById('input-nameB').value.trim();
     const tel   = document.getElementById('input-tel').value.trim();
     const email = document.getElementById('input-email').value.trim();
 
@@ -233,6 +248,7 @@ async function updateBookStatus(bookId, newStatus) {
 
         if (res.ok) {
             showToast('狀態已更新');
+            loadStatusCounts();
             loadBooks('處理中');
         }
     } catch (err) {
@@ -308,7 +324,7 @@ function renderPendingCards(books) {
                 </button>
                 <button onclick="updateBookStatus(${book.bookId}, '已簽約')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
-                    接案處理
+                    轉為簽約
                 </button>
                 <button onclick="updateBookStatus(${book.bookId}, '取消')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-red-400 hover:bg-red-50 transition-colors">

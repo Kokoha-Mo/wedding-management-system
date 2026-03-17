@@ -5,6 +5,7 @@ import com.wedding.wedding_management_system.dto.CreateBookRequestDTO;
 import com.wedding.wedding_management_system.dto.CustomerDTO;
 import com.wedding.wedding_management_system.entity.Book;
 import com.wedding.wedding_management_system.entity.Customer;
+import com.wedding.wedding_management_system.repository.BookRepository;
 import com.wedding.wedding_management_system.repository.CustomerRepository;
 import com.wedding.wedding_management_system.service.BookService;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +27,9 @@ public class BookController {
 
     @Autowired
     private BookService bookService;
+
+    @Autowired
+    private BookRepository bookRepository;
 
     @PostMapping
     public ResponseEntity<BookResponseDTO> create(
@@ -65,11 +70,17 @@ public class BookController {
         BookResponseDTO result = bookService.updateStatus(id, body.get("status"));
         return ResponseEntity.ok(result);
     }
-//    @GetMapping("/cancelled")
-//    public ResponseEntity<List<Book>> getCancelledBooks() {
-//        List<Book> cancelledBooks = bookService.getCancelledBooks();
-//        return ResponseEntity.ok(cancelledBooks);
-//    }
+
+    @GetMapping("/status-counts")
+    public ResponseEntity<Map<String, Long>> statusCounts() {
+        Map<String, Long> counts = new HashMap<>();
+        counts.put("處理中", bookRepository.countByStatus("處理中"));
+        counts.put("已簽約", bookRepository.countByStatus("已簽約"));
+        counts.put("取消", bookRepository.countByStatus("取消"));
+        return ResponseEntity.ok(counts);
+    }
+
+
 
 
 }

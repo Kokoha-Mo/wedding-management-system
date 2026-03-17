@@ -421,6 +421,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // ========================
+            // 【登入驗證】從 sessionStorage 取得目前登入的 Manager emp_id
+            const MANAGER_ID = sessionStorage.getItem('empId');
+            if (!MANAGER_ID) {
+                // 若 sessionStorage 中沒有 emp_id，代表尚未登入，導向登入頁
+                alert('請先登入！');
+                window.location.href = 'login.html';
+                return; // 中止後續程式執行
+            }
+            // ========================
             // 全域變數設定
             let allProjects = []; // 儲存從後端拿到的所有資料
             let currentFilter = 'all'; // 目前的篩選狀態 (all, active, completed)
@@ -433,8 +443,8 @@
             // =================  排序核心邏輯 =================
             function sortAllProjects() {
                 allProjects.sort((a, b) => {
-                    const isACompleted = (a.status === '已完成');
-                    const isBCompleted = (b.status === '已完成');
+                    const isACompleted = (a.status === '已結案');
+                    const isBCompleted = (b.status === '已結案');
 
                     // 1. 絕對優先權：進行中永遠排在已完成上面
                     if (isACompleted && !isBCompleted) return 1;
@@ -511,16 +521,25 @@
             // ================= 1. 取得資料 =================
             async function loadProjects() {
                 try {
-                    const response = await fetch('/api/manager/projects');
+                    const url = `/api/manager/${MANAGER_ID}/projects`;
+                    console.log(`[DEBUG] 正在呼叫 API: ${url}`);  // 👈 確認實際打的 URL
+
+                    const response = await fetch(url); // same-origin，Cookie 自動帶上，不需要 credentials: 'include'
+                    console.log(`[DEBUG] API 回應狀態: ${response.status}`); // 👈 確認 HTTP 狀態碼
+
                     if (!response.ok) {
                         if (response.status === 401 || response.status === 403) {
+                            console.error('[DEBUG] 驗證失敗 (401/403)，JWT Token 可能遺失或過期');
                             alert("請先登入！");
                             window.location.href = 'login.html';
                             return;
                         }
-                        throw new Error('API 發生錯誤');
+                        const errText = await response.text();
+                        console.error(`[DEBUG] API 錯誤內容:`, errText); // 👈 印出後端的錯誤訊息
+                        throw new Error(`API 發生錯誤 (${response.status})`);
                     }
                     allProjects = await response.json();
+                    console.log(`[DEBUG] 取得專案數量: ${allProjects.length}`, allProjects); // 👈 印出拿到幾筆資料
 
                     // 直接呼叫排序函數與圖示更新
                     sortAllProjects();
@@ -546,9 +565,9 @@
                 }
 
                 if (currentFilter === 'active') {
-                    filteredProjects = filteredProjects.filter(p => p.status !== '已完成');
+                    filteredProjects = filteredProjects.filter(p => p.status !== '已結案');
                 } else if (currentFilter === 'completed') {
-                    filteredProjects = filteredProjects.filter(p => p.status === '已完成');
+                    filteredProjects = filteredProjects.filter(p => p.status === '已結案');
                 }
 
                 // --- B. 處理陣列分頁計算 ---
@@ -609,8 +628,8 @@
 
                     let rowClass = 'project-row transition-colors group ';
                     
-                    // 判斷狀態：已完成
-                    if (project.status === '已完成') {
+                    // 判斷狀態：已結案
+                    if (project.status === '已結案') {
                         rowClass += 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
                         statusHtml = `
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
@@ -730,12 +749,12 @@
 
             // ================= 5. 更新上方篩選按鈕 =================
             function updateFilterButtons() {
-                const completedCount = allProjects.filter(p => p.status === '已完成').length;
+                const completedCount = allProjects.filter(p => p.status === '已結案').length;
                 const activeCount = allProjects.length - completedCount;
 
                 document.querySelector('button[data-filter="all"]').textContent = `全部專案 (${allProjects.length})`;
                 document.querySelector('button[data-filter="active"]').textContent = `進行中 (${activeCount})`;
-                document.querySelector('button[data-filter="completed"]').textContent = `已完成 (${completedCount})`;
+                document.querySelector('button[data-filter="completed"]').textContent = `已結案 (${completedCount})`; // 按鈕文字也一併更新
 
                 const filterBtns = document.querySelectorAll('.filter-btn');
                 filterBtns.forEach(btn => {

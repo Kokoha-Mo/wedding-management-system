@@ -8,6 +8,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ import com.wedding.wedding_management_system.repository.ProjectRepository;
 @Service
 public class ProjectService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProjectService.class);
+
     @Autowired
     private ProjectRepository projectRepository;
 
@@ -29,78 +33,92 @@ public class ProjectService {
     private ProjectCommunicationRepository communicationRepository;
 
     /**
-     * 1. 取得專案列表 (對應前端的 Table)
+     * 共用：將 Project 實體轉換成 ListDTO
      */
-    public List<ProjectResponse.ListDTO> getAllProjectLists() {
-        List<Project> projects = projectRepository.findAll();
+    private ProjectResponse.ListDTO toListDTO(Project project) {
+        ProjectResponse.ListDTO dto = new ProjectResponse.ListDTO();
+        dto.setProjectId(project.getId());
+        dto.setStatus(project.getStatus());
 
-        return projects.stream().map(project -> {
-            ProjectResponse.ListDTO dto = new ProjectResponse.ListDTO();
-            dto.setProjectId(project.getId());
-            dto.setStatus(project.getStatus());
+        Book book = project.getBook();
+        if (book != null) {
+            dto.setWeddingDate(book.getWeddingDate());
 
-            // 處理關聯資料 (加上 Null 防呆)
-            Book book = project.getBook();
-            if (book != null) {
-                dto.setWeddingDate(book.getWeddingDate());
+            if (book.getWeddingDate() != null) {
+                long daysRemaining = ChronoUnit.DAYS.between(LocalDate.now(), book.getWeddingDate());
+                dto.setDaysRemaining(daysRemaining);
 
-                // 計算剩餘天數
-                if (book.getWeddingDate() != null) {
-                    long daysRemaining = ChronoUnit.DAYS.between(LocalDate.now(), book.getWeddingDate());
-                    dto.setDaysRemaining(daysRemaining);
-
-                    // 產生假想的專案編號 (例如: #WED-20261015-1)
-                    // 如果你未來資料表有獨立的 project_no 欄位，直接 get 即可
-                    String dateStr = book.getWeddingDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-                    dto.setProjectNo("#WED-" + dateStr + "-" + project.getId());
-                }
-
-                if (book.getCustomer() != null) {
-                    dto.setCustomerName(book.getCustomer().getName());
-                }
+                String dateStr = book.getWeddingDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+                dto.setProjectNo("#WED-" + dateStr + "-" + project.getId());
             }
-            dto.setUpdateAt(project.getUpdateAt());
 
-            return dto;
-        }).collect(Collectors.toList());
+            if (book.getCustomer() != null) {
+                dto.setCustomerName(book.getCustomer().getName());
+            }
+        }
+        dto.setUpdateAt(project.getUpdateAt());
+        return dto;
     }
 
     /**
-     * 2. 取得統計數據 (對應前端上方三個數字卡片)
+     * 1a. 取得所有專案列表（管理員用，保留備用）
+     */
+    public List<ProjectResponse.ListDTO> getAllProjectLists() {
+        return projectRepository.findAll().stream()
+                .map(this::toListDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 1b. 取得指定 Manager 負責的專案列表（PM 登入後的主頁）
+     */
+    public List<ProjectResponse.ListDTO> getProjectsByManagerId(Integer managerId) {
+        log.info("[DEBUG] getProjectsByManagerId 被呼叫， managerId = {}", managerId);
+        List<Project> projects = projectRepository.findByBook_Manager_Id(managerId);
+        log.info("[DEBUG] 查詢到 {} 筆專案", projects.size());
+        return projects.stream()
+                .map(this::toListDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 2a. 取得統計數據 - 全部（管理員用，保留備用）
      */
     public ProjectResponse.DashboardDTO getDashboardStats() {
         ProjectResponse.DashboardDTO dashboard = new ProjectResponse.DashboardDTO();
-
-        // 1. 執行中專案數量 (直接算狀態)
-        dashboard.setActiveProjectsCount(projectRepository.countByStatus("進行中"));
-
-        // --- 準備時間範圍基準 ---
         LocalDate today = LocalDate.now();
-
-        // 取得本月的第一天與最後一天
         LocalDate firstDayOfMonth = today.withDayOfMonth(1);
         LocalDate lastDayOfMonth = YearMonth.from(today).atEndOfMonth();
-
-        // 取得本年度的第一天與最後一天 (因為 updateAt 是 LocalDateTime，所以要加上時間)
         LocalDateTime firstDayOfYear = LocalDateTime.of(today.getYear(), 1, 1, 0, 0);
         LocalDateTime lastDayOfYear = LocalDateTime.of(today.getYear(), 12, 31, 23, 59, 59);
 
-        // 2. 本月即將結案
-        // 條件：狀態為「進行中」，且婚期 (weddingDate) 落在本月
-        Long endingThisMonth = projectRepository.countByStatusAndBook_WeddingDateBetween(
-                "進行中",
-                firstDayOfMonth,
-                lastDayOfMonth);
-        dashboard.setEndingThisMonthCount(endingThisMonth);
+        dashboard.setActiveProjectsCount(projectRepository.countByStatus("進行中"));
+        dashboard.setEndingThisMonthCount(projectRepository.countByStatusAndBook_WeddingDateBetween(
+                "進行中", firstDayOfMonth, lastDayOfMonth));
+        dashboard.setCompletedThisYearCount(projectRepository.countByStatusAndUpdateAtBetween(
+                "已結案", firstDayOfYear, lastDayOfYear));
+        return dashboard;
+    }
 
-        // 3. 本年度已完成
-        // 條件：狀態為「已結案」，且結案(最後更新)時間落在今年內
-        Long completedThisYear = projectRepository.countByStatusAndUpdateAtBetween(
-                "已結案",
-                firstDayOfYear,
-                lastDayOfYear);
-        dashboard.setCompletedThisYearCount(completedThisYear);
+    /**
+     * 2b. 取得統計數據 - 依指定 Manager（PM 登入後的 Dashboard）
+     */
+    public ProjectResponse.DashboardDTO getDashboardStatsByManagerId(Integer managerId) {
+        ProjectResponse.DashboardDTO dashboard = new ProjectResponse.DashboardDTO();
+        LocalDate today = LocalDate.now();
+        LocalDate firstDayOfMonth = today.withDayOfMonth(1);
+        LocalDate lastDayOfMonth = YearMonth.from(today).atEndOfMonth();
+        LocalDateTime firstDayOfYear = LocalDateTime.of(today.getYear(), 1, 1, 0, 0);
+        LocalDateTime lastDayOfYear = LocalDateTime.of(today.getYear(), 12, 31, 23, 59, 59);
 
+        dashboard.setActiveProjectsCount(
+                projectRepository.countByStatusAndBook_Manager_Id("進行中", managerId));
+        dashboard.setEndingThisMonthCount(
+                projectRepository.countByStatusAndBook_Manager_IdAndBook_WeddingDateBetween(
+                        "進行中", managerId, firstDayOfMonth, lastDayOfMonth));
+        dashboard.setCompletedThisYearCount(
+                projectRepository.countByStatusAndBook_Manager_IdAndUpdateAtBetween(
+                        "已結案", managerId, firstDayOfYear, lastDayOfYear));
         return dashboard;
     }
 

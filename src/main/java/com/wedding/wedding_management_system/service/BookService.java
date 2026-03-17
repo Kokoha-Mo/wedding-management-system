@@ -50,7 +50,7 @@ public class BookService {
     private ConsultationRepository consultationRepository;
 
     // 臨時密碼固定值，客戶登入後必須重設
-    private static final String TEMP_PASSWORD = "Wedding@2026";
+    private static final String TEMP_PASSWORD = "12345678";
 
     private Customer findOrCreateCustomer(CreateBookRequestDTO dto) {
         log.info("嘗試找客戶，email={}", dto.getEmail());
@@ -64,6 +64,12 @@ public class BookService {
                     c.setLineId(dto.getLineId());
                     c.setPassword(passwordEncoder.encode(TEMP_PASSWORD));
                     // c.setPasswordResetRequired(true);
+
+                    // 1. 這裡才是把密碼設為「手機號碼」！
+                    c.setPassword(passwordEncoder.encode(dto.getTel()));
+
+                    // 2. 這裡打上「強制修改密碼」的暗號！
+                    c.setResetToken("FORCE_RESET");
                     return customerRepository.save(c);
                 });
     }

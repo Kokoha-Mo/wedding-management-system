@@ -860,7 +860,7 @@
                             <input type="checkbox" class="remember-checkbox" id="rememberMe">
                             <span class="remember-text">記住我</span>
                         </label>
-                        <a href="#" class="forgot-link">忘記密碼？</a>
+                        <a href="#" id="forgotBtn" class="forgot-link">忘記密碼？</a>
                     </div>
                     <button type="submit" id="loginSubmitBtn" class="btn-login">
                         <span class="btn-login-text">Login</span>
@@ -916,33 +916,6 @@
             <div style="margin-top:32px;">
                 <a href="./index.html" class="success-btn"><span>前往首頁探索</span></a>
             </div>
-        </div>
-    </div>
-    <div class="success-overlay" id="forceResetOverlay">
-        <div class="success-modal" style="max-width: 420px;">
-            <div class="modal-corner-tr"></div>
-            <div class="modal-corner-bl"></div>
-            <span class="success-eyebrow">Action Required</span>
-            <h3 class="success-title">請設定新密碼</h3>
-            <p class="success-sub">為了保障您的帳號安全，首次登入請先修改密碼。<br>修改完成後即可開始使用您的專屬系統。</p>
-
-            <form id="forceResetForm" style="margin-top: 24px; text-align: left;" onsubmit="return false;">
-                <div class="form-field">
-                    <div class="input-underline-wrap">
-                        <label class="input-label" for="newPasswordInput">新密碼</label>
-                        <input type="password" id="newPasswordInput" class="input-underline" required>
-                    </div>
-                </div>
-                <div class="form-field">
-                    <div class="input-underline-wrap">
-                        <label class="input-label" for="confirmPasswordInput">確認新密碼</label>
-                        <input type="password" id="confirmPasswordInput" class="input-underline" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn-login" style="margin-top: 10px;">
-                    <span class="btn-login-text">確認修改</span>
-                </button>
-            </form>
         </div>
     </div>
 

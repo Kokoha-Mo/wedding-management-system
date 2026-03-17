@@ -235,8 +235,6 @@
                                 class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full shadow-[0_0_0_rgba(239,68,68,0.7)] animate-[pulse-alert_2s_infinite_cubic-bezier(0.66,0,0,1)] pointer-events-none border-2 border-white"></span>
                         </div>
 
-                        <input type="file" id="file-upload-input" class="hidden" multiple
-                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
                         <button id="upload-doc-btn"
                             class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-600 flex items-center shadow-sm transition-colors">
                             <span class="material-icons text-[18px] mr-2">upload_file</span> 文件上傳
@@ -286,19 +284,43 @@
                     </button>
                 </div>
 
-                <div class="lg:col-span-2 space-y-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                            <span class="material-icons text-indigo-500 mr-2">checklist</span>
-                            任務執行清單
-                        </h3>
-                        <div class="flex space-x-2 overflow-x-auto ..."> ... </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 左側：任務列表 -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                                <span class="material-icons text-indigo-500 mr-2">checklist</span>
+                                任務執行清單
+                            </h3>
+                        </div>
+
+                        <div id="task-list-container" class="space-y-4 relative min-h-[200px]">
+                            <div class="text-center py-10 text-gray-500">
+                                <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
+                                <p>正在載入任務資料...</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="task-list-container" class="space-y-4 relative min-h-[200px]">
-                        <div class="text-center py-10 text-gray-500">
-                            <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
-                            <p>正在載入任務資料...</p>
+                    <!-- 右側：專案文件歸檔 -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                                <span class="material-icons text-indigo-500 mr-2">folder_special</span>
+                                專案文件歸檔
+                            </h3>
+                            <button id="refresh-docs-btn" class="text-gray-400 hover:text-indigo-600 transition-colors">
+                                <span class="material-icons text-[20px]">refresh</span>
+                            </button>
+                        </div>
+
+                        <div id="project-docs-container" class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 min-h-[300px]">
+                            <div class="space-y-3" id="docs-list">
+                                <div class="text-center py-10 text-gray-400 text-sm">
+                                    <span class="material-icons text-3xl mb-2 block">folder_open</span>
+                                    尚無上傳文件
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -549,6 +571,45 @@
                 <button onclick="confirmRejectTask()"
                     class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold shadow-sm transition-colors flex items-center justify-center">
                     <span class="material-icons text-[18px] mr-1.5">reply</span> 確認駁回
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌟 新增：專案文件上傳 Modal (參考 quest_staff.html 樣式) -->
+    <div id="projectDocUploadModal" class="hidden fixed inset-0 z-[130] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[450px] max-w-[95%] shadow-2xl transform transition-all border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4 border-b border-gray-100 dark:border-gray-700 pb-3">
+                <h3 class="text-xl font-bold dark:text-white flex items-center">
+                    <span class="material-icons text-indigo-500 mr-2">upload_file</span>
+                    上傳專案文件
+                </h3>
+                <button onclick="closeProjectDocUploadModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
+                此處上傳的文件 (如規格書、報價單) 將歸檔於此專案，並同步供客戶在進度頁面查看。
+            </p>
+            
+            <div id="drop-zone" class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer mb-6 group">
+                <input type="file" id="archive-file-input" class="hidden" multiple>
+                <label for="archive-file-input" class="cursor-pointer block">
+                    <span class="material-icons text-4xl text-gray-300 group-hover:text-indigo-400 mb-2 transition-colors">cloud_upload</span>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">點擊或拖拽檔案至此</p>
+                    <div id="archive-file-name-container" class="mt-4 space-y-1">
+                        <!-- 檔案名稱列表將顯示於此 -->
+                    </div>
+                </label>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="closeProjectDocUploadModal()" class="flex-1 py-2.5 text-gray-500 font-bold hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+                    取消
+                </button>
+                <button id="confirm-project-upload-btn" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-md shadow-indigo-200 dark:shadow-none transition-all disabled:opacity-50">
+                    確認上傳
                 </button>
             </div>
         </div>
@@ -1310,6 +1371,126 @@
         document.getElementById('client-chat-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') postClientChat();
         });
+
+        // ================= 專案文件歸檔 =================
+        const uploadDocBtn = document.getElementById('upload-doc-btn');
+        const uploadModal = document.getElementById('projectDocUploadModal');
+        const archiveFileInput = document.getElementById('archive-file-input');
+        const confirmUploadBtn = document.getElementById('confirm-project-upload-btn');
+        const fileNameContainer = document.getElementById('archive-file-name-container');
+
+        window.openProjectDocUploadModal = function() {
+            uploadModal.classList.remove('hidden');
+            archiveFileInput.value = '';
+            fileNameContainer.innerHTML = '';
+        };
+
+        window.closeProjectDocUploadModal = function() {
+            uploadModal.classList.add('hidden');
+        };
+
+        uploadDocBtn.addEventListener('click', () => {
+            openProjectDocUploadModal();
+        });
+
+        archiveFileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if (files.length > 0) {
+                fileNameContainer.innerHTML = Array.from(files).map(f => `
+                    <div class="text-xs text-indigo-600 font-bold bg-indigo-50 dark:bg-indigo-900/30 py-1 px-2 rounded-md truncate">
+                        <span class="material-icons text-[12px] mr-1">attach_file</span> ${f.name}
+                    </div>
+                `).join('');
+            } else {
+                fileNameContainer.innerHTML = '';
+            }
+        });
+
+        confirmUploadBtn.addEventListener('click', async () => {
+            const files = archiveFileInput.files;
+            if (files.length === 0) {
+                alert('請先選擇檔案');
+                return;
+            }
+
+            const projectId = new URLSearchParams(window.location.search).get('id') || 1;
+            const empId = sessionStorage.getItem('empId') || 1;
+
+            const formData = new FormData();
+            formData.append('managerId', empId);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            try {
+                confirmUploadBtn.disabled = true;
+                confirmUploadBtn.innerHTML = '<span class="material-icons animate-spin text-[18px] mr-2">autorenew</span> 上傳中...';
+                
+                const response = await fetch(`/api/manager/projects/${projectId}/documents`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('文件上傳成功！');
+                    closeProjectDocUploadModal();
+                    loadProjectDocuments(projectId);
+                } else {
+                    alert('上傳失敗，請稍後再試。');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('上傳發生錯誤');
+            } finally {
+                confirmUploadBtn.disabled = false;
+                confirmUploadBtn.innerHTML = '確認上傳';
+            }
+        });
+
+        async function loadProjectDocuments(projectId) {
+            const listContainer = document.getElementById('docs-list');
+            try {
+                const response = await fetch(`/api/manager/projects/${projectId}/documents`);
+                if (!response.ok) throw new Error('Failed to load documents');
+                const docs = await response.json();
+
+                if (docs && docs.length > 0) {
+                    listContainer.innerHTML = docs.map(doc => `
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 group hover:border-indigo-300 dark:hover:border-indigo-800 transition-colors">
+                            <div class="flex items-center min-w-0 flex-1">
+                                <span class="material-icons text-indigo-400 mr-3">description</span>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold text-gray-700 dark:text-gray-200 truncate" title="${doc.fileName}">${doc.fileName}</p>
+                                    <p class="text-[10px] text-gray-400">${doc.uploadInfo}</p>
+                                </div>
+                            </div>
+                            <a href="${doc.downloadUrl}" target="_blank" class="ml-2 p-2 text-gray-400 hover:text-indigo-600 transition-colors">
+                                <span class="material-icons text-[20px]">download</span>
+                            </a>
+                        </div>
+                    `).join('');
+                } else {
+                    listContainer.innerHTML = `
+                        <div class="text-center py-10 text-gray-400 text-sm">
+                            <span class="material-icons text-3xl mb-2 block">folder_open</span>
+                            尚無歸檔文件
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error(err);
+                listContainer.innerHTML = '<div class="text-center py-10 text-red-400 text-sm">無法載入文件</div>';
+            }
+        }
+
+        document.getElementById('refresh-docs-btn').addEventListener('click', () => {
+            const projectId = new URLSearchParams(window.location.search).get('id') || 1;
+            loadProjectDocuments(projectId);
+        });
+
+        // 初始載入
+        const initProjectId = new URLSearchParams(window.location.search).get('id') || 1;
+        loadProjectDocuments(initProjectId);
 
     </script>
 </body>

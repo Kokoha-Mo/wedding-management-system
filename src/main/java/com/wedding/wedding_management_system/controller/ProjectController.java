@@ -182,4 +182,34 @@ public class ProjectController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    // Get project archives (documents)
+    @GetMapping("/projects/{projectId}/documents")
+    public ResponseEntity<?> getProjectDocuments(@PathVariable("projectId") Integer projectId) {
+        try {
+            return ResponseEntity.ok(projectService.getProjectDocuments(projectId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Upload project archives (documents)
+    @PostMapping("/projects/{projectId}/documents")
+    public ResponseEntity<?> uploadProjectDocuments(
+            @PathVariable("projectId") Integer projectId,
+            @org.springframework.web.bind.annotation.RequestParam("managerId") Integer managerId,
+            @org.springframework.web.bind.annotation.RequestParam("files") org.springframework.web.multipart.MultipartFile[] files) {
+        try {
+            if (files != null && files.length > 0) {
+                projectService.uploadProjectDocuments(projectId, managerId, java.util.Arrays.asList(files));
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

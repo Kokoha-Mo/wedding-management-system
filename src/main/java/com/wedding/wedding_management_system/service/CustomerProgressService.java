@@ -144,14 +144,16 @@ public class CustomerProgressService {
         // 🌟 新增區塊：載入專案正式文件 (Documents)
         // ==========================================
         if (project.getDocuments() != null) {
-            List<ProjectProgressDTO.DocumentDetail> formalDocs = project.getDocuments().stream().map(doc -> {
-                ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();
-                docDto.setId(doc.getId());
-                docDto.setName(doc.getName());
-                docDto.setFileType(doc.getFileType());
-                docDto.setFilePath(doc.getFilePath());
-                return docDto;
-            }).collect(Collectors.toList());
+            List<ProjectProgressDTO.DocumentDetail> formalDocs = project.getDocuments().stream()
+                .filter(doc -> doc.getStatus() == null || "已核准".equals(doc.getStatus())) // 🌟 只顯示經理文件(無狀態)與已核准文件
+                .map(doc -> {
+                    ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();
+                    docDto.setId(doc.getId());
+                    docDto.setName(doc.getName());
+                    docDto.setFileType(doc.getFileType());
+                    docDto.setFilePath(doc.getFilePath());
+                    return docDto;
+                }).collect(Collectors.toList());
             dto.setDocuments(formalDocs);
         }
 

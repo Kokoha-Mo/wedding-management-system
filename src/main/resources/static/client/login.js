@@ -108,6 +108,7 @@ async function performLoginAction() {
         // JWT Token 已經被瀏覽器自動存在 HttpOnly Cookie 裡面了，我們不用管它！
 
         // 3. dv_username / dv_login_time 存 localStorage 新分頁也能讀到登入狀態
+
         localStorage.setItem('dv_username', data.name || data.email);
         localStorage.setItem('dv_login_time', Date.now());
 

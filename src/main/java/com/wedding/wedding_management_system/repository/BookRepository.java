@@ -9,7 +9,7 @@ import com.wedding.wedding_management_system.entity.Book;
 
 public interface BookRepository extends JpaRepository<Book, Integer> {
 
-    List<Book> findByCustomer_Id(int customerId);
+    List<Book> findByCustomerId(Integer customerId);
 
     List<Book> findByStatus(String status);
 
@@ -17,7 +17,6 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
     Long countByStatus(String 處理中);
 
-    //List<Book> findByStatusOrderByCancel(String status);
 
 
 }

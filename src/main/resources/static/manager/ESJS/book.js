@@ -6,6 +6,36 @@ document.addEventListener('DOMContentLoaded', () => {
     loadBooks('處理中');
 });
 
+// ════════════════════════════════════════
+// 初始化 Sidebar 員工資訊
+// ════════════════════════════════════════
+function initSidebar() {
+    const empName = sessionStorage.getItem('empName');
+    const imgPath = sessionStorage.getItem('imgPath');
+    const nameEl  = document.getElementById('sidebar-emp-name');
+    const imgEl   = document.getElementById('sidebar-emp-img');
+    if (nameEl && empName) nameEl.textContent = empName;
+    if (imgEl  && imgPath) imgEl.src = imgPath;
+}
+
+// ════════════════════════════════════════
+// API：載入狀態數量（badge）
+// ════════════════════════════════════════
+async function loadStatusCounts() {
+    try {
+        const managerId = sessionStorage.getItem('empId');
+        const res    = await fetch(`${API_BASE}/books/status-counts?managerId=${managerId}`, {
+            credentials: 'include'
+        });
+        const counts = await res.json();
+        document.getElementById('badge-pending').textContent   = counts['處理中'] ?? 0;
+        document.getElementById('badge-signed').textContent    = counts['已簽約'] ?? 0;
+        document.getElementById('badge-cancelled').textContent = counts['取消']   ?? 0;
+    } catch (err) {
+        console.error('[API] 載入狀態數量失敗:', err);
+    }
+}
+
 // Tab 切換
 function switchTab(tabId) {
     const tabs = ['tab-pending', 'tab-signed', 'tab-cancelled'];
@@ -25,7 +55,6 @@ function switchTab(tabId) {
         }
     });
 
-    // 切換 tab 時載入對應資料
     if (tabId === 'tab-pending')   loadBooks('處理中');
     if (tabId === 'tab-signed')    loadBooks('已簽約');
     if (tabId === 'tab-cancelled') loadBooks('取消');
@@ -57,10 +86,10 @@ function toggleFilterPanel() {
     document.getElementById('filter-panel').classList.toggle('hidden');
 }
 
-// 點擊外部關閉篩選面板
 document.addEventListener('click', function(e) {
     const panel = document.getElementById('filter-panel');
     const btn   = document.getElementById('btn-filter');
+    if (!panel || !btn) return;
     if (!panel.contains(e.target) && !btn.contains(e.target)) {
         panel.classList.add('hidden');
     }
@@ -105,8 +134,8 @@ function applyFilters() {
         const guests = parseInt(card.dataset.guests || '0');
         const bucket = guests < 100 ? 'small' : guests <= 200 ? 'medium' : 'large';
         const ok = (activeFilters.staff.size  === 0 || activeFilters.staff.has(staff))
-                && (activeFilters.theme.size  === 0 || activeFilters.theme.has(theme))
-                && (activeFilters.guests.size === 0 || activeFilters.guests.has(bucket));
+            && (activeFilters.theme.size  === 0 || activeFilters.theme.has(theme))
+            && (activeFilters.guests.size === 0 || activeFilters.guests.has(bucket));
         card.style.display = ok ? '' : 'none';
     });
 }
@@ -138,19 +167,66 @@ function toggleSubItems(mainCheckbox, subContainerId) {
 }
 
 // ════════════════════════════════════════
-// API：載入預約列表
+// API：載入預約列表 (已加入錯誤捕捉與陣列檢查)
 // ════════════════════════════════════════
 async function loadBooks(status = '處理中') {
     try {
-        const res    = await fetch(`${API_BASE}/books?status=${encodeURIComponent(status)}`);
-        const result = await res.json();
+        const managerId = sessionStorage.getItem('empId');
 
+        // --- 1. 發送請求 ---
+        const res = await fetch(
+            `${API_BASE}/books?status=${encodeURIComponent(status)}&managerId=${managerId}`,
+            { credentials: 'include' }
+        );
+
+        // --- 2. 檢查 HTTP 狀態碼 (防護一) ---
+        if (!res.ok) {
+            // 💡 加上這段：如果遇到 401 或 403，代表憑證過期或沒權限
+            if (res.status === 401 || res.status === 403) {
+                alert("您的登入已過期，請重新登入！");
+                sessionStorage.clear(); // 清除使用者的暫存資料
+                window.location.replace("login.html"); // 自動踢回登入頁
+                return;
+            }
+
+            console.error(`[API 錯誤] 載入列表失敗，狀態碼: ${res.status}`);
+            // ... 下面保留你原本寫的空陣列防護 ...
+            if (status === '處理中') renderPendingCards([]);
+            if (status === '已簽約') renderSignedTable([]);
+            if (status === '取消')   renderCancelledTable([]);
+            return;
+        }
+
+        // --- 3. 解析 JSON 資料 ---
+        let result = await res.json();
+
+        // ★★★ 關鍵：印出後端回傳的原始資料 ★★★
+        console.log(`[載入列表 - ${status}] 後端回傳的原始資料:`, result);
+
+        // --- 4. 檢查是否為陣列 (防護二) ---
+        if (!Array.isArray(result)) {
+            console.warn(`[資料格式警告] 後端回傳的不是陣列！目前格式為:`, typeof result);
+
+            // 嘗試從常見的分頁/包裝格式中取出陣列
+            if (result && Array.isArray(result.data)) {
+                console.log('✔ 已從 result.data 中取出陣列');
+                result = result.data;
+            } else if (result && Array.isArray(result.content)) {
+                console.log('✔ 已從 result.content 中取出陣列');
+                result = result.content;
+            } else {
+                console.error('❌ 無法在回傳物件中找到陣列，強制設為空陣列 [] 避免報錯');
+                result = [];
+            }
+        }
+
+        // --- 5. 渲染畫面 ---
         if (status === '處理中') renderPendingCards(result);
         if (status === '已簽約') renderSignedTable(result);
         if (status === '取消')   renderCancelledTable(result);
 
     } catch (err) {
-        console.error('[API] 載入列表失敗:', err);
+        console.error('[API] 載入列表發生網路錯誤或例外:', err);
     }
 }
 
@@ -167,11 +243,11 @@ async function submitCreateBook() {
         return;
     }
 
-    // Step 1: 查相似客戶
     let checkResult = [];
     if (email) {
         const checkRes = await fetch(
-            `${API_BASE}/books/check-duplicate?email=${encodeURIComponent(email)}`
+            `${API_BASE}/books/check-duplicate?email=${encodeURIComponent(email)}`,
+            { credentials: 'include' }
         );
         checkResult = await checkRes.json();
 
@@ -185,7 +261,6 @@ async function submitCreateBook() {
         }
     }
 
-    // Step 2: 建立預約
     const themeRadio = document.querySelector('input[name="theme"]:checked');
     const styles = themeRadio
         ? themeRadio.closest('label').querySelector('span').textContent.trim()
@@ -202,9 +277,10 @@ async function submitCreateBook() {
     };
 
     try {
-        const res    = await fetch(`${API_BASE}/books`, {
+        const res = await fetch(`${API_BASE}/books`, {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body:    JSON.stringify(payload)
         });
         const result = await res.json();
@@ -212,6 +288,7 @@ async function submitCreateBook() {
         if (res.ok) {
             toggleModal('modal-create-customer');
             showToast(checkResult.length > 0 ? '預約已覆蓋更新！' : '新客戶預約已建立！');
+            loadStatusCounts();
             loadBooks('處理中');
         } else {
             alert('建立失敗：' + (result.message || '請確認欄位'));
@@ -227,18 +304,36 @@ async function submitCreateBook() {
 // ════════════════════════════════════════
 async function updateBookStatus(bookId, newStatus) {
     try {
-        const res = await fetch(`${API_BASE}/books/${bookId}/status`, {
+        const res = await fetch(`${API_BASE}/books/${bookId}/update`, {
             method:  'PATCH',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body:    JSON.stringify({ status: newStatus })
         });
 
         if (res.ok) {
             showToast('狀態已更新');
+            loadStatusCounts();
             loadBooks('處理中');
         }
     } catch (err) {
         console.error('[API] 更新狀態失敗:', err);
+    }
+}
+
+// ════════════════════════════════════════
+// API：查看 book_details（查看需求按鈕）
+// ════════════════════════════════════════
+async function viewBookDetails(bookId) {
+    try {
+        const res     = await fetch(`http://localhost:8080/api/employee/books/${bookId}/details`, {
+            credentials: 'include'
+        });
+        const details = await res.json();
+        // TODO: 下一步串接 modal 顯示細項
+        console.log('book_details:', details);
+    } catch (err) {
+        console.error('[API] 載入細項失敗:', err);
     }
 }
 
@@ -305,7 +400,8 @@ function renderPendingCards(books) {
                 </div>
             </div>
             <div class="flex border-t border-gray-100 bg-gray-50/30">
-                <button class="flex-1 py-2.5 text-[12px] font-medium text-gray-500 hover:text-gray-700 border-r border-gray-100 transition-colors">
+                <button onclick="viewBookDetails(${book.bookId})"
+                    class="flex-1 py-2.5 text-[12px] font-medium text-gray-500 hover:text-gray-700 border-r border-gray-100 transition-colors">
                     查看需求
                 </button>
                 <button onclick="updateBookStatus(${book.bookId}, '已簽約')"
@@ -343,7 +439,7 @@ function renderSignedTable(books) {
             <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.place || '-'}</span>
             <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.styles || '-'}</span>
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-600 w-fit">${book.managerName || '-'}</span>
-            <button onclick="viewBookDetail(${book.bookId})"
+            <button onclick="viewBookDetails(${book.bookId})"
                 class="text-[12px] text-primary hover:underline font-medium text-left">
                 查看詳細
             </button>
@@ -380,7 +476,6 @@ function renderCancelledTable(books) {
         container.appendChild(row);
     });
 
-    // 更新筆數
     const countEl = document.getElementById('cancelled-count');
     if (countEl) countEl.textContent = `共 ${books.length} 筆取消記錄`;
 }

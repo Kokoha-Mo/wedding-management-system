@@ -53,7 +53,7 @@ public class EmailService {
                                 </a>
                             </div>
                             <p style="font-size: 11px; color: #9c8e7f; line-height: 2; letter-spacing: 0.06em;">
-                                此連結將於 <strong>30 分鐘後</strong>失效。<br>
+                                此連結將於 <strong>10 分鐘後</strong>失效。<br>
                                 若您未申請此服務，請忽略此封郵件。
                             </p>
                             <hr style="border: none; border-top: 1px solid rgba(197,160,89,0.2); margin: 28px 0;">

@@ -15,11 +15,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.wedding.wedding_management_system.entity.ProjectTask;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
+
+import com.wedding.wedding_management_system.dto.TaskDTO;
+import com.wedding.wedding_management_system.entity.ProjectTask;
+import com.wedding.wedding_management_system.repository.ProjectTaskRepository;
 
 @Service
 public class ProjectTaskService {
@@ -99,5 +105,33 @@ public class ProjectTaskService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public List<TaskDTO> getTasksByProjectId(Integer projectId) {
+        List<ProjectTask> tasks = projectTaskRepository.findByProject_Id(projectId);
+        List<TaskDTO> resultList = new ArrayList<>();
+
+        for (ProjectTask task : tasks) {
+            TaskDTO dto = new TaskDTO();
+
+            dto.setTaskId(task.getId()); // 注意：如果你的主鍵是 id，這裡就寫 getId()
+            dto.setStatus(task.getStatus());
+            dto.setDeadline(task.getDeadline());
+            dto.setManagerContent(task.getManagerContent());
+            dto.setUpdateAt(task.getUpdateAt());
+
+            // 處理服務與部門
+            if (task.getService() != null) {
+                dto.setServiceId(task.getService().getId()); // 假設是 getId()
+                dto.setServiceName(task.getService().getName());
+
+                if (task.getService().getDepartment() != null) {
+                    dto.setDeptId(task.getService().getDepartment().getId()); // 假設是 getId()
+                    dto.setDeptName(task.getService().getDepartment().getDeptName());
+                }
+            }
+            resultList.add(dto);
+        }
+        return resultList; // 🌟 確保最後回傳的是轉換好的 DTO 陣列！
     }
 }

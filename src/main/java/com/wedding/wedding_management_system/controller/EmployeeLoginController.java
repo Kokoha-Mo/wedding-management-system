@@ -34,7 +34,7 @@ public class EmployeeLoginController {
                     .httpOnly(true)
                     .secure(false) // HTTP fallback for local dev
                     .path("/")
-                    .maxAge(10 * 60) // 10 minutes matching JwtToken validity
+                    .maxAge(8 * 60 * 60) // 8 hours matching JwtToken validity
                     .build();
 
             // Clear the token so it does not appear in the response body

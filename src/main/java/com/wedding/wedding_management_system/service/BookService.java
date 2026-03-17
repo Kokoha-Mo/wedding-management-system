@@ -52,12 +52,6 @@ public class BookService {
     // 臨時密碼固定值，客戶登入後必須重設
     private static final String TEMP_PASSWORD = "Wedding@2026";
 
-    @Autowired
-    private CustomerLoginService customerLoginService;
-
-    @Autowired
-    private EmailService emailService;
-
     private Customer findOrCreateCustomer(CreateBookRequestDTO dto) {
         log.info("嘗試找客戶，email={}", dto.getEmail());
         return customerRepository.findByEmail(dto.getEmail())
@@ -68,20 +62,8 @@ public class BookService {
                     c.setTel(dto.getTel());
                     c.setEmail(dto.getEmail());
                     c.setLineId(dto.getLineId());
-                    // c.setPassword(passwordEncoder.encode(TEMP_PASSWORD));
+                    c.setPassword(passwordEncoder.encode(TEMP_PASSWORD));
                     // c.setPasswordResetRequired(true);
-                    // 先存檔取得有 ID 的 Customer
-                    Customer savedCustomer = customerRepository.save(c);
-
-                    // 寄送「設定密碼信件」的邏輯
-                    try {
-                        String token = customerLoginService.generateAndSaveResetToken(savedCustomer.getEmail());
-                        emailService.sendResetPasswordEmail(savedCustomer.getEmail(), savedCustomer.getName(), token);
-                        log.info("已成功寄送帳號設定信給新客戶: {}", savedCustomer.getEmail());
-                    } catch (Exception e) {
-                        log.error("寄送帳號設定信失敗，email={}, 錯誤: {}", savedCustomer.getEmail(), e.getMessage());
-                    }
-
                     return customerRepository.save(c);
                 });
     }

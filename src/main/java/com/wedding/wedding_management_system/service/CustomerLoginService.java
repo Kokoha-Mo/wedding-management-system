@@ -13,6 +13,7 @@ import com.wedding.wedding_management_system.util.JwtToken;
 public class CustomerLoginService {
 
     private final PasswordEncoder passwordEncoder;
+
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -25,23 +26,34 @@ public class CustomerLoginService {
         Customer customer = customerRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("查無此帳號"));
 
-        // 明碼比對
-        // if (!customer.getPassword().equals(dto.getPassword())) {
-        // throw new RuntimeException("密碼錯誤");
-        // }
-
-        // 雜湊比對
         if (!passwordEncoder.matches(dto.getPassword(), customer.getPassword())) {
             throw new RuntimeException("密碼錯誤");
         }
 
-        // 組裝 DTO（包含 token、email、name）
         CustomerLoginResponseDto result = new CustomerLoginResponseDto();
-        result.setToken(JwtToken.createToken(customer.getEmail())); // token 給 Controller 設定 Cookie 用
+        result.setToken(JwtToken.createToken(customer.getEmail()));
+
+        // 把客人的 ID 放進 DTO 裡
+        result.setCustomerId(customer.getId());
+
         result.setEmail(customer.getEmail());
         result.setName(customer.getName());
+        result.setForcePasswordChange("FORCE_RESET".equals(customer.getResetToken()));
 
         return result;
+    }
+
+    // 🌟 核心新增：專門給「登入後強制修改密碼」使用的方法
+    public void updatePasswordAfterLogin(String email, String newPassword) {
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("查無此帳號"));
+
+        // 1. 更新為新密碼 (記得要經過 BCrypt 加密)
+        customer.setPassword(passwordEncoder.encode(newPassword));
+        // 2. 解除強制修改的鎖定狀態
+        customer.setResetToken(null);
+
+        customerRepository.save(customer);
     }
 
     // ── 驗證重設密碼 token ──

@@ -22,8 +22,7 @@ public class Customer {
     @Column(name = "customer_id")
     private Integer id;
 
-    // @Column(nullable = false)
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false, length = 50)

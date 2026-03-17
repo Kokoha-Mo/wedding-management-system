@@ -15,7 +15,7 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     // 前端重設密碼頁面的網址
-    @Value("${app.reset-password-url:http://127.0.0.1:5500/src/main/resources/static/client/reset_password.html}")
+    @Value("${app.reset-password-url:http://localhost:8080/client/reset_password.html}")
     private String resetPasswordUrl;
 
     public void sendResetPasswordEmail(String toEmail, String customerName, String token) {

@@ -108,7 +108,7 @@ public class ProjectTaskService {
     }
 
     public List<TaskDTO> getTasksByProjectId(Integer projectId) {
-        List<ProjectTask> tasks = projectTaskRepository.findByProject_Id(projectId);
+        List<ProjectTask> tasks = projectTaskRepository.findByProjectId(projectId);
         List<TaskDTO> resultList = new ArrayList<>();
 
         for (ProjectTask task : tasks) {

@@ -427,6 +427,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // ========================
+            // 【登入驗證】從 sessionStorage 取得目前登入的 Manager emp_id
+            const MANAGER_ID = sessionStorage.getItem('empId');
+            if (!MANAGER_ID) {
+                // 若 sessionStorage 中沒有 emp_id，代表尚未登入，導向登入頁
+                alert('請先登入！');
+                window.location.href = 'login.html';
+                return; // 中止後續程式執行
+            }
+            // ========================
             // 🔥 新增：個人資訊與側邊欄權限控制
             initSidebar();
 
@@ -571,16 +581,25 @@
             // ================= 1. 取得資料 =================
             async function loadProjects() {
                 try {
-                    const response = await fetch('/api/manager/projects');
+                    const url = `/api/manager/${MANAGER_ID}/projects`;
+                    console.log(`[DEBUG] 正在呼叫 API: ${url}`);  // 👈 確認實際打的 URL
+
+                    const response = await fetch(url); // same-origin，Cookie 自動帶上，不需要 credentials: 'include'
+                    console.log(`[DEBUG] API 回應狀態: ${response.status}`); // 👈 確認 HTTP 狀態碼
+
                     if (!response.ok) {
                         if (response.status === 401 || response.status === 403) {
+                            console.error('[DEBUG] 驗證失敗 (401/403)，JWT Token 可能遺失或過期');
                             alert("請先登入！");
                             //window.location.href = 'login.html';
                             return;
                         }
-                        throw new Error('API 發生錯誤');
+                        const errText = await response.text();
+                        console.error(`[DEBUG] API 錯誤內容:`, errText); // 👈 印出後端的錯誤訊息
+                        throw new Error(`API 發生錯誤 (${response.status})`);
                     }
                     allProjects = await response.json();
+                    console.log(`[DEBUG] 取得專案數量: ${allProjects.length}`, allProjects); // 👈 印出拿到幾筆資料
 
                     // 直接呼叫排序函數與圖示更新
                     sortAllProjects();
@@ -651,21 +670,45 @@
                         </div>
                     `;
 
-                    // 🔥 各部執行概況預設假資料 UI（實務上可根據 project.tasks 去跑 foreach 動態產生）
-                    deptStatusHtml = `
-                        <div class="flex flex-col gap-1.5 w-11/12 max-w-[360px]">
+                    // 🔥 各部執行概況動態產生（根據 project.tasks 去跑 dynamic render）
+                    if (project.tasks && project.tasks.length > 0) {
+                        let tasksHtml = project.tasks.map(task => {
+                            let statusClasses = '';
+                            if (task.status === '待指派') {
+                                statusClasses = 'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400';
+                            } else if (task.status === '待審核') {
+                                statusClasses = 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400';
+                            } else if (task.status === '進行中') {
+                                statusClasses = 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400';
+                            } else if (task.status === '已完成') {
+                                statusClasses = 'text-green-500 bg-green-50 dark:bg-green-900/30 dark:text-green-400';
+                            } else {
+                                statusClasses = 'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400';
+                            }
+
+                            return `
                             <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
-                                <span class="text-[11px] font-bold text-gray-500 w-12 flex-shrink-0">企劃部</span>
-                                <span class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate flex-1">婚禮流程表初稿確認</span>
-                                <span class="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 rounded font-bold ml-2">進行中</span>
+                                <span class="text-[11px] font-bold text-gray-500 w-[50px] flex-shrink-0 truncate" title="${task.deptName || '未定'}">${task.deptName || '未定'}</span>
+                                <span class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate flex-1 ml-1" title="${task.taskName || '未命名任務'}">${task.taskName || '未命名任務'}</span>
+                                <span class="text-[10px] ${statusClasses} px-1.5 rounded font-bold ml-2 flex-shrink-0">${task.status || '未知'}</span>
                             </div>
-                            <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
-                                <span class="text-[11px] font-bold text-gray-500 w-12 flex-shrink-0">攝影部</span>
-                                <span class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate flex-1">婚紗外拍行程與地點定稿</span>
-                                <span class="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 rounded font-bold ml-2">進行中</span>
+                            `;
+                        }).join('');
+
+                        deptStatusHtml = `
+                        <div class="flex flex-col gap-1.5 w-11/12 max-w-[360px] max-h-[100px] overflow-y-auto custom-scrollbar pr-1">
+                            ${tasksHtml}
+                        </div>
+                        `;
+                    } else {
+                        deptStatusHtml = `
+                        <div class="flex flex-col gap-1.5 w-11/12 max-w-[360px]">
+                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
+                                <span class="text-xs">尚無任務資料</span>
                             </div>
                         </div>
-                    `;
+                        `;
+                    }
 
                     let rowClass = 'project-row transition-colors group ';
 
@@ -674,10 +717,10 @@
                         rowClass += 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
                         statusHtml = `
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                            <span class="material-icons text-[14px] mr-1">task_alt</span> 已結案
+                            <span class="material-icons text-[14px] mr-1">task_alt</span> 已完成
                         </span>`;
 
-                        // 🔥 如果已結案，部門概況直接顯示歸檔字樣
+                        // 🔥 如果已完成，部門概況直接顯示歸檔字樣
                         deptStatusHtml = `
                         <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
                             <span class="material-icons text-[18px] mr-2 text-green-500">done_all</span>

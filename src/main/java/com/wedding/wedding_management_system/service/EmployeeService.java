@@ -10,6 +10,7 @@ import com.wedding.wedding_management_system.repository.EmployeeRepository;
 
 @Service
 public class EmployeeService {
+
     @Autowired
     private EmployeeRepository employeeRepository;
 
@@ -18,6 +19,6 @@ public class EmployeeService {
     }
 
     public List<Employee> getEmployeesByDeptId(Integer deptId) {
-        return employeeRepository.findByDepartment_Id(deptId);
+        return employeeRepository.findByDepartmentId(deptId);
     }
 }

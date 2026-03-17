@@ -96,7 +96,7 @@ public class ProjectService {
         dashboard.setEndingThisMonthCount(projectRepository.countByStatusAndBook_WeddingDateBetween(
                 "進行中", firstDayOfMonth, lastDayOfMonth));
         dashboard.setCompletedThisYearCount(projectRepository.countByStatusAndUpdateAtBetween(
-                "已結案", firstDayOfYear, lastDayOfYear));
+                "已完成", firstDayOfYear, lastDayOfYear));
         return dashboard;
     }
 
@@ -118,7 +118,7 @@ public class ProjectService {
                         "進行中", managerId, firstDayOfMonth, lastDayOfMonth));
         dashboard.setCompletedThisYearCount(
                 projectRepository.countByStatusAndBook_Manager_IdAndUpdateAtBetween(
-                        "已結案", managerId, firstDayOfYear, lastDayOfYear));
+                        "已完成", managerId, firstDayOfYear, lastDayOfYear));
         return dashboard;
     }
 

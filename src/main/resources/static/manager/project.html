@@ -443,8 +443,8 @@
             // =================  排序核心邏輯 =================
             function sortAllProjects() {
                 allProjects.sort((a, b) => {
-                    const isACompleted = (a.status === '已結案');
-                    const isBCompleted = (b.status === '已結案');
+                    const isACompleted = (a.status === '已完成');
+                    const isBCompleted = (b.status === '已完成');
 
                     // 1. 絕對優先權：進行中永遠排在已完成上面
                     if (isACompleted && !isBCompleted) return 1;
@@ -565,9 +565,9 @@
                 }
 
                 if (currentFilter === 'active') {
-                    filteredProjects = filteredProjects.filter(p => p.status !== '已結案');
+                    filteredProjects = filteredProjects.filter(p => p.status !== '已完成');
                 } else if (currentFilter === 'completed') {
-                    filteredProjects = filteredProjects.filter(p => p.status === '已結案');
+                    filteredProjects = filteredProjects.filter(p => p.status === '已完成');
                 }
 
                 // --- B. 處理陣列分頁計算 ---
@@ -628,15 +628,15 @@
 
                     let rowClass = 'project-row transition-colors group ';
                     
-                    // 判斷狀態：已結案
-                    if (project.status === '已結案') {
+                    // 判斷狀態：已完成
+                    if (project.status === '已完成') {
                         rowClass += 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
                         statusHtml = `
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                            <span class="material-icons text-[14px] mr-1">task_alt</span> 已結案
+                            <span class="material-icons text-[14px] mr-1">task_alt</span> 已完成
                         </span>`;
                         
-                        // 🔥 如果已結案，部門概況直接顯示歸檔字樣
+                        // 🔥 如果已完成，部門概況直接顯示歸檔字樣
                         deptStatusHtml = `
                         <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
                             <span class="material-icons text-[18px] mr-2 text-green-500">done_all</span>
@@ -749,12 +749,12 @@
 
             // ================= 5. 更新上方篩選按鈕 =================
             function updateFilterButtons() {
-                const completedCount = allProjects.filter(p => p.status === '已結案').length;
+                const completedCount = allProjects.filter(p => p.status === '已完成').length;
                 const activeCount = allProjects.length - completedCount;
 
                 document.querySelector('button[data-filter="all"]').textContent = `全部專案 (${allProjects.length})`;
                 document.querySelector('button[data-filter="active"]').textContent = `進行中 (${activeCount})`;
-                document.querySelector('button[data-filter="completed"]').textContent = `已結案 (${completedCount})`; // 按鈕文字也一併更新
+                document.querySelector('button[data-filter="completed"]').textContent = `已完成 (${completedCount})`;
 
                 const filterBtns = document.querySelectorAll('.filter-btn');
                 filterBtns.forEach(btn => {

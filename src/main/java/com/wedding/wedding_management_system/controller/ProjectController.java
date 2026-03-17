@@ -8,10 +8,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.wedding.wedding_management_system.dto.ProjectResponse;
 import com.wedding.wedding_management_system.dto.TaskDTO;
+import com.wedding.wedding_management_system.dto.AssignTaskRequest;
 import com.wedding.wedding_management_system.service.ProjectService;
 import com.wedding.wedding_management_system.service.ProjectTaskService;
 
@@ -75,6 +80,61 @@ public class ProjectController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Assign project task
+    // 測試網址：POST http://localhost:8080/api/manager/projects/tasks/{taskId}/assign
+    @PostMapping("/projects/tasks/{taskId}/assign")
+    public ResponseEntity<?> assignProjectTask(
+            @PathVariable("taskId") Integer taskId, 
+            @RequestBody AssignTaskRequest request) {
+        try {
+            boolean success = projectTaskService.assignTask(
+                taskId, 
+                request.getAssignees(), 
+                request.getDeadline(), 
+                request.getManagerContent()
+            );
+
+            Map<String, Object> response = new HashMap<>();
+            if (success) {
+                response.put("success", true);
+                response.put("message", "Task successfully assigned");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to assign task");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // Update task status
+    // 測試網址：POST http://localhost:8080/api/manager/projects/tasks/{taskId}/status
+    @PostMapping("/projects/tasks/{taskId}/status")
+    public ResponseEntity<?> updateTaskStatus(
+            @PathVariable("taskId") Integer taskId, 
+            @RequestBody Map<String, String> request) {
+        try {
+            String newStatus = request.get("status");
+            boolean success = projectTaskService.updateTaskStatus(taskId, newStatus);
+            Map<String, Object> response = new HashMap<>();
+            if (success) {
+                response.put("success", true);
+                response.put("message", "Task status updated successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to update task status");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

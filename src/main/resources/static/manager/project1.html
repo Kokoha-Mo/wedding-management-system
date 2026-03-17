@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 
 <head>
@@ -359,13 +359,13 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">要求完成期限 <span
                             class="text-red-500">*</span></label>
-                    <input type="date"
+                    <input type="date" id="task-deadline"
                         class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">交辦事項與備註</label>
-                    <textarea
+                    <textarea id="task-manager-content"
                         class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
                         rows="3" placeholder="例如：請特別注意客戶對花藝顏色有特殊要求..."></textarea>
                 </div>
@@ -633,6 +633,7 @@
             // 🌟 3. 動態渲染任務小卡到 HTML
             // ==========================================
             function renderTasks(tasks) {
+                window.currentProjectTasks = tasks; // Save globally for modal access
                 if (!taskListContainer) return;
                 taskListContainer.innerHTML = ''; // 清空「載入中」提示
 
@@ -667,29 +668,92 @@
                     const deptId = task.deptId || '';
                     const serviceName = task.serviceName || `服務 #${task.serviceId || '未知'}`;
                     const updateTime = task.updateAt ? task.updateAt.replace('T', ' ').substring(0, 16) : '尚無更新紀錄';
+                    
+                    let assigneesHtml = '';
+                    let deadlineHtml = '';
+                    if (task.status === '進行中' || task.status === '待審核' || task.status === '已完成') {
+                        const deadlineFixed = task.deadline ? task.deadline.substring(0, 10) : '未設定';
+                        deadlineHtml = `<p class="text-xs text-red-500 mt-1 flex items-center font-bold">
+                                            <span class="material-icons text-[14px] mr-1">event</span> 截止: ${deadlineFixed}
+                                        </p>`;
+                        
+                        if (task.assignees && task.assignees.length > 0) {
+                            const assigneeNames = task.assignees.map(a => a.name).join(', ');
+                            assigneesHtml = `<p class="text-xs text-indigo-600 mt-1 flex items-center font-bold">
+                                                <span class="material-icons text-[14px] mr-1">person</span> 負責人: ${assigneeNames}
+                                            </p>`;
+                        } else {
+                            assigneesHtml = `<p class="text-xs text-indigo-600 mt-1 flex items-center font-bold">
+                                                <span class="material-icons text-[14px] mr-1">person</span> 負責人: 尚未指派
+                                            </p>`;
+                        }
+                    }
 
                     // 生成任務卡片 HTML
-                    const html = `
-                    <div class="task-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all hover:shadow-md" data-status="${task.status}">
-                        <div class="absolute left-0 top-0 bottom-0 w-1.5 ${statusColor}"></div>
-                        <div class="flex justify-between items-start pl-3">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">${deptName}</span>
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${task.status}</span>
+                    let html = '';
+                    if (task.status === '待審核') {
+                        let assigneeDisplay = '';
+                        if (task.assignees && task.assignees.length > 0) {
+                            const emp = task.assignees[0];
+                            const firstChar = emp.name ? emp.name.charAt(0) : '員';
+                            assigneeDisplay = `
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-xs text-center">${firstChar}</div>
+                                    <div>
+                                        <div class="text-[10px] text-gray-500 font-bold">${emp.departmentName || deptName}</div>
+                                        <div class="text-xs font-bold text-gray-800">${emp.name}</div>
+                                    </div>
                                 </div>
-                                <h4 class="text-base font-bold text-gray-900 dark:text-white">${serviceName}</h4>
-                                <p class="text-xs text-gray-400 mt-2 flex items-center">
-                                    <span class="material-icons text-[14px] mr-1">update</span> 最後更新: ${updateTime}
-                                </p>
+                            `;
+                        } else {
+                            assigneeDisplay = `<div class="text-xs font-bold text-gray-500">尚未指派</div>`;
+                        }
+
+                        html = `
+                        <div class="task-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all hover:shadow-md" data-status="${task.status}">
+                            <div class="absolute left-0 top-0 bottom-0 w-1.5 ${statusColor}"></div>
+                            <div class="flex flex-col w-full pl-3">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${task.status}</span>
+                                    <div class="flex space-x-2">
+                                        <button class="px-3 py-1.5 bg-red-50 text-red-600 font-bold rounded text-xs hover:bg-red-100 btn-reject transition-colors" data-task-id="${task.taskId}">駁回</button>
+                                        <button class="px-3 py-1.5 bg-orange-400 text-white font-bold rounded text-xs hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed btn-approve btn-approve-${task.taskId} transition-colors" data-task-id="${task.taskId}" disabled title="請先查看詳情與成果">審核通過</button>
+                                    </div>
+                                </div>
+                                <h4 class="text-base font-bold text-gray-900 dark:text-white mb-3">${serviceName}</h4>
+                                <div class="border border-gray-100 rounded-lg p-3 flex justify-between items-center bg-gray-50/50">
+                                    ${assigneeDisplay}
+                                    <button class="px-4 py-1.5 bg-indigo-50 text-indigo-600 font-bold rounded text-xs hover:bg-indigo-100 btn-view-result transition-colors" data-task-id="${task.taskId}">查看成果</button>
+                                </div>
                             </div>
-                            <button class="text-gray-400 hover:text-indigo-600 transition-colors p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 btn-assign" 
-                                data-task="${serviceName}" data-category="${deptName}" data-task-id="${task.taskId}" data-dept-id="${deptId}">
-                                <span class="material-icons text-[20px]">chevron_right</span>
-                            </button>
+                        </div>`;
+                    } else {
+                        html = `
+                        <div class="task-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all hover:shadow-md" data-status="${task.status}">
+                            <div class="absolute left-0 top-0 bottom-0 w-1.5 ${statusColor}"></div>
+                            <div class="flex justify-between items-center pl-3 w-full">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">${deptName}</span>
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${task.status}</span>
+                                    </div>
+                                    <h4 class="text-base font-bold text-gray-900 dark:text-white">${serviceName}</h4>
+                                    ${assigneesHtml}
+                                    ${deadlineHtml}
+                                    <p class="text-xs text-gray-400 mt-2 flex items-center">
+                                        <span class="material-icons text-[14px] mr-1">update</span> 最後更新: ${updateTime}
+                                    </p>
+                                </div>
+                                <div class="flex items-center h-full pt-2">
+                                    <button class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors btn-assign flex items-center whitespace-nowrap" 
+                                        data-task="${serviceName}" data-category="${deptName}" data-task-id="${task.taskId}" data-dept-id="${deptId}">
+                                        查看詳情 <span class="material-icons text-[16px] ml-1">chevron_right</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                    }
                     taskListContainer.insertAdjacentHTML('beforeend', html);
                 });
 
@@ -810,10 +874,43 @@
             const taskName = btn.getAttribute('data-task') || '未知任務';
             const deptName = btn.getAttribute('data-category') || '未指派';
             const deptId = btn.getAttribute('data-dept-id'); // 🌟 拿到部門 ID
+            const taskId = btn.getAttribute('data-task-id'); // 🌟 拿到任務 ID
+            
+            const taskObj = window.currentProjectTasks ? window.currentProjectTasks.find(t => String(t.taskId) === String(taskId)) : null;
+            const isReadOnly = taskObj && (taskObj.status === '進行中' || taskObj.status === '待審核' || taskObj.status === '已完成');
 
             document.getElementById('modal-task-name').textContent = taskName;
             document.getElementById('modal-task-category').textContent = deptName;
+            document.getElementById('assignModal').setAttribute('data-current-task-id', taskId);
             document.getElementById('assignModal').classList.remove('hidden');
+
+            const deadlineInput = document.getElementById('task-deadline');
+            const managerContentInput = document.getElementById('task-manager-content');
+            const submitBtn = document.getElementById('submit-assign-btn');
+
+            // Pre-fill existing data
+            if (taskObj && taskObj.deadline) {
+                deadlineInput.value = taskObj.deadline.substring(0, 10);
+            } else {
+                deadlineInput.value = '';
+            }
+
+            if (taskObj && taskObj.managerContent) {
+                managerContentInput.value = taskObj.managerContent;
+            } else {
+                managerContentInput.value = '';
+            }
+
+            // Set readonly layout
+            if (isReadOnly) {
+                deadlineInput.readOnly = true;
+                managerContentInput.readOnly = true;
+                if(submitBtn) submitBtn.style.display = 'none';
+            } else {
+                deadlineInput.readOnly = false;
+                managerContentInput.readOnly = false;
+                if(submitBtn) submitBtn.style.display = 'flex';
+            }
 
             // 準備渲染員工的容器
             const employeeContainer = document.getElementById('employee-list-container');
@@ -844,9 +941,19 @@
                 employeeContainer.innerHTML = employees.map((emp, idx) => {
                     const color = colors[idx % colors.length];
                     const firstChar = emp.name ? emp.name.charAt(0) : '員';
+                    
+                    let isChecked = '';
+                    if (taskObj && taskObj.assignees) {
+                        if (taskObj.assignees.some(a => String(a.empId) === String(emp.empId))) {
+                            isChecked = 'checked';
+                        }
+                    }
+                    
+                    const disabledStr = isReadOnly ? 'disabled' : '';
+
                     return `
-                    <label class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
-                        <input type="checkbox" name="assignees" value="${emp.empId}" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
+                    <label class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'} transition-colors">
+                        <input type="checkbox" name="assignees" value="${emp.empId}" ${isChecked} ${disabledStr} class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
                         <div class="flex items-center space-x-3">
                             <div class="w-7 h-7 rounded-full ${color} flex items-center justify-center font-bold text-xs">
                                 ${firstChar}
@@ -869,14 +976,137 @@
             });
         });
 
-        // 模擬送出指派
+        // 確認送出指派
         const submitAssignBtn = document.getElementById('submit-assign-btn');
         if (submitAssignBtn) {
-            submitAssignBtn.addEventListener('click', () => {
-                alert('已成功送出派工指令！(實務上此處將打 API 儲存至資料庫)');
-                document.getElementById('assignModal').classList.add('hidden');
+            submitAssignBtn.addEventListener('click', async () => {
+                const checkedBoxes = document.querySelectorAll('input[name="assignees"]:checked');
+                if (checkedBoxes.length === 0) {
+                    alert('請至少選擇一位負責人！');
+                    return;
+                }
+                const assignees = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+
+                const deadline = document.getElementById('task-deadline').value;
+                if (!deadline) {
+                    alert('請選擇要求完成期限！');
+                    return;
+                }
+
+                const managerContent = document.getElementById('task-manager-content').value;
+                const taskId = document.getElementById('assignModal').getAttribute('data-current-task-id');
+                
+                // Formulate deadline format as LocalDateTime string (append T00:00:00 if date only)
+                // "YYYY-MM-DD" + "T00:00:00"
+                const requestData = {
+                    assignees: assignees,
+                    deadline: deadline + "T00:00:00",
+                    managerContent: managerContent
+                };
+
+                try {
+                    const response = await fetch(`/api/manager/projects/tasks/${taskId}/assign`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+
+                    if (response.ok) {
+                        alert('已成功送出派工指令！');
+                        document.getElementById('assignModal').classList.add('hidden');
+                        
+                        // 重新載入任務列表
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const projectId = urlParams.get('id') || urlParams.get('projectId') || 1;
+                        // Reload task list
+                        // Using fetchProjectTasks directly not accessible here (block scoped) 
+                        // So reload page or fetch again. For simplicity:
+                        window.location.reload();
+                    } else {
+                        throw new Error('API failed');
+                    }
+                } catch (error) {
+                    console.error('指派任務失敗:', error);
+                    alert('指派任務失敗，請稍後再試。');
+                }
             });
         }
+
+        // ================= 駁回與審核通過控制 =================
+        document.querySelectorAll('.close-result-modal').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('resultModal').classList.add('hidden');
+            });
+        });
+
+        async function updateTaskStatusAPI(taskId, newStatus) {
+            try {
+                const response = await fetch(`/api/manager/projects/tasks/${taskId}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (response.ok) {
+                    alert('狀態更新成功！');
+                    window.location.reload();
+                } else {
+                    alert('狀態更新失敗！');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('網路錯誤，請稍後再試。');
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            // 查看成果按鈕 -> 解鎖審核按鈕
+            const viewResultBtn = e.target.closest('.btn-view-result');
+            if (viewResultBtn) {
+                const taskId = viewResultBtn.getAttribute('data-task-id');
+                const approveBtn = document.querySelector(`.btn-approve-${taskId}`);
+                if (approveBtn) {
+                    approveBtn.disabled = false;
+                    approveBtn.removeAttribute('title');
+                }
+                
+                // 動態載入任務成果的內容 (若需要)可以加這
+                // 這裡暫時只打開 Modal
+                document.getElementById('resultModal').classList.remove('hidden');
+                return;
+            }
+
+            // 駁回按鈕
+            const rejectBtn = e.target.closest('.btn-reject');
+            if (rejectBtn) {
+                window.currentRejectTaskId = rejectBtn.getAttribute('data-task-id');
+                document.getElementById('rejectModal').classList.remove('hidden');
+                return;
+            }
+
+            // 審核通過按鈕
+            const approveBtn = e.target.closest('.btn-approve');
+            if (approveBtn && !approveBtn.disabled) {
+                if (confirm('確定要審核通過此任務並設為已完成嗎？')) {
+                    const taskId = approveBtn.getAttribute('data-task-id');
+                    updateTaskStatusAPI(taskId, '已完成');
+                }
+                return;
+            }
+        });
+
+        window.closeRejectModal = function() {
+            document.getElementById('rejectModal').classList.add('hidden');
+            window.currentRejectTaskId = null;
+        };
+
+        window.confirmRejectTask = function() {
+            if (window.currentRejectTaskId) {
+                updateTaskStatusAPI(window.currentRejectTaskId, '待指派');
+                document.getElementById('rejectModal').classList.add('hidden');
+            }
+        };
 
     </script>
 </body>

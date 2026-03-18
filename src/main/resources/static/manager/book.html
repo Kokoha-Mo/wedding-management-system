@@ -386,6 +386,10 @@
                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
                     </div>
                     <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">電子郵件 Email</label>
+                        <input type="email" id="edit-email" placeholder="example@wedding.com" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary">
+                    </div>
+                    <div>
                         <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">聯絡手機 Tel</label>
                         <input type="tel" id="edit-tel" placeholder="0912345678"
                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
@@ -641,6 +645,65 @@
     </div>
 </div>
 <div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-modify-backdrop"></div>
+<!-- ═══════════════════════════════════════
+     Modal: 已簽約詳細摘要（純文字）
+═══════════════════════════════════════ -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none" id="modal-view-detail">
+    <div class="relative w-full max-w-2xl mx-auto my-6 px-4">
+        <div class="border-0 rounded-2xl shadow-xl relative flex flex-col w-full bg-white dark:bg-gray-800 outline-none focus:outline-none">
+
+            <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="detail-customer-name">客戶姓名</h3>
+                    <p class="text-xs text-gray-400 mt-1" id="detail-book-meta"></p>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600" onclick="toggleModal('modal-view-detail')">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            <div class="relative p-6 flex-auto space-y-6 max-h-[70vh] overflow-y-auto">
+
+                <!-- 基本資訊 -->
+                <div class="bg-gray-50 dark:bg-gray-900/40 rounded-xl p-4 space-y-2">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">新人基本資料</h4>
+                    <div class="grid grid-cols-2 gap-y-2 text-sm">
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">婚禮日期</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-wedding-date">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">賓客規模</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-guest-scale">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">宴客場地</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-place">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">視覺定調</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-styles">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">聯絡手機</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-tel">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">LINE ID</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-lineid">-</span></div>
+                    </div>
+                </div>
+
+                <!-- 服務項目 -->
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">服務項目與報價</h4>
+                    <div class="border border-gray-100 dark:border-gray-700 rounded-xl overflow-hidden">
+                        <ul id="detail-services-list" class="divide-y divide-gray-100 dark:divide-gray-700"></ul>
+                        <div class="flex justify-between items-center px-4 py-3 bg-blue-50 dark:bg-blue-900/20">
+                            <span class="text-sm font-bold text-blue-700 dark:text-blue-300">預估總計</span>
+                            <span class="text-lg font-bold text-blue-700 dark:text-blue-300" id="detail-total">NT$ 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 備註 -->
+                <div id="detail-notes-wrap" class="hidden">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">備註需求</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/40 rounded-xl p-4 leading-relaxed italic" id="detail-notes"></p>
+                </div>
+
+            </div>
+
+            <div class="p-5 border-t border-gray-100 dark:border-gray-700 flex justify-end bg-gray-50/50 dark:bg-gray-800/50 rounded-b-xl">
+                <button class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium text-sm transition-colors" onclick="toggleModal('modal-view-detail')">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-view-detail-backdrop"></div>
 <script src="./ESJS/es_new_ver.js" defer></script>
 <script src="./ESJS/book.js"></script>
 

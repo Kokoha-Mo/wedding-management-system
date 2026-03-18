@@ -14,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -61,36 +58,48 @@ public class BookDetailController {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("找不到預約單，id=" + bookId));
 
-        // 2. 更新備註（存進 book.content）
+        // 1. 更新備註
         if (request.getNotes() != null) {
             book.setContent(request.getNotes());
             bookRepository.save(book);
         }
 
-        // 3. 刪除舊細項，重新寫入新細項
+        // 2. 確保清單裡有 service_id=1（A方案，永遠必選）
+        List<BookDetailRequestDTO> detailList = request.getDetails() != null
+                ? new ArrayList<>(request.getDetails())
+                : new ArrayList<>();
+
+        boolean hasServiceOne = detailList.stream()
+                .anyMatch(s -> s.getServiceId() != null && s.getServiceId() == 1);
+        if (!hasServiceOne) {
+            BookDetailRequestDTO aService = new BookDetailRequestDTO();
+            aService.setServiceId(1);
+            detailList.add(0, aService);
+        }
+
+        // 3. 刪除舊細項，重新寫入（價格從 services 表取得）
         bookDetailRepository.deleteByBookId(bookId);
 
-        if (request.getDetails() != null && !request.getDetails().isEmpty()) {
-            List<BookDetail> details = request.getDetails().stream()
-                    .filter(s -> s.getServiceId() != null)
-                    .map(s -> {
-                        Service service = serviceRepository.findById(s.getServiceId())
-                                .orElseThrow(() -> new EntityNotFoundException(
-                                        "找不到服務項目，service_id=" + s.getServiceId()));
-                        BookDetail d = new BookDetail();
-                        d.setBook(book);
-                        d.setService(service);
-                        d.setUnitPrice(s.getUnitPrice() != null ? s.getUnitPrice() : service.getPrice());
-                        d.setCeremonyDate(s.getCeremonyDate());
-                        return d;
-                    })
-                    .collect(Collectors.toList());
-            bookDetailRepository.saveAll(details);
-        }
+        List<BookDetail> details = detailList.stream()
+                .filter(s -> s.getServiceId() != null)
+                .map(s -> {
+                    Service service = serviceRepository.findById(s.getServiceId())
+                            .orElseThrow(() -> new EntityNotFoundException(
+                                    "找不到服務項目，service_id=" + s.getServiceId()));
+                    BookDetail d = new BookDetail();
+                    d.setBook(book);
+                    d.setService(service);
+                    d.setUnitPrice(service.getPrice()); // 直接從 services 表取正確價格
+                    d.setCeremonyDate(s.getCeremonyDate());
+                    return d;
+                })
+                .collect(Collectors.toList());
+
+        bookDetailRepository.saveAll(details);
 
         return ResponseEntity.ok(Map.of(
                 "message", "需求與方案已成功更新！",
-                "saved", request.getDetails() != null ? request.getDetails().size() : 0
+                "saved",   details.size()
         ));
     }
 
@@ -120,8 +129,8 @@ public class BookDetailController {
 
                     BookDetail d = new BookDetail();
                     d.setBook(book);
-                    d.setService(service);          // ← 設定 Service entity
-                    d.setUnitPrice(s.getUnitPrice());
+                    d.setService(service);
+                    d.setUnitPrice(service.getPrice());
                     d.setCeremonyDate(s.getCeremonyDate());
                     return d;
                 })
@@ -146,20 +155,32 @@ public class BookDetailController {
 
         List<BookDetail> details = bookDetailRepository.findByBookIdOrderByServiceIdAsc(bookId);
 
-        // 回傳已選服務的 service_id 清單（前端用來勾選 checkbox）
+        // 計算總價
+        int total = details.stream()
+                .mapToInt(d -> d.getUnitPrice() != null ? d.getUnitPrice() : 0)
+                .sum();
+
         List<Map<String, Object>> services = details.stream()
                 .map(d -> {
                     Map<String, Object> item = new HashMap<>();
                     item.put("serviceId",   d.getService().getId());
                     item.put("serviceName", d.getService().getName());
-                    item.put("unitPrice",   d.getUnitPrice());
+                    item.put("unitPrice",   d.getUnitPrice() != null ? d.getUnitPrice() : d.getService().getPrice());
                     return item;
                 })
                 .collect(Collectors.toList());
 
         Map<String, Object> result = new HashMap<>();
-        result.put("services", services);
-        result.put("notes",    book.getContent() != null ? book.getContent() : "");
+        result.put("services",   services);
+        result.put("notes",      book.getContent() != null ? book.getContent() : "");
+        result.put("totalPrice", total);
+        result.put("customerName", book.getCustomer() != null ? book.getCustomer().getName() : "");
+        result.put("tel",          book.getCustomer() != null ? book.getCustomer().getTel()  : "");
+        result.put("lineId",       book.getCustomer() != null ? book.getCustomer().getLineId(): "");
+        result.put("weddingDate",  book.getWeddingDate()  != null ? book.getWeddingDate().toString() : "");
+        result.put("guestScale",   book.getGuestScale()   != null ? book.getGuestScale() : 0);
+        result.put("place",        book.getPlace()        != null ? book.getPlace()   : "");
+        result.put("styles",       book.getStyles()       != null ? book.getStyles()  : "");
 
         return ResponseEntity.ok(result);
     }

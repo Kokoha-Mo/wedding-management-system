@@ -184,14 +184,14 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-//    // 依員工 ID + 狀態查詢（只看自己負責的）
-//    @Transactional(readOnly = true)
-//    public List<BookResponseDTO> findByManagerAndStatus(Integer managerId, String status) {
-//        return bookRepository.findByManagerIdAndStatus(managerId, status)
-//                .stream()
-//                .map(book -> BookResponseDTO.from(book, book.getCustomer()))
-//                .collect(Collectors.toList());
-//    }
+    // 依員工 ID + 狀態查詢（只看自己負責的）
+    @Transactional(readOnly = true)
+    public List<BookResponseDTO> findByManagerAndStatus(Integer managerId, String status) {
+        return bookRepository.findByManager_IdAndStatus(managerId, status)
+                .stream()
+                .map(book -> BookResponseDTO.from(book, book.getCustomer()))
+                .collect(Collectors.toList());
+    }
 
     // 依員工 ID 查各狀態數量
     @Transactional(readOnly = true)
@@ -203,14 +203,14 @@ public class BookService {
         );
     }
 
-    @Transactional(readOnly = true)
-    public Map<String, Long> statusCounts() {
-        return Map.of(
-                "處理中",  bookRepository.countByStatus("處理中"),
-                "已簽約",  bookRepository.countByStatus("已簽約"),
-                "取消預約", bookRepository.countByStatus("取消預約")
-        );
-    }
+//    @Transactional(readOnly = true)
+//    public Map<String, Long> statusCounts() {
+//        return Map.of(
+//                "處理中",  bookRepository.countByStatus("處理中"),
+//                "已簽約",  bookRepository.countByStatus("已簽約"),
+//                "取消預約", bookRepository.countByStatus("取消預約")
+//        );
+//    }
 
     @Transactional
     public BookResponseDTO updateBookInfo(Integer bookId, UpdateBookDetailsRequestDTO request) {
@@ -229,6 +229,8 @@ public class BookService {
             customer.setName(ReName(request.getName()));
         if (request.getTel()    != null && !request.getTel().isBlank())
             customer.setTel(request.getTel());
+        if (request.getEmail()  != null && !request.getEmail().isBlank())
+            customer.setEmail(request.getEmail());
         if (request.getLineId() != null)
             customer.setLineId(request.getLineId());
         customerRepository.save(customer);

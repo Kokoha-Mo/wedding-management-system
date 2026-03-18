@@ -75,9 +75,13 @@ public class BookController {
 
     @GetMapping
     public ResponseEntity<List<BookResponseDTO>> findByStatus(
-            @RequestParam(defaultValue = "處理中") String status) {
+            @RequestParam(defaultValue = "處理中") String status,
+            @RequestParam(required = false) Integer managerId) {
 
-        List<BookResponseDTO> books = bookService.findByStatus(status);
+        List<BookResponseDTO> books = (managerId !=null)
+                ? bookService.findByManagerAndStatus(managerId,status)
+                : bookService.findByStatus(status);
+
         return ResponseEntity.ok(books);
     }
 
@@ -97,11 +101,15 @@ public class BookController {
     }
 
     @GetMapping("/status-counts")
-    public ResponseEntity<Map<String, Long>> statusCounts() {
-        Map<String, Long> counts = new HashMap<>();
-        counts.put("處理中", bookRepository.countByStatus("處理中"));
-        counts.put("已簽約", bookRepository.countByStatus("已簽約"));
-        counts.put("取消", bookRepository.countByStatus("取消"));
+    public ResponseEntity<Map<String, Long>> statusCounts(
+            @RequestParam(required = false) Integer managerId) {
+        Map<String, Long> counts = (managerId != null)
+                ? bookService.statusCountsByManager(managerId)
+                : Map.of(
+                "處理中", bookRepository.countByStatus("處理中"),
+                "已簽約", bookRepository.countByStatus("已簽約"),
+                "取消",   bookRepository.countByStatus("取消")
+        );
         return ResponseEntity.ok(counts);
     }
 

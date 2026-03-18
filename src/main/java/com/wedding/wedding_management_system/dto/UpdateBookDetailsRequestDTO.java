@@ -1,6 +1,8 @@
 package com.wedding.wedding_management_system.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -10,6 +12,10 @@ import java.util.List;
 public class UpdateBookDetailsRequestDTO {
     private String name;        // 新人姓名（同時更新 customer.name）
     private String tel;
+
+    @NotBlank(message = "Email 為必填")
+    @Email(message = "Email 格式不正確")
+    private String email;
 
     @JsonProperty("line_id")
     private String lineId;

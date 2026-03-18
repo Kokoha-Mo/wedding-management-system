@@ -28,6 +28,11 @@ import com.wedding.wedding_management_system.entity.Book;
 import com.wedding.wedding_management_system.entity.ProjectCommunication;
 import com.wedding.wedding_management_system.repository.ProjectCommunicationRepository;
 import com.wedding.wedding_management_system.repository.ProjectRepository;
+import com.wedding.wedding_management_system.repository.DocumentRepository;
+import com.wedding.wedding_management_system.repository.EmployeeRepository;
+import com.wedding.wedding_management_system.entity.Document;
+import com.wedding.wedding_management_system.entity.Employee;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProjectService {
@@ -36,6 +41,15 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private DocumentRepository documentRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     /**
      * 共用：將 Project 實體轉換成 ListDTO
@@ -228,5 +242,52 @@ public class ProjectService {
         }
 
         return dto;
+    }
+
+    /**
+     * 上傳專案文件 (由經理上傳，供客戶查看)
+     */
+    public void uploadProjectDocuments(Integer projectId, Integer managerId, List<MultipartFile> files) throws Exception {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("專案不存在"));
+        
+        Employee manager = employeeRepository.findById(managerId)
+                .orElse(null);
+
+        for (MultipartFile file : files) {
+            String filePath = fileStorageService.storeFile(file, projectId);
+            Document doc = new Document();
+            doc.setProject(project);
+            doc.setUploadedBy(manager);
+            doc.setName(file.getOriginalFilename());
+            doc.setFilePath(filePath);
+            doc.setFileType(file.getContentType());
+            doc.setStatus(null); // 修改：經理上傳的規格文件設定為無狀態
+            documentRepository.save(doc);
+        }
+    }
+
+    /**
+     * 取得專案文件列表 (供管理介面顯示專案歸檔，只顯示經理上傳的無狀態文件)
+     */
+    public List<ProjectResponse.RecordDTO.DocumentDTO> getProjectDocuments(Integer projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("專案不存在"));
+        
+        return project.getDocuments().stream()
+                .filter(doc -> doc.getStatus() == null) // 修改：只顯示無狀態的文件
+                .map(doc -> {
+                    ProjectResponse.RecordDTO.DocumentDTO dDto = new ProjectResponse.RecordDTO.DocumentDTO();
+                    dDto.setFileName(doc.getName());
+                    dDto.setFileType(doc.getFileType());
+                    
+                    String uploadDept = "未知";
+                    if (doc.getUploadedBy() != null && doc.getUploadedBy().getDepartment() != null) {
+                        uploadDept = doc.getUploadedBy().getDepartment().getDeptName();
+                    }
+                    dDto.setUploadInfo("上傳者: " + (doc.getUploadedBy() != null ? doc.getUploadedBy().getName() : "未知") + " (" + uploadDept + ")");
+                    dDto.setDownloadUrl(doc.getFilePath());
+                    return dDto;
+                }).collect(Collectors.toList());
     }
 }

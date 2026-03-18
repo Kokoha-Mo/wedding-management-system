@@ -166,18 +166,18 @@
                                     <button onclick="clearFilters()" class="text-[11px] text-primary hover:underline font-medium">清除全部</button>
                                 </div>
 
-                                <!-- 負責人 -->
-                                <div>
-                                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">負責人</p>
-                                    <div class="flex flex-wrap gap-1.5" id="filter-staff">
-                                        <button onclick="toggleFilter(this,'staff')" data-value="jack" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">jack</button>
-                                        <button onclick="toggleFilter(this,'staff')" data-value="Tina" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Tina</button>
-                                        <button onclick="toggleFilter(this,'staff')" data-value="Molly" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Molly</button>
-                                        <button onclick="toggleFilter(this,'staff')" data-value="Denny" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Denny</button>
-                                        <button onclick="toggleFilter(this,'staff')" data-value="Kokoha" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Kokoha</button>
-                                        <button onclick="toggleFilter(this,'staff')" data-value="Joy" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Joy</button>
-                                    </div>
-                                </div>
+<!--                                &lt;!&ndash; 負責人 &ndash;&gt;-->
+<!--                                <div>-->
+<!--                                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">負責人</p>-->
+<!--                                    <div class="flex flex-wrap gap-1.5" id="filter-staff">-->
+<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="jack" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">jack</button>-->
+<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Tina" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Tina</button>-->
+<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Molly" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Molly</button>-->
+<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Denny" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Denny</button>-->
+<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Kokoha" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Kokoha</button>-->
+<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Joy" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Joy</button>-->
+<!--                                    </div>-->
+<!--                                </div>-->
 
                                 <!-- 視覺定調 -->
                                 <div>
@@ -319,8 +319,12 @@
             <div class="relative p-5 flex-auto space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">新人姓名 BRIDE & GROOM</label>
-                        <input type="text" id="input-names" placeholder="陳志明 & 林春嬌" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">新人姓名 NAME</label>
+                        <input type="text" id="input-nameA" placeholder="陳志明" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">新人姓名 NAME</label>
+                        <input type="text" id="input-nameB" placeholder="林春嬌" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">聯絡手機 Phone</label>
@@ -342,7 +346,7 @@
                         <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">賓客規模 Guest Scale</label>
                         <input type="number" id="input-guest-count" placeholder="150" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary">
                     </div>
-                    <div class="md:col-span-2">
+                    <div>
                         <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">宴客場地 Venue</label>
                         <input type="text" id="input-venue" placeholder="東方文華酒店" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary">
                     </div>

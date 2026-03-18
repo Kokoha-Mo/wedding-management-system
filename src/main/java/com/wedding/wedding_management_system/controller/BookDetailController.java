@@ -11,6 +11,7 @@ import com.wedding.wedding_management_system.repository.ServiceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -49,6 +50,7 @@ public class BookDetailController {
                 "content",     book.getContent()      != null ? book.getContent()      : ""
         ));
     }
+
 
     @PutMapping("/{bookId}/details")
     public ResponseEntity<?> updateBookDetails(

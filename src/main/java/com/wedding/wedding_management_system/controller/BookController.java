@@ -66,9 +66,10 @@ public class BookController {
 
     @GetMapping("/check-duplicate")
     public ResponseEntity<List<CustomerDTO>> checkDuplicate(
-            @RequestParam(required = false) String email) {
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String tel) {
 
-        List<CustomerDTO> similar = bookService.findSimilarCustomers(email);
+        List<CustomerDTO> similar = bookService.findSimilarCustomers(email, tel);
         return ResponseEntity.ok(similar);
     }
 

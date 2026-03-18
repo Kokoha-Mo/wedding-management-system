@@ -295,21 +295,34 @@ async function submitCreateBook() {
     }
 
     let checkResult = [];
+
+    // 先查 email 是否重複
     if (email) {
         const checkRes = await fetch(
             `${API_BASE}/books/check-duplicate?email=${encodeURIComponent(email)}`,
             { credentials: 'include' }
         );
         checkResult = await checkRes.json();
+    }
 
-        if (checkResult.length > 0) {
-            const confirmed = window.confirm(
-                `此 Email 已有客戶資料：${checkResult[0].name}\n` +
-                `手機：${checkResult[0].tel}\n\n` +
-                `確定要覆蓋舊預約嗎？`
-            );
-            if (!confirmed) return;
-        }
+    // 再查 tel 是否重複（若 email 沒查到）
+    if (checkResult.length === 0 && tel) {
+        const checkTelRes = await fetch(
+            `${API_BASE}/books/check-duplicate?tel=${encodeURIComponent(tel)}`,
+            { credentials: 'include' }
+        );
+        checkResult = await checkTelRes.json();
+    }
+
+    // 有重複 → 提示確認
+    if (checkResult.length > 0) {
+        const confirmed = window.confirm(
+            `此客戶已有資料：${checkResult[0].name}\n` +
+            `手機：${checkResult[0].tel}\n` +
+            `Email：${checkResult[0].email || '-'}\n\n` +
+            `確定要覆蓋舊預約嗎？`
+        );
+        if (!confirmed) return;
     }
 
     const themeRadio = document.querySelector('input[name="theme"]:checked');
@@ -387,11 +400,15 @@ function findCheckbox(service) {
 // ════════════════════════════════════════
 let currentEditBookId = null;
 
-function openEditModal(bookId, book) {
-    currentEditBookId = bookId;
+function openEditModal(btn) {
+    const card = btn.closest('.snap-start');
+    if (!card) return;
+
+    currentEditBookId = card.dataset.bookId;
 
     // 填入現有資料
     document.getElementById('edit-name').value         = book.customerName || '';
+    document.getElementById('edit-email').value        = book.email         || '';
     document.getElementById('edit-tel').value          = book.tel          || '';
     document.getElementById('edit-lineid').value       = book.lineId       || '';
     document.getElementById('edit-wedding-date').value = book.weddingDate  || '';
@@ -596,6 +613,10 @@ function renderPendingCards(books) {
                 </h4>
                 <div class="space-y-1.5">
                     <div class="text-[12px] flex items-center">
+                        <span class="text-gray-400 w-16 shrink-0 font-medium">電子信箱</span>
+                        <span class="font-medium truncate">${book.email || '-'}</span>
+                    </div>
+                    <div class="text-[12px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">聯絡手機</span>
                         <span class="font-medium truncate">${book.tel || '-'}</span>
                     </div>
@@ -629,6 +650,10 @@ function renderPendingCards(books) {
                     class="flex-1 py-2.5 text-[12px] font-medium text-gray-500 hover:text-gray-700 border-r border-gray-100 transition-colors">
                     查看需求
                 </button>
+<!--                <button onclick="openEditModal(${bookId}, book)"
+                    class="flex-1 py-2.5 text-[12px] font-medium text-indigo-500 hover:bg-indigo-50 border-r border-gray-100 transition-colors">
+                    修改資料
+                </button>-->
                 <button onclick="updateBookStatus(${bookId}, '已簽約')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
                     接案處理

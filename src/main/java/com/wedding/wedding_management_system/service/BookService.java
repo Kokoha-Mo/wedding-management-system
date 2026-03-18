@@ -10,15 +10,8 @@ import com.wedding.wedding_management_system.dto.BookResponseDTO;
 import com.wedding.wedding_management_system.dto.UpdateBookDetailsRequestDTO;
 import com.wedding.wedding_management_system.dto.CreateBookRequestDTO;
 import com.wedding.wedding_management_system.dto.CustomerDTO;
-import com.wedding.wedding_management_system.entity.Book;
-import com.wedding.wedding_management_system.entity.Consultation;
-import com.wedding.wedding_management_system.entity.Customer;
-import com.wedding.wedding_management_system.entity.Employee;
-import com.wedding.wedding_management_system.repository.BookDetailRepository;
-import com.wedding.wedding_management_system.repository.BookRepository;
-import com.wedding.wedding_management_system.repository.ConsultationRepository;
-import com.wedding.wedding_management_system.repository.CustomerRepository;
-import com.wedding.wedding_management_system.repository.EmployeeRepository;
+import com.wedding.wedding_management_system.entity.*;
+import com.wedding.wedding_management_system.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,25 +33,49 @@ public class BookService {
     @Autowired private EmployeeRepository   employeeRepository;
     @Autowired private PasswordEncoder      passwordEncoder;
     @Autowired private ConsultationRepository consultationRepository;
-
-    private static final String TEMP_PASSWORD = "Wedding@2026";
+    @Autowired private ServiceRepository serviceRepository;
 
     // ════════════════════════════════════════════════════════
     // 找或建立顧客（不動）
     // ════════════════════════════════════════════════════════
     private Customer findOrCreateCustomer(CreateBookRequestDTO dto) {
-        log.info("嘗試找客戶，email={}", dto.getEmail());
-        return customerRepository.findByEmail(dto.getEmail())
-                .orElseGet(() -> {
-                    log.info("查無客戶，建立新客戶");
-                    Customer c = new Customer();
-                    c.setName(ReName(dto.getName()));
-                    c.setTel(dto.getTel());
-                    c.setEmail(dto.getEmail());
-                    c.setLineId(dto.getLineId());
-                    c.setPassword(passwordEncoder.encode(TEMP_PASSWORD));
-                    return customerRepository.save(c);
-                });
+        // 1. 先用 email 查（email 不為空時）
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            Optional<Customer> byEmail = customerRepository.findByEmail(dto.getEmail());
+            if (byEmail.isPresent()) {
+                log.info("以 email 找到既有客戶，email={}", dto.getEmail());
+
+                Customer c = byEmail.get();
+                c.setName(ReName(dto.getName()));  // 同步更新名字
+                if (dto.getTel()    != null) c.setTel(dto.getTel());
+                if (dto.getLineId() != null) c.setLineId(dto.getLineId());
+                return customerRepository.save(c);
+            }
+        }
+
+        // 2. 再用 tel 查
+        if (dto.getTel() != null && !dto.getTel().isBlank()) {
+            Optional<Customer> byTel = customerRepository.findFirstByTel(dto.getTel());
+            if (byTel.isPresent()) {
+                log.info("以 tel 找到既有客戶，tel={}", dto.getTel());
+                return byTel.get();
+            }
+        }
+
+        // 3. 都查無 → 建立新客戶，密碼預設為手機號碼
+        log.info("查無客戶，建立新客戶");
+        Customer c = new Customer();
+        c.setName(ReName(dto.getName()));
+        c.setTel(dto.getTel());
+        c.setEmail(dto.getEmail());
+        c.setLineId(dto.getLineId());
+        // 預設密碼為手機號碼（去除非數字字元）
+        String rawPassword = dto.getTel() != null
+                ? dto.getTel().replaceAll("[^0-9]", "")
+                : "12345678";
+        c.setPassword(passwordEncoder.encode(rawPassword));
+        log.info("新客戶建立，預設密碼為手機號碼");
+        return customerRepository.save(c);
     }
 
     private @NonNull String ReName(String raw) {
@@ -102,7 +119,15 @@ public class BookService {
         Book saved = bookRepository.save(book);
         log.info("預約建立成功，book_id={}", saved.getId());
 
-
+        // 自動帶入 service_id=1（A方案｜婚宴全時統籌）
+        serviceRepository.findById(1).ifPresent(service -> {
+            BookDetail defaultDetail = new BookDetail();
+            defaultDetail.setBook(saved);
+            defaultDetail.setService(service);
+            defaultDetail.setUnitPrice(service.getPrice());
+            bookDetailRepository.save(defaultDetail);
+            log.info("自動帶入 A方案，book_id={}", saved.getId());
+        });
         return BookResponseDTO.from(saved, customer);
     }
 
@@ -133,12 +158,21 @@ public class BookService {
     // ════════════════════════════════════════════════════════
     // 其餘方法不動
     // ════════════════════════════════════════════════════════
-    public List<CustomerDTO> findSimilarCustomers(String email) {
+    public List<CustomerDTO> findSimilarCustomers(String email, String tel) {
         List<CustomerDTO> result = new ArrayList<>();
+
+        // 查 email
         if (email != null && !email.isBlank()) {
-            Optional<Customer> found = customerRepository.findByEmail(email);
-            found.ifPresent(c -> result.add(CustomerDTO.from(c)));
+            customerRepository.findByEmail(email)
+                    .ifPresent(c -> result.add(CustomerDTO.from(c)));
         }
+
+        // 查 tel（避免重複加入）
+        if (tel != null && !tel.isBlank() && result.isEmpty()) {
+            customerRepository.findFirstByTel(tel)
+                    .ifPresent(c -> result.add(CustomerDTO.from(c)));
+        }
+
         return result;
     }
 

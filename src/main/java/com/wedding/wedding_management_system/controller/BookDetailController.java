@@ -26,7 +26,7 @@ public class BookDetailController {
 
     private final BookRepository       bookRepository;
     private final BookDetailRepository bookDetailRepository;
-    private final ServiceRepository    serviceRepository;   // ← 查 Service entity 用
+    private final ServiceRepository    serviceRepository;
 
     /**
      * GET /api/books/my?customerId={id}

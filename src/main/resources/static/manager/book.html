@@ -166,19 +166,6 @@
                                     <button onclick="clearFilters()" class="text-[11px] text-primary hover:underline font-medium">清除全部</button>
                                 </div>
 
-<!--                                &lt;!&ndash; 負責人 &ndash;&gt;-->
-<!--                                <div>-->
-<!--                                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">負責人</p>-->
-<!--                                    <div class="flex flex-wrap gap-1.5" id="filter-staff">-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="jack" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">jack</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Tina" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Tina</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Molly" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Molly</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Denny" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Denny</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Kokoha" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Kokoha</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Joy" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Joy</button>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-
                                 <!-- 視覺定調 -->
                                 <div>
                                     <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">視覺定調</p>
@@ -376,6 +363,75 @@
     </div>
 </div>
 <div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-create-customer-backdrop"></div>
+
+<!-- ═══════════════════════════════════════
+     Modal: 修改新人基本資料
+═══════════════════════════════════════ -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none" id="modal-edit-book">
+    <div class="relative w-full max-w-2xl mx-auto my-6 px-4">
+        <div class="border-0 rounded-xl shadow-xl relative flex flex-col w-full bg-white dark:bg-gray-800 outline-none focus:outline-none">
+
+            <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">修改新人基本資料</h3>
+                <button class="text-gray-400 hover:text-gray-600" onclick="toggleModal('modal-edit-book')">
+                    <span class="material-icons text-xl">close</span>
+                </button>
+            </div>
+
+            <div class="relative p-5 flex-auto space-y-4 max-h-[70vh] overflow-y-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">新人姓名 Name</label>
+                        <input type="text" id="edit-name" placeholder="王小明 & 李小美"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">聯絡手機 Tel</label>
+                        <input type="tel" id="edit-tel" placeholder="0912345678"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">LINE ID</label>
+                        <input type="text" id="edit-lineid" placeholder="line_id"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">婚禮日期 Wedding Date</label>
+                        <input type="date" id="edit-wedding-date"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">賓客規模 Guest Scale</label>
+                        <input type="number" id="edit-guest-scale" placeholder="150"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">宴客場地 Venue</label>
+                        <input type="text" id="edit-place" placeholder="東方文華酒店"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">視覺風格 Theme</label>
+                        <div class="flex flex-wrap gap-2" id="edit-theme-options">
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="森林系" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">森林系</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="美式復古" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">美式復古</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="西式教堂" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">西式教堂</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="中式老宅" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">中式老宅</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="極簡現代" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">極簡現代</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="異國風情" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">異國風情</span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 border-t border-gray-100 dark:border-gray-700 flex justify-end space-x-3 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-xl">
+                <button class="px-5 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" onclick="toggleModal('modal-edit-book')">取消</button>
+                <button class="bg-primary text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-600 transition-colors" onclick="saveBookInfo()">儲存資料</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-edit-book-backdrop"></div>
 
 <!-- ═══════════════════════════════════════
      Modal: 客戶需求與方案細項

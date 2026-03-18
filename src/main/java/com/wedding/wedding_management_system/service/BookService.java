@@ -6,12 +6,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.wedding.wedding_management_system.dto.BookDetailRequestDTO;
 import com.wedding.wedding_management_system.dto.BookResponseDTO;
+import com.wedding.wedding_management_system.dto.UpdateBookDetailsRequestDTO;
 import com.wedding.wedding_management_system.dto.CreateBookRequestDTO;
 import com.wedding.wedding_management_system.dto.CustomerDTO;
 import com.wedding.wedding_management_system.entity.Book;
-import com.wedding.wedding_management_system.entity.BookDetail;
 import com.wedding.wedding_management_system.entity.Consultation;
 import com.wedding.wedding_management_system.entity.Customer;
 import com.wedding.wedding_management_system.entity.Employee;
@@ -35,24 +34,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class BookService {
 
-    @Autowired
-    private BookRepository bookRepository;
+    @Autowired private BookRepository       bookRepository;
+    @Autowired private BookDetailRepository bookDetailRepository;   // ← 新增
+    @Autowired private CustomerRepository   customerRepository;
+    @Autowired private EmployeeRepository   employeeRepository;
+    @Autowired private PasswordEncoder      passwordEncoder;
+    @Autowired private ConsultationRepository consultationRepository;
 
-    @Autowired
-    private BookDetailRepository bookDetailRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private EmployeeRepository employeeRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder; // 🌟 用來加密初始密碼
-
-    private static final String TEMP_PASSWORD = "12345678";
-
-
+    private static final String TEMP_PASSWORD = "Wedding@2026";
 
     // ════════════════════════════════════════════════════════
     // 找或建立顧客（不動）
@@ -74,6 +63,7 @@ public class BookService {
 
     private @NonNull String ReName(String raw) {
         if (raw == null || raw.isBlank()) return "";
+        // 前端已處理成 "A & B" 格式，這裡只做頭尾空白清理
         return raw.trim();
     }
 
@@ -112,9 +102,37 @@ public class BookService {
         Book saved = bookRepository.save(book);
         log.info("預約建立成功，book_id={}", saved.getId());
 
+
         return BookResponseDTO.from(saved, customer);
     }
 
+    // ════════════════════════════════════════════════════════
+    // 從諮詢單轉預約（不動）
+    // ════════════════════════════════════════════════════════
+    @Transactional
+    public BookResponseDTO convertFromConsultation(Integer consultationId) {
+        Consultation consultation = consultationRepository.findById(consultationId)
+                .orElseThrow(() -> new EntityNotFoundException("找不到諮詢單，id=" + consultationId));
+
+        CreateBookRequestDTO dto = new CreateBookRequestDTO();
+        dto.setName(consultation.getName());
+        dto.setTel(consultation.getTel());
+        dto.setEmail(consultation.getEmail());
+        dto.setLineId(consultation.getLineId());
+        dto.setWeddingDate(consultation.getWeddingDate());
+        dto.setStyles(consultation.getStyles());
+        dto.setContent(consultation.getAdditionalNotes());
+        // 諮詢單轉預約不帶 services，book_details 留空，後續由業務補填
+
+        BookResponseDTO result = createBook(dto);
+        consultation.setStatus("轉預約");
+        consultationRepository.save(consultation);
+        return result;
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 其餘方法不動
+    // ════════════════════════════════════════════════════════
     public List<CustomerDTO> findSimilarCustomers(String email) {
         List<CustomerDTO> result = new ArrayList<>();
         if (email != null && !email.isBlank()) {
@@ -124,10 +142,6 @@ public class BookService {
         return result;
     }
 
-
-    /**
-     * 依狀態查詢列表（對應前端三個 tab）
-     */
     @Transactional(readOnly = true)
     public List<BookResponseDTO> findByStatus(String status) {
         return bookRepository.findByStatus(status)
@@ -136,14 +150,14 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-    // 依員工 ID + 狀態查詢（只看自己負責的）
-    @Transactional(readOnly = true)
-    public List<BookResponseDTO> findByManagerAndStatus(Integer managerId, String status) {
-        return bookRepository.findByStatusAndManagerIdOrderByCreateAtDesc(status,managerId)
-                .stream()
-                .map(book -> BookResponseDTO.from(book, book.getCustomer()))
-                .collect(Collectors.toList());
-    }
+//    // 依員工 ID + 狀態查詢（只看自己負責的）
+//    @Transactional(readOnly = true)
+//    public List<BookResponseDTO> findByManagerAndStatus(Integer managerId, String status) {
+//        return bookRepository.findByManagerIdAndStatus(managerId, status)
+//                .stream()
+//                .map(book -> BookResponseDTO.from(book, book.getCustomer()))
+//                .collect(Collectors.toList());
+//    }
 
     // 依員工 ID 查各狀態數量
     @Transactional(readOnly = true)
@@ -153,6 +167,41 @@ public class BookService {
                 "已簽約", bookRepository.countByManager_IdAndStatus(managerId, "已簽約"),
                 "取消",   bookRepository.countByManager_IdAndStatus(managerId, "取消")
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Long> statusCounts() {
+        return Map.of(
+                "處理中",  bookRepository.countByStatus("處理中"),
+                "已簽約",  bookRepository.countByStatus("已簽約"),
+                "取消預約", bookRepository.countByStatus("取消預約")
+        );
+    }
+
+    @Transactional
+    public BookResponseDTO updateBookInfo(Integer bookId, UpdateBookDetailsRequestDTO request) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("找不到預約單，id=" + bookId));
+
+        // 更新 book 欄位
+        if (request.getWeddingDate() != null) book.setWeddingDate(request.getWeddingDate());
+        if (request.getGuestScale()  != null) book.setGuestScale(request.getGuestScale());
+        if (request.getPlace()       != null) book.setPlace(request.getPlace());
+        if (request.getStyles()      != null) book.setStyles(request.getStyles());
+
+        // 同步更新 customer 基本資料
+        Customer customer = book.getCustomer();
+        if (request.getName()   != null && !request.getName().isBlank())
+            customer.setName(ReName(request.getName()));
+        if (request.getTel()    != null && !request.getTel().isBlank())
+            customer.setTel(request.getTel());
+        if (request.getLineId() != null)
+            customer.setLineId(request.getLineId());
+        customerRepository.save(customer);
+
+        Book saved = bookRepository.save(book);
+        log.info("更新預約資料 book_id={}", bookId);
+        return BookResponseDTO.from(saved, customer);
     }
 
     @Transactional

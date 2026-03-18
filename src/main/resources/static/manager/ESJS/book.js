@@ -383,6 +383,68 @@ function findCheckbox(service) {
 }
 
 // ════════════════════════════════════════
+// API：修改新人基本資料
+// ════════════════════════════════════════
+let currentEditBookId = null;
+
+function openEditModal(bookId, book) {
+    currentEditBookId = bookId;
+
+    // 填入現有資料
+    document.getElementById('edit-name').value         = book.customerName || '';
+    document.getElementById('edit-tel').value          = book.tel          || '';
+    document.getElementById('edit-lineid').value       = book.lineId       || '';
+    document.getElementById('edit-wedding-date').value = book.weddingDate  || '';
+    document.getElementById('edit-guest-scale').value  = book.guestScale   || '';
+    document.getElementById('edit-place').value        = book.place        || '';
+
+    // 勾選對應的視覺風格
+    document.querySelectorAll('input[name="edit-theme"]').forEach(radio => {
+        radio.checked = (radio.value === book.styles);
+    });
+
+    toggleModal('modal-edit-book');
+}
+
+async function saveBookInfo() {
+    if (!currentEditBookId) return;
+
+    const selectedTheme = document.querySelector('input[name="edit-theme"]:checked');
+
+    const payload = {
+        name:         document.getElementById('edit-name').value.trim(),
+        tel:          document.getElementById('edit-tel').value.trim(),
+        line_id:      document.getElementById('edit-lineid').value.trim(),
+        wedding_date: document.getElementById('edit-wedding-date').value || null,
+        guest_scale:  parseInt(document.getElementById('edit-guest-scale').value) || null,
+        place:        document.getElementById('edit-place').value.trim(),
+        styles:       selectedTheme ? selectedTheme.value : null,
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/books/${currentEditBookId}/info`, {
+            method:  'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            toggleModal('modal-edit-book');
+            showToast('資料已更新！');
+            loadStatusCounts();
+            loadBooks('處理中');
+        } else {
+            const err = await res.json().catch(() => ({}));
+            showToast(err.message || '儲存失敗', 'error');
+        }
+    } catch (err) {
+        console.error('[API] 修改資料失敗:', err);
+        showToast('連線失敗', 'error');
+    }
+}
+
+// ════════════════════════════════════════
 // API：查看 book_details（查看需求按鈕）
 // ════════════════════════════════════════
 

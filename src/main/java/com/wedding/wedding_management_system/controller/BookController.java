@@ -3,6 +3,7 @@ package com.wedding.wedding_management_system.controller;
 import com.wedding.wedding_management_system.dto.BookResponseDTO;
 import com.wedding.wedding_management_system.dto.CreateBookRequestDTO;
 import com.wedding.wedding_management_system.dto.CustomerDTO;
+import com.wedding.wedding_management_system.dto.UpdateBookDetailsRequestDTO;
 import com.wedding.wedding_management_system.repository.BookRepository;
 import com.wedding.wedding_management_system.service.BookService;
 import com.wedding.wedding_management_system.service.ConsultationConvertService;
@@ -83,6 +84,14 @@ public class BookController {
     public ResponseEntity<BookResponseDTO> updateStatus(@PathVariable Integer id,
             @RequestBody Map<String, String> body) {
         BookResponseDTO result = bookService.updateStatus(id, body.get("status"));
+        return ResponseEntity.ok(result);
+    }
+
+    @PatchMapping("/{id}/info")
+    public ResponseEntity<BookResponseDTO> updateBookInfo(
+            @PathVariable Integer id,
+            @RequestBody UpdateBookDetailsRequestDTO request) {
+        BookResponseDTO result = bookService.updateBookInfo(id, request);
         return ResponseEntity.ok(result);
     }
 

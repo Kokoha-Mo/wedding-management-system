@@ -10,12 +10,58 @@ document.addEventListener('DOMContentLoaded', () => {
 // 初始化 Sidebar 員工資訊
 // ════════════════════════════════════════
 function initSidebar() {
+    const empId = sessionStorage.getItem('empId');
     const empName = sessionStorage.getItem('empName');
+    const position = sessionStorage.getItem('position');
+    const deptId = sessionStorage.getItem('deptId');
     const imgPath = sessionStorage.getItem('imgPath');
-    const nameEl  = document.getElementById('sidebar-emp-name');
-    const imgEl   = document.getElementById('sidebar-emp-img');
-    if (nameEl && empName) nameEl.textContent = empName;
-    if (imgEl  && imgPath) imgEl.src = imgPath;
+
+    if (!empId) {
+        window.location.replace('login.html');
+        return;
+    }
+
+    // 顯示人員資訊
+    const sidebarEmpName = document.getElementById('sidebar-emp-name');
+    const headerEmpName = document.getElementById('header-emp-name');
+    const sidebarPosition = document.getElementById('sidebar-position');
+
+    if (sidebarEmpName) sidebarEmpName.textContent = empName || '未知員工';
+    if (headerEmpName) headerEmpName.textContent = empName || '未知員工';
+    if (sidebarPosition) sidebarPosition.textContent = position === 'MANAGER' ? '業務管理' : '員工';
+
+    // 顯示頭像 (側邊欄與右上角)
+    if (imgPath) {
+        // 確保路徑正確，如果不是完整 URL 則補上斜線
+        const fullPath = imgPath.startsWith('http') ? imgPath : '/' + imgPath;
+        const sidebarAv = document.getElementById('sidebar-avatar');
+        const headerAv = document.getElementById('header-avatar');
+        if (sidebarAv) sidebarAv.src = fullPath;
+        if (headerAv) headerAv.src = fullPath;
+    }
+
+    // 側邊欄權限控制 (根據 dept_id 顯示對應功能)
+    const navIds = ['nav-consultation', 'nav-book', 'nav-project', 'nav-task'];
+    navIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none'; // 先隱藏所有
+    });
+
+    if (deptId === '1') {
+        // 營運部/管理層：可看預約管理 & 專案管理
+        ['nav-book', 'nav-project'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'flex';
+        });
+    } else if (deptId === '7') {
+        // 接待部：可看諮詢管理
+        const el = document.getElementById('nav-consultation');
+        if (el) el.style.display = 'flex';
+    } else {
+        // 其他 (如場地部、活動部等)：看任務管理
+        const el = document.getElementById('nav-task');
+        if (el) el.style.display = 'flex';
+    }
 }
 
 // ════════════════════════════════════════

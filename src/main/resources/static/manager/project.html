@@ -489,14 +489,15 @@
                     const url = `/api/manager/${MANAGER_ID}/projects`;
                     console.log(`[DEBUG] 正在呼叫 API: ${url}`);  // 👈 確認實際打的 URL
 
-                    const response = await fetch(url); // same-origin，Cookie 自動帶上，不需要 credentials: 'include'
+                    const response = await fetch(url, { credentials: 'include' }); // same-origin，Cookie 自動帶上，不需要 credentials: 'include'
                     console.log(`[DEBUG] API 回應狀態: ${response.status}`); // 👈 確認 HTTP 狀態碼
 
                     if (!response.ok) {
                         if (response.status === 401 || response.status === 403) {
                             console.error('[DEBUG] 驗證失敗 (401/403)，JWT Token 可能遺失或過期');
-                            alert("請先登入！");
-                            //window.location.href = 'login.html';
+                            alert("帳號驗證已過期或尚未登入，請重新登入！");
+                            sessionStorage.clear();
+                            window.location.href = 'login.html';
                             return;
                         }
                         const errText = await response.text();
@@ -768,7 +769,7 @@
                 if (e) e.preventDefault();
                 
                 try {
-                    const res = await fetch(`/api/manager/projects/${id}/record`);
+                    const res = await fetch(`/api/manager/projects/${id}/record`, { credentials: 'include' });
                     if (!res.ok) throw new Error('取得紀錄失敗');
                     const data = await res.json();
                     

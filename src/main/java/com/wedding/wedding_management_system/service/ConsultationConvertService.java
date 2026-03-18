@@ -84,7 +84,7 @@ public class ConsultationConvertService {
         customer.setPassword(passwordEncoder.encode(cleanedTel));
         // 🌟 確保從諮詢單轉過來的客戶，首次登入也會被引導去重設密碼
         customer.setResetToken("FORCE_RESET");
-        
+
         customer = customerRepository.save(customer);
 
         // 4. 自動分配接案數最少的婚顧部 MANAGER
@@ -108,7 +108,8 @@ public class ConsultationConvertService {
         consultation.setStatus("轉預約");
         consultationRepository.save(consultation);
 
-        return new BookResponseDTO();
+        // 🌟 修改這裡：回傳帶有完整資訊的 DTO
+        return BookResponseDTO.from(book, customer);
     }
 
     // ==========================================

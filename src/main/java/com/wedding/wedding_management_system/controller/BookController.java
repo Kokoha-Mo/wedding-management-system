@@ -9,6 +9,7 @@ import com.wedding.wedding_management_system.service.ConsultationConvertService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor // 🌟 讓 Spring 自動幫你注入 final 變數
@@ -56,13 +58,30 @@ public class BookController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
+            String errorMsg = e.getMessage() != null ? e.getMessage() : "發生未知錯誤";
+
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
-            // 將 Service 拋出的精準錯誤訊息回傳給前端
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            error.put("message", errorMsg);
+
+            // 🌟 根據我們在 Service 層設定的錯誤前綴，精準回傳對應的 HTTP 狀態碼
+            if (errorMsg.startsWith("EMAIL_EXISTS:") || errorMsg.startsWith("TEL_EXISTS:")) {
+                // 這是業務邏輯的資源衝突，使用 warn 記錄即可，並回傳 409
+                log.warn("轉預約失敗 (資料衝突) - Consultation ID: {}, 原因: {}", consultationId, errorMsg);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+
+            } else if (errorMsg.startsWith("TEL_FORMAT:") || errorMsg.contains("找不到此諮詢單")
+                    || errorMsg.contains("已經轉換過了")) {
+                // 這是前端傳來的參數不合規，回傳 400
+                log.warn("轉預約失敗 (無效請求) - Consultation ID: {}, 原因: {}", consultationId, errorMsg);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+
+            } else {
+                // 真正未知的系統嚴重錯誤，才使用 error 級別記錄並印出 stack trace，回傳 500
+                log.error("轉預約發生非預期系統錯誤 - Consultation ID: " + consultationId, e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            }
         }
     }
 

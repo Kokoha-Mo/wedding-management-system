@@ -677,15 +677,15 @@
         <!-- ─── Tab 切換列 ─── -->
         <div class="page-tab-wrapper">
             <div class="page-tab-bar">
-                <button class="page-tab" :class="{ active: activeTab === 'booking' }" @click="activeTab = 'booking'">
+                <button class="page-tab" :class="{ active: activeTab === 'booking' }" @click="switchTab('booking')">
                     <span class="material-symbols-outlined">edit_calendar</span>
                     預約諮詢
                 </button>
-                <button class="page-tab" :class="{ active: activeTab === 'faq' }" @click="activeTab = 'faq'">
+                <button class="page-tab" :class="{ active: activeTab === 'faq' }" @click="switchTab('faq')">
                     <span class="material-symbols-outlined">help_outline</span>
                     常見問題
                 </button>
-                <button class="page-tab" :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">
+                <button class="page-tab" :class="{ active: activeTab === 'info' }" @click="switchTab('info')">
                     <span class="material-symbols-outlined">location_on</span>
                     公司資訊
                 </button>
@@ -698,7 +698,7 @@
             <!-- ── 預約諮詢表單 ── -->
             <div v-show="activeTab === 'booking'">
                 <div class="contact-card">
-                    <form @submit.prevent="submitForm">
+                    <form @submit.prevent="submitForm" novalidate>
 
                         <!-- SECTION 01 -->
                         <section id="step-01" class="contact-section mb-5" data-delay="0">
@@ -711,37 +711,68 @@
                             </div>
                             <div class="row g-4">
                                 <div class="col-md-6 contact-field">
-                                    <label class="contact-label">姓名 Name <span class="text-danger">*</span></label>
-                                    <input class="lux-input" placeholder="您的完整姓名" type="text" v-model="form.name"
-                                        required />
+                                    <label class="contact-label">姓名 Name <span
+                                            style="color: #dc3545; font-size: 10px; letter-spacing: 0.1em; font-weight: 500;">(必填)</span></label>
+                                    <input id="field-name" class="lux-input"
+                                        :style="errors.name ? 'border-color: #dc3545;' : ''" placeholder="您的完整姓名"
+                                        type="text" v-model="form.name" />
+                                    <div v-if="errors.name" class="text-danger mt-1"
+                                        style="font-size: 12px; letter-spacing: 0.05em;"><span
+                                            class="material-symbols-outlined"
+                                            style="font-size: 14px; vertical-align: middle;">error</span> {{ errors.name
+                                        }}</div>
                                 </div>
+
                                 <div class="col-md-6 contact-field">
-                                    <label class="contact-label">電話 Tel <span class="text-danger">*</span></label>
-                                    <input class="lux-input" placeholder="0900-000-000" type="tel" v-model="form.tel"
-                                        required />
+                                    <label class="contact-label">電話 Tel <span
+                                            style="color: #dc3545; font-size: 10px; letter-spacing: 0.1em; font-weight: 500;">(必填)</span></label>
+                                    <input id="field-tel" class="lux-input"
+                                        :style="errors.tel ? 'border-color: #dc3545;' : ''" placeholder="0900-000-000"
+                                        type="tel" v-model="form.tel" />
+                                    <div v-if="errors.tel" class="text-danger mt-1"
+                                        style="font-size: 12px; letter-spacing: 0.05em;"><span
+                                            class="material-symbols-outlined"
+                                            style="font-size: 14px; vertical-align: middle;">error</span> {{ errors.tel
+                                        }}</div>
                                 </div>
+
                                 <div class="col-md-6 contact-field">
                                     <label class="contact-label">Line ID <span
-                                            style="color:var(--text-muted); font-size:9px;">(選填)</span></label>
+                                            style="color:var(--text-muted); font-size: 10px; letter-spacing: 0.1em;">(選填)</span></label>
                                     <input class="lux-input" placeholder="以便後續即時聯繫" type="text"
                                         v-model="form.line_id" />
                                 </div>
+
                                 <div class="col-md-6 contact-field">
-                                    <label class="contact-label">電子郵件 Email <span class="text-danger">*</span></label>
-                                    <input class="lux-input" placeholder="wedding@example.com" type="email"
-                                        v-model="form.email" required />
+                                    <label class="contact-label">電子郵件 Email <span
+                                            style="color: #dc3545; font-size: 10px; letter-spacing: 0.1em; font-weight: 500;">(必填)</span></label>
+                                    <input id="field-email" class="lux-input"
+                                        :style="errors.email ? 'border-color: #dc3545;' : ''"
+                                        placeholder="wedding@example.com" type="email" v-model="form.email" />
+                                    <div v-if="errors.email" class="text-danger mt-1"
+                                        style="font-size: 12px; letter-spacing: 0.05em;"><span
+                                            class="material-symbols-outlined"
+                                            style="font-size: 14px; vertical-align: middle;">error</span> {{
+                                        errors.email }}</div>
                                 </div>
 
                                 <div class="col-md-6 contact-field">
                                     <label class="contact-label">期望諮詢日期 Consultation Date <span
-                                            class="text-danger">*</span></label>
-                                    <input class="lux-input" type="date" v-model="form.consultation_date" :min="today"
-                                        required />
+                                            style="color: #dc3545; font-size: 10px; letter-spacing: 0.1em; font-weight: 500;">(必填)</span></label>
+                                    <input id="field-consultation-date" class="lux-input"
+                                        :style="errors.consultation_date ? 'border-color: #dc3545;' : ''" type="date"
+                                        v-model="form.consultation_date" :min="today" />
+                                    <div v-if="errors.consultation_date" class="text-danger mt-1"
+                                        style="font-size: 12px; letter-spacing: 0.05em;"><span
+                                            class="material-symbols-outlined"
+                                            style="font-size: 14px; vertical-align: middle;">error</span> {{
+                                        errors.consultation_date }}</div>
                                 </div>
+
                                 <div class="col-md-6 contact-field">
                                     <label class="contact-label">期望時段 Preferred Time <span
-                                            class="text-danger">*</span></label>
-                                    <select class="lux-input" v-model="form.preferred_time" required>
+                                            style="color: #dc3545; font-size: 10px; letter-spacing: 0.1em; font-weight: 500;">(必填)</span></label>
+                                    <select class="lux-input" v-model="form.preferred_time">
                                         <option value="上午 10:00-12:00">上午 10:00 - 12:00</option>
                                         <option value="下午 14:00-17:00">下午 14:00 - 17:00</option>
                                         <option value="晚上 18:00-20:00">晚上 18:00 - 20:00</option>
@@ -761,11 +792,13 @@
                             </div>
                             <div class="row g-4">
                                 <div class="col-md-6 contact-field">
-                                    <label class="contact-label">預定婚期 Wedding Date</label>
+                                    <label class="contact-label">預定婚期 Wedding Date <span
+                                            style="color:var(--text-muted); font-size: 10px; letter-spacing: 0.1em;">(選填)</span></label>
                                     <input class="lux-input" type="date" v-model="form.wedding_date" :min="today" />
                                 </div>
                                 <div class="col-md-6 contact-field">
-                                    <label class="contact-label">賓客規模 Guest Scale</label>
+                                    <label class="contact-label">賓客規模 Guest Scale <span
+                                            style="color:var(--text-muted); font-size: 10px; letter-spacing: 0.1em;">(選填)</span></label>
                                     <select class="lux-input" v-model="form.guest_scale">
                                         <option value="50人以下">50人以下 (精緻派對)</option>
                                         <option value="50-150人">50 - 150人 (溫馨婚禮)</option>
@@ -782,7 +815,9 @@
                             <div class="contact-section-header">
                                 <span class="contact-section-num">03</span>
                                 <div>
-                                    <div class="contact-section-title">嚮往風格</div>
+                                    <div class="contact-section-title">嚮往風格 <span
+                                            style="font-family: var(--font-sans); color:var(--text-muted); font-size: 11px; letter-spacing: 0.1em; font-weight: 400; vertical-align: middle; margin-left: 4px;">(可複選
+                                            / 選填)</span></div>
                                     <span class="contact-section-sub">Wedding Styles</span>
                                 </div>
                             </div>
@@ -799,7 +834,9 @@
                             <div class="contact-section-header">
                                 <span class="contact-section-num">04</span>
                                 <div>
-                                    <div class="contact-section-title">協助項目</div>
+                                    <div class="contact-section-title">協助項目 <span
+                                            style="font-family: var(--font-sans); color:var(--text-muted); font-size: 11px; letter-spacing: 0.1em; font-weight: 400; vertical-align: middle; margin-left: 4px;">(可複選
+                                            / 選填)</span></div>
                                     <span class="contact-section-sub">Services Needed</span>
                                 </div>
                             </div>
@@ -821,7 +858,9 @@
                             <div class="contact-section-header">
                                 <span class="contact-section-num">05</span>
                                 <div>
-                                    <div class="contact-section-title">其他細節</div>
+                                    <div class="contact-section-title">其他細節 <span
+                                            style="font-family: var(--font-sans); color:var(--text-muted); font-size: 11px; letter-spacing: 0.1em; font-weight: 400; vertical-align: middle; margin-left: 4px;">(選填)</span>
+                                    </div>
                                     <span class="contact-section-sub">Additional Notes</span>
                                 </div>
                             </div>
@@ -831,8 +870,9 @@
 
                         <!-- 提交 -->
                         <div class="contact-section text-center pt-3" data-delay="300">
-                            <button class="btn-gold" type="submit">
-                                送出預約申請 &nbsp;|&nbsp; SUBMIT
+                            <button class="btn-gold" type="submit" :disabled="isSubmitting"
+                                :style="isSubmitting ? 'opacity: 0.6; cursor: not-allowed;' : ''">
+                                {{ isSubmitting ? '傳送中...  |  SENDING' : '送出預約申請  |  SUBMIT' }}
                             </button>
                             <p
                                 style="margin-top:20px; font-size:9px; color:var(--text-muted); letter-spacing:0.3em; text-transform:uppercase;">
@@ -876,8 +916,8 @@
                             還找不到您心中的解答嗎？我們的專屬顧問隨時為您傾聽。
                         </p>
                         <a href="javascript:void(0)" class="btn-gold" style="text-decoration: none;"
-                            @click="activeTab = 'booking'">
-                            預約專屬諮詢 &nbsp;|&nbsp; BOOK NOW
+                            @click="switchTab('booking')">
+                            預約專屬諮詢  |  BOOK NOW
                         </a>
                     </div>
 
@@ -896,8 +936,8 @@
                             聯絡專線
                         </div>
                         <div class="info-item-value">
-                            +886 2 2345 6789<br>
-                            <span style="font-size: 14px; color: var(--text-muted);">緊急專線: +886 987 654 321</span>
+                            04 2326 5860<br>
+                            <span style="font-size: 14px; color: var(--text-muted);">緊急專線: 04 2326 5860</span>
                         </div>
                     </div>
 
@@ -917,7 +957,7 @@
                             營業時間
                         </div>
                         <div class="info-item-value">
-                            週一至週日 10:00 - 19:00<br>
+                            週一至週日 10:00 - 20:00<br>
                             <span style="font-size: 14px; color: var(--text-muted);">（全面採預約制，敬請提前預約以享有專屬服務）</span>
                         </div>
                     </div>
@@ -955,7 +995,7 @@
     </button>
 
     <script>
-        const { createApp, reactive, ref, computed } = Vue;
+        const { createApp, reactive, ref, computed, nextTick } = Vue;
 
         createApp({
             setup() {
@@ -966,14 +1006,25 @@
                     tel: '',
                     line_id: '',
                     email: '',
-                    consultation_date: '',              // 🌟 新增這行：綁定諮詢日期
-                    preferred_time: '下午 14:00-17:00', // 🌟 新增這行：綁定諮詢時段 (給予預設值)
+                    consultation_date: '',
+                    preferred_time: '下午 14:00-17:00',
                     wedding_date: '',
                     guest_scale: '50人以下',
                     services: [],
                     styles: [],
                     additional_notes: ''
                 });
+
+                // 🌟 新增：用來記錄每個欄位的錯誤訊息
+                const errors = reactive({
+                    name: '',
+                    tel: '',
+                    email: '',
+                    consultation_date: ''
+                });
+
+                // 🌟 新增：防止重複送出的 Loading 狀態
+                const isSubmitting = ref(false);
 
                 // 禁止選擇過去日期（含今天）
                 const today = new Date(Date.now() + 86400000).toISOString().split('T')[0];
@@ -997,31 +1048,129 @@
                     else form.services.splice(index, 1);
                 };
 
-                const submitForm = () => {
-                    // 複製一份 form 資料準備送出
-                    let payload = JSON.parse(JSON.stringify(form));
+                // 🌟 新增：統一的表單驗證中心
+                const validateForm = () => {
+                    let isValid = true;
+                    // 每次驗證前先清空舊的錯誤訊息
+                    Object.keys(errors).forEach(key => errors[key] = '');
 
-                    // 如果沒有填寫婚期，將空字串改為 null，避免後端 LocalDate 解析錯誤
+                    if (!form.name.trim()) {
+                        errors.name = '請填寫您的姓名';
+                        isValid = false;
+                    }
+
+                    if (!form.tel.trim()) {
+                        errors.tel = '請填寫聯絡電話';
+                        isValid = false;
+                    } else {
+                        // 濾除客戶可能輸入的空白、- 或括號
+                        let cleanedTel = form.tel.replace(/\D/g, '');
+                        if (!/^09\d{8}$/.test(cleanedTel)) {
+                            errors.tel = '請輸入完整的 10 碼手機號碼（例如：0900-000-000）';
+                            isValid = false;
+                        } else {
+                            form.tel = cleanedTel; // 格式正確就偷偷幫客戶把乾淨的號碼寫回去
+                        }
+                    }
+
+                    if (!form.email.trim()) {
+                        errors.email = '請填寫電子郵件';
+                        isValid = false;
+                    } else {
+                        // Email 格式的正則表達式驗證
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(form.email)) {
+                            errors.email = '請輸入有效的電子郵件格式（需包含 @ 及網域）';
+                            isValid = false;
+                        }
+                    }
+
+                    if (!form.consultation_date) {
+                        errors.consultation_date = '請選擇期望諮詢日期';
+                        isValid = false;
+                    }
+
+                    return isValid;
+                };
+
+                const submitForm = () => {
+                    // 🌟 1. 先跑一遍我們自訂的驗證邏輯
+                    if (!validateForm()) {
+                        // 🌟 拔除生硬的 alert，改用平滑滾動對焦
+                        // 定義檢查順序（由上到下），確保畫面滑到最上面那個沒填好的洞
+                        const errorFields = [
+                            { key: 'name', id: 'field-name' },
+                            { key: 'tel', id: 'field-tel' },
+                            { key: 'email', id: 'field-email' },
+                            { key: 'consultation_date', id: 'field-consultation-date' }
+                        ];
+
+                        for (let field of errorFields) {
+                            if (errors[field.key]) {
+                                const el = document.getElementById(field.id);
+                                if (el) {
+                                    // 計算元素位置，扣掉 200px 是為了不讓上方的 Navbar 擋住輸入框
+                                    const y = el.getBoundingClientRect().top + window.scrollY - 200;
+                                    window.scrollTo({ top: y, behavior: 'smooth' });
+
+                                    // 延遲一下下等滑動快結束時，再把游標 focus 進去
+                                    setTimeout(() => { el.focus(); }, 400);
+                                }
+                                break; // 找到第一個錯的就停止往下找
+                            }
+                        }
+                        return; // 終止送出
+                    }
+
+                    // 🌟 2. 啟動 Loading 狀態
+                    isSubmitting.value = true;
+
+                    let payload = JSON.parse(JSON.stringify(form));
                     if (payload.wedding_date === '') {
                         payload.wedding_date = null;
                     }
 
-                    console.log('準備傳送給 Spring Boot 的資料：', payload);
-
+                    // 🌟 3. 發送 API 請求
                     axios.post('/api/consultations', payload)
                         .then(response => {
                             if (response.data.success) {
-                                alert(response.data.message); // 跳出成功提示
+                                alert("🎉 預約申請已成功送出！\n我們將有專人與您聯繫。");
+
+                                // 清空表單
+                                Object.assign(form, {
+                                    name: '', tel: '', line_id: '', email: '',
+                                    consultation_date: '', preferred_time: '下午 14:00-17:00',
+                                    wedding_date: '', guest_scale: '50人以下',
+                                    services: [], styles: [], additional_notes: ''
+                                });
                             }
                         })
                         .catch(error => {
                             console.error("錯誤:", error);
-                            alert("傳送失敗，請檢查網路狀態或聯絡客服。");
+                            alert("⚠️ 傳送失敗，請檢查諮詢單內容及網路狀態，或聯絡 DREAM VENUES 客服專線。");
+                        })
+                        .finally(() => {
+                            // 🌟 4. 無論成功或失敗，最後都要解除 Loading 狀態
+                            isSubmitting.value = false;
                         });
                 };
-
                 // ── Tab ──
                 const activeTab = ref('booking');
+
+                // 🌟 2. 新增 switchTab 函式：切換標籤並平滑滾動到頂部
+                const switchTab = (tabName) => {
+                    activeTab.value = tabName;
+
+                    // 使用 nextTick 確保 Vue 已經把 DOM (畫面) 切換完畢後，再執行滾動
+                    nextTick(() => {
+                        const target = document.querySelector('.content-wrap');
+                        if (target) {
+                            // 計算元素位置，扣掉 160px 是為了避開頂部的導覽列 (Navbar) 和懸浮標籤列 (Tab bar)
+                            const y = target.getBoundingClientRect().top + window.scrollY - 160;
+                            window.scrollTo({ top: y, behavior: 'smooth' });
+                        }
+                    });
+                };
 
                 // ── FAQ ──
                 const categories = ['全部', '服務流程', '費用與合約', '客製化需求', '檔期預約'];
@@ -1031,11 +1180,12 @@
                     { id: 1, category: '服務流程', question: '婚禮統籌和飯店附的婚禮企劃有什麼不同？', answer: '飯店企劃主要負責「婚宴當天」的流程與場地狀況；而我們的專屬婚顧則是從「決定結婚的那一刻起」，為您控管預算、媒合外部廠商（攝影、新秘）、審閱合約，並全程陪伴您處理所有繁瑣細節。', isOpen: false },
                     { id: 2, category: '檔期預約', question: '請問最晚需要提前多久預約婚顧服務？', answer: '為了確保能為您訂到理想的場地與頂級職人團隊，我們建議在預定婚期的 8 到 12 個月前開始與我們接觸。', isOpen: false },
                     { id: 3, category: '費用與合約', question: '費用是如何計算的？會有後續隱藏費用嗎？', answer: '我們的報價皆為透明公開。在初次免費諮詢後，會依據您的客製化需求提供完整的預算規劃書，所有代墊款項與協力廠商費用皆會提供明細，絕無隱藏抽成。', isOpen: false },
-                    { id: 4, category: '客製化需求', question: '如果我已經找好攝影師和新秘了，還能請你們幫忙統籌嗎？', answer: '當然可以。我們提供「半程統籌」或「單儀式規劃」方案，能無縫接軌您已確定的項目，為您整合剩餘的拼圖。', isOpen: false },
-                    { id: 5, category: '服務流程', question: '諮詢後到婚禮當天的溝通頻率大概是怎樣？', answer: '我們會為您建立專屬的溝通群組，並在每個籌備階段（如挑選場地、確認設計圖、試菜等）主動安排會議與進度回報，讓您能安心掌握所有細節而不必時刻費心。', isOpen: false },
-                    { id: 6, category: '費用與合約', question: '提供分期付款或刷卡服務嗎？', answer: '目前我們提供匯款及信用卡支付，並依據合約執行的進度，分為訂金、期中款項與尾款三階段進行請款，減輕您單次支付的壓力。', isOpen: false },
-                    { id: 7, category: '客製化需求', question: '我們想辦在非傳統場地（如私人別墅或露營區），你們有經驗嗎？', answer: '有的，這正是我們的專長。從無到有的戶外婚禮需要仔細考量硬體設備搭設、電力與雨備動線、外燴安排等，我們擁有豐富的非制式場地規劃經驗。', isOpen: false },
-                    { id: 8, category: '檔期預約', question: '只有好日子（吉日）才需要提早預約嗎？', answer: '雖然平日或非旺季的檔期較為彈性，但頂尖的攝影師、造型師及熱門場地通常全年預約滿檔。為了確保您的最佳選擇，即使不是傳統吉日也建議盡早確認。', isOpen: false }
+                    { id: 4, category: '服務流程', question: '諮詢後到婚禮當天的溝通頻率大概是怎樣？', answer: '除了建立線上溝通群組與定期會議外，DREAM VENUES 更為每對新人打造專屬的「線上婚禮日誌系統」。您可以隨時登入會員後台，透過「我的籌備進度」即時查看當前進度與待辦事項，讓籌備過程透明且安心。', isOpen: false },
+                    { id: 5, category: '費用與合約', question: '提供分期付款或刷卡服務嗎？', answer: '目前我們只提供現金收款，不過會依據合約執行的進度，分為訂金、期中款項與尾款三階段進行請款，減輕您單次支付的壓力。', isOpen: false },
+                    { id: 6, category: '客製化需求', question: '我們想辦在非傳統場地（如私人別墅或露營區），你們有經驗嗎？', answer: '有的，這正是我們的專長。從無到有的戶外婚禮需要仔細考量硬體設備搭設、電力與雨備動線、外燴安排等，我們擁有豐富的非制式場地規劃經驗。', isOpen: false },
+                    { id: 7, category: '檔期預約', question: '只有好日子（吉日）才需要提早預約嗎？', answer: '雖然平日或非旺季的檔期較為彈性，但頂尖的攝影師、造型師及熱門場地通常全年預約滿檔。為了確保您的最佳選擇，即使不是傳統吉日也建議盡早確認。', isOpen: false },
+                    { id: 8, category: '客製化需求', question: '如果我對場地或攝影師完全沒有頭緒，你們會協助推薦嗎？', answer: '絕對會的！DREAM VENUES 擁有嚴格把關的「精選合作夥伴」與「頂級婚禮團隊」。專屬顧問會從名單中，為您精準媒合最適合的場地、攝影師、造型師及佈置團隊，為您節省大量盲目搜尋的時間。', isOpen: false },
+                    { id: 9, category: '服務流程', question: '請問轉為正式預約後，會如何管理我們的婚禮資料？', answer: '簽約後，系統會自動為您建立專屬的 VIP 會員帳號。您的所有討論紀錄、設計圖稿、賓客名單與合約明細，都會加密儲存在您的個人後台，方便您隨時登入掌握最新資訊。', isOpen: false }
                 ]);
 
                 const filteredFaqs = computed(() => {
@@ -1053,9 +1203,10 @@
                 return {
                     form, availableStyles, availableServices,
                     toggleStyle, toggleService, submitForm,
-                    activeTab,
+                    activeTab, switchTab,
                     categories, activeCategory, filteredFaqs, toggleFaq,
-                    today
+                    today,
+                    errors, isSubmitting
                 };
             }
         }).mount('#app');

@@ -1,6 +1,7 @@
 const API_BASE = 'http://localhost:8080/api';
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadStatusCounts();
     initSidebar();
     loadBooks('處理中');
 });

@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>ES Admin - 主頁儀表板</title>
+    <title>ES Admin - 專案進度追蹤</title>
     <link rel="stylesheet" href="../css/bootstrap.css">
     <link rel="stylesheet" href="./ESCss/es_new_ver.css">
     <script src="./ESJS/es_new_ver.js" defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -26,476 +26,511 @@
                         "sidebar-bg": "#21252D",
                         "sidebar-hover": "#2C313C",
                     },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"],
-                    }
+                    fontFamily: { display: ["Inter", "sans-serif"] }
                 },
             },
         };
     </script>
     <style>
-        /* 隱藏原生捲軸但保留滾動功能 (適用於橫向頁籤) */
-        .custom-scrollbar::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #CBD5E1;
-            border-radius: 4px;
-        }
-
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #475569;
-        }
-
-        /* 圓環進度條動畫 */
-        @keyframes drawRing {
-            from {
-                stroke-dashoffset: 339.29;
-            }
-
-            to {
-                stroke-dashoffset: 84.82;
-            }
-
-            /* 對應 75% */
-        }
-
-        .progress-ring-circle {
-            animation: drawRing 1.5s ease-out forwards;
-        }
-
-        /* ─── 新訊息呼吸燈提示 ─── */
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+        @keyframes pulse-alert { to { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
         .pulse-hint {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 12px;
-            height: 12px;
-            background-color: #EF4444;
-            /* Red 500 用於提醒 PM */
-            border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-            animation: pulse-alert 2s infinite cubic-bezier(0.66, 0, 0, 1);
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        @keyframes pulse-alert {
-            to {
-                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
-            }
+            position: absolute; top: -2px; right: -2px;
+            width: 12px; height: 12px; background-color: #EF4444; border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(239,68,68,0.7);
+            animation: pulse-alert 2s infinite cubic-bezier(0.66,0,0,1);
+            z-index: 10; pointer-events: none;
         }
     </style>
 </head>
 
-<body
-    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
+<body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
 
-    <div id="sidebar-overlay"
-        class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity hidden cursor-pointer">
-    </div>
-    <aside id="sidebar"
-        class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative -translate-x-full lg:translate-x-0">
+<!-- Vue 3 根掛載點 -->
+<div id="app" class="flex w-full h-full overflow-hidden">
+
+    <!-- Sidebar 遮罩 -->
+    <div v-if="sidebarOpen" @click="sidebarOpen=false"
+         class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm cursor-pointer"></div>
+
+    <!-- ═══ Sidebar ═══ -->
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+           class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative">
         <div class="h-16 flex items-center justify-center">
             <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
-            <div class="text-white font-bold text-lg tracking-wide menu-category p-0 m-0">Admin</div>
+            <div class="text-white font-bold text-lg tracking-wide p-0 m-0">Admin</div>
         </div>
-
         <div class="px-4 py-4 mt-2 sidebar-user">
             <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
-                <img alt="Joy Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover"
-                    src="./Img/smile.jpg" />
+                <img :src="avatarSrc" alt="Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" />
                 <div class="menu-category p-0 m-0">
-                    <div class="text-white font-medium">Joy</div>
-                    <div class="text-xs text-gray-400 mt-1">PM 權限</div>
+                    <div class="text-white font-medium">{{ empName }}</div>
+                    <div class="text-xs text-gray-400 mt-1">{{ positionLabel }}</div>
                 </div>
             </div>
         </div>
-
         <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
-            <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
-                GENERAL</div>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
-                href="consultation.html">
-                <span
-                    class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
+            <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">GENERAL</div>
+            <!-- v-show 取代 style.display 的權限控制 -->
+            <a v-show="navVisible.consultation" href="consultation.html"
+               class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]">
+                <span class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
-                href="book.html">
-                <span
-                    class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
+            <a v-show="navVisible.book" href="book.html"
+               class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]">
+                <span class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
-                href="project.html">
-                <span
-                    class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
+            <a v-show="navVisible.project" href="project.html"
+               class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]">
+                <span class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap text-white">專案管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
-                href="quest_staff.html">
-                <span
-                    class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
+            <a v-show="navVisible.task" href="quest_staff.html"
+               class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]">
+                <span class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">任務管理</div>
             </a>
-
-            <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
-                系統設定</div>
-
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
-                href="account.html">
-                <span
-                    class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
+            <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">系統設定</div>
+            <a href="account.html"
+               class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]">
+                <span class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">個人資訊</div>
             </a>
         </nav>
     </aside>
 
+    <!-- ═══ 主內容區 ═══ -->
     <div class="flex-1 flex flex-col h-full overflow-hidden relative">
 
-        <header
-            class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
+        <!-- Header -->
+        <header class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
             <div class="flex items-center flex-1">
-                <button id="sidebar-hamburger"
-                    class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
+                <!-- @click 取代 addEventListener -->
+                <button @click="sidebarOpen=!sidebarOpen"
+                        class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
                     <span class="material-icons">menu</span>
                 </button>
-                <h1 class="text-xl font-bold tracking-wider text-gray-100 hidden sm:block">預約管理</h1>
+                <h1 class="text-xl font-bold tracking-wider text-gray-100 hidden sm:block">專案進度追蹤</h1>
             </div>
-
             <div class="flex items-center space-x-4">
                 <div class="relative">
-                    <div id="user-menu-button"
-                        class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
-                        <img alt="Joy Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
-                            src="./Img/smile.jpg" />
-                        <span class="text-sm font-medium mr-1 text-gray-200">Joy</span>
+                    <div @click="userDropdownOpen=!userDropdownOpen"
+                         class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
+                        <img :src="avatarSrc" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover" />
+                        <span class="text-sm font-medium mr-1 text-gray-200">{{ empName }}</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                     </div>
-
-                    <div id="user-dropdown"
-                        class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">
-                        <a href="account.html"
-                            class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <!-- v-show 取代 classList.toggle('hidden') -->
+                    <div v-show="userDropdownOpen"
+                         class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 z-50 border border-gray-100">
+                        <a href="account.html" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                             <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span> Profile
                         </a>
                         <hr class="my-1 border-gray-100">
-                        <a href="login.html"
-                            class="flex items-center px-4 py-2.5 text-sm text-danger hover:bg-gray-50 transition-colors">
-                            <span class="material-icons text-[18px] mr-3 text-danger">logout</span> Log Out
+                        <a href="login.html" class="flex items-center px-4 py-2.5 text-sm text-red-500 hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-red-500">logout</span> Log Out
                         </a>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main
-            class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6">
+        <!-- Main -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6">
             <div class="w-full max-w-[1600px] mx-auto space-y-5">
 
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
-                    <div
-                        class="absolute top-0 right-0 w-40 h-40 bg-indigo-50 dark:bg-indigo-900/20 rounded-full -mr-16 -mt-16 opacity-50 pointer-events-none">
-                    </div>
-
+                <!-- 專案標題列 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-indigo-50 dark:bg-indigo-900/20 rounded-full -mr-16 -mt-16 opacity-50 pointer-events-none"></div>
                     <div class="relative z-10">
-                        <a href="project.html"
-                            class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors mb-3 group">
-                            <span
-                                class="material-icons text-[18px] mr-1 transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                        <a href="project.html" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors mb-3 group">
+                            <span class="material-icons text-[18px] mr-1 transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
                             返回專案總覽
                         </a>
                         <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center tracking-wide">
                             <span class="material-icons text-indigo-500 mr-3 text-3xl">account_tree</span>
-                            專案進度追蹤：<span id="header-project-name">載入中...</span>
+                            <!-- {{ }} 插值取代 getElementById + textContent -->
+                            專案進度追蹤：<span>{{ project.customerName || '載入中...' }}</span>
                         </h2>
                         <div class="flex items-center gap-4 mt-3">
-                            <span id="header-project-no"
-                                class="text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">載入中...</span>
-                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium flex items-center"><span
-                                    class="material-icons text-[16px] mr-1">event</span> 預計婚期：<span id="header-wedding-date">載入中...</span></span>
+                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">
+                                {{ project.projectNo || '載入中...' }}
+                            </span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium flex items-center">
+                                <span class="material-icons text-[16px] mr-1">event</span>
+                                預計婚期：{{ project.weddingDate || '未定' }}
+                            </span>
                         </div>
                     </div>
-
                     <div class="relative z-10 flex flex-wrap items-center gap-3">
                         <div class="relative inline-block">
-                            <button onclick="openClientChatModal(event)"
-                                class="bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-900/30 dark:hover:bg-indigo-500 dark:text-indigo-400 dark:hover:text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm flex items-center transition-colors border border-indigo-100 dark:border-indigo-800">
-                                <span class="material-icons text-[18px] mr-1.5">forum</span>
-                                專屬客服通道
+                            <!-- @click.prevent 取代 onclick="openClientChatModal(event)" -->
+                            <button @click.prevent="openClientChatModal"
+                                    class="bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-900/30 dark:hover:bg-indigo-500 dark:text-indigo-400 dark:hover:text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm flex items-center transition-colors border border-indigo-100 dark:border-indigo-800">
+                                <span class="material-icons text-[18px] mr-1.5">forum</span>專屬客服通道
                             </button>
-                            <span id="client-unread-hint"
-                                class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full shadow-[0_0_0_rgba(239,68,68,0.7)] animate-[pulse-alert_2s_infinite_cubic-bezier(0.66,0,0,1)] pointer-events-none border-2 border-white"></span>
+                            <!-- v-show 取代 unreadHint.style.display -->
+                            <span v-show="showClientUnread" class="pulse-hint border-2 border-white"></span>
                         </div>
-
-                        <button id="upload-doc-btn"
-                            class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-600 flex items-center shadow-sm transition-colors">
+                        <button @click="openDocUploadModal"
+                                class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-600 flex items-center shadow-sm transition-colors">
                             <span class="material-icons text-[18px] mr-2">upload_file</span> 文件上傳
                         </button>
                     </div>
                 </div>
 
+                <!-- 任務狀態統計卡片 -->
+                <!-- computed statusCounts 取代 updateStatusCounts 的 DOM 操作 -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <button data-filter="pending"
-                        class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
-                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gray-300 dark:bg-gray-600"></div>
+                    <button v-for="stat in statusStats" :key="stat.key"
+                            @click="setFilter(stat.key)"
+                            :class="[stat.borderClass, activeFilter===stat.key ? 'ring-2 ring-indigo-500 bg-gray-50 dark:bg-gray-700' : '']"
+                            class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer border">
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="stat.barColor"></div>
                         <div class="flex justify-between items-center w-full mb-1 pl-2">
-                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center"><span
-                                    class="material-icons text-[18px] mr-1.5">person_add_alt</span>待指派</span>
-                            <span class="text-2xl font-black text-gray-700 dark:text-gray-300">3</span>
-                        </div>
-                    </button>
-
-                    <button data-filter="active"
-                        class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-blue-100 dark:border-blue-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
-                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500"></div>
-                        <div class="flex justify-between items-center w-full mb-1 pl-2">
-                            <span class="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center"><span
-                                    class="material-icons text-[18px] mr-1.5">play_circle</span>進行中</span>
-                            <span class="text-2xl font-black text-blue-600 dark:text-blue-400">4</span>
-                        </div>
-                    </button>
-
-                    <button data-filter="review"
-                        class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-amber-100 dark:border-amber-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
-                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-amber-500"></div>
-                        <div class="flex justify-between items-center w-full mb-1 pl-2">
-                            <span class="text-sm font-bold text-amber-600 dark:text-amber-400 flex items-center"><span
-                                    class="material-icons text-[18px] mr-1.5">pending_actions</span>待審核</span>
-                            <span class="text-2xl font-black text-amber-600 dark:text-amber-400">1</span>
-                        </div>
-                    </button>
-
-                    <button data-filter="completed"
-                        class="task-filter-btn flex flex-col justify-center p-5 bg-white dark:bg-gray-800 rounded-2xl border border-green-100 dark:border-green-800/30 shadow-sm hover:shadow-md transition-all text-left relative overflow-hidden cursor-pointer group">
-                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-green-500"></div>
-                        <div class="flex justify-between items-center w-full mb-1 pl-2">
-                            <span class="text-sm font-bold text-green-600 dark:text-green-400 flex items-center"><span
-                                    class="material-icons text-[18px] mr-1.5">check_circle</span>已完成</span>
-                            <span class="text-2xl font-black text-green-600 dark:text-green-400">15</span>
+                            <span class="text-sm font-bold flex items-center" :class="stat.textColor">
+                                <span class="material-icons text-[18px] mr-1.5">{{ stat.icon }}</span>{{ stat.label }}
+                            </span>
+                            <span class="text-2xl font-black" :class="stat.textColor">{{ statusCounts[stat.key] }}</span>
                         </div>
                     </button>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
                     <!-- 左側：任務列表 -->
                     <div class="lg:col-span-2 space-y-4">
                         <div class="flex items-center justify-between mb-2">
                             <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                                <span class="material-icons text-indigo-500 mr-2">checklist</span>
-                                任務執行清單
+                                <span class="material-icons text-indigo-500 mr-2">checklist</span>任務執行清單
                             </h3>
                         </div>
 
-                        <div id="task-list-container" class="space-y-4 relative min-h-[200px]">
-                            <div class="text-center py-10 text-gray-500">
-                                <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
-                                <p>正在載入任務資料...</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 右側：專案文件歸檔 -->
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                                <span class="material-icons text-indigo-500 mr-2">folder_special</span>
-                                專案文件歸檔
-                            </h3>
-                            <button id="refresh-docs-btn" class="text-gray-400 hover:text-indigo-600 transition-colors">
-                                <span class="material-icons text-[20px]">refresh</span>
-                            </button>
+                        <!-- 載入中 -->
+                        <div v-if="tasksLoading" class="text-center py-10 text-gray-500">
+                            <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2 block">autorenew</span>
+                            <p>正在載入任務資料...</p>
                         </div>
 
-                        <div id="project-docs-container" class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 min-h-[300px]">
-                            <div class="space-y-3" id="docs-list">
-                                <div class="text-center py-10 text-gray-400 text-sm">
-                                    <span class="material-icons text-3xl mb-2 block">folder_open</span>
-                                    尚無上傳文件
+                        <!-- 空白 -->
+                        <div v-else-if="filteredTasks.length===0"
+                             class="text-center py-8 text-gray-500 font-bold bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                            此分類目前尚無任務
+                        </div>
+
+                        <!-- 任務卡片列表（v-for 取代 innerHTML 字串拼接） -->
+                        <div v-else class="space-y-4">
+                            <div v-for="task in filteredTasks" :key="task.taskId"
+                                 class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all hover:shadow-md">
+                                <!-- 左側色條 -->
+                                <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="taskBarColor(task.status)"></div>
+                                <div class="flex justify-between items-start pl-3 w-full gap-4">
+                                    <!-- 左側資訊 -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ task.deptName || '未歸屬部門' }}</span>
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold" :class="taskBadgeClass(task.status)">{{ task.status }}</span>
+                                        </div>
+                                        <h4 class="text-base font-bold text-gray-900 dark:text-white">
+                                            {{ task.serviceName || `服務 #${task.serviceId || '未知'}` }}
+                                        </h4>
+                                        <!-- 進行中/待審核/已完成 顯示負責人與截止 -->
+                                        <template v-if="['進行中','待審核','已完成'].includes(task.status)">
+                                            <p class="text-xs text-indigo-600 mt-1 flex items-center font-bold">
+                                                <span class="material-icons text-[14px] mr-1">person</span>
+                                                負責人：{{ task.assignees && task.assignees.length ? task.assignees.map(a=>a.name).join(', ') : '尚未指派' }}
+                                            </p>
+                                            <p class="text-xs text-red-500 mt-1 flex items-center font-bold">
+                                                <span class="material-icons text-[14px] mr-1">event</span>
+                                                截止：{{ task.deadline ? task.deadline.substring(0,10) : '未設定' }}
+                                            </p>
+                                        </template>
+                                        <p class="text-xs text-gray-400 mt-2 flex items-center">
+                                            <span class="material-icons text-[14px] mr-1">update</span>
+                                            最後更新：{{ task.updateAt ? task.updateAt.replace('T',' ').substring(0,16) : '尚無更新紀錄' }}
+                                        </p>
+                                    </div>
+
+                                    <!-- 右側操作按鈕 -->
+                                    <!-- 待指派 / 卡關 -->
+                                    <div v-if="task.status==='待指派' || task.status==='卡關'"
+                                         class="flex items-center gap-2 flex-shrink-0 pt-1">
+                                        <button @click="openChatModal(task.taskId,false)"
+                                                class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
+                                            <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
+                                        </button>
+                                        <button @click="openAssignModal(task)"
+                                                class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors flex items-center whitespace-nowrap">
+                                            指派任務 <span class="material-icons text-[16px] ml-1">person_add_alt</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- 待審核 -->
+                                    <div v-else-if="task.status==='待審核'"
+                                         class="flex flex-col items-end gap-2 flex-shrink-0 pt-1">
+                                        <div class="flex space-x-2">
+                                            <button @click="openChatModal(task.taskId,false)" title="任務留言板"
+                                                    class="px-3 py-1.5 bg-gray-50 text-gray-600 font-bold rounded-lg text-xs hover:bg-gray-100 transition-colors">
+                                                <span class="material-icons text-[16px]">forum</span>
+                                            </button>
+                                            <button @click="openRejectModal(task.taskId)"
+                                                    class="px-3 py-1.5 bg-red-50 text-red-600 font-bold rounded-lg text-xs hover:bg-red-100 transition-colors">駁回</button>
+                                            <button @click="approveTask(task.taskId)"
+                                                    :disabled="!task._resultViewed"
+                                                    :title="task._resultViewed ? '' : '請先查看詳情與成果'"
+                                                    class="px-3 py-1.5 bg-orange-400 text-white font-bold rounded-lg text-xs hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                                審核通過
+                                            </button>
+                                        </div>
+                                        <button @click="openResultModal(task)"
+                                                class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors flex items-center whitespace-nowrap">
+                                            查看成果 <span class="material-icons text-[16px] ml-1">pageview</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- 其他（進行中/已完成）→ 查看詳情 -->
+                                    <div v-else class="flex items-center gap-2 flex-shrink-0 pt-1">
+                                        <button @click="openChatModal(task.taskId,false)"
+                                                class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
+                                            <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
+                                        </button>
+                                        <button @click="openAssignModal(task,true)"
+                                                class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors flex items-center whitespace-nowrap">
+                                            查看詳情 <span class="material-icons text-[16px] ml-1">chevron_right</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- 右側：文件歸檔 -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                                <span class="material-icons text-indigo-500 mr-2">folder_special</span>專案文件歸檔
+                            </h3>
+                            <button @click="loadDocs" class="text-gray-400 hover:text-indigo-600 transition-colors">
+                                <span class="material-icons text-[20px]">refresh</span>
+                            </button>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 min-h-[300px]">
+                            <div v-if="docsLoading" class="text-center py-10 text-gray-400 text-sm">
+                                <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2 block">autorenew</span>載入中...
+                            </div>
+                            <div v-else-if="docs.length===0" class="text-center py-10 text-gray-400 text-sm">
+                                <span class="material-icons text-3xl mb-2 block">folder_open</span>尚無歸檔文件
+                            </div>
+                            <!-- v-for 取代 innerHTML -->
+                            <div v-else class="space-y-3">
+                                <div v-for="doc in docs" :key="doc.fileName"
+                                     class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 group hover:border-indigo-300 dark:hover:border-indigo-800 transition-colors">
+                                    <div class="flex items-center min-w-0 flex-1">
+                                        <span class="material-icons text-indigo-400 mr-3">description</span>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-gray-700 dark:text-gray-200 truncate" :title="doc.fileName">{{ doc.fileName }}</p>
+                                            <p class="text-[10px] text-gray-400">{{ doc.uploadInfo }}</p>
+                                        </div>
+                                    </div>
+                                    <a :href="doc.downloadUrl" target="_blank" class="ml-2 p-2 text-gray-400 hover:text-indigo-600 transition-colors">
+                                        <span class="material-icons text-[20px]">download</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </main>
-    </div>
+    </div><!-- end 主內容區 -->
 
 
-    </div>
-    </div>
-    </div>
-    </div>
+    <!-- ═══════════════ Modal 群：v-show 統一控制顯示 ═══════════════ -->
 
-    <div id="assignModal"
-        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm transition-opacity">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[500px] max-w-[95%] transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
-
+    <!-- ── 分派任務 Modal ── -->
+    <div v-show="assignModal.open"
+         class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[500px] max-w-[95%] border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
             <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                    <span class="material-icons text-indigo-500 mr-2">person_add_alt</span> 分派任務負責人
+                    <span class="material-icons text-indigo-500 mr-2">person_add_alt</span>
+                    {{ assignModal.readOnly ? '任務詳情' : '分派任務負責人' }}
                 </h3>
-                <button
-                    class="close-assign-modal text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none">
+                <button @click="assignModal.open=false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <span class="material-icons">close</span>
                 </button>
             </div>
-
             <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-5">
+                <!-- 任務名稱 -->
                 <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
                     <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">任務名稱</p>
-                    <p id="modal-task-name" class="text-base font-bold text-gray-800 dark:text-gray-200">任務名稱載入中...</p>
-                    <div
-                        class="mt-2 inline-flex items-center px-2 py-1 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 text-xs font-bold border border-indigo-200 dark:border-indigo-800">
-                        <span class="material-icons text-[14px] mr-1">label</span>
-                        <span id="modal-task-category">類別載入中...</span>
+                    <p class="text-base font-bold text-gray-800 dark:text-gray-200">{{ assignModal.taskName }}</p>
+                    <div class="mt-2 inline-flex items-center px-2 py-1 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 text-xs font-bold border border-indigo-200 dark:border-indigo-800">
+                        <span class="material-icons text-[14px] mr-1">label</span>{{ assignModal.deptName }}
                     </div>
                 </div>
-
+                <!-- 員工列表 -->
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">指定負責人 <span
-                            class="text-gray-400 font-normal text-xs ml-1">(可複選)</span> <span
-                            class="text-red-500">*</span></label>
-                    <div
-                        class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-2 max-h-48 overflow-y-auto custom-scrollbar space-y-1 shadow-inner">
-
-                        <div
-                            class="text-xs font-bold text-gray-400 px-2 py-1.5 uppercase tracking-wider bg-gray-50 dark:bg-gray-800 rounded mb-1">
-                            內部各部門專員
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        指定負責人 <span class="text-gray-400 font-normal text-xs ml-1">(可複選)</span>
+                        <span v-if="!assignModal.readOnly" class="text-red-500">*</span>
+                    </label>
+                    <div class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-2 max-h-48 overflow-y-auto custom-scrollbar space-y-1 shadow-inner">
+                        <div class="text-xs font-bold text-gray-400 px-2 py-1.5 uppercase tracking-wider bg-gray-50 dark:bg-gray-800 rounded mb-1">內部各部門專員</div>
+                        <div v-if="assignModal.employeesLoading" class="flex items-center text-gray-500 p-3">
+                            <span class="material-icons animate-spin mr-2 text-[18px]">autorenew</span> 載入部門員工中...
                         </div>
-
-                        <div id="employee-list-container">
-                        </div>
-
+                        <div v-else-if="!assignModal.deptId" class="text-red-500 text-sm p-3">此任務未歸屬任何部門，無法載入員工。</div>
+                        <div v-else-if="assignModal.employees.length===0" class="text-gray-500 text-sm p-3">該部門目前沒有員工資料。</div>
+                        <!-- v-for + v-model 取代 innerHTML + querySelectorAll -->
+                        <label v-for="(emp,idx) in assignModal.employees" :key="emp.empId"
+                               :class="assignModal.readOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/30'"
+                               class="flex items-center p-2.5 rounded-lg transition-colors">
+                            <input type="checkbox" v-model="assignModal.selectedEmpIds" :value="emp.empId" :disabled="assignModal.readOnly"
+                                   class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3" />
+                            <div class="flex items-center space-x-3">
+                                <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs"
+                                     :class="empColors[idx % empColors.length]">
+                                    {{ emp.name ? emp.name.charAt(0) : '員' }}
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ emp.name }}</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
-
+                <!-- 截止日期（v-model 雙向綁定取代 getElementById + .value） -->
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">要求完成期限 <span
-                            class="text-red-500">*</span></label>
-                    <input type="date" id="task-deadline"
-                        class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        要求完成期限 <span v-if="!assignModal.readOnly" class="text-red-500">*</span>
+                    </label>
+                    <input type="date" v-model="assignModal.deadline" :readonly="assignModal.readOnly"
+                           class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
                 </div>
-
+                <!-- 備註 -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">交辦事項與備註</label>
-                    <textarea id="task-manager-content"
-                        class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
-                        rows="3" placeholder="例如：請特別注意客戶對花藝顏色有特殊要求..."></textarea>
+                    <textarea v-model="assignModal.managerContent" :readonly="assignModal.readOnly" rows="3"
+                              placeholder="例如：請特別注意客戶對花藝顏色有特殊要求..."
+                              class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"></textarea>
                 </div>
             </div>
-
-            <div
-                class="p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-2xl flex justify-end space-x-3">
-                <button
-                    class="close-assign-modal px-5 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">取消</button>
-                <button id="submit-assign-btn"
-                    class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center">
-                    <span class="material-icons text-[16px] mr-1.5">send</span> 確認分派
+            <div class="p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-2xl flex justify-end space-x-3">
+                <button @click="assignModal.open=false"
+                        class="px-5 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">取消</button>
+                <button v-if="!assignModal.readOnly" @click="submitAssign" :disabled="assignModal.submitting"
+                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center">
+                    <span class="material-icons text-[16px] mr-1.5" :class="assignModal.submitting ? 'animate-spin' : ''">
+                        {{ assignModal.submitting ? 'autorenew' : 'send' }}
+                    </span>
+                    {{ assignModal.submitting ? '送出中...' : '確認分派' }}
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="resultModal"
-        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm transition-opacity">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[500px] max-w-[95%] transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
-
+    <!-- ── 成果審查 Modal ── -->
+    <div v-show="resultModal.open"
+         class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[500px] max-w-[95%] border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
             <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                     <span class="material-icons text-amber-500 mr-2">plagiarism</span> 任務成果審查
                 </h3>
-                <button
-                    class="close-result-modal text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none">
+                <button @click="resultModal.open=false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <span class="material-icons">close</span>
                 </button>
             </div>
-
             <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-5">
                 <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
                     <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">任務名稱</p>
-                    <p id="result-modal-task-name" class="text-base font-bold text-gray-800 dark:text-gray-200">讀取中...</p>
+                    <p class="text-base font-bold text-gray-800 dark:text-gray-200">{{ resultModal.taskName }}</p>
                 </div>
-
                 <div>
                     <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">負責人員</p>
-                    <div id="result-modal-assignees-container" class="space-y-2">
-                        <!-- 動態插入負責人 -->
+                    <!-- v-for 取代 innerHTML -->
+                    <div v-if="resultModal.assignees && resultModal.assignees.length>0" class="space-y-2">
+                        <div v-for="emp in resultModal.assignees" :key="emp.empId"
+                             class="flex items-center space-x-3 bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                                {{ emp.name ? emp.name.charAt(0) : '員' }}
+                            </div>
+                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">
+                                {{ emp.name }} <span class="text-xs text-gray-500">({{ emp.departmentName || resultModal.deptName || '未歸屬部門' }})</span>
+                            </p>
+                        </div>
                     </div>
+                    <p v-else class="text-sm text-gray-500">尚未指派負責人</p>
                 </div>
-
                 <div>
                     <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">回報附檔</p>
-                    <div id="result-modal-documents-container" class="space-y-2">
-                        <!-- 動態插入檔案列表 -->
-                        <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
+                    <div v-if="resultModal.documents && resultModal.documents.length>0" class="space-y-2">
+                        <div v-for="doc in resultModal.documents" :key="doc.name"
+                             class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
                             <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">檔期確認對話截圖.pdf</span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{{ doc.name || '未命名檔案' }}</span>
                         </div>
+                    </div>
+                    <div v-else class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+                        <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">檔期確認對話截圖.pdf</span>
                     </div>
                 </div>
             </div>
-
-            <div
-                class="p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-2xl flex justify-end space-x-3">
-                <button
-                    class="close-result-modal px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center">
+            <div class="p-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-2xl flex justify-end">
+                <button @click="confirmResultViewed"
+                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center">
                     <span class="material-icons text-[16px] mr-1.5">done_all</span> 我已確認成果
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="chatModal"
-        class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[450px] max-w-[95%] flex flex-col h-[550px] border border-gray-100 dark:border-gray-700 transform transition-all">
-            <div
-                class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50 rounded-t-2xl">
+    <!-- ── 任務留言板 Modal ── -->
+    <div v-show="chatModal.open"
+         class="fixed inset-0 z-[120] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[450px] max-w-[95%] flex flex-col h-[550px] border border-gray-100 dark:border-gray-700">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50 rounded-t-2xl">
                 <h3 class="font-bold text-lg text-gray-900 dark:text-white flex items-center">
                     <span class="material-icons text-indigo-500 mr-2">forum</span> 任務協調留言板
                 </h3>
-                <button onclick="closeChatModal()"
-                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full p-1 transition-colors">
+                <button @click="closeChatModal"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full p-1 transition-colors">
                     <span class="material-icons text-sm">close</span>
                 </button>
             </div>
-
-            <div id="chat-content"
-                class="flex-1 overflow-y-auto p-5 space-y-5 bg-gray-50 dark:bg-gray-900/50 custom-scrollbar">
-                <div class="flex flex-col items-start">
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium flex items-center"><span
-                            class="w-2 h-2 rounded-full bg-gray-400 mr-1.5"></span>王大明 (企劃部) • 10:30</span>
-                    <div
-                        class="bg-white dark:bg-gray-800 p-3.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] text-sm text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700 leading-relaxed">
-                        這場婚禮的色調客戶想改為粉櫻色，請確認目前的佈置材料與花藝設定是否需要調整？
-                    </div>
-                </div>
-                <div class="flex flex-col items-end">
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium flex items-center">本人 (PM)
-                        • 11:15<span class="w-2 h-2 rounded-full bg-indigo-500 ml-1.5"></span></span>
-                    <div
-                        class="bg-indigo-500 p-3.5 rounded-2xl rounded-tr-none shadow-md max-w-[85%] text-sm text-white leading-relaxed">
-                        收到！我立刻與設計部及花藝組確認庫存，預計下午回覆更新方案。
+            <!-- 訊息列表 -->
+            <div ref="chatContentEl" class="flex-1 overflow-y-auto p-5 space-y-5 bg-gray-50 dark:bg-gray-900/50 custom-scrollbar">
+                <div v-if="chatModal.loading" class="text-center text-slate-400 py-10">讀取中...</div>
+                <div v-else-if="chatModal.messages.length===0" class="text-center text-slate-400 py-10 text-xs">尚無留言紀錄</div>
+                <!-- v-for 取代 insertAdjacentHTML -->
+                <div v-for="(msg,i) in chatModal.messages" :key="i"
+                     class="flex flex-col" :class="msg.isMe ? 'items-end' : 'items-start'">
+                    <span class="text-[10px] text-gray-500 mb-1 font-medium flex items-center gap-1">
+                        <span v-if="!msg.isMe" class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>
+                        {{ msg.label }} • {{ msg.time }}
+                        <span v-if="msg.isMe" class="w-2 h-2 rounded-full bg-indigo-500 inline-block"></span>
+                    </span>
+                    <div class="p-3.5 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed"
+                         :class="msg.isMe ? 'bg-indigo-500 text-white rounded-tr-none shadow-md' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-tl-none'">
+                        {{ msg.content }}
                     </div>
                 </div>
             </div>
-
-            <div class="p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl">
+            <!-- 輸入框（v-model 取代 input.value） -->
+            <div v-show="!chatModal.readOnly"
+                 class="p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl">
                 <div class="flex items-center space-x-3">
-                    <input type="text" placeholder="輸入要溝通的訊息..."
-                        class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 dark:text-white transition-colors">
-                    <button
-                        class="btn-send-msg p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0">
+                    <input type="text" v-model="chatModal.inputText" @keyup.enter="sendChatMsg"
+                           placeholder="輸入要溝通的訊息..."
+                           class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 dark:text-white transition-colors" />
+                    <button @click="sendChatMsg"
+                            class="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0">
                         <span class="material-icons text-[20px]">send</span>
                     </button>
                 </div>
@@ -503,996 +538,490 @@
         </div>
     </div>
 
-    <div id="clientChatModal"
-        class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-[28px] shadow-2xl w-[500px] max-w-[95%] flex flex-col h-[600px] border border-gray-100 dark:border-gray-700 transform transition-all">
-            <div
-                class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-[#faf7f2] dark:bg-gray-800/80 rounded-t-[28px]">
+    <!-- ── 對外客服通道 Modal ── -->
+    <div v-show="clientChat.open"
+         class="fixed inset-0 z-[120] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-[28px] shadow-2xl w-[500px] max-w-[95%] flex flex-col h-[600px] border border-gray-100 dark:border-gray-700">
+            <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-[#faf7f2] dark:bg-gray-800/80 rounded-t-[28px]">
                 <div class="flex items-center gap-2">
                     <span class="material-icons text-indigo-600 font-light text-[28px]">forum</span>
                     <div>
-                        <h3 class="font-serif text-xl text-gray-900 dark:text-white tracking-wide mb-0 leading-none">
-                            對外客服討論區</h3>
-                        <span class="text-[10px] tracking-widest text-gray-500 uppercase mt-1 block">Client
-                            Communication</span>
+                        <h3 class="font-serif text-xl text-gray-900 dark:text-white tracking-wide mb-0 leading-none">對外客服討論區</h3>
+                        <span class="text-[10px] tracking-widest text-gray-500 uppercase mt-1 block">Client Communication</span>
                     </div>
                 </div>
-                <button onclick="closeClientChatModal()"
-                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none p-1 transition-opacity opacity-50 hover:opacity-100">
+                <button @click="closeClientChat" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 opacity-50 hover:opacity-100 transition-opacity">
                     <span class="material-icons">close</span>
                 </button>
             </div>
-
-            <div id="client-chat-content"
-                class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#faf7f2] dark:bg-gray-900/50 custom-scrollbar">
-                <div class="text-center py-10 text-gray-500 text-sm">
-                    <span class="material-icons animate-spin text-indigo-500 mb-2">autorenew</span>
-                    <p>正在載入討論紀錄...</p>
+            <!-- 訊息列表 -->
+            <div ref="clientChatEl" class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#faf7f2] dark:bg-gray-900/50 custom-scrollbar">
+                <div v-if="clientChat.loading" class="text-center py-10 text-gray-500 text-sm">
+                    <span class="material-icons animate-spin text-indigo-500 mb-2 block">autorenew</span>
+                    正在載入討論紀錄...
+                </div>
+                <div v-else-if="clientChat.messages.length===0" class="text-center py-10 text-gray-400 text-sm">尚無討論紀錄</div>
+                <!-- v-for 取代 innerHTML 字串拼接 -->
+                <div v-for="(msg,i) in clientChat.messages" :key="i"
+                     class="flex flex-col" :class="msg.isPM ? 'items-end' : 'items-start'">
+                    <div class="flex items-center gap-2 mb-1" :class="msg.isPM ? 'flex-row-reverse' : ''">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-serif text-sm shadow-sm"
+                             :class="msg.isPM ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-200'">
+                            {{ msg.firstChar }}
+                        </div>
+                        <span class="text-xs text-gray-500 font-bold">
+                            {{ msg.senderName }}{{ msg.isPM ? ' (PM)' : '' }} • {{ msg.time }}
+                        </span>
+                    </div>
+                    <div class="p-4 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed"
+                         :class="msg.isPM
+                             ? 'bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 text-indigo-900 dark:text-indigo-100 rounded-tr-sm'
+                             : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-sm'">
+                        <p v-if="msg.content" class="m-0 whitespace-pre-wrap">{{ msg.content }}</p>
+                        <div v-if="msg.documents && msg.documents.length" class="flex flex-wrap gap-2 mt-2">
+                            <template v-for="doc in msg.documents" :key="doc.filePath">
+                                <img v-if="doc.fileType && doc.fileType.startsWith('image/')" :src="doc.filePath"
+                                     class="max-w-[160px] max-h-[160px] rounded object-cover border border-gray-200 shadow-sm mt-2" />
+                                <a v-else :href="doc.filePath" target="_blank"
+                                   class="inline-flex items-center gap-1 p-2 bg-white/60 dark:bg-gray-800/60 border border-indigo-200 dark:border-indigo-800 rounded text-indigo-600 dark:text-indigo-400 text-xs mt-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors">
+                                    <span class="material-icons text-[14px]">description</span>{{ doc.name }}
+                                </a>
+                            </template>
+                        </div>
+                    </div>
                 </div>
             </div>
-
+            <!-- 輸入區 -->
             <div class="p-5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-[28px]">
-                <div id="client-file-preview-wrapper" class="hidden flex flex-wrap justify-end gap-2 w-full mb-2"></div>
+                <!-- v-show + v-for 取代 renderClientFilePreview innerHTML -->
+                <div v-show="clientChat.attachedFiles.length>0" class="flex flex-wrap justify-end gap-2 w-full mb-2">
+                    <div v-for="(f,idx) in clientChat.attachedFiles" :key="idx" class="relative inline-block mt-2">
+                        <img v-if="f.isImage" :src="f.preview" class="h-12 w-auto border border-gray-200 rounded object-cover" />
+                        <span v-else class="inline-flex items-center gap-1 bg-gray-100 text-xs px-2 py-1 rounded border border-gray-200 text-gray-600">
+                            <span class="material-icons text-[14px]">description</span>
+                            <span class="truncate max-w-[80px]">{{ f.name }}</span>
+                        </span>
+                        <button @click="removeClientFile(idx)"
+                                class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-sm hover:scale-110 transition-transform">
+                            <span class="material-icons text-[12px]">close</span>
+                        </button>
+                    </div>
+                </div>
                 <div class="flex items-center space-x-3">
-                    <input type="file" id="clientFileUploadInput" class="hidden" accept="image/*,.pdf,.doc,.docx" multiple>
-                    <button onclick="document.getElementById('clientFileUploadInput').click()" class="text-gray-400 hover:text-indigo-600 transition-colors p-2 flex-shrink-0"
-                        title="上傳檔案">
+                    <input ref="clientFileInput" type="file" class="hidden" accept="image/*,.pdf,.doc,.docx" multiple @change="handleClientFiles" />
+                    <button @click="$refs.clientFileInput.click()" class="text-gray-400 hover:text-indigo-600 transition-colors p-2 flex-shrink-0" title="上傳檔案">
                         <span class="material-icons">attach_file</span>
                     </button>
-
-                    <input type="text" id="client-chat-input" placeholder="回覆客戶訊息..."
-                        class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 dark:text-white transition-colors">
-
-                    <button id="btn-send-client-msg"
-                        class="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0 disabled:opacity-50">
-                        <span class="material-icons text-[20px]">send</span>
+                    <input type="text" v-model="clientChat.inputText" @keyup.enter="sendClientMsg"
+                           placeholder="回覆客戶訊息..."
+                           class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 dark:text-white transition-colors" />
+                    <button @click="sendClientMsg" :disabled="clientChat.sending"
+                            class="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0 disabled:opacity-50">
+                        <span class="material-icons text-[20px]" :class="clientChat.sending?'animate-spin':''">
+                            {{ clientChat.sending ? 'autorenew' : 'send' }}
+                        </span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="rejectModal"
-        class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-[95%] transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col p-6">
-
-            <div
-                class="flex items-center justify-center w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 text-red-500 mb-4 mx-auto">
+    <!-- ── 駁回確認 Modal ── -->
+    <div v-show="rejectModal.open"
+         class="fixed inset-0 z-[120] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-[95%] border border-gray-100 dark:border-gray-700 flex flex-col p-6">
+            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 text-red-500 mb-4 mx-auto">
                 <span class="material-icons text-3xl">warning</span>
             </div>
-
             <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">確定要駁回此任務嗎？</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-5">駁回後，任務將重新指派負責人</p>
             <div class="flex space-x-3">
-                <button onclick="closeRejectModal()"
-                    class="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold transition-colors">取消</button>
-                <button onclick="confirmRejectTask()"
-                    class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold shadow-sm transition-colors flex items-center justify-center">
+                <button @click="rejectModal.open=false"
+                        class="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold transition-colors">取消</button>
+                <button @click="confirmReject"
+                        class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold shadow-sm transition-colors flex items-center justify-center">
                     <span class="material-icons text-[18px] mr-1.5">reply</span> 確認駁回
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 🌟 新增：專案文件上傳 Modal (參考 quest_staff.html 樣式) -->
-    <div id="projectDocUploadModal" class="hidden fixed inset-0 z-[130] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[450px] max-w-[95%] shadow-2xl transform transition-all border border-gray-100 dark:border-gray-700">
+    <!-- ── 文件上傳 Modal ── -->
+    <div v-show="docUploadModal.open"
+         class="fixed inset-0 z-[130] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[450px] max-w-[95%] shadow-2xl border border-gray-100 dark:border-gray-700">
             <div class="flex items-center justify-between mb-4 border-b border-gray-100 dark:border-gray-700 pb-3">
                 <h3 class="text-xl font-bold dark:text-white flex items-center">
-                    <span class="material-icons text-indigo-500 mr-2">upload_file</span>
-                    上傳專案文件
+                    <span class="material-icons text-indigo-500 mr-2">upload_file</span>上傳專案文件
                 </h3>
-                <button onclick="closeProjectDocUploadModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none">
+                <button @click="docUploadModal.open=false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <span class="material-icons">close</span>
                 </button>
             </div>
-            
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
                 此處上傳的文件 (如規格書、報價單) 將歸檔於此專案，並同步供客戶在進度頁面查看。
             </p>
-            
-            <div id="drop-zone" class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer mb-6 group">
-                <input type="file" id="archive-file-input" class="hidden" multiple>
-                <label for="archive-file-input" class="cursor-pointer block">
-                    <span class="material-icons text-4xl text-gray-300 group-hover:text-indigo-400 mb-2 transition-colors">cloud_upload</span>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">點擊或拖拽檔案至此</p>
-                    <div id="archive-file-name-container" class="mt-4 space-y-1">
-                        <!-- 檔案名稱列表將顯示於此 -->
+            <div @click="$refs.archiveFileInput.click()"
+                 class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer mb-6 group">
+                <input ref="archiveFileInput" type="file" class="hidden" multiple @change="handleDocFiles" />
+                <span class="material-icons text-4xl text-gray-300 group-hover:text-indigo-400 mb-2 transition-colors">cloud_upload</span>
+                <p class="text-sm text-gray-600 dark:text-gray-400">點擊或拖拽檔案至此</p>
+                <!-- v-for 取代 innerHTML 檔案名稱列表 -->
+                <div class="mt-4 space-y-1">
+                    <div v-for="f in docUploadModal.files" :key="f.name"
+                         class="text-xs text-indigo-600 font-bold bg-indigo-50 dark:bg-indigo-900/30 py-1 px-2 rounded-md truncate">
+                        <span class="material-icons text-[12px] mr-1">attach_file</span> {{ f.name }}
                     </div>
-                </label>
+                </div>
             </div>
-            
             <div class="flex space-x-3">
-                <button onclick="closeProjectDocUploadModal()" class="flex-1 py-2.5 text-gray-500 font-bold hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
-                    取消
-                </button>
-                <button id="confirm-project-upload-btn" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-md shadow-indigo-200 dark:shadow-none transition-all disabled:opacity-50">
-                    確認上傳
+                <button @click="docUploadModal.open=false"
+                        class="flex-1 py-2.5 text-gray-500 font-bold hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">取消</button>
+                <button @click="submitDocUpload" :disabled="docUploadModal.uploading"
+                        class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-xl font-bold shadow-md shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center gap-2">
+                    <span v-if="docUploadModal.uploading" class="material-icons animate-spin text-[18px]">autorenew</span>
+                    {{ docUploadModal.uploading ? '上傳中...' : '確認上傳' }}
                 </button>
             </div>
         </div>
     </div>
 
-    <script>
-        // ================== 全局變數 ==================
-        let currentTaskCard = null;
-        let currentRejectCard = null;
-        const taskListContainer = document.getElementById('task-list-container');
+</div><!-- /#app -->
 
-        // ================== 頁面初始化 ==================
-        document.addEventListener('DOMContentLoaded', () => {
+<script>
+const { createApp, nextTick } = Vue;
 
-            // 1. 從網址列抓取 ?id= 的數值
-            const urlParams = new URLSearchParams(window.location.search);
-            // 為了相容你的設計，同時支援 ?id= 或 ?projectId=，如果都沒有預設抓 1 號專案來測試
-            const projectId = urlParams.get('id') || urlParams.get('projectId') || 1;
+createApp({
+    // ══════════════════════════════════════════════════════
+    // data：集中管理所有響應式狀態，取代散落的全域 let 變數
+    // ══════════════════════════════════════════════════════
+    data() {
+        return {
+            // 登入者
+            empId: '', empName: '載入中...', empPosition: '', empDeptId: '', empAvatarPath: './Img/smile.jpg',
+            projectId: null,
 
-            if (projectId) {
-                fetchProjectInfo(projectId);
-                fetchProjectTasks(projectId);
-            } else {
-                showError('缺少專案 ID，無法載入任務！請從專案總覽點擊進入。');
-            }
+            // 專案資訊（{{ }} 插值，取代 getElementById + textContent）
+            project: { customerName: '', projectNo: '', weddingDate: '' },
 
-            // ==========================================
-            // 🌟 2-1. 呼叫 Spring Boot API 取得專案基本資料
-            // ==========================================
-            async function fetchProjectInfo(id) {
-                try {
-                    const response = await fetch(`/api/manager/projects/${id}/record`);
-                    if (response.ok) {
-                        const projectInfo = await response.json();
-                        if (projectInfo.customerName) {
-                            document.getElementById('header-project-name').textContent = projectInfo.customerName;
-                        } else {
-                            document.getElementById('header-project-name').textContent = '未定客戶';
-                        }
-                        if (projectInfo.projectNo) document.getElementById('header-project-no').textContent = projectInfo.projectNo;
-                        
-                        // 處理預計婚期，如果有需要的話可能要依賴 record 或是 book API 裡的預計婚期，目前用傳回來的實際婚期當作婚期
-                        if (projectInfo.weddingDate) {
-                            document.getElementById('header-wedding-date').textContent = projectInfo.weddingDate;
-                        } else {
-                            document.getElementById('header-wedding-date').textContent = '未定';
-                        }
-                    }
-                } catch (error) {
-                    console.error('無法取得專案基本資訊:', error);
-                }
-            }
+            // 任務
+            tasks: [], tasksLoading: true,
+            activeFilter: 'all',
 
-            // ==========================================
-            // 🌟 2-2. 呼叫 Spring Boot API 取得任務
-            // ==========================================
-            async function fetchProjectTasks(id) {
-                try {
-                    // ⚠️ 確保網址跟你的 Controller 完對齊：/api/manager/projects/{id}/tasks
-                    const response = await fetch(`/api/manager/projects/${id}/tasks`);
-                    if (!response.ok) throw new Error('API 請求失敗');
+            // 文件
+            docs: [], docsLoading: false,
 
-                    const tasks = await response.json();
-                    renderTasks(tasks);
-                } catch (error) {
-                    console.error('無法取得任務:', error);
-                    showError('資料載入失敗，請檢查後端伺服器狀態。');
-                }
-            }
+            // UI
+            sidebarOpen: false, userDropdownOpen: false, showClientUnread: true,
 
-            // ==========================================
-            // 🌟 3. 動態渲染任務小卡到 HTML
-            // ==========================================
-            function renderTasks(tasks) {
-                window.currentProjectTasks = tasks; // Save globally for modal access
-                if (!taskListContainer) return;
-                taskListContainer.innerHTML = ''; // 清空「載入中」提示
+            // 員工頭像配色池
+            empColors: ['bg-indigo-100 text-indigo-600','bg-blue-100 text-blue-600','bg-green-100 text-green-600','bg-pink-100 text-pink-600','bg-amber-100 text-amber-600'],
 
-                if (tasks.length === 0) {
-                    taskListContainer.innerHTML = '<div class="text-center py-8 text-gray-500 font-bold bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">此專案目前尚無指派任務</div>';
-                    updateStatusCounts(tasks); // 更新上方四個大按鈕的數字為 0
-                    return;
-                }
+            // 狀態卡片設定（供 v-for 渲染）
+            statusStats: [
+                { key:'pending',   label:'待指派', icon:'person_add_alt',  barColor:'bg-gray-300 dark:bg-gray-600', textColor:'text-gray-500 dark:text-gray-400',   borderClass:'border-gray-200 dark:border-gray-700' },
+                { key:'active',    label:'進行中', icon:'play_circle',     barColor:'bg-blue-500',                  textColor:'text-blue-600 dark:text-blue-400',     borderClass:'border-blue-100 dark:border-blue-800/30' },
+                { key:'review',    label:'待審核', icon:'pending_actions', barColor:'bg-amber-500',                 textColor:'text-amber-600 dark:text-amber-400',   borderClass:'border-amber-100 dark:border-amber-800/30' },
+                { key:'completed', label:'已完成', icon:'check_circle',    barColor:'bg-green-500',                 textColor:'text-green-600 dark:text-green-400',   borderClass:'border-green-100 dark:border-green-800/30' },
+            ],
 
-                tasks.forEach(task => {
-                    // 根據狀態設定顏色
-                    let statusColor = 'bg-gray-300 dark:bg-gray-600'; // 預設：待指派
-                    let badgeClass = 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+            // 指派 Modal（v-model 雙向綁定取代 getElementById + setAttribute）
+            assignModal: { open:false, readOnly:false, submitting:false, taskId:null, taskName:'', deptName:'', deptId:null, employees:[], employeesLoading:false, selectedEmpIds:[], deadline:'', managerContent:'' },
 
-                    if (task.status === '進行中') {
-                        statusColor = 'bg-blue-500';
-                        badgeClass = 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400';
-                    } else if (task.status === '已完成' || task.status === '已結案') {
-                        statusColor = 'bg-green-500';
-                        badgeClass = 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400';
-                    } else if (task.status === '卡關' || task.status === '需注意') {
-                        statusColor = 'bg-red-500';
-                        badgeClass = 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400';
-                    } else if (task.status === '待處理' || task.status === '待審核') {
-                        statusColor = 'bg-amber-500';
-                        badgeClass = 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400';
-                    }
+            // 成果 Modal
+            resultModal: { open:false, taskId:null, taskName:'', deptName:'', assignees:[], documents:[] },
 
-                    // 防呆處理：依據 @ManyToOne 的寫法抓取關聯名稱
-                    // 直接從 DTO 抓取扁平化的屬性
-                    const deptName = task.deptName || '未歸屬部門';
-                    const deptId = task.deptId || '';
-                    const serviceName = task.serviceName || `服務 #${task.serviceId || '未知'}`;
-                    const updateTime = task.updateAt ? task.updateAt.replace('T', ' ').substring(0, 16) : '尚無更新紀錄';
+            // 留言板 Modal
+            chatModal: { open:false, readOnly:false, loading:false, activeTaskId:null, messages:[], inputText:'' },
 
-                    let assigneesHtml = '';
-                    let deadlineHtml = '';
-                    if (task.status === '進行中' || task.status === '待審核' || task.status === '已完成') {
-                        const deadlineFixed = task.deadline ? task.deadline.substring(0, 10) : '未設定';
-                        deadlineHtml = `<p class="text-xs text-red-500 mt-1 flex items-center font-bold">
-                                            <span class="material-icons text-[14px] mr-1">event</span> 截止: ${deadlineFixed}
-                                        </p>`;
+            // 客服 Modal（attachedFiles 取代全域 clientChatFiles 陣列）
+            clientChat: { open:false, loading:false, sending:false, messages:[], inputText:'', attachedFiles:[] },
 
-                        if (task.assignees && task.assignees.length > 0) {
-                            const assigneeNames = task.assignees.map(a => a.name).join(', ');
-                            assigneesHtml = `<p class="text-xs text-indigo-600 mt-1 flex items-center font-bold">
-                                                <span class="material-icons text-[14px] mr-1">person</span> 負責人: ${assigneeNames}
-                                            </p>`;
-                        } else {
-                            assigneesHtml = `<p class="text-xs text-indigo-600 mt-1 flex items-center font-bold">
-                                                <span class="material-icons text-[14px] mr-1">person</span> 負責人: 尚未指派
-                                            </p>`;
-                        }
-                    }
+            // 駁回 Modal（pendingTaskId 取代 window.currentRejectTaskId）
+            rejectModal: { open:false, pendingTaskId:null },
 
-                    // 生成任務卡片 HTML
-                    let rightActionHtml = '';
-                    if (task.status === '待審核') {
-                        rightActionHtml = `
-                            <div class="flex flex-col items-end gap-2 h-full justify-center pt-2">
-                                <div class="flex space-x-2 mb-1">
-                                    <button class="px-3 py-1.5 bg-red-50 text-red-600 font-bold rounded-lg text-xs hover:bg-red-100 btn-reject transition-colors" data-task-id="${task.taskId}">駁回</button>
-                                    <button class="px-3 py-1.5 bg-orange-400 text-white font-bold rounded-lg text-xs hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed btn-approve btn-approve-${task.taskId} transition-colors" data-task-id="${task.taskId}" disabled title="請先查看詳情與成果">審核通過</button>
-                                </div>
-                                <button class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors btn-view-result flex items-center whitespace-nowrap" data-task-id="${task.taskId}">
-                                    查看成果 <span class="material-icons text-[16px] ml-1">pageview</span>
-                                </button>
-                            </div>
-                        `;
-                    } else {
-                        rightActionHtml = `
-                            <div class="flex items-center h-full pt-2">
-                                <button class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors btn-assign flex items-center whitespace-nowrap" 
-                                    data-task="${serviceName}" data-category="${deptName}" data-task-id="${task.taskId}" data-dept-id="${deptId}">
-                                    查看詳情 <span class="material-icons text-[16px] ml-1">chevron_right</span>
-                                </button>
-                            </div>
-                        `;
-                    }
+            // 文件上傳 Modal
+            docUploadModal: { open:false, uploading:false, files:[] },
+        };
+    },
 
-                    // 生成任務卡片 HTML
-                    const html = `
-                    <div class="task-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all hover:shadow-md" data-status="${task.status}">
-                        <div class="absolute left-0 top-0 bottom-0 w-1.5 ${statusColor}"></div>
-                        <div class="flex justify-between items-center pl-3 w-full">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">${deptName}</span>
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${task.status}</span>
-                                </div>
-                                <h4 class="text-base font-bold text-gray-900 dark:text-white">${serviceName}</h4>
-                                ${assigneesHtml}
-                                ${deadlineHtml}
-                                <p class="text-xs text-gray-400 mt-2 flex items-center">
-                                    <span class="material-icons text-[14px] mr-1">update</span> 最後更新: ${updateTime}
-                                </p>
-                            </div>
-                            ${rightActionHtml}
-                        </div>
-                    </div>
-                `;
-                    taskListContainer.insertAdjacentHTML('beforeend', html);
-                });
+    // ══════════════════════════════════════════════════════
+    // computed：自動計算，取代手動 DOM 操作函式
+    // ══════════════════════════════════════════════════════
+    computed: {
+        avatarSrc() {
+            const p = this.empAvatarPath;
+            if (!p || p === './Img/smile.jpg') return './Img/smile.jpg';
+            return p.startsWith('http') ? p : '/' + p;
+        },
+        positionLabel() { return this.empPosition === 'MANAGER' ? '業務管理' : '員工'; },
 
-                // 資料渲染完畢後，更新上方四個大方塊的數字，並重新綁定篩選功能
-                updateStatusCounts(tasks);
-                rebindTaskFilters();
-            }
+        // computed 取代 initSidebar 的 style.display 操作
+        navVisible() {
+            const d = this.empDeptId;
+            return { consultation: d==='7', book: d==='1', project: d==='1', task: d!=='1' && d!=='7' };
+        },
 
-            // ==========================================
-            // 🌟 4. 更新上方四個狀態按鈕的數字
-            // ==========================================
-            function updateStatusCounts(tasks) {
-                const counts = { pending: 0, active: 0, review: 0, completed: 0 };
-
-                tasks.forEach(task => {
-                    if (task.status === '待指派' || task.status === '卡關') counts.pending++;
-                    else if (task.status === '進行中') counts.active++;
-                    else if (task.status === '待審核') counts.review++;
-                    else if (task.status === '已完成' || task.status === '已結案') counts.completed++;
-                });
-
-                // 更新按鈕中的大數字
-                document.querySelectorAll('.task-filter-btn').forEach(btn => {
-                    const filter = btn.getAttribute('data-filter');
-                    const span = btn.querySelector('.text-2xl');
-                    if (span && counts[filter] !== undefined) {
-                        span.textContent = counts[filter];
-                    }
-                });
-            }
-
-            // ==========================================
-            // 🌟 5. 綁定「任務篩選按鈕」的功能
-            // ==========================================
-            function rebindTaskFilters() {
-                const taskFilterBtns = document.querySelectorAll('.task-filter-btn');
-                const taskItems = document.querySelectorAll('.task-item');
-
-                taskFilterBtns.forEach(btn => {
-                    // 為了避免重複綁定，先 Clone 一個乾淨的 Node 替換掉自己
-                    const newBtn = btn.cloneNode(true);
-                    btn.parentNode.replaceChild(newBtn, btn);
-
-                    newBtn.addEventListener('click', (e) => {
-                        // 移除所有按鈕的選取樣式，並替當前按鈕加上選取樣式
-                        document.querySelectorAll('.task-filter-btn').forEach(b => {
-                            b.classList.remove('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
-                        });
-                        newBtn.classList.add('ring-2', 'ring-indigo-500', 'bg-gray-50', 'dark:bg-gray-700');
-
-                        const filterValue = newBtn.getAttribute('data-filter');
-
-                        // 執行篩選
-                        taskItems.forEach(item => {
-                            const itemStatus = item.getAttribute('data-status');
-                            let shouldShow = false;
-
-                            if (filterValue === 'all') shouldShow = true;
-                            else if (filterValue === 'pending' && (itemStatus === '待指派' || itemStatus === '卡關')) shouldShow = true;
-                            else if (filterValue === 'active' && itemStatus === '進行中') shouldShow = true;
-                            else if (filterValue === 'review' && itemStatus === '待審核') shouldShow = true;
-                            else if (filterValue === 'completed' && (itemStatus === '已完成' || itemStatus === '已結案')) shouldShow = true;
-
-                            if (shouldShow) {
-                                item.style.display = '';
-                                item.style.animation = 'fadeIn 0.3s ease-out';
-                            } else {
-                                item.style.display = 'none';
-                            }
-                        });
-                    });
-                });
-            }
-
-            // 錯誤訊息顯示工具
-            function showError(msg) {
-                if (taskListContainer) {
-                    taskListContainer.innerHTML = `<div class="text-center py-8 text-red-500">${msg}</div>`;
-                }
-            }
-
-        }); // DOMContentLoaded 結束
-
-        // ================= 檔案上傳觸發邏輯 (保留) =================
-        const uploadBtn = document.getElementById('upload-doc-btn');
-        const fileInput = document.getElementById('file-upload-input');
-
-        if (uploadBtn && fileInput) {
-            uploadBtn.addEventListener('click', () => fileInput.click());
-            fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    const fileNames = Array.from(e.target.files).map(file => file.name).join('\n');
-                    alert(`已準備上傳以下檔案：\n\n${fileNames}`);
-                    fileInput.value = '';
-                }
+        // computed 取代 updateStatusCounts 的 DOM 操作
+        statusCounts() {
+            const c = { pending:0, active:0, review:0, completed:0 };
+            this.tasks.forEach(t => {
+                if      (t.status==='待指派' || t.status==='卡關')        c.pending++;
+                else if (t.status==='進行中')                              c.active++;
+                else if (t.status==='待審核')                              c.review++;
+                else if (t.status==='已完成' || t.status==='已結案')       c.completed++;
             });
-        }
+            return c;
+        },
 
-        // ================= Modal 控制邏輯 (簡化版) =================
+        // computed 取代 rebindTaskFilters 的 display:none 操作
+        filteredTasks() {
+            if (this.activeFilter==='all') return this.tasks;
+            return this.tasks.filter(t => {
+                if (this.activeFilter==='pending')   return t.status==='待指派' || t.status==='卡關';
+                if (this.activeFilter==='active')    return t.status==='進行中';
+                if (this.activeFilter==='review')    return t.status==='待審核';
+                if (this.activeFilter==='completed') return t.status==='已完成' || t.status==='已結案';
+            });
+        },
+    },
 
-        // 客服通道 Modal
-        window.openClientChatModal = function (e) {
-            if (e) e.preventDefault();
-            document.getElementById('clientChatModal').classList.remove('hidden');
-            const unreadHint = document.getElementById('client-unread-hint');
-            if (unreadHint) unreadHint.style.display = 'none';
-        };
-        window.closeClientChatModal = function () {
-            document.getElementById('clientChatModal').classList.add('hidden');
-        };
+    // ══════════════════════════════════════════════════════
+    // methods
+    // ══════════════════════════════════════════════════════
+    methods: {
+        // ── 初始化（取代 DOMContentLoaded）
+        async init() {
+            const id = sessionStorage.getItem('empId');
+            if (!id) { window.location.replace('login.html'); return; }
+            this.empId       = id;
+            this.empName     = sessionStorage.getItem('empName')  || '未知員工';
+            this.empPosition = sessionStorage.getItem('position') || '';
+            this.empDeptId   = sessionStorage.getItem('deptId')   || '';
+            const img = sessionStorage.getItem('imgPath');
+            if (img) this.empAvatarPath = img;
 
-        // 指派人員 Modal
-        document.addEventListener('click', async (e) => {
-            const btn = e.target.closest('.btn-assign');
-            if (!btn) return;
-            e.preventDefault();
+            const p = new URLSearchParams(window.location.search);
+            this.projectId = p.get('id') || p.get('projectId') || 1;
 
-            const taskName = btn.getAttribute('data-task') || '未知任務';
-            const deptName = btn.getAttribute('data-category') || '未指派';
-            const deptId = btn.getAttribute('data-dept-id'); // 🌟 拿到部門 ID
-            const taskId = btn.getAttribute('data-task-id'); // 🌟 拿到任務 ID
+            await Promise.all([this.fetchProjectInfo(), this.fetchTasks(), this.loadDocs()]);
+        },
 
-            const taskObj = window.currentProjectTasks ? window.currentProjectTasks.find(t => String(t.taskId) === String(taskId)) : null;
-            const isReadOnly = taskObj && (taskObj.status === '進行中' || taskObj.status === '待審核' || taskObj.status === '已完成');
-
-            document.getElementById('modal-task-name').textContent = taskName;
-            document.getElementById('modal-task-category').textContent = deptName;
-            document.getElementById('assignModal').setAttribute('data-current-task-id', taskId);
-            document.getElementById('assignModal').classList.remove('hidden');
-
-            const deadlineInput = document.getElementById('task-deadline');
-            const managerContentInput = document.getElementById('task-manager-content');
-            const submitBtn = document.getElementById('submit-assign-btn');
-
-            // Pre-fill existing data
-            if (taskObj && taskObj.deadline) {
-                deadlineInput.value = taskObj.deadline.substring(0, 10);
-            } else {
-                deadlineInput.value = '';
-            }
-
-            if (taskObj && taskObj.managerContent) {
-                managerContentInput.value = taskObj.managerContent;
-            } else {
-                managerContentInput.value = '';
-            }
-
-            // Set readonly layout
-            if (isReadOnly) {
-                deadlineInput.readOnly = true;
-                managerContentInput.readOnly = true;
-                if (submitBtn) submitBtn.style.display = 'none';
-            } else {
-                deadlineInput.readOnly = false;
-                managerContentInput.readOnly = false;
-                if (submitBtn) submitBtn.style.display = 'flex';
-            }
-
-            // 準備渲染員工的容器
-            const employeeContainer = document.getElementById('employee-list-container');
-
-            if (!deptId) {
-                employeeContainer.innerHTML = '<p class="text-red-500 text-sm p-3">此任務未歸屬任何部門，無法載入員工。</p>';
-                return;
-            }
-
-            employeeContainer.innerHTML = '<div class="flex items-center text-gray-500 p-3"><span class="material-icons animate-spin mr-2 text-[18px]">autorenew</span> 載入部門員工中...</div>';
-
+        // ── API：專案基本資訊
+        async fetchProjectInfo() {
             try {
-                // 🌟 呼叫後端 API (依據部門 ID 找員工)
-                const response = await fetch(`/api/employee/department/${deptId}`);
-                if (!response.ok) throw new Error('API 請求失敗');
+                const r = await fetch(`/api/manager/projects/${this.projectId}/record`, { credentials:'include' });
+                if (!r.ok) return this.handleAuth(r.status);
+                const d = await r.json();
+                this.project = { customerName: d.customerName||'未定客戶', projectNo: d.projectNo||'', weddingDate: d.weddingDate||'' };
+            } catch(e) { console.error(e); }
+        },
 
-                const employees = await response.json();
-
-                if (employees.length === 0) {
-                    employeeContainer.innerHTML = '<p class="text-gray-500 text-sm p-3">該部門目前沒有員工資料。</p>';
-                    return;
-                }
-
-                // 隨機配色陣列
-                const colors = ['bg-indigo-100 text-indigo-600', 'bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-pink-100 text-pink-600', 'bg-amber-100 text-amber-600'];
-
-                // 渲染 Checkbox 列表
-                employeeContainer.innerHTML = employees.map((emp, idx) => {
-                    const color = colors[idx % colors.length];
-                    const firstChar = emp.name ? emp.name.charAt(0) : '員';
-
-                    let isChecked = '';
-                    if (taskObj && taskObj.assignees) {
-                        if (taskObj.assignees.some(a => String(a.empId) === String(emp.empId))) {
-                            isChecked = 'checked';
-                        }
-                    }
-
-                    const disabledStr = isReadOnly ? 'disabled' : '';
-
-                    return `
-                    <label class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'} transition-colors">
-                        <input type="checkbox" name="assignees" value="${emp.empId}" ${isChecked} ${disabledStr} class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-7 h-7 rounded-full ${color} flex items-center justify-center font-bold text-xs">
-                                ${firstChar}
-                            </div>
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">${emp.name}</span>
-                        </div>
-                    </label>
-                `;
-                }).join('');
-
-            } catch (error) {
-                console.error('載入員工失敗:', error);
-                employeeContainer.innerHTML = '<p class="text-red-500 text-sm p-3">載入員工失敗，請檢查後端連線。</p>';
-            }
-        });
-
-        document.querySelectorAll('.close-assign-modal').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.getElementById('assignModal').classList.add('hidden');
-            });
-        });
-
-        // 確認送出指派
-        const submitAssignBtn = document.getElementById('submit-assign-btn');
-        if (submitAssignBtn) {
-            submitAssignBtn.addEventListener('click', async () => {
-                const checkedBoxes = document.querySelectorAll('input[name="assignees"]:checked');
-                if (checkedBoxes.length === 0) {
-                    alert('請至少選擇一位負責人！');
-                    return;
-                }
-                const assignees = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
-
-                const deadline = document.getElementById('task-deadline').value;
-                if (!deadline) {
-                    alert('請選擇要求完成期限！');
-                    return;
-                }
-
-                const managerContent = document.getElementById('task-manager-content').value;
-                const taskId = document.getElementById('assignModal').getAttribute('data-current-task-id');
-
-                // Formulate deadline format as LocalDateTime string (append T00:00:00 if date only)
-                // "YYYY-MM-DD" + "T00:00:00"
-                const requestData = {
-                    assignees: assignees,
-                    deadline: deadline + "T00:00:00",
-                    managerContent: managerContent
-                };
-
-                try {
-                    const response = await fetch(`/api/manager/projects/tasks/${taskId}/assign`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(requestData)
-                    });
-
-                    if (response.ok) {
-                        alert('已成功送出派工指令！');
-                        document.getElementById('assignModal').classList.add('hidden');
-
-                        // 重新載入任務列表
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const projectId = urlParams.get('id') || urlParams.get('projectId') || 1;
-                        // Reload task list
-                        // Using fetchProjectTasks directly not accessible here (block scoped) 
-                        // So reload page or fetch again. For simplicity:
-                        window.location.reload();
-                    } else {
-                        throw new Error('API failed');
-                    }
-                } catch (error) {
-                    console.error('指派任務失敗:', error);
-                    alert('指派任務失敗，請稍後再試。');
-                }
-            });
-        }
-
-        // ================= 駁回與審核通過控制 =================
-        document.querySelectorAll('.close-result-modal').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.getElementById('resultModal').classList.add('hidden');
-            });
-        });
-
-        async function updateTaskStatusAPI(taskId, newStatus) {
+        // ── API：任務列表
+        async fetchTasks() {
+            this.tasksLoading = true;
             try {
-                const response = await fetch(`/api/manager/projects/tasks/${taskId}/status`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: newStatus })
+                const r = await fetch(`/api/manager/projects/${this.projectId}/tasks`, { credentials:'include' });
+                if (!r.ok) return this.handleAuth(r.status);
+                this.tasks = await r.json();
+            } catch(e) { console.error(e); } finally { this.tasksLoading = false; }
+        },
+
+        // ── API：文件列表
+        async loadDocs() {
+            this.docsLoading = true;
+            try {
+                const r = await fetch(`/api/manager/projects/${this.projectId}/documents`);
+                if (!r.ok) throw new Error();
+                this.docs = await r.json();
+            } catch(e) { this.docs = []; } finally { this.docsLoading = false; }
+        },
+
+        // ── 任務篩選
+        setFilter(key) { this.activeFilter = this.activeFilter===key ? 'all' : key; },
+
+        // ── 樣式 helpers
+        taskBarColor(s) {
+            return { '進行中':'bg-blue-500','已完成':'bg-green-500','已結案':'bg-green-500','卡關':'bg-red-500','需注意':'bg-red-500','待審核':'bg-amber-500','待處理':'bg-amber-500' }[s] || 'bg-gray-300 dark:bg-gray-600';
+        },
+        taskBadgeClass(s) {
+            return { '進行中':'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400','已完成':'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400','已結案':'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400','卡關':'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400','需注意':'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400','待審核':'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' }[s] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+        },
+
+        // ── 指派 Modal
+        async openAssignModal(task, readOnly=false) {
+            const ro = readOnly || ['進行中','待審核','已完成'].includes(task.status);
+            Object.assign(this.assignModal, {
+                open:true, readOnly:ro, submitting:false, taskId:task.taskId,
+                taskName: task.serviceName||`服務 #${task.serviceId||'未知'}`,
+                deptName: task.deptName||'未歸屬部門', deptId: task.deptId||null,
+                deadline: task.deadline?task.deadline.substring(0,10):'',
+                managerContent: task.managerContent||'',
+                selectedEmpIds: task.assignees?task.assignees.map(a=>a.empId):[],
+                employees:[], employeesLoading:!!task.deptId,
+            });
+            if (!task.deptId) return;
+            try {
+                const r = await fetch(`/api/employee/department/${task.deptId}`);
+                if (!r.ok) throw new Error();
+                this.assignModal.employees = await r.json();
+            } catch(e) { console.error(e); } finally { this.assignModal.employeesLoading = false; }
+        },
+
+        async submitAssign() {
+            if (!this.assignModal.selectedEmpIds.length) { alert('請至少選擇一位負責人！'); return; }
+            if (!this.assignModal.deadline) { alert('請選擇要求完成期限！'); return; }
+            this.assignModal.submitting = true;
+            try {
+                const r = await fetch(`/api/manager/projects/tasks/${this.assignModal.taskId}/assign`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ assignees:this.assignModal.selectedEmpIds, deadline:this.assignModal.deadline+'T00:00:00', managerContent:this.assignModal.managerContent }),
                 });
-                if (response.ok) {
-                    alert('狀態更新成功！');
-                    window.location.reload();
-                } else {
-                    alert('狀態更新失敗！');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('網路錯誤，請稍後再試。');
-            }
-        }
+                if (r.ok) { alert('已成功送出派工指令！'); this.assignModal.open=false; await this.fetchTasks(); }
+                else throw new Error();
+            } catch(e) { alert('指派任務失敗，請稍後再試。'); } finally { this.assignModal.submitting=false; }
+        },
 
-        document.addEventListener('click', (e) => {
-            // 查看成果按鈕 -> 解鎖審核按鈕並綁定資料到 Modal
-            const viewResultBtn = e.target.closest('.btn-view-result');
-            if (viewResultBtn) {
-                const taskId = viewResultBtn.getAttribute('data-task-id');
-                const taskObj = window.currentProjectTasks ? window.currentProjectTasks.find(t => String(t.taskId) === String(taskId)) : null;
-                
-                if (taskObj) {
-                    // 更新任務名稱
-                    document.getElementById('result-modal-task-name').textContent = taskObj.serviceName || `服務 #${taskObj.serviceId || '未知'}`;
+        // ── 成果 Modal
+        openResultModal(task) {
+            Object.assign(this.resultModal, { open:true, taskId:task.taskId, taskName:task.serviceName||`服務 #${task.serviceId||'未知'}`, deptName:task.deptName||'', assignees:task.assignees||[], documents:task.documents||[] });
+        },
+        confirmResultViewed() {
+            const t = this.tasks.find(t=>t.taskId===this.resultModal.taskId);
+            if (t) t._resultViewed = true;
+            this.resultModal.open = false;
+        },
 
-                    // 更新負責人清單
-                    const assigneesContainer = document.getElementById('result-modal-assignees-container');
-                    if (taskObj.assignees && taskObj.assignees.length > 0) {
-                        assigneesContainer.innerHTML = taskObj.assignees.map(emp => {
-                            const firstChar = emp.name ? emp.name.charAt(0) : '員';
-                            return `
-                                <div class="flex items-center space-x-3 bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
-                                        ${firstChar}
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${emp.name} <span class="text-xs text-gray-500">(${emp.departmentName || taskObj.deptName || '未歸屬部門'})</span></p>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('');
-                    } else {
-                        assigneesContainer.innerHTML = '<p class="text-sm text-gray-500">尚未指派負責人</p>';
-                    }
-                    
-                    // 更新檔案列表 (若 TaskDTO 日後支援回傳 documents 就從這抽，現在先使用 dummy 或把資料顯示出來)
-                    const docsContainer = document.getElementById('result-modal-documents-container');
-                    if (taskObj.documents && taskObj.documents.length > 0) {
-                        docsContainer.innerHTML = taskObj.documents.map(doc => `
-                            <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
-                                <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">${doc.name || '未命名檔案'}</span>
-                            </div>
-                        `).join('');
-                    } else {
-                        // Dummy 資料，符合「欄位對應documents表中的name」
-                        docsContainer.innerHTML = `
-                            <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
-                                <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">檔期確認對話截圖.pdf</span>
-                            </div>
-                        `;
-                    }
-                }
-
-                const approveBtn = document.querySelector(`.btn-approve-${taskId}`);
-                if (approveBtn) {
-                    approveBtn.disabled = false;
-                    approveBtn.removeAttribute('title');
-                }
-                
-                document.getElementById('resultModal').classList.remove('hidden');
-                return;
-            }
-
-            // 駁回按鈕
-            const rejectBtn = e.target.closest('.btn-reject');
-            if (rejectBtn) {
-                window.currentRejectTaskId = rejectBtn.getAttribute('data-task-id');
-                document.getElementById('rejectModal').classList.remove('hidden');
-                return;
-            }
-
-            // 審核通過按鈕
-            const approveBtn = e.target.closest('.btn-approve');
-            if (approveBtn && !approveBtn.disabled) {
-                if (confirm('確定要審核通過此任務並設為已完成嗎？')) {
-                    const taskId = approveBtn.getAttribute('data-task-id');
-                    updateTaskStatusAPI(taskId, '已完成');
-                }
-                return;
-            }
-        });
-
-        window.closeRejectModal = function () {
-            document.getElementById('rejectModal').classList.add('hidden');
-            window.currentRejectTaskId = null;
-        };
-
-        window.confirmRejectTask = function () {
-            if (window.currentRejectTaskId) {
-                updateTaskStatusAPI(window.currentRejectTaskId, '待指派');
-                document.getElementById('rejectModal').classList.add('hidden');
-            }
-        };
-
-        // ================= 專屬客服通道 =================
-        let clientChatFiles = [];
-        
-        window.openClientChatModal = function(e) {
-            e.preventDefault();
-            document.getElementById('clientChatModal').classList.remove('hidden');
-            let projectId = new URLSearchParams(window.location.search).get('id') || new URLSearchParams(window.location.search).get('projectId') || 1;
-            loadClientChat(projectId);
-        };
-
-        window.closeClientChatModal = function() {
-            document.getElementById('clientChatModal').classList.add('hidden');
-            clientChatFiles = [];
-            document.getElementById('clientFileUploadInput').value = '';
-            document.getElementById('client-chat-input').value = '';
-            renderClientFilePreview();
-        };
-
-        async function loadClientChat(projectId) {
-            const container = document.getElementById('client-chat-content');
+        // ── 審核通過
+        async approveTask(taskId) {
+            if (!confirm('確定要審核通過此任務並設為已完成嗎？')) return;
+            await this.updateStatus(taskId,'已完成');
+        },
+        async updateStatus(taskId, newStatus) {
             try {
-                const response = await fetch(`/api/manager/projects/${projectId}/communication`);
-                if (!response.ok) throw new Error('Failed to load communication');
-                const data = await response.json();
-                const timeline = data.timeline;
-                const pmName = data.pmName;
-                
-                if (timeline && timeline.length > 0) {
-                    container.innerHTML = timeline.reverse().map(msg => renderClientMessage(msg, pmName)).join('');
-                    setTimeout(() => container.scrollTop = container.scrollHeight, 100);
-                } else {
-                    container.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">尚無討論紀錄</div>';
+                const r = await fetch(`/api/manager/projects/tasks/${taskId}/status`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status:newStatus}) });
+                if (r.ok) { alert('狀態更新成功！'); await this.fetchTasks(); }
+                else alert('狀態更新失敗！');
+            } catch(e) { alert('網路錯誤，請稍後再試。'); }
+        },
+
+        // ── 駁回 Modal
+        openRejectModal(taskId) { this.rejectModal.pendingTaskId=taskId; this.rejectModal.open=true; },
+        async confirmReject() {
+            this.rejectModal.open=false;
+            if (this.rejectModal.pendingTaskId) await this.updateStatus(this.rejectModal.pendingTaskId,'待指派');
+        },
+
+        // ── 留言板 Modal
+        async openChatModal(taskId, readOnly=false) {
+            Object.assign(this.chatModal, { open:true, readOnly, activeTaskId:taskId, loading:true, messages:[], inputText:'' });
+            try {
+                const r = await fetch(`/api/employee/tc/${taskId}`, { credentials:'include' });
+                if (r.ok) {
+                    const msgs = await r.json();
+                    this.chatModal.messages = msgs.map(m => ({
+                        ...m,
+                        isMe:  String(m.creatorId)===String(this.empId),
+                        label: String(m.creatorId)===String(this.empId) ? '本人 (PM)' : (m.creatorPosition==='MANAGER' ? `業務 - ${m.creatorName}` : m.creatorName),
+                        time:  m.createAt ? new Date(m.createAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '',
+                    }));
                 }
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = '<div class="text-center py-10 text-red-400 text-sm">無法載入討論紀錄</div>';
+            } catch(e) { console.error(e); } finally {
+                this.chatModal.loading=false;
+                nextTick(()=>{ const el=this.$refs.chatContentEl; if(el) el.scrollTop=el.scrollHeight; });
             }
-        }
+        },
+        closeChatModal() { this.chatModal.open=false; this.chatModal.activeTaskId=null; },
+        async sendChatMsg() {
+            const text = this.chatModal.inputText.trim();
+            if (!text) return;
+            try {
+                const r = await fetch('/api/employee/tc/mesg', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({ taskId:this.chatModal.activeTaskId, createBy:parseInt(this.empId), content:text }) });
+                if (r.ok) { this.chatModal.inputText=''; await this.openChatModal(this.chatModal.activeTaskId, this.chatModal.readOnly); }
+                else alert('傳送失敗');
+            } catch(e) { console.error(e); }
+        },
 
-        function renderClientMessage(msg, pmName) {
-            const isPM = msg.createBy === pmName || msg.createBy === '公司' || msg.createBy.includes('PM');
-            const senderName = msg.createBy || '未知';
-            const firstChar = senderName.charAt(0);
-            const time = msg.createAt ? msg.createAt.replace('T', ' ').substring(0, 16) : '';
-            
-            let attachmentsHtml = '';
-            if (msg.documents && msg.documents.length > 0) {
-                attachmentsHtml = '<div class="d-flex flex-wrap gap-2 mt-2">';
-                msg.documents.forEach(doc => {
-                    let url = doc.filePath && doc.filePath.startsWith('/uploads') ? window.location.origin + doc.filePath : doc.filePath;
-                    if (doc.fileType && doc.fileType.startsWith('image/')) {
-                        attachmentsHtml += `<img src="${url}" onerror="this.outerHTML='<span class=\\'text-xs text-gray-500\\'><span class=\\'material-icons text-[14px]\\'>broken_image</span>圖片錯誤</span>'" class="max-w-[160px] max-h-[160px] rounded object-cover border border-gray-200 shadow-sm mt-2">`;
-                    } else {
-                        attachmentsHtml += `<a href="${url}" target="_blank" class="inline-flex items-center gap-1 p-2 bg-white/60 dark:bg-gray-800/60 border border-indigo-200 dark:border-indigo-800 rounded text-indigo-600 dark:text-indigo-400 text-xs mt-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors"><span class="material-icons text-[14px]">description</span>${doc.name}</a>`;
-                    }
-                });
-                attachmentsHtml += '</div>';
+        // ── 客服通道 Modal
+        async openClientChatModal() { this.clientChat.open=true; this.showClientUnread=false; await this.loadClientChat(); },
+        closeClientChat() { this.clientChat.open=false; this.clientChat.attachedFiles=[]; this.clientChat.inputText=''; },
+        async loadClientChat() {
+            this.clientChat.loading=true;
+            try {
+                const r = await fetch(`/api/manager/projects/${this.projectId}/communication`);
+                if (!r.ok) throw new Error();
+                const data = await r.json();
+                const pm = data.pmName||'';
+                this.clientChat.messages = (data.timeline||[]).reverse().map(m => ({
+                    ...m, isPM: m.createBy===pm || m.createBy==='公司' || (m.createBy||'').includes('PM'),
+                    senderName: m.createBy||'未知', firstChar: (m.createBy||'?').charAt(0),
+                    time: m.createAt ? m.createAt.replace('T',' ').substring(0,16) : '',
+                }));
+            } catch(e) { console.error(e); } finally {
+                this.clientChat.loading=false;
+                nextTick(()=>{ const el=this.$refs.clientChatEl; if(el) el.scrollTop=el.scrollHeight; });
             }
-
-            if (isPM) {
-                return `
-                    <div class="flex flex-col items-end gap-1">
-                        <div class="flex gap-2 items-center flex-row-reverse mb-1">
-                            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-serif text-sm shadow-sm">${firstChar}</div>
-                            <span class="text-xs text-gray-500 font-bold">${senderName} (PM) • ${time}</span>
-                        </div>
-                        <div class="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-2xl rounded-tr-sm shadow-sm max-w-[85%] text-sm text-indigo-900 dark:text-indigo-100 border border-indigo-100 dark:border-indigo-800 leading-relaxed text-right flex flex-col items-end">
-                            ${msg.content ? `<p class="m-0 whitespace-pre-wrap text-left">${msg.content}</p>` : ''}
-                            ${attachmentsHtml}
-                        </div>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="flex flex-col items-start gap-1">
-                        <div class="flex gap-2 items-center mb-1">
-                            <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center font-serif text-sm shadow-sm">${firstChar}</div>
-                            <span class="text-xs text-gray-500 font-bold">${senderName} • ${time}</span>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-sm shadow-sm max-w-[85%] text-sm text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 leading-relaxed">
-                            ${msg.content ? `<p class="m-0 whitespace-pre-wrap">${msg.content}</p>` : ''}
-                            ${attachmentsHtml}
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        document.getElementById('clientFileUploadInput').addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            if (files.length === 0) return;
-
-            const MAX_FILE_SIZE = 10 * 1024 * 1024;
-            let oversize = false;
-
-            files.forEach(file => {
-                if (file.size > MAX_FILE_SIZE) { oversize = true; return; }
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        clientChatFiles.push({ file: file, name: file.name, type: file.type, preview: ev.target.result });
-                        renderClientFilePreview();
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    clientChatFiles.push({ file: file, name: file.name, type: file.type, preview: null });
-                    renderClientFilePreview();
-                }
+        },
+        handleClientFiles(e) {
+            const MAX=10*1024*1024;
+            Array.from(e.target.files).forEach(f => {
+                if (f.size>MAX) { alert(`${f.name} 超過 10MB`); return; }
+                if (f.type.startsWith('image/')) {
+                    const rd=new FileReader();
+                    rd.onload=ev=>this.clientChat.attachedFiles.push({file:f,name:f.name,isImage:true,preview:ev.target.result});
+                    rd.readAsDataURL(f);
+                } else { this.clientChat.attachedFiles.push({file:f,name:f.name,isImage:false,preview:null}); }
             });
-
-            if (oversize) alert("部分檔案超過 10MB 限制，已自動忽略！");
-            e.target.value = ''; // clear input
-        });
-
-        function renderClientFilePreview() {
-            const wrapper = document.getElementById('client-file-preview-wrapper');
-            if (clientChatFiles.length === 0) {
-                wrapper.classList.add('hidden');
-                wrapper.innerHTML = '';
-                return;
-            }
-            wrapper.classList.remove('hidden');
-            wrapper.innerHTML = clientChatFiles.map((item, index) => {
-                let content = item.type.startsWith('image/') 
-                    ? `<img src="${item.preview}" class="h-12 w-auto border border-gray-200 rounded object-cover">`
-                    : `<span class="inline-flex items-center gap-1 bg-gray-100 text-xs px-2 py-1 rounded border border-gray-200 text-gray-600"><span class="material-icons text-[14px]">description</span><span class="truncate max-w-[80px]">${item.name}</span></span>`;
-                return `
-                    <div class="relative inline-block mt-2">
-                        ${content}
-                        <button onclick="removeClientChatFile(${index})" class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-sm hover:scale-110 transition-transform"><span class="material-icons text-[12px]">close</span></button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        window.removeClientChatFile = function(index) {
-            clientChatFiles.splice(index, 1);
-            renderClientFilePreview();
-        };
-
-        const postClientChat = async () => {
-            const btn = document.getElementById('btn-send-client-msg');
-            const input = document.getElementById('client-chat-input');
-            const content = input.value.trim();
-            
-            if (!content && clientChatFiles.length === 0) return;
-            
-            btn.disabled = true;
-            btn.innerHTML = '<span class="material-icons animate-spin text-[20px]">autorenew</span>';
-
-            const formData = new FormData();
-            formData.append('createBy', '公司'); // Or dynamically fetch PM name
-            if (content) formData.append('content', content);
-            
-            clientChatFiles.forEach(item => {
-                formData.append('files', item.file);
-            });
-
-            const projectId = new URLSearchParams(window.location.search).get('id') || new URLSearchParams(window.location.search).get('projectId') || 1;
-
+            e.target.value='';
+        },
+        removeClientFile(idx) { this.clientChat.attachedFiles.splice(idx,1); },
+        async sendClientMsg() {
+            const t=this.clientChat.inputText.trim();
+            if (!t && !this.clientChat.attachedFiles.length) return;
+            this.clientChat.sending=true;
+            const fd=new FormData();
+            fd.append('createBy','公司');
+            if (t) fd.append('content',t);
+            this.clientChat.attachedFiles.forEach(f=>fd.append('files',f.file));
             try {
-                const response = await fetch(`/api/manager/projects/${projectId}/communication`, {
-                    method: 'POST',
-                    body: formData,
-                });
-                
-                if (response.ok) {
-                    input.value = '';
-                    clientChatFiles = [];
-                    renderClientFilePreview();
-                    loadClientChat(projectId);
-                } else {
-                    alert('發送失敗！');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('系統異常，請聯絡管理員');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<span class="material-icons text-[20px]">send</span>';
-            }
-        };
+                const r=await fetch(`/api/manager/projects/${this.projectId}/communication`,{method:'POST',body:fd});
+                if (r.ok) { this.clientChat.inputText=''; this.clientChat.attachedFiles=[]; await this.loadClientChat(); }
+                else alert('發送失敗！');
+            } catch(e) { alert('系統異常，請聯絡管理員'); } finally { this.clientChat.sending=false; }
+        },
 
-        document.getElementById('btn-send-client-msg').addEventListener('click', postClientChat);
-        document.getElementById('client-chat-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') postClientChat();
-        });
-
-        // ================= 專案文件歸檔 =================
-        const uploadDocBtn = document.getElementById('upload-doc-btn');
-        const uploadModal = document.getElementById('projectDocUploadModal');
-        const archiveFileInput = document.getElementById('archive-file-input');
-        const confirmUploadBtn = document.getElementById('confirm-project-upload-btn');
-        const fileNameContainer = document.getElementById('archive-file-name-container');
-
-        window.openProjectDocUploadModal = function() {
-            uploadModal.classList.remove('hidden');
-            archiveFileInput.value = '';
-            fileNameContainer.innerHTML = '';
-        };
-
-        window.closeProjectDocUploadModal = function() {
-            uploadModal.classList.add('hidden');
-        };
-
-        uploadDocBtn.addEventListener('click', () => {
-            openProjectDocUploadModal();
-        });
-
-        archiveFileInput.addEventListener('change', (e) => {
-            const files = e.target.files;
-            if (files.length > 0) {
-                fileNameContainer.innerHTML = Array.from(files).map(f => `
-                    <div class="text-xs text-indigo-600 font-bold bg-indigo-50 dark:bg-indigo-900/30 py-1 px-2 rounded-md truncate">
-                        <span class="material-icons text-[12px] mr-1">attach_file</span> ${f.name}
-                    </div>
-                `).join('');
-            } else {
-                fileNameContainer.innerHTML = '';
-            }
-        });
-
-        confirmUploadBtn.addEventListener('click', async () => {
-            const files = archiveFileInput.files;
-            if (files.length === 0) {
-                alert('請先選擇檔案');
-                return;
-            }
-
-            const projectId = new URLSearchParams(window.location.search).get('id') || 1;
-            const empId = sessionStorage.getItem('empId') || 1;
-
-            const formData = new FormData();
-            formData.append('managerId', empId);
-            for (let i = 0; i < files.length; i++) {
-                formData.append('files', files[i]);
-            }
-
+        // ── 文件上傳 Modal
+        openDocUploadModal() { this.docUploadModal.files=[]; this.docUploadModal.open=true; },
+        handleDocFiles(e) { this.docUploadModal.files=Array.from(e.target.files); },
+        async submitDocUpload() {
+            if (!this.docUploadModal.files.length) { alert('請先選擇檔案'); return; }
+            this.docUploadModal.uploading=true;
+            const fd=new FormData();
+            fd.append('managerId',this.empId);
+            this.docUploadModal.files.forEach(f=>fd.append('files',f));
             try {
-                confirmUploadBtn.disabled = true;
-                confirmUploadBtn.innerHTML = '<span class="material-icons animate-spin text-[18px] mr-2">autorenew</span> 上傳中...';
-                
-                const response = await fetch(`/api/manager/projects/${projectId}/documents`, {
-                    method: 'POST',
-                    body: formData
-                });
+                const r=await fetch(`/api/manager/projects/${this.projectId}/documents`,{method:'POST',body:fd});
+                if (r.ok) { alert('文件上傳成功！'); this.docUploadModal.open=false; await this.loadDocs(); }
+                else alert('上傳失敗，請稍後再試。');
+            } catch(e) { alert('上傳發生錯誤'); } finally { this.docUploadModal.uploading=false; }
+        },
 
-                if (response.ok) {
-                    alert('文件上傳成功！');
-                    closeProjectDocUploadModal();
-                    loadProjectDocuments(projectId);
-                } else {
-                    alert('上傳失敗，請稍後再試。');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('上傳發生錯誤');
-            } finally {
-                confirmUploadBtn.disabled = false;
-                confirmUploadBtn.innerHTML = '確認上傳';
-            }
+        // ── 共用：Auth 錯誤處理
+        handleAuth(status) {
+            if (status===401 || status===403) { alert('帳號驗證已過期或尚未登入，請重新登入！'); sessionStorage.clear(); window.location.href='login.html'; }
+        },
+    },
+
+    // ══════════════════════════════════════════════════════
+    // mounted：取代 DOMContentLoaded
+    // ══════════════════════════════════════════════════════
+    mounted() {
+        this.init();
+        document.addEventListener('click', e => {
+            if (this.userDropdownOpen && !e.target.closest('.relative')) this.userDropdownOpen=false;
         });
-
-        async function loadProjectDocuments(projectId) {
-            const listContainer = document.getElementById('docs-list');
-            try {
-                const response = await fetch(`/api/manager/projects/${projectId}/documents`);
-                if (!response.ok) throw new Error('Failed to load documents');
-                const docs = await response.json();
-
-                if (docs && docs.length > 0) {
-                    listContainer.innerHTML = docs.map(doc => `
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 group hover:border-indigo-300 dark:hover:border-indigo-800 transition-colors">
-                            <div class="flex items-center min-w-0 flex-1">
-                                <span class="material-icons text-indigo-400 mr-3">description</span>
-                                <div class="min-w-0">
-                                    <p class="text-sm font-bold text-gray-700 dark:text-gray-200 truncate" title="${doc.fileName}">${doc.fileName}</p>
-                                    <p class="text-[10px] text-gray-400">${doc.uploadInfo}</p>
-                                </div>
-                            </div>
-                            <a href="${doc.downloadUrl}" target="_blank" class="ml-2 p-2 text-gray-400 hover:text-indigo-600 transition-colors">
-                                <span class="material-icons text-[20px]">download</span>
-                            </a>
-                        </div>
-                    `).join('');
-                } else {
-                    listContainer.innerHTML = `
-                        <div class="text-center py-10 text-gray-400 text-sm">
-                            <span class="material-icons text-3xl mb-2 block">folder_open</span>
-                            尚無歸檔文件
-                        </div>
-                    `;
-                }
-            } catch (err) {
-                console.error(err);
-                listContainer.innerHTML = '<div class="text-center py-10 text-red-400 text-sm">無法載入文件</div>';
-            }
-        }
-
-        document.getElementById('refresh-docs-btn').addEventListener('click', () => {
-            const projectId = new URLSearchParams(window.location.search).get('id') || 1;
-            loadProjectDocuments(projectId);
-        });
-
-        // 初始載入
-        const initProjectId = new URLSearchParams(window.location.search).get('id') || 1;
-        loadProjectDocuments(initProjectId);
-
-    </script>
+    },
+}).mount('#app');
+</script>
 </body>
-
 </html>

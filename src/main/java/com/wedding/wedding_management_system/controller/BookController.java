@@ -43,14 +43,16 @@ public class BookController {
     @PostMapping("/from-consultation/{consultationId}")
     public ResponseEntity<?> convertFromConsultation(
             @PathVariable Integer consultationId,
-            @RequestBody Map<String, String> payload) { // 🌟 新增：用來接收前端傳來的 JSON
+            @RequestBody Map<String, String> payload) { // 🌟 接收前端傳來的 JSON
 
         try {
-            // 從 payload 中取出前端填寫的 partnerName
+            // 🌟 取出前端填寫的伴侶姓名，以及可能被櫃檯人員修改的信箱與電話
             String partnerName = payload.get("partnerName");
+            String email = payload.get("email");
+            String tel = payload.get("tel");
 
-            // 將伴侶姓名一併傳給 Service 處理
-            BookResponseDTO result = convertService.convertFromConsultation(consultationId, partnerName);
+            // 將所有資料一併傳給 Service 處理
+            BookResponseDTO result = convertService.convertFromConsultation(consultationId, partnerName, email, tel);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
@@ -58,7 +60,8 @@ public class BookController {
             e.printStackTrace();
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
-            error.put("message", "轉預約失敗：" + e.getMessage());
+            // 將 Service 拋出的精準錯誤訊息回傳給前端
+            error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }

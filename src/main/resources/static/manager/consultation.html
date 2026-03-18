@@ -573,21 +573,54 @@
                             </div>
 
                             <div class="mb-2">
-                                <label class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1 block">伴侶姓名
-                                    <span class="text-red-500 font-medium text-[11px] ml-1">(必填)</span>
-                                </label>
-                                <input type="text"
-                                    class="form-control border-gray-300 focus:border-accent-gold focus:ring-accent-gold transition-colors"
-                                    :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': convertFormError }"
-                                    v-model="convertForm.partnerName" placeholder="例如：林雅文"
-                                    @input="convertFormError = false">
+                                <div class="mb-3">
+                                    <label
+                                        class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1 block">伴侶姓名
+                                        <span class="text-red-500 font-medium text-[11px] ml-1">(必填)</span>
+                                    </label>
+                                    <input type="text"
+                                        class="form-control border-gray-300 focus:border-accent-gold focus:ring-accent-gold transition-colors"
+                                        :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': convertFormError }"
+                                        v-model="convertForm.partnerName" placeholder="例如：林雅文"
+                                        @input="convertFormError = false">
 
-                                <div class="text-xs text-red-500 mt-1.5 flex items-center" v-if="convertFormError">
-                                    <span class="material-icons text-[14px] mr-1">error</span> 請輸入伴侶姓名以完成完整建檔
+                                    <div class="text-xs text-red-500 mt-1.5 flex items-center" v-if="convertFormError">
+                                        <span class="material-icons text-[14px] mr-1">error</span> 請輸入伴侶姓名以完成完整建檔
+                                    </div>
                                 </div>
-                                <div class="text-xs text-gray-500 mt-2" v-else-if="convertForm.partnerName">
-                                    建檔後客戶名稱將顯示為：<strong class="text-gray-800">{{ convertForm.primaryName }} & {{
-                                        convertForm.partnerName }}</strong>
+
+                                <div class="mb-3">
+                                    <label
+                                        class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1 block">電子信箱
+                                        <span class="text-gray-400 font-medium text-[11px] ml-1">(可修改)</span>
+                                    </label>
+                                    <input type="email"
+                                        class="form-control border-gray-300 focus:border-accent-gold focus:ring-accent-gold transition-colors"
+                                        :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': convertEmailError }"
+                                        v-model="convertForm.email" placeholder="輸入客戶信箱"
+                                        @input="convertEmailError = false">
+
+                                    <div class="text-xs text-red-500 mt-1.5 flex items-center" v-if="convertEmailError">
+                                        <span class="material-icons text-[14px] mr-1">error</span> {{
+                                        convertEmailErrorMsg }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label
+                                        class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1 block">聯絡電話
+                                        <span class="text-gray-400 font-medium text-[11px] ml-1">(可修改)</span>
+                                    </label>
+                                    <input type="tel"
+                                        class="form-control border-gray-300 focus:border-accent-gold focus:ring-accent-gold transition-colors"
+                                        :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': convertTelError }"
+                                        v-model="convertForm.tel" placeholder="例如：0912345678"
+                                        @input="convertTelError = false">
+
+                                    <div class="text-xs text-red-500 mt-1.5 flex items-center" v-if="convertTelError">
+                                        <span class="material-icons text-[14px] mr-1">error</span> {{ convertTelErrorMsg
+                                        }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -634,9 +667,16 @@
                     convertForm: {
                         consultationId: null,
                         primaryName: '',
-                        partnerName: ''
+                        partnerName: '',
+                        email: '', // 新增信箱
+                        tel: ''    // 新增電話
                     },
                     convertFormError: false, // 🌟 新增這行：控制伴侶姓名未填的紅字
+                    // 🌟 新增信箱與電話的專屬錯誤狀態與訊息
+                    convertEmailError: false,
+                    convertEmailErrorMsg: '',
+                    convertTelError: false,
+                    convertTelErrorMsg: '',
                     isConverting: false,
                     convertModalInstance: null
                 }
@@ -933,12 +973,21 @@
                 goToPage(page) {
                     this.currentPage = page;
                 },
-                // 🌟 新增：開啟轉預約 Modal
+                // 🌟 更新：開啟轉預約 Modal 時自動帶入舊資料並重置錯誤
                 openConvertModal(item) {
                     this.convertForm.consultationId = item.id;
                     this.convertForm.primaryName = item.name;
                     this.convertForm.partnerName = '';
-                    this.convertFormError = false; // 🌟 新增這行：每次打開時重置錯誤狀態
+
+                    // 自動帶入該張諮詢單的信箱與電話
+                    this.convertForm.email = item.email || '';
+                    this.convertForm.tel = item.tel || '';
+
+                    // 重置所有錯誤狀態
+                    this.convertFormError = false;
+                    this.convertEmailError = false;
+                    this.convertTelError = false;
+
                     if (this.convertModalInstance) {
                         this.convertModalInstance.show();
                     }
@@ -958,18 +1007,24 @@
                 },
 
                 // 🌟 新增：送出轉預約 API
+                // 🌟 更新：送出轉預約 API 並攔截特定錯誤
                 submitConvert() {
-                    // 🌟 新增防呆邏輯：如果沒填伴侶姓名，顯示紅字並阻擋送出
                     if (!this.convertForm.partnerName || this.convertForm.partnerName.trim() === '') {
                         this.convertFormError = true;
                         return; // 終止轉換
                     }
 
+                    // 送出前先清除舊的錯誤提示
+                    this.convertEmailError = false;
+                    this.convertTelError = false;
+
                     this.isConverting = true;
 
-                    // 呼叫我們剛剛在 BookController 寫好的 API
+                    // 呼叫 API，把 email 和 tel 一起傳給後端
                     axios.post(`/api/books/from-consultation/${this.convertForm.consultationId}`, {
-                        partnerName: this.convertForm.partnerName
+                        partnerName: this.convertForm.partnerName,
+                        email: this.convertForm.email,
+                        tel: this.convertForm.tel
                     }, { withCredentials: true })
                         .then(response => {
                             alert('🎉 成功轉為正式預約！已建立客戶帳號。');
@@ -981,8 +1036,22 @@
                             if (error.response && error.response.data && error.response.data.message) {
                                 errorMsg = error.response.data.message;
                             }
-                            console.error(error);
-                            alert('轉換失敗：' + errorMsg);
+
+                            // 🌟 核心防呆：攔截後端傳來的自訂錯誤前綴，把視窗保留並顯示紅字
+                            if (errorMsg.includes('EMAIL_EXISTS:')) {
+                                this.convertEmailError = true;
+                                this.convertEmailErrorMsg = errorMsg.split('EMAIL_EXISTS:')[1];
+                            } else if (errorMsg.includes('TEL_EXISTS:')) {
+                                this.convertTelError = true;
+                                this.convertTelErrorMsg = errorMsg.split('TEL_EXISTS:')[1];
+                            } else if (errorMsg.includes('TEL_FORMAT:')) {
+                                this.convertTelError = true;
+                                this.convertTelErrorMsg = errorMsg.split('TEL_FORMAT:')[1];
+                            } else {
+                                // 如果是其他未預期的系統錯誤，才使用傳統的 alert
+                                console.error(error);
+                                alert('轉換失敗：' + errorMsg);
+                            }
                         })
                         .finally(() => {
                             this.isConverting = false;

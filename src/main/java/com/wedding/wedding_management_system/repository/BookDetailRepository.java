@@ -6,6 +6,6 @@ import com.wedding.wedding_management_system.entity.BookDetail;
 import java.util.List;
 
 public interface BookDetailRepository extends JpaRepository<BookDetail, Integer> {
-    List<BookDetail>findByBookId(Integer bookId);
+    List<BookDetail> findByBookIdOrderByServiceIdAsc(Integer bookId);
     void deleteByBookId(Integer bookId);
 }

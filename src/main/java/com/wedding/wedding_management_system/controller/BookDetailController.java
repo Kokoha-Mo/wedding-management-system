@@ -55,16 +55,41 @@ public class BookDetailController {
             @PathVariable Integer bookId,
             @RequestBody UpdateBookDetailsRequestDTO request) {
 
+        // 1. 找到 book
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("找不到預約單，id=" + bookId));
 
-        System.out.println("準備更新單號 " + bookId + " 的備註: " + request.getNotes());
+        // 2. 更新備註（存進 book.content）
+        if (request.getNotes() != null) {
+            book.setContent(request.getNotes());
+            bookRepository.save(book);
+        }
 
-        // 業界標準作法：先「刪除」該 bookId 底下所有的舊細項，然後把 request.getDetails() 裡的「重新新增」進去
-        System.out.println("收到新的細項數量: " + request.getDetails().size());
+        // 3. 刪除舊細項，重新寫入新細項
+        bookDetailRepository.deleteByBookId(bookId);
 
-        // 回傳成功訊息給前端
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "需求與方案已成功更新！");
-        return ResponseEntity.ok(response);
+        if (request.getDetails() != null && !request.getDetails().isEmpty()) {
+            List<BookDetail> details = request.getDetails().stream()
+                    .filter(s -> s.getServiceId() != null)
+                    .map(s -> {
+                        Service service = serviceRepository.findById(s.getServiceId())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                        "找不到服務項目，service_id=" + s.getServiceId()));
+                        BookDetail d = new BookDetail();
+                        d.setBook(book);
+                        d.setService(service);
+                        d.setUnitPrice(s.getUnitPrice() != null ? s.getUnitPrice() : service.getPrice());
+                        d.setCeremonyDate(s.getCeremonyDate());
+                        return d;
+                    })
+                    .collect(Collectors.toList());
+            bookDetailRepository.saveAll(details);
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "message", "需求與方案已成功更新！",
+                "saved", request.getDetails() != null ? request.getDetails().size() : 0
+        ));
     }
 
     /**
@@ -114,14 +139,26 @@ public class BookDetailController {
      */
     @GetMapping("/{bookId}/details")
     public ResponseEntity<?> getBookDetails(@PathVariable Integer bookId) {
-        // 這裡去呼叫 Service / Repository 撈取資料
-        // BookDetailsDTO details = bookService.getBookDetails(bookId);
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("找不到預約單，id=" + bookId));
 
-        // 這裡先隨便塞個假資料測試看看前端會不會動：
-        Map<String, Object> fakeData = new HashMap<>();
-        fakeData.put("services", Arrays.asList("新秘造型師", "空拍機壯闊空景拍攝", "迎賓與拍照區主題設計"));
-        fakeData.put("notes", "這是我後端傳過來的備註測試！");
+        List<BookDetail> details = bookDetailRepository.findByBookIdOrderByServiceIdAsc(bookId);
 
-        return ResponseEntity.ok(fakeData);
+        // 回傳已選服務的 service_id 清單（前端用來勾選 checkbox）
+        List<Map<String, Object>> services = details.stream()
+                .map(d -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("serviceId",   d.getService().getId());
+                    item.put("serviceName", d.getService().getName());
+                    item.put("unitPrice",   d.getUnitPrice());
+                    return item;
+                })
+                .collect(Collectors.toList());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("services", services);
+        result.put("notes",    book.getContent() != null ? book.getContent() : "");
+
+        return ResponseEntity.ok(result);
     }
 }

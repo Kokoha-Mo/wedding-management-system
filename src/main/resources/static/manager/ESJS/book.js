@@ -199,6 +199,7 @@ async function loadBooks(status = '處理中') {
 
         // --- 3. 解析 JSON 資料 ---
         let result = await res.json();
+        console.log('loadBooks 回傳:', result);
         //console.log("從後端拿到的第一筆資料時間是：", result[0].createAt);
 
         // ★★★ 關鍵：印出後端回傳的原始資料 ★★★
@@ -325,20 +326,7 @@ async function updateBookStatus(bookId, newStatus) {
     }
 }
 
-// 🌟 1. 服務對照表 (放在檔案最上方或函數外面)
 let currentEditingBookId = null;
-const SERVICE_MAP = [
-    { id: 1, price: 18000, name: "新秘造型師", selector: '#main-makeup' },
-    { id: 2, price: 5000,  name: "新郎妝髮造型", selector: null },
-    { id: 3, price: 2000,  name: "主婚人/親友妝髮", selector: null },
-    { id: 4, price: 18000, name: "婚禮企劃主持人", selector: '#main-host' },
-    { id: 5, price: 18000, name: "平面/動態紀實攝影師", selector: '#main-photo' },
-    { id: 6, price: 18000, name: "燈光音響與影音場控", selector: '#main-audio' },
-    { id: 7, price: 35000, name: "迎賓與拍照區主題設計", selector: null },
-    { id: 8, price: 20000, name: "宴客桌景與舞台視覺", selector: null },
-    { id: 9, price: 25000, name: "鮮花花藝佈置", selector: null },
-    { id: 10, price: 15000, name: "品牌級平面視覺套組", selector: null },
-];
 
 function findCheckbox(service) {
     if (service.selector) return document.querySelector(service.selector);
@@ -349,31 +337,76 @@ function findCheckbox(service) {
 }
 
 // ════════════════════════════════════════
-// 1. 讀取 API (外送員)
+// API：查看 book_details（查看需求按鈕）
 // ════════════════════════════════════════
+
+// 記住目前開啟的 bookId，儲存時使用
+let currentViewBookId = null;
+
 async function viewBookDetails(bookId) {
-    currentEditingBookId = bookId;
+    currentViewBookId = bookId;
     try {
-        const res     = await fetch(`${API_BASE}/books/${bookId}/details`, {
-            credentials: 'include'
-        });
+        const res  = await fetch(`${API_BASE}/books/${bookId}/details`, { credentials: 'include' });
         const data = await res.json();
 
-        // 填入備註
+        // 1. 填入備註
         const notesEl = document.getElementById('modify-notes');
         if (notesEl) notesEl.value = data.notes || '';
 
-        // 顯示服務清單（假資料階段：data.services 是名稱陣列）
+        // 2. 先把所有 modal checkbox 取消勾選
+        document.querySelectorAll('#modal-modify .modal-service-cb').forEach(cb => {
+            cb.checked = false;
+            // 同步關閉子項目
+            const targetId = cb.id.replace('main-', 'sub-');
+            const subBox = document.getElementById(targetId);
+            if (subBox) {
+                subBox.classList.add('opacity-50', 'pointer-events-none');
+                subBox.querySelectorAll('input').forEach(i => { i.disabled = true; i.checked = false; });
+            }
+        });
+
+        // 3. 根據 API 回傳的 serviceId 自動勾選
+        const checkedIds = new Set((data.services || []).map(s => String(s.serviceId)));
+
+        // Step A：先勾選主 checkbox（main-*），並開啟對應子項目
+        document.querySelectorAll('#modal-modify .modal-service-cb[id^="main-"]').forEach(cb => {
+            const sid = cb.getAttribute('data-service-id');
+            if (checkedIds.has(sid)) {
+                cb.checked = true;
+                const targetId = cb.id.replace('main-', 'sub-');
+                const subBox = document.getElementById(targetId);
+                if (subBox) {
+                    subBox.classList.remove('opacity-50', 'pointer-events-none');
+                    subBox.querySelectorAll('input').forEach(i => i.disabled = false);
+                }
+            }
+        });
+
+        // Step B：再勾選子 checkbox（沒有 id 或不是 main- 開頭的）
+        document.querySelectorAll('#modal-modify .modal-service-cb:not([id^="main-"])').forEach(cb => {
+            const sid = cb.getAttribute('data-service-id');
+            if (checkedIds.has(sid)) {
+                cb.checked = true;
+            }
+        });
+
+        // 4. 顯示已選服務清單
         const serviceListEl = document.getElementById('modify-service-list');
-        if (serviceListEl && data.services) {
-            serviceListEl.innerHTML = data.services.map(s =>
-                `<li class="text-sm text-gray-700 flex items-center gap-2">
-                    <span class="material-icons text-primary text-base">check_circle</span>${s}
-                </li>`
-            ).join('');
+        if (serviceListEl) {
+            if (data.services && data.services.length > 0) {
+                serviceListEl.innerHTML = data.services.map(s =>
+                    `<li class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <span class="material-icons text-primary text-base">check_circle</span>
+                        ${s.serviceName}
+                        <span class="ml-auto text-[11px] text-gray-400">NT$ ${(s.unitPrice || 0).toLocaleString()}</span>
+                    </li>`
+                ).join('');
+            } else {
+                serviceListEl.innerHTML = '<li class="text-sm text-gray-400">尚無服務細項</li>';
+            }
         }
 
-        // 開啟 modal
+        // 5. 開啟 modal
         toggleModal('modal-modify');
 
     } catch (err) {
@@ -383,48 +416,17 @@ async function viewBookDetails(bookId) {
 }
 
 // ════════════════════════════════════════
-// 2. 填寫畫面 (擺盤師) 👈 就是它，絕對要留著！
-// ════════════════════════════════════════
-function fillModifyModal(data) {
-    const modal = document.getElementById('modal-modify');
-    if (!modal) return;
-
-    // 清空舊的勾選
-    modal.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
-        input.checked = false;
-        if (input.onchange) input.onchange();
-    });
-
-    // 把拿到的新資料打勾
-    const detailsList = data.details || [];
-    detailsList.forEach(item => {
-        const service = SERVICE_MAP.find(s => s.id === item.service_id);
-        if (service) {
-            const input = findCheckbox(service);
-            if (input) {
-                input.checked = true;
-                if (input.onchange) input.onchange();
-            }
-        }
-    });
-
-    // 填寫備註
-    const textarea = modal.querySelector('textarea');
-    if (textarea) textarea.value = data.notes || '';
-}
-
-// ════════════════════════════════════════
-// 3. 儲存 API (負責把修改後的資料送回後端)
+// API：儲存需求設定（PUT /books/{id}/details）
 // ════════════════════════════════════════
 async function saveBookDetails() {
-    if (!currentEditingBookId) return;
+    if (!currentViewBookId) return;
 
     // 收集備註
     const notes = document.getElementById('modify-notes')?.value.trim() || '';
 
     // 收集所有勾選的 checkbox（有 data-service-id 的）
     const details = [];
-    document.querySelectorAll('#modal-modify input[type="checkbox"][data-service-id]:checked').forEach(cb => {
+    document.querySelectorAll('#modal-modify .modal-service-cb:checked').forEach(cb => {
         details.push({
             service_id: parseInt(cb.getAttribute('data-service-id')),
             unit_price: parseInt(cb.getAttribute('data-price') || 0),
@@ -435,9 +437,9 @@ async function saveBookDetails() {
     try {
         const res = await fetch(`${API_BASE}/books/${currentViewBookId}/details`, {
             method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({notes, details})
+            body: JSON.stringify({ notes, details })
         });
 
         if (res.ok) {
@@ -451,7 +453,7 @@ async function saveBookDetails() {
         showToast('連線失敗', 'error');
     }
 }
-// ════════════════════════════════════════
+/// ════════════════════════════════════════
 // 渲染：處理中卡片
 // ════════════════════════════════════════
 function renderPendingCards(books) {
@@ -464,6 +466,7 @@ function renderPendingCards(books) {
     }
 
     books.forEach(book => {
+        const bookId = book.bookId;  // ← 先抽出來避免 template literal 問題
         const card = document.createElement('div');
         card.className = 'snap-start shrink-0 w-[calc(33.333%-11px)] min-w-[420px] bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden hover:shadow-md transition-shadow';
         card.dataset.staff  = book.managerName || '';
@@ -514,15 +517,15 @@ function renderPendingCards(books) {
                 </div>
             </div>
             <div class="flex border-t border-gray-100 bg-gray-50/30">
-                <button onclick="viewBookDetails(${book.id})"
+                <button onclick="viewBookDetails(${bookId})"
                     class="flex-1 py-2.5 text-[12px] font-medium text-gray-500 hover:text-gray-700 border-r border-gray-100 transition-colors">
                     查看需求
                 </button>
-                <button onclick="updateBookStatus(${book.id}, '已簽約')"
+                <button onclick="updateBookStatus(${bookId}, '已簽約')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
                     接案處理
                 </button>
-                <button onclick="updateBookStatus(${book.id}, '取消')"
+                <button onclick="updateBookStatus(${bookId}, '取消')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-red-400 hover:bg-red-50 transition-colors">
                     取消
                 </button>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 
 <head>
@@ -108,11 +108,11 @@
 
         <div class="px-4 py-4 mt-2 sidebar-user">
             <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
-                <img alt="Joy Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover"
-                    src="./Img/smile.jpg" />
+                <img id="sidebar-avatar" alt="Joy Avatar"
+                    class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
                 <div class="menu-category p-0 m-0">
-                    <div class="text-white font-medium">Joy</div>
-                    <div class="text-xs text-gray-400 mt-1">PM 權限</div>
+                    <div id="sidebar-emp-name" class="text-white font-medium">Joy</div>
+                    <div id="sidebar-position" class="text-xs text-gray-400 mt-1">PM 權限</div>
                 </div>
             </div>
         </div>
@@ -120,25 +120,29 @@
         <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
             <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 GENERAL</div>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-consultation"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="consultation.html">
                 <span
                     class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-book"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="book.html">
                 <span
                     class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
+            <a id="nav-project"
+                class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
                 href="project.html">
                 <span
                     class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap text-white">專案管理</div>
             </a>
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-task"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="quest_staff.html">
                 <span
                     class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
@@ -148,7 +152,8 @@
             <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 系統設定</div>
 
-            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-account"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="account.html">
                 <span
                     class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
@@ -173,9 +178,10 @@
                 <div class="relative">
                     <div id="user-menu-button"
                         class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
-                        <img alt="Joy Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
+                        <img id="header-avatar" alt="Joy Avatar"
+                            class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
                             src="./Img/smile.jpg" />
-                        <span class="text-sm font-medium mr-1 text-gray-200">Joy</span>
+                        <span id="header-emp-name" class="text-sm font-medium mr-1 text-gray-200">Joy</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                     </div>
 
@@ -214,13 +220,13 @@
                         </a>
                         <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center tracking-wide">
                             <span class="material-icons text-indigo-500 mr-3 text-3xl">account_tree</span>
-                            專案進度追蹤：陳志明 & 林春嬌
+                            專案進度追蹤：<span id="header-project-name">載入中...</span>
                         </h2>
                         <div class="flex items-center gap-4 mt-3">
-                            <span
-                                class="text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">#WED-20261015</span>
+                            <span id="header-project-no"
+                                class="text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">載入中...</span>
                             <span class="text-sm text-gray-500 dark:text-gray-400 font-medium flex items-center"><span
-                                    class="material-icons text-[16px] mr-1">event</span> 預計婚期：2026-10-15</span>
+                                    class="material-icons text-[16px] mr-1">event</span> 預計婚期：<span id="header-wedding-date">載入中...</span></span>
                         </div>
                     </div>
 
@@ -235,8 +241,6 @@
                                 class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full shadow-[0_0_0_rgba(239,68,68,0.7)] animate-[pulse-alert_2s_infinite_cubic-bezier(0.66,0,0,1)] pointer-events-none border-2 border-white"></span>
                         </div>
 
-                        <input type="file" id="file-upload-input" class="hidden" multiple
-                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
                         <button id="upload-doc-btn"
                             class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-600 flex items-center shadow-sm transition-colors">
                             <span class="material-icons text-[18px] mr-2">upload_file</span> 文件上傳
@@ -286,19 +290,43 @@
                     </button>
                 </div>
 
-                <div class="lg:col-span-2 space-y-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                            <span class="material-icons text-indigo-500 mr-2">checklist</span>
-                            任務執行清單
-                        </h3>
-                        <div class="flex space-x-2 overflow-x-auto ..."> ... </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 左側：任務列表 -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                                <span class="material-icons text-indigo-500 mr-2">checklist</span>
+                                任務執行清單
+                            </h3>
+                        </div>
+
+                        <div id="task-list-container" class="space-y-4 relative min-h-[200px]">
+                            <div class="text-center py-10 text-gray-500">
+                                <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
+                                <p>正在載入任務資料...</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="task-list-container" class="space-y-4 relative min-h-[200px]">
-                        <div class="text-center py-10 text-gray-500">
-                            <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
-                            <p>正在載入任務資料...</p>
+                    <!-- 右側：專案文件歸檔 -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                                <span class="material-icons text-indigo-500 mr-2">folder_special</span>
+                                專案文件歸檔
+                            </h3>
+                            <button id="refresh-docs-btn" class="text-gray-400 hover:text-indigo-600 transition-colors">
+                                <span class="material-icons text-[20px]">refresh</span>
+                            </button>
+                        </div>
+
+                        <div id="project-docs-container" class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 min-h-[300px]">
+                            <div class="space-y-3" id="docs-list">
+                                <div class="text-center py-10 text-gray-400 text-sm">
+                                    <span class="material-icons text-3xl mb-2 block">folder_open</span>
+                                    尚無上傳文件
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -359,13 +387,13 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">要求完成期限 <span
                             class="text-red-500">*</span></label>
-                    <input type="date"
+                    <input type="date" id="task-deadline"
                         class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">交辦事項與備註</label>
-                    <textarea
+                    <textarea id="task-manager-content"
                         class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
                         rows="3" placeholder="例如：請特別注意客戶對花藝顏色有特殊要求..."></textarea>
                 </div>
@@ -401,42 +429,25 @@
             <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-5">
                 <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
                     <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">任務名稱</p>
-                    <p class="text-base font-bold text-gray-800 dark:text-gray-200">確認攝影師與錄影師檔期</p>
+                    <p id="result-modal-task-name" class="text-base font-bold text-gray-800 dark:text-gray-200">讀取中...</p>
                 </div>
 
                 <div>
                     <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">負責人員</p>
-                    <div
-                        class="flex items-center space-x-3 bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
-                        <div
-                            class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
-                            張</div>
-                        <div>
-                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">張小飛 (攝影部)</p>
-                        </div>
+                    <div id="result-modal-assignees-container" class="space-y-2">
+                        <!-- 動態插入負責人 -->
                     </div>
                 </div>
 
                 <div>
-                    <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">回報附檔 (現場照片 / 截圖)</p>
-                    <div
-                        class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-2 bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center group hover:border-indigo-400 transition-colors cursor-pointer">
-                        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                            alt="成果截圖"
-                            class="w-full h-48 object-cover rounded-lg shadow-sm group-hover:opacity-90 transition-opacity">
-                        <div
-                            class="mt-3 flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-indigo-600 transition-colors">
-                            <span class="material-icons text-[18px] mr-1.5">image</span> 檔期確認對話截圖.jpg
+                    <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">回報附檔</p>
+                    <div id="result-modal-documents-container" class="space-y-2">
+                        <!-- 動態插入檔案列表 -->
+                        <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
+                            <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">檔期確認對話截圖.pdf</span>
                         </div>
                     </div>
-                </div>
-
-                <div>
-                    <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">負責人備註</p>
-                    <p
-                        class="text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-inner">
-                        已經跟內部錄影組與李大師確認過 10/15 檔期OK，對話截圖如附檔，請主管審核確認！
-                    </p>
                 </div>
             </div>
 
@@ -521,47 +532,26 @@
 
             <div id="client-chat-content"
                 class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#faf7f2] dark:bg-gray-900/50 custom-scrollbar">
-
-                <div class="flex flex-col items-start gap-1">
-                    <div class="flex gap-2 items-center mb-1">
-                        <div
-                            class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-serif text-sm shadow-sm">
-                            王</div>
-                        <span class="text-xs text-gray-500 font-bold">王先生 & 陳小姐 • 2026-03-09 09:15</span>
-                    </div>
-                    <div
-                        class="bg-white p-4 rounded-2xl rounded-tl-sm shadow-sm max-w-[85%] text-sm text-gray-800 border border-gray-100 leading-relaxed">
-                        我們目前比較偏好「莫蘭迪粉」或是「燕麥色」系，等我們整理好幾張照片再傳給妳參考喔！
-                    </div>
+                <div class="text-center py-10 text-gray-500 text-sm">
+                    <span class="material-icons animate-spin text-indigo-500 mb-2">autorenew</span>
+                    <p>正在載入討論紀錄...</p>
                 </div>
-
-                <div class="flex flex-col items-end gap-1">
-                    <div class="flex gap-2 items-center flex-row-reverse mb-1">
-                        <div
-                            class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-serif text-sm shadow-sm">
-                            李</div>
-                        <span class="text-xs text-gray-500 font-bold">本人 (PM) • 2026-03-09 10:05</span>
-                    </div>
-                    <div
-                        class="bg-indigo-50 p-4 rounded-2xl rounded-tr-sm shadow-sm max-w-[85%] text-sm text-indigo-900 border border-indigo-100 leading-relaxed text-right">
-                        沒問題！收到參考圖後，我會請佈置團隊先出第一版的 3D 模擬圖讓你們確認。
-                    </div>
-                </div>
-
             </div>
 
             <div class="p-5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-[28px]">
+                <div id="client-file-preview-wrapper" class="hidden flex flex-wrap justify-end gap-2 w-full mb-2"></div>
                 <div class="flex items-center space-x-3">
-                    <button class="text-gray-400 hover:text-indigo-600 transition-colors p-2 flex-shrink-0"
+                    <input type="file" id="clientFileUploadInput" class="hidden" accept="image/*,.pdf,.doc,.docx" multiple>
+                    <button onclick="document.getElementById('clientFileUploadInput').click()" class="text-gray-400 hover:text-indigo-600 transition-colors p-2 flex-shrink-0"
                         title="上傳檔案">
                         <span class="material-icons">attach_file</span>
                     </button>
 
-                    <input type="text" placeholder="回覆客戶訊息..."
+                    <input type="text" id="client-chat-input" placeholder="回覆客戶訊息..."
                         class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 dark:text-white transition-colors">
 
-                    <button
-                        class="btn-send-client-msg p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0">
+                    <button id="btn-send-client-msg"
+                        class="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0 disabled:opacity-50">
                         <span class="material-icons text-[20px]">send</span>
                     </button>
                 </div>
@@ -592,6 +582,45 @@
         </div>
     </div>
 
+    <!-- 🌟 新增：專案文件上傳 Modal (參考 quest_staff.html 樣式) -->
+    <div id="projectDocUploadModal" class="hidden fixed inset-0 z-[130] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[450px] max-w-[95%] shadow-2xl transform transition-all border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4 border-b border-gray-100 dark:border-gray-700 pb-3">
+                <h3 class="text-xl font-bold dark:text-white flex items-center">
+                    <span class="material-icons text-indigo-500 mr-2">upload_file</span>
+                    上傳專案文件
+                </h3>
+                <button onclick="closeProjectDocUploadModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
+                此處上傳的文件 (如規格書、報價單) 將歸檔於此專案，並同步供客戶在進度頁面查看。
+            </p>
+            
+            <div id="drop-zone" class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer mb-6 group">
+                <input type="file" id="archive-file-input" class="hidden" multiple>
+                <label for="archive-file-input" class="cursor-pointer block">
+                    <span class="material-icons text-4xl text-gray-300 group-hover:text-indigo-400 mb-2 transition-colors">cloud_upload</span>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">點擊或拖拽檔案至此</p>
+                    <div id="archive-file-name-container" class="mt-4 space-y-1">
+                        <!-- 檔案名稱列表將顯示於此 -->
+                    </div>
+                </label>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="closeProjectDocUploadModal()" class="flex-1 py-2.5 text-gray-500 font-bold hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+                    取消
+                </button>
+                <button id="confirm-project-upload-btn" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-md shadow-indigo-200 dark:shadow-none transition-all disabled:opacity-50">
+                    確認上傳
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ================== 全局變數 ==================
         let currentTaskCard = null;
@@ -600,6 +629,60 @@
 
         // ================== 頁面初始化 ==================
         document.addEventListener('DOMContentLoaded', () => {
+            // 1. 初始化與驗證
+            const empId = sessionStorage.getItem('empId');
+            const empName = sessionStorage.getItem('empName');
+            const position = sessionStorage.getItem('position');
+            const deptId = sessionStorage.getItem('deptId');
+
+            if (!empId) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            // 顯示人員資訊
+            const sidebarEmpName = document.getElementById('sidebar-emp-name');
+            const headerEmpName = document.getElementById('header-emp-name');
+            const sidebarPosition = document.getElementById('sidebar-position');
+
+            if (sidebarEmpName) sidebarEmpName.textContent = empName || '未知員工';
+            if (headerEmpName) headerEmpName.textContent = empName || '未知員工';
+            if (sidebarPosition) sidebarPosition.textContent = position === 'MANAGER' ? '業務管理' : '員工';
+
+            // 顯示頭像
+            const imgPath = sessionStorage.getItem('imgPath');
+            if (imgPath) {
+                const fullPath = imgPath.startsWith('http') ? imgPath : '/' + imgPath;
+                const sidebarAv = document.getElementById('sidebar-avatar');
+                const headerAv = document.getElementById('header-avatar');
+                if (sidebarAv) sidebarAv.src = fullPath;
+                if (headerAv) headerAv.src = fullPath;
+            }
+
+            // 側邊欄權限控制
+            const navIds = ['nav-consultation', 'nav-book', 'nav-project', 'nav-task'];
+            navIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+
+            if (deptId === '1') {
+                if (document.getElementById('nav-book')) document.getElementById('nav-book').style.display = 'flex';
+                if (document.getElementById('nav-project')) document.getElementById('nav-project').style.display = 'flex';
+            } else if (deptId === '7') {
+                if (document.getElementById('nav-consultation')) document.getElementById('nav-consultation').style.display = 'flex';
+            } else {
+                if (document.getElementById('nav-task')) document.getElementById('nav-task').style.display = 'flex';
+            }
+
+            // 【登入驗證】從 sessionStorage 取得目前登入的 Manager emp_id
+            const MANAGER_ID = sessionStorage.getItem('empId');
+            if (!MANAGER_ID) {
+                // 若 sessionStorage 中沒有 emp_id，代表尚未登入，導向登入頁
+                alert('請先登入！');
+                window.location.href = 'login.html';
+                return; // 中止後續程式執行
+            }
 
             // 1. 從網址列抓取 ?id= 的數值
             const urlParams = new URLSearchParams(window.location.search);
@@ -607,19 +690,64 @@
             const projectId = urlParams.get('id') || urlParams.get('projectId') || 1;
 
             if (projectId) {
+                fetchProjectInfo(projectId);
                 fetchProjectTasks(projectId);
             } else {
                 showError('缺少專案 ID，無法載入任務！請從專案總覽點擊進入。');
             }
 
             // ==========================================
-            // 🌟 2. 呼叫 Spring Boot API
+            // 🌟 2-1. 呼叫 Spring Boot API 取得專案基本資料
+            // ==========================================
+            async function fetchProjectInfo(id) {
+                try {
+                    const response = await fetch(`/api/manager/projects/${id}/record`, { credentials: 'include' });
+                    if (!response.ok) {
+                        if (response.status === 401 || response.status === 403) {
+                            alert("帳號驗證已過期或尚未登入，請重新登入！");
+                            sessionStorage.clear();
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        throw new Error('API 請求失敗');
+                    }
+                    if (response.ok) {
+                        const projectInfo = await response.json();
+                        if (projectInfo.customerName) {
+                            document.getElementById('header-project-name').textContent = projectInfo.customerName;
+                        } else {
+                            document.getElementById('header-project-name').textContent = '未定客戶';
+                        }
+                        if (projectInfo.projectNo) document.getElementById('header-project-no').textContent = projectInfo.projectNo;
+                        
+                        // 處理預計婚期，如果有需要的話可能要依賴 record 或是 book API 裡的預計婚期，目前用傳回來的實際婚期當作婚期
+                        if (projectInfo.weddingDate) {
+                            document.getElementById('header-wedding-date').textContent = projectInfo.weddingDate;
+                        } else {
+                            document.getElementById('header-wedding-date').textContent = '未定';
+                        }
+                    }
+                } catch (error) {
+                    console.error('無法取得專案基本資訊:', error);
+                }
+            }
+
+            // ==========================================
+            // 🌟 2-2. 呼叫 Spring Boot API 取得任務
             // ==========================================
             async function fetchProjectTasks(id) {
                 try {
                     // ⚠️ 確保網址跟你的 Controller 完對齊：/api/manager/projects/{id}/tasks
-                    const response = await fetch(`/api/manager/projects/${id}/tasks`);
-                    if (!response.ok) throw new Error('API 請求失敗');
+                    const response = await fetch(`/api/manager/projects/${id}/tasks`, { credentials: 'include' });
+                    if (!response.ok) {
+                        if (response.status === 401 || response.status === 403) {
+                            alert("帳號驗證已過期或尚未登入，請重新登入！");
+                            sessionStorage.clear();
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        throw new Error('API 請求失敗');
+                    }
 
                     const tasks = await response.json();
                     renderTasks(tasks);
@@ -633,6 +761,7 @@
             // 🌟 3. 動態渲染任務小卡到 HTML
             // ==========================================
             function renderTasks(tasks) {
+                window.currentProjectTasks = tasks; // Save globally for modal access
                 if (!taskListContainer) return;
                 taskListContainer.innerHTML = ''; // 清空「載入中」提示
 
@@ -668,25 +797,85 @@
                     const serviceName = task.serviceName || `服務 #${task.serviceId || '未知'}`;
                     const updateTime = task.updateAt ? task.updateAt.replace('T', ' ').substring(0, 16) : '尚無更新紀錄';
 
+                    let assigneesHtml = '';
+                    let deadlineHtml = '';
+                    if (task.status === '進行中' || task.status === '待審核' || task.status === '已完成') {
+                        const deadlineFixed = task.deadline ? task.deadline.substring(0, 10) : '未設定';
+                        deadlineHtml = `<p class="text-xs text-red-500 mt-1 flex items-center font-bold">
+                                            <span class="material-icons text-[14px] mr-1">event</span> 截止: ${deadlineFixed}
+                                        </p>`;
+
+                        if (task.assignees && task.assignees.length > 0) {
+                            const assigneeNames = task.assignees.map(a => a.name).join(', ');
+                            assigneesHtml = `<p class="text-xs text-indigo-600 mt-1 flex items-center font-bold">
+                                                <span class="material-icons text-[14px] mr-1">person</span> 負責人: ${assigneeNames}
+                                            </p>`;
+                        } else {
+                            assigneesHtml = `<p class="text-xs text-indigo-600 mt-1 flex items-center font-bold">
+                                                <span class="material-icons text-[14px] mr-1">person</span> 負責人: 尚未指派
+                                            </p>`;
+                        }
+                    }
+
+                    // 生成任務卡片 HTML
+                    let rightActionHtml = '';
+                    if (task.status === '待指派' || task.status === '卡關') {
+                        rightActionHtml = `
+                            <div class="flex items-center h-full pt-2 gap-2">
+                                <button class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap" onclick="openChatModal('${task.taskId}', false)">
+                                    <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
+                                </button>
+                                <button class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors btn-assign flex items-center whitespace-nowrap" 
+                                    data-task="${serviceName}" data-category="${deptName}" data-task-id="${task.taskId}" data-dept-id="${deptId}">
+                                    指派任務 <span class="material-icons text-[16px] ml-1">person_add_alt</span>
+                                </button>
+                            </div>
+                        `;
+                    } else if (task.status === '待審核') {
+                        rightActionHtml = `
+                            <div class="flex flex-col items-end gap-2 h-full justify-center pt-2">
+                                <div class="flex space-x-2 mb-1">
+                                    <button class="px-3 py-1.5 bg-gray-50 text-gray-600 font-bold rounded-lg text-xs hover:bg-gray-100 transition-colors" onclick="openChatModal('${task.taskId}', false)" title="任務留言板"><span class="material-icons text-[16px]">forum</span></button>
+                                    <button class="px-3 py-1.5 bg-red-50 text-red-600 font-bold rounded-lg text-xs hover:bg-red-100 btn-reject transition-colors" data-task-id="${task.taskId}">駁回</button>
+                                    <button class="px-3 py-1.5 bg-orange-400 text-white font-bold rounded-lg text-xs hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed btn-approve btn-approve-${task.taskId} transition-colors" data-task-id="${task.taskId}" disabled title="請先查看詳情與成果">審核通過</button>
+                                </div>
+                                <button class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors btn-view-result flex items-center whitespace-nowrap" data-task-id="${task.taskId}">
+                                    查看成果 <span class="material-icons text-[16px] ml-1">pageview</span>
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        rightActionHtml = `
+                            <div class="flex items-center h-full pt-2 gap-2">
+                                <button class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap" onclick="openChatModal('${task.taskId}', false)">
+                                    <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
+                                </button>
+                                <button class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors btn-assign flex items-center whitespace-nowrap" 
+                                    data-task="${serviceName}" data-category="${deptName}" data-task-id="${task.taskId}" data-dept-id="${deptId}">
+                                    查看詳情 <span class="material-icons text-[16px] ml-1">chevron_right</span>
+                                </button>
+                            </div>
+                        `;
+                    }
+
                     // 生成任務卡片 HTML
                     const html = `
                     <div class="task-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden transition-all hover:shadow-md" data-status="${task.status}">
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 ${statusColor}"></div>
-                        <div class="flex justify-between items-start pl-3">
+                        <div class="flex justify-between items-center pl-3 w-full">
                             <div>
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">${deptName}</span>
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${task.status}</span>
                                 </div>
                                 <h4 class="text-base font-bold text-gray-900 dark:text-white">${serviceName}</h4>
+                                ${assigneesHtml}
+                                ${deadlineHtml}
                                 <p class="text-xs text-gray-400 mt-2 flex items-center">
                                     <span class="material-icons text-[14px] mr-1">update</span> 最後更新: ${updateTime}
                                 </p>
                             </div>
-                            <button class="text-gray-400 hover:text-indigo-600 transition-colors p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 btn-assign" 
-                                data-task="${serviceName}" data-category="${deptName}" data-task-id="${task.taskId}" data-dept-id="${deptId}">
-                                <span class="material-icons text-[20px]">chevron_right</span>
-                            </button>
+                            ${rightActionHtml}
                         </div>
                     </div>
                 `;
@@ -810,10 +999,43 @@
             const taskName = btn.getAttribute('data-task') || '未知任務';
             const deptName = btn.getAttribute('data-category') || '未指派';
             const deptId = btn.getAttribute('data-dept-id'); // 🌟 拿到部門 ID
+            const taskId = btn.getAttribute('data-task-id'); // 🌟 拿到任務 ID
+
+            const taskObj = window.currentProjectTasks ? window.currentProjectTasks.find(t => String(t.taskId) === String(taskId)) : null;
+            const isReadOnly = taskObj && (taskObj.status === '進行中' || taskObj.status === '待審核' || taskObj.status === '已完成');
 
             document.getElementById('modal-task-name').textContent = taskName;
             document.getElementById('modal-task-category').textContent = deptName;
+            document.getElementById('assignModal').setAttribute('data-current-task-id', taskId);
             document.getElementById('assignModal').classList.remove('hidden');
+
+            const deadlineInput = document.getElementById('task-deadline');
+            const managerContentInput = document.getElementById('task-manager-content');
+            const submitBtn = document.getElementById('submit-assign-btn');
+
+            // Pre-fill existing data
+            if (taskObj && taskObj.deadline) {
+                deadlineInput.value = taskObj.deadline.substring(0, 10);
+            } else {
+                deadlineInput.value = '';
+            }
+
+            if (taskObj && taskObj.managerContent) {
+                managerContentInput.value = taskObj.managerContent;
+            } else {
+                managerContentInput.value = '';
+            }
+
+            // Set readonly layout
+            if (isReadOnly) {
+                deadlineInput.readOnly = true;
+                managerContentInput.readOnly = true;
+                if (submitBtn) submitBtn.style.display = 'none';
+            } else {
+                deadlineInput.readOnly = false;
+                managerContentInput.readOnly = false;
+                if (submitBtn) submitBtn.style.display = 'flex';
+            }
 
             // 準備渲染員工的容器
             const employeeContainer = document.getElementById('employee-list-container');
@@ -827,7 +1049,7 @@
 
             try {
                 // 🌟 呼叫後端 API (依據部門 ID 找員工)
-                const response = await fetch(`/api/manager/employees/department/${deptId}`);
+                const response = await fetch(`/api/employee/department/${deptId}`);
                 if (!response.ok) throw new Error('API 請求失敗');
 
                 const employees = await response.json();
@@ -844,9 +1066,19 @@
                 employeeContainer.innerHTML = employees.map((emp, idx) => {
                     const color = colors[idx % colors.length];
                     const firstChar = emp.name ? emp.name.charAt(0) : '員';
+
+                    let isChecked = '';
+                    if (taskObj && taskObj.assignees) {
+                        if (taskObj.assignees.some(a => String(a.empId) === String(emp.empId))) {
+                            isChecked = 'checked';
+                        }
+                    }
+
+                    const disabledStr = isReadOnly ? 'disabled' : '';
+
                     return `
-                    <label class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer transition-colors">
-                        <input type="checkbox" name="assignees" value="${emp.empId}" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
+                    <label class="flex items-center p-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'} transition-colors">
+                        <input type="checkbox" name="assignees" value="${emp.empId}" ${isChecked} ${disabledStr} class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
                         <div class="flex items-center space-x-3">
                             <div class="w-7 h-7 rounded-full ${color} flex items-center justify-center font-bold text-xs">
                                 ${firstChar}
@@ -869,14 +1101,586 @@
             });
         });
 
-        // 模擬送出指派
+        // 確認送出指派
         const submitAssignBtn = document.getElementById('submit-assign-btn');
         if (submitAssignBtn) {
-            submitAssignBtn.addEventListener('click', () => {
-                alert('已成功送出派工指令！(實務上此處將打 API 儲存至資料庫)');
-                document.getElementById('assignModal').classList.add('hidden');
+            submitAssignBtn.addEventListener('click', async () => {
+                const checkedBoxes = document.querySelectorAll('input[name="assignees"]:checked');
+                if (checkedBoxes.length === 0) {
+                    alert('請至少選擇一位負責人！');
+                    return;
+                }
+                const assignees = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+
+                const deadline = document.getElementById('task-deadline').value;
+                if (!deadline) {
+                    alert('請選擇要求完成期限！');
+                    return;
+                }
+
+                const managerContent = document.getElementById('task-manager-content').value;
+                const taskId = document.getElementById('assignModal').getAttribute('data-current-task-id');
+
+                // Formulate deadline format as LocalDateTime string (append T00:00:00 if date only)
+                // "YYYY-MM-DD" + "T00:00:00"
+                const requestData = {
+                    assignees: assignees,
+                    deadline: deadline + "T00:00:00",
+                    managerContent: managerContent
+                };
+
+                try {
+                    const response = await fetch(`/api/manager/projects/tasks/${taskId}/assign`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+
+                    if (response.ok) {
+                        alert('已成功送出派工指令！');
+                        document.getElementById('assignModal').classList.add('hidden');
+
+                        // 重新載入任務列表
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const projectId = urlParams.get('id') || urlParams.get('projectId') || 1;
+                        // Reload task list
+                        // Using fetchProjectTasks directly not accessible here (block scoped) 
+                        // So reload page or fetch again. For simplicity:
+                        window.location.reload();
+                    } else {
+                        throw new Error('API failed');
+                    }
+                } catch (error) {
+                    console.error('指派任務失敗:', error);
+                    alert('指派任務失敗，請稍後再試。');
+                }
             });
         }
+
+        // ================= 駁回與審核通過控制 =================
+        document.querySelectorAll('.close-result-modal').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('resultModal').classList.add('hidden');
+            });
+        });
+
+        async function updateTaskStatusAPI(taskId, newStatus) {
+            try {
+                const response = await fetch(`/api/manager/projects/tasks/${taskId}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (response.ok) {
+                    alert('狀態更新成功！');
+                    window.location.reload();
+                } else {
+                    alert('狀態更新失敗！');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('網路錯誤，請稍後再試。');
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            // 查看成果按鈕 -> 解鎖審核按鈕並綁定資料到 Modal
+            const viewResultBtn = e.target.closest('.btn-view-result');
+            if (viewResultBtn) {
+                const taskId = viewResultBtn.getAttribute('data-task-id');
+                const taskObj = window.currentProjectTasks ? window.currentProjectTasks.find(t => String(t.taskId) === String(taskId)) : null;
+                
+                if (taskObj) {
+                    // 更新任務名稱
+                    document.getElementById('result-modal-task-name').textContent = taskObj.serviceName || `服務 #${taskObj.serviceId || '未知'}`;
+
+                    // 更新負責人清單
+                    const assigneesContainer = document.getElementById('result-modal-assignees-container');
+                    if (taskObj.assignees && taskObj.assignees.length > 0) {
+                        assigneesContainer.innerHTML = taskObj.assignees.map(emp => {
+                            const firstChar = emp.name ? emp.name.charAt(0) : '員';
+                            return `
+                                <div class="flex items-center space-x-3 bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                                        ${firstChar}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${emp.name} <span class="text-xs text-gray-500">(${emp.departmentName || taskObj.deptName || '未歸屬部門'})</span></p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        assigneesContainer.innerHTML = '<p class="text-sm text-gray-500">尚未指派負責人</p>';
+                    }
+                    
+                    // 更新檔案列表 (若 TaskDTO 日後支援回傳 documents 就從這抽，現在先使用 dummy 或把資料顯示出來)
+                    const docsContainer = document.getElementById('result-modal-documents-container');
+                    if (taskObj.documents && taskObj.documents.length > 0) {
+                        docsContainer.innerHTML = taskObj.documents.map(doc => `
+                            <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
+                                <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">${doc.name || '未命名檔案'}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        // Dummy 資料，符合「欄位對應documents表中的name」
+                        docsContainer.innerHTML = `
+                            <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
+                                <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">檔期確認對話截圖.pdf</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                const approveBtn = document.querySelector(`.btn-approve-${taskId}`);
+                if (approveBtn) {
+                    approveBtn.disabled = false;
+                    approveBtn.removeAttribute('title');
+                }
+                
+                document.getElementById('resultModal').classList.remove('hidden');
+                return;
+            }
+
+            // 駁回按鈕
+            const rejectBtn = e.target.closest('.btn-reject');
+            if (rejectBtn) {
+                window.currentRejectTaskId = rejectBtn.getAttribute('data-task-id');
+                document.getElementById('rejectModal').classList.remove('hidden');
+                return;
+            }
+
+            // 審核通過按鈕
+            const approveBtn = e.target.closest('.btn-approve');
+            if (approveBtn && !approveBtn.disabled) {
+                if (confirm('確定要審核通過此任務並設為已完成嗎？')) {
+                    const taskId = approveBtn.getAttribute('data-task-id');
+                    updateTaskStatusAPI(taskId, '已完成');
+                }
+                return;
+            }
+        });
+
+        window.closeRejectModal = function () {
+            document.getElementById('rejectModal').classList.add('hidden');
+            window.currentRejectTaskId = null;
+        };
+
+        window.confirmRejectTask = function () {
+            if (window.currentRejectTaskId) {
+                updateTaskStatusAPI(window.currentRejectTaskId, '待指派');
+                document.getElementById('rejectModal').classList.add('hidden');
+            }
+        };
+
+        // ================= 專屬客服通道 =================
+        let clientChatFiles = [];
+        
+        window.openClientChatModal = function(e) {
+            e.preventDefault();
+            document.getElementById('clientChatModal').classList.remove('hidden');
+            let projectId = new URLSearchParams(window.location.search).get('id') || new URLSearchParams(window.location.search).get('projectId') || 1;
+            loadClientChat(projectId);
+        };
+
+        window.closeClientChatModal = function() {
+            document.getElementById('clientChatModal').classList.add('hidden');
+            clientChatFiles = [];
+            document.getElementById('clientFileUploadInput').value = '';
+            document.getElementById('client-chat-input').value = '';
+            renderClientFilePreview();
+        };
+
+        async function loadClientChat(projectId) {
+            const container = document.getElementById('client-chat-content');
+            try {
+                const response = await fetch(`/api/manager/projects/${projectId}/communication`);
+                if (!response.ok) throw new Error('Failed to load communication');
+                const data = await response.json();
+                const timeline = data.timeline;
+                const pmName = data.pmName;
+                
+                if (timeline && timeline.length > 0) {
+                    container.innerHTML = timeline.reverse().map(msg => renderClientMessage(msg, pmName)).join('');
+                    setTimeout(() => container.scrollTop = container.scrollHeight, 100);
+                } else {
+                    container.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">尚無討論紀錄</div>';
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div class="text-center py-10 text-red-400 text-sm">無法載入討論紀錄</div>';
+            }
+        }
+
+        function renderClientMessage(msg, pmName) {
+            const isPM = msg.createBy === pmName || msg.createBy === '公司' || msg.createBy.includes('PM');
+            const senderName = msg.createBy || '未知';
+            const firstChar = senderName.charAt(0);
+            const time = msg.createAt ? msg.createAt.replace('T', ' ').substring(0, 16) : '';
+            
+            let attachmentsHtml = '';
+            if (msg.documents && msg.documents.length > 0) {
+                attachmentsHtml = '<div class="d-flex flex-wrap gap-2 mt-2">';
+                msg.documents.forEach(doc => {
+                    let url = doc.filePath && doc.filePath.startsWith('/uploads') ? window.location.origin + doc.filePath : doc.filePath;
+                    if (doc.fileType && doc.fileType.startsWith('image/')) {
+                        attachmentsHtml += `<img src="${url}" onerror="this.outerHTML='<span class=\\'text-xs text-gray-500\\'><span class=\\'material-icons text-[14px]\\'>broken_image</span>圖片錯誤</span>'" class="max-w-[160px] max-h-[160px] rounded object-cover border border-gray-200 shadow-sm mt-2">`;
+                    } else {
+                        attachmentsHtml += `<a href="${url}" target="_blank" class="inline-flex items-center gap-1 p-2 bg-white/60 dark:bg-gray-800/60 border border-indigo-200 dark:border-indigo-800 rounded text-indigo-600 dark:text-indigo-400 text-xs mt-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors"><span class="material-icons text-[14px]">description</span>${doc.name}</a>`;
+                    }
+                });
+                attachmentsHtml += '</div>';
+            }
+
+            if (isPM) {
+                return `
+                    <div class="flex flex-col items-end gap-1">
+                        <div class="flex gap-2 items-center flex-row-reverse mb-1">
+                            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-serif text-sm shadow-sm">${firstChar}</div>
+                            <span class="text-xs text-gray-500 font-bold">${senderName} (PM) • ${time}</span>
+                        </div>
+                        <div class="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-2xl rounded-tr-sm shadow-sm max-w-[85%] text-sm text-indigo-900 dark:text-indigo-100 border border-indigo-100 dark:border-indigo-800 leading-relaxed text-right flex flex-col items-end">
+                            ${msg.content ? `<p class="m-0 whitespace-pre-wrap text-left">${msg.content}</p>` : ''}
+                            ${attachmentsHtml}
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="flex flex-col items-start gap-1">
+                        <div class="flex gap-2 items-center mb-1">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center font-serif text-sm shadow-sm">${firstChar}</div>
+                            <span class="text-xs text-gray-500 font-bold">${senderName} • ${time}</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-sm shadow-sm max-w-[85%] text-sm text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 leading-relaxed">
+                            ${msg.content ? `<p class="m-0 whitespace-pre-wrap">${msg.content}</p>` : ''}
+                            ${attachmentsHtml}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        document.getElementById('clientFileUploadInput').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            const MAX_FILE_SIZE = 10 * 1024 * 1024;
+            let oversize = false;
+
+            files.forEach(file => {
+                if (file.size > MAX_FILE_SIZE) { oversize = true; return; }
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        clientChatFiles.push({ file: file, name: file.name, type: file.type, preview: ev.target.result });
+                        renderClientFilePreview();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    clientChatFiles.push({ file: file, name: file.name, type: file.type, preview: null });
+                    renderClientFilePreview();
+                }
+            });
+
+            if (oversize) alert("部分檔案超過 10MB 限制，已自動忽略！");
+            e.target.value = ''; // clear input
+        });
+
+        function renderClientFilePreview() {
+            const wrapper = document.getElementById('client-file-preview-wrapper');
+            if (clientChatFiles.length === 0) {
+                wrapper.classList.add('hidden');
+                wrapper.innerHTML = '';
+                return;
+            }
+            wrapper.classList.remove('hidden');
+            wrapper.innerHTML = clientChatFiles.map((item, index) => {
+                let content = item.type.startsWith('image/') 
+                    ? `<img src="${item.preview}" class="h-12 w-auto border border-gray-200 rounded object-cover">`
+                    : `<span class="inline-flex items-center gap-1 bg-gray-100 text-xs px-2 py-1 rounded border border-gray-200 text-gray-600"><span class="material-icons text-[14px]">description</span><span class="truncate max-w-[80px]">${item.name}</span></span>`;
+                return `
+                    <div class="relative inline-block mt-2">
+                        ${content}
+                        <button onclick="removeClientChatFile(${index})" class="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-sm hover:scale-110 transition-transform"><span class="material-icons text-[12px]">close</span></button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.removeClientChatFile = function(index) {
+            clientChatFiles.splice(index, 1);
+            renderClientFilePreview();
+        };
+
+        const postClientChat = async () => {
+            const btn = document.getElementById('btn-send-client-msg');
+            const input = document.getElementById('client-chat-input');
+            const content = input.value.trim();
+            
+            if (!content && clientChatFiles.length === 0) return;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-icons animate-spin text-[20px]">autorenew</span>';
+
+            const formData = new FormData();
+            formData.append('createBy', '公司'); // Or dynamically fetch PM name
+            if (content) formData.append('content', content);
+            
+            clientChatFiles.forEach(item => {
+                formData.append('files', item.file);
+            });
+
+            const projectId = new URLSearchParams(window.location.search).get('id') || new URLSearchParams(window.location.search).get('projectId') || 1;
+
+            try {
+                const response = await fetch(`/api/manager/projects/${projectId}/communication`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                if (response.ok) {
+                    input.value = '';
+                    clientChatFiles = [];
+                    renderClientFilePreview();
+                    loadClientChat(projectId);
+                } else {
+                    alert('發送失敗！');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('系統異常，請聯絡管理員');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-icons text-[20px]">send</span>';
+            }
+        };
+
+        document.getElementById('btn-send-client-msg').addEventListener('click', postClientChat);
+        document.getElementById('client-chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') postClientChat();
+        });
+
+        // ================= 任務內部溝通 (PM vs 員工) =================
+        let activeTaskId = null;
+
+        window.openChatModal = async function(taskId, readOnly = false) {
+            activeTaskId = taskId;
+            const inputArea = document.querySelector('#chatModal .p-4.border-t');
+            if (inputArea) inputArea.style.display = readOnly ? 'none' : 'block';
+            
+            document.getElementById('chatModal').classList.remove('hidden');
+            await fetchChatMessages(taskId);
+        };
+
+        window.closeChatModal = function() {
+            document.getElementById('chatModal').classList.add('hidden');
+            activeTaskId = null;
+        };
+
+        async function fetchChatMessages(taskId) {
+            const content = document.getElementById('chat-content');
+            if (!content) return;
+            content.innerHTML = '<div class="text-center text-slate-400 py-10">讀取中...</div>';
+            
+            try {
+                const response = await fetch(`/api/employee/tc/${taskId}`, { credentials: 'include' });
+                if (response.ok) {
+                    const msgs = await response.json();
+                    content.innerHTML = '';
+                    if (msgs.length === 0) {
+                        content.innerHTML = '<div class="text-center text-slate-400 py-10 text-xs">尚無留言紀錄</div>';
+                    }
+                    const MANAGER_ID = sessionStorage.getItem('empId');
+                    msgs.forEach(msg => {
+                        const isMe = String(msg.creatorId) === String(MANAGER_ID);
+                        const isManager = msg.creatorPosition === 'MANAGER';
+                        const time = msg.createAt ? new Date(msg.createAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                        
+                        const alignmentClass = isMe ? 'items-end' : 'items-start';
+                        const bubbleClass = isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-tl-none';
+                        const label = isMe ? '本人 (PM)' : (isManager ? `業務 - ${msg.creatorName}` : msg.creatorName);
+
+                        const msgHtml = `
+                            <div class="flex flex-col ${alignmentClass}">
+                                <span class="text-[10px] text-gray-500 mb-1 font-medium">${label} ${time}</span>
+                                <div class="${bubbleClass} p-3 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed">
+                                    ${msg.content}
+                                </div>
+                            </div>
+                        `;
+                        content.insertAdjacentHTML('beforeend', msgHtml);
+                    });
+                    content.scrollTop = content.scrollHeight;
+                }
+            } catch (error) {
+                content.innerHTML = '<div class="text-center text-red-400 py-10 text-xs">訊息讀取失敗</div>';
+            }
+        }
+
+        window.sendMessage = async function() {
+            const input = document.querySelector('#chatModal input[type="text"]');
+            if (!input || !input.value.trim() || !activeTaskId) return;
+
+            const MANAGER_ID = sessionStorage.getItem('empId');
+
+            try {
+                const response = await fetch('/api/employee/tc/mesg', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        taskId: activeTaskId,
+                        createBy: parseInt(MANAGER_ID),
+                        content: input.value.trim()
+                    })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    await fetchChatMessages(activeTaskId);
+                } else {
+                    alert('傳送失敗');
+                }
+            } catch (error) {
+                console.error('傳送訊息失敗:', error);
+            }
+        };
+
+        const modalSendBtn = document.querySelector('#chatModal .btn-send-msg');
+        if (modalSendBtn) {
+            modalSendBtn.addEventListener('click', sendMessage);
+        }
+        const modalInput = document.querySelector('#chatModal input[type="text"]');
+        if (modalInput) {
+            modalInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        }
+
+        // ================= 專案文件歸檔 =================
+        const uploadDocBtn = document.getElementById('upload-doc-btn');
+        const uploadModal = document.getElementById('projectDocUploadModal');
+        const archiveFileInput = document.getElementById('archive-file-input');
+        const confirmUploadBtn = document.getElementById('confirm-project-upload-btn');
+        const fileNameContainer = document.getElementById('archive-file-name-container');
+
+        window.openProjectDocUploadModal = function() {
+            uploadModal.classList.remove('hidden');
+            archiveFileInput.value = '';
+            fileNameContainer.innerHTML = '';
+        };
+
+        window.closeProjectDocUploadModal = function() {
+            uploadModal.classList.add('hidden');
+        };
+
+        uploadDocBtn.addEventListener('click', () => {
+            openProjectDocUploadModal();
+        });
+
+        archiveFileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if (files.length > 0) {
+                fileNameContainer.innerHTML = Array.from(files).map(f => `
+                    <div class="text-xs text-indigo-600 font-bold bg-indigo-50 dark:bg-indigo-900/30 py-1 px-2 rounded-md truncate">
+                        <span class="material-icons text-[12px] mr-1">attach_file</span> ${f.name}
+                    </div>
+                `).join('');
+            } else {
+                fileNameContainer.innerHTML = '';
+            }
+        });
+
+        confirmUploadBtn.addEventListener('click', async () => {
+            const files = archiveFileInput.files;
+            if (files.length === 0) {
+                alert('請先選擇檔案');
+                return;
+            }
+
+            const projectId = new URLSearchParams(window.location.search).get('id') || 1;
+            const empId = sessionStorage.getItem('empId') || 1;
+
+            const formData = new FormData();
+            formData.append('managerId', empId);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            try {
+                confirmUploadBtn.disabled = true;
+                confirmUploadBtn.innerHTML = '<span class="material-icons animate-spin text-[18px] mr-2">autorenew</span> 上傳中...';
+                
+                const response = await fetch(`/api/manager/projects/${projectId}/documents`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('文件上傳成功！');
+                    closeProjectDocUploadModal();
+                    loadProjectDocuments(projectId);
+                } else {
+                    alert('上傳失敗，請稍後再試。');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('上傳發生錯誤');
+            } finally {
+                confirmUploadBtn.disabled = false;
+                confirmUploadBtn.innerHTML = '確認上傳';
+            }
+        });
+
+        async function loadProjectDocuments(projectId) {
+            const listContainer = document.getElementById('docs-list');
+            try {
+                const response = await fetch(`/api/manager/projects/${projectId}/documents`);
+                if (!response.ok) throw new Error('Failed to load documents');
+                const docs = await response.json();
+
+                if (docs && docs.length > 0) {
+                    listContainer.innerHTML = docs.map(doc => `
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 group hover:border-indigo-300 dark:hover:border-indigo-800 transition-colors">
+                            <div class="flex items-center min-w-0 flex-1">
+                                <span class="material-icons text-indigo-400 mr-3">description</span>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold text-gray-700 dark:text-gray-200 truncate" title="${doc.fileName}">${doc.fileName}</p>
+                                    <p class="text-[10px] text-gray-400">${doc.uploadInfo}</p>
+                                </div>
+                            </div>
+                            <a href="${doc.downloadUrl}" target="_blank" class="ml-2 p-2 text-gray-400 hover:text-indigo-600 transition-colors">
+                                <span class="material-icons text-[20px]">download</span>
+                            </a>
+                        </div>
+                    `).join('');
+                } else {
+                    listContainer.innerHTML = `
+                        <div class="text-center py-10 text-gray-400 text-sm">
+                            <span class="material-icons text-3xl mb-2 block">folder_open</span>
+                            尚無歸檔文件
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error(err);
+                listContainer.innerHTML = '<div class="text-center py-10 text-red-400 text-sm">無法載入文件</div>';
+            }
+        }
+
+        document.getElementById('refresh-docs-btn').addEventListener('click', () => {
+            const projectId = new URLSearchParams(window.location.search).get('id') || 1;
+            loadProjectDocuments(projectId);
+        });
+
+        // 初始載入
+        const initProjectId = new URLSearchParams(window.location.search).get('id') || 1;
+        loadProjectDocuments(initProjectId);
 
     </script>
 </body>

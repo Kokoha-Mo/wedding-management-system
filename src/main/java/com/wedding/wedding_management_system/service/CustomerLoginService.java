@@ -43,7 +43,7 @@ public class CustomerLoginService {
         return result;
     }
 
-    // 🌟 核心新增：專門給「登入後強制修改密碼」使用的方法
+    // 給「登入後強制修改密碼」使用的方法
     public void updatePasswordAfterLogin(String email, String newPassword) {
         Customer customer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("查無此帳號"));

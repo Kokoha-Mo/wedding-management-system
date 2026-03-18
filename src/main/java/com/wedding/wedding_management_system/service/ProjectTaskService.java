@@ -4,6 +4,8 @@ import com.wedding.wedding_management_system.dto.TaskDTO;
 import com.wedding.wedding_management_system.repository.ProjectTaskRepository;
 import com.wedding.wedding_management_system.repository.DocumentRepository;
 import com.wedding.wedding_management_system.repository.EmployeeRepository;
+import com.wedding.wedding_management_system.entity.TaskOwner;
+import com.wedding.wedding_management_system.repository.TaskOwnerRepository;
 import com.wedding.wedding_management_system.entity.Document;
 import com.wedding.wedding_management_system.entity.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import java.util.UUID;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,9 @@ public class ProjectTaskService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private TaskOwnerRepository taskOwnerRepository;
 
     private final String UPLOAD_DIR = "uploads/";
 
@@ -130,8 +136,64 @@ public class ProjectTaskService {
                     dto.setDeptName(task.getService().getDepartment().getDeptName());
                 }
             }
+
+            // Fetch assignees
+            if (task.getTaskOwners() != null && !task.getTaskOwners().isEmpty()) {
+                List<TaskDTO.AssigneeDTO> assignees = task.getTaskOwners().stream().map(owner -> {
+                    TaskDTO.AssigneeDTO assignee = new TaskDTO.AssigneeDTO();
+                    if (owner.getEmployee() != null) {
+                        assignee.setEmpId(owner.getEmployee().getId());
+                        assignee.setName(owner.getEmployee().getName());
+                        if (owner.getEmployee().getDepartment() != null) {
+                            assignee.setDepartmentName(owner.getEmployee().getDepartment().getDeptName());
+                        }
+                    }
+                    return assignee;
+                }).collect(Collectors.toList());
+                dto.setAssignees(assignees);
+            }
+
             resultList.add(dto);
         }
         return resultList; // 🌟 確保最後回傳的是轉換好的 DTO 陣列！
+    }
+
+    @Transactional
+    public boolean assignTask(Integer taskId, List<Integer> assignees, LocalDateTime deadline, String managerContent) {
+        try {
+            ProjectTask task = projectTaskRepository.findById(taskId)
+                    .orElseThrow(() -> new RuntimeException("Task not found"));
+
+            // Save task owners
+            if (assignees != null && !assignees.isEmpty()) {
+                // If there are previous owners, we might need to delete them. 
+                // But creating new ones is fine for now assuming new assignment.
+                // Assuming assignees are new assignees, usually we'd delete old assignees if re-assigning:
+                // taskOwnerRepository.deleteAll(task.getTaskOwners());
+                for (Integer empId : assignees) {
+                    Employee employee = employeeRepository.findById(empId)
+                            .orElseThrow(() -> new RuntimeException("Employee not found"));
+                    TaskOwner owner = new TaskOwner();
+                    owner.setTask(task);
+                    owner.setEmployee(employee);
+                    taskOwnerRepository.save(owner);
+                }
+            }
+
+            // Update task status, deadline, managerContent
+            task.setStatus("進行中");
+            task.setUpdateAt(LocalDateTime.now());
+            if (deadline != null) {
+                task.setDeadline(deadline);
+            }
+            if (managerContent != null) {
+                task.setManagerContent(managerContent);
+            }
+            projectTaskRepository.save(task);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

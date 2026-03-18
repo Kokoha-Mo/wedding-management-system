@@ -24,10 +24,15 @@ import org.springframework.stereotype.Service;
 import com.wedding.wedding_management_system.dto.ProjectProgressDTO;
 import com.wedding.wedding_management_system.dto.ProjectResponse;
 import com.wedding.wedding_management_system.entity.Book;
-import com.wedding.wedding_management_system.entity.Project;
+
 import com.wedding.wedding_management_system.entity.ProjectCommunication;
 import com.wedding.wedding_management_system.repository.ProjectCommunicationRepository;
 import com.wedding.wedding_management_system.repository.ProjectRepository;
+import com.wedding.wedding_management_system.repository.DocumentRepository;
+import com.wedding.wedding_management_system.repository.EmployeeRepository;
+import com.wedding.wedding_management_system.entity.Document;
+import com.wedding.wedding_management_system.entity.Employee;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProjectService {
@@ -36,6 +41,15 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private DocumentRepository documentRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     /**
      * 共用：將 Project 實體轉換成 ListDTO
@@ -178,19 +192,102 @@ public class ProjectService {
 
         // 轉換 Documents 列表
         if (project.getDocuments() != null) {
-            List<ProjectResponse.RecordDTO.DocumentDTO> docDTOs = project.getDocuments().stream().map(doc -> {
-                ProjectResponse.RecordDTO.DocumentDTO docDto = new ProjectResponse.RecordDTO.DocumentDTO();
-                docDto.setFileName(doc.getName());
-                docDto.setFileType(doc.getFileType());
-                docDto.setUploadInfo("上傳者: " + (doc.getUploadedBy() != null ? doc.getUploadedBy().getName() : "未知"));
-                docDto.setDownloadUrl(doc.getFilePath());
-                return docDto;
+            List<ProjectResponse.RecordDTO.DocumentDTO> docDTOs = project.getDocuments().stream()
+                .filter(doc -> "已核准".equals(doc.getStatus()))
+                .map(doc -> {
+                    ProjectResponse.RecordDTO.DocumentDTO docDto = new ProjectResponse.RecordDTO.DocumentDTO();
+                    docDto.setFileName(doc.getName());
+                    docDto.setFileType(doc.getFileType());
+                    
+                    String uploadDept = "未知";
+                    if (doc.getUploadedBy() != null && doc.getUploadedBy().getDepartment() != null) {
+                        uploadDept = doc.getUploadedBy().getDepartment().getDeptName();
+                    }
+                    docDto.setUploadInfo("上傳者: " + (doc.getUploadedBy() != null ? doc.getUploadedBy().getName() : "未知") + " (" + uploadDept + ")");
+                    docDto.setDownloadUrl(doc.getFilePath());
+                    return docDto;
             }).collect(Collectors.toList());
             dto.setDocuments(docDTOs);
         }
 
-        // 轉換 Tasks 歷史軌跡列表 (同理轉換...)
-        // 如果你需要，我也可以把 TaskHistoryDTO 的 mapping 寫出來
+        // 轉換 Tasks 歷史軌跡列表
+        if (project.getProjectTasks() != null) {
+            List<ProjectResponse.RecordDTO.TaskHistoryDTO> taskDTOs = project.getProjectTasks().stream().map(task -> {
+                ProjectResponse.RecordDTO.TaskHistoryDTO tDto = new ProjectResponse.RecordDTO.TaskHistoryDTO();
+                tDto.setTaskName(task.getService() != null ? task.getService().getName() : "未知任務");
+                
+                String assigneeText = "尚未指派";
+                if (task.getTaskOwners() != null && !task.getTaskOwners().isEmpty()) {
+                    assigneeText = task.getTaskOwners().stream().map(owner -> {
+                        String name = owner.getEmployee() != null ? owner.getEmployee().getName() : "未知";
+                        String dept = owner.getEmployee() != null && owner.getEmployee().getDepartment() != null ? owner.getEmployee().getDepartment().getDeptName() : "未知部門";
+                        return name + " (" + dept + ")";
+                    }).collect(Collectors.joining(", "));
+                }
+                
+                tDto.setOwnerInfo("負責人: " + assigneeText);
+                tDto.setStatus(task.getStatus());
+                
+                if (task.getUpdateAt() != null) {
+                    tDto.setTime(task.getUpdateAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                } else {
+                    tDto.setTime("");
+                }
+                
+                tDto.setCompleted(! "待指派".equals(task.getStatus()) && ! "進行中".equals(task.getStatus()));
+                
+                return tDto;
+            }).collect(Collectors.toList());
+            dto.setTaskHistories(taskDTOs);
+        }
+
         return dto;
+    }
+
+    /**
+     * 上傳專案文件 (由經理上傳，供客戶查看)
+     */
+    public void uploadProjectDocuments(Integer projectId, Integer managerId, List<MultipartFile> files) throws Exception {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("專案不存在"));
+        
+        Employee manager = employeeRepository.findById(managerId)
+                .orElse(null);
+
+        for (MultipartFile file : files) {
+            String filePath = fileStorageService.storeFile(file, projectId);
+            Document doc = new Document();
+            doc.setProject(project);
+            doc.setUploadedBy(manager);
+            doc.setName(file.getOriginalFilename());
+            doc.setFilePath(filePath);
+            doc.setFileType(file.getContentType());
+            doc.setStatus(null); // 修改：經理上傳的規格文件設定為無狀態
+            documentRepository.save(doc);
+        }
+    }
+
+    /**
+     * 取得專案文件列表 (供管理介面顯示專案歸檔，只顯示經理上傳的無狀態文件)
+     */
+    public List<ProjectResponse.RecordDTO.DocumentDTO> getProjectDocuments(Integer projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("專案不存在"));
+        
+        return project.getDocuments().stream()
+                .filter(doc -> doc.getStatus() == null) // 修改：只顯示無狀態的文件
+                .map(doc -> {
+                    ProjectResponse.RecordDTO.DocumentDTO dDto = new ProjectResponse.RecordDTO.DocumentDTO();
+                    dDto.setFileName(doc.getName());
+                    dDto.setFileType(doc.getFileType());
+                    
+                    String uploadDept = "未知";
+                    if (doc.getUploadedBy() != null && doc.getUploadedBy().getDepartment() != null) {
+                        uploadDept = doc.getUploadedBy().getDepartment().getDeptName();
+                    }
+                    dDto.setUploadInfo("上傳者: " + (doc.getUploadedBy() != null ? doc.getUploadedBy().getName() : "未知") + " (" + uploadDept + ")");
+                    dDto.setDownloadUrl(doc.getFilePath());
+                    return dDto;
+                }).collect(Collectors.toList());
     }
 }

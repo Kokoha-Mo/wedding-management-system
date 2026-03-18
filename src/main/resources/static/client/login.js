@@ -83,7 +83,7 @@ async function performLoginAction() {
 
     try {
         // 1. POST 請求給後端
-        const response = await fetch('http://127.0.0.1:8080/api/customer/login', {
+        const response = await fetch('/api/customer/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -105,54 +105,18 @@ async function performLoginAction() {
 
         // 🌟 2. 判斷是否被後端標記為「首次登入強制修改密碼」
         if (data.forcePasswordChange) {
-
-            // 顯示強制修改密碼的 Modal (此時還不把 username 寫進 localStorage，避免他亂跳頁)
-            const forceResetOverlay = document.getElementById('forceResetOverlay');
-            if (forceResetOverlay) forceResetOverlay.classList.add('show');
-
-            // 綁定修改密碼表單的送出事件
-            const forceResetForm = document.getElementById('forceResetForm');
-            if (forceResetForm) {
-                forceResetForm.onsubmit = async function (e) {
-                    e.preventDefault(); // 防止表單重整頁面
-
-                    const newPwd = document.getElementById('newPasswordInput').value;
-                    const confirmPwd = document.getElementById('confirmPasswordInput').value;
-
-                    if (newPwd !== confirmPwd) {
-                        alert('兩次輸入的密碼不一致！');
-                        return;
-                    }
-
-                    try {
-                        // 呼叫更新密碼 API (記得也要帶 credentials: 'include' 才能傳送剛登入的 Cookie)
-                        const updateRes = await fetch('http://127.0.0.1:8080/api/customer/update-password', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                            body: JSON.stringify({ newPassword: newPwd })
-                        });
-
-                        if (updateRes.ok) {
-                            // 🌟 修改成功！關閉強制重設視窗，繼續走正常的登入成功流程
-                            forceResetOverlay.classList.remove('show');
-
-                            completeLoginProcess(data, email, rememberMe);
-
-                        } else {
-                            const errData = await updateRes.json();
-                            alert('修改失敗：' + (errData.message || '請稍後再試'));
-                        }
-                    } catch (err) {
-                        console.error('修改密碼發生錯誤:', err);
-                        alert('伺服器連線失敗，請稍後再試');
-                    }
-                };
+            // 為了讓他在改完密碼後能順利登入，我們先把資料暫存在 sessionStorage
+            sessionStorage.setItem('temp_force_name', data.name || data.email);
+            if (data.customerId) {
+                sessionStorage.setItem('temp_force_id', data.customerId);
             }
-            return; // 卡在這裡，不繼續往下執行
+
+            // 直接跳轉到重設密碼頁面，並加上專屬的 mode=force 標記
+            window.location.href = './reset_password.html?mode=force';
+            return; // 🌟 卡在這裡，不寫入 localStorage，其他頁面他就進不去！
         }
 
-        // 🌟 3. 如果是正常的老客戶登入，直接執行成功流程
+        // 3. 如果是正常的老客戶登入，直接執行成功流程
         completeLoginProcess(data, email, rememberMe);
 
     } catch (error) {
@@ -192,7 +156,7 @@ function handleLogout(e) {
 async function forceLogout() {
 
     try {
-        await fetch('http://127.0.0.1:8080/api/customer/logout', {
+        await fetch('/api/customer/logout', {
             method: 'POST',
             credentials: 'include' // 帶 Cookie 才能讓後端識別並覆蓋cookie
         });
@@ -211,15 +175,45 @@ async function forceLogout() {
 }
 
 /* 初始化：記住帳號、綁定按鈕與 Enter */
+/* 初始化：記住帳號、綁定按鈕與 Enter */
 function initLoginFeatures() {
     const savedEmail = localStorage.getItem('dv_remember_email');
     const emailField = document.getElementById('loginName');
     if (savedEmail && emailField) emailField.value = savedEmail;
 
-    // 只在登入頁才綁定（避免其他頁面找不到元素報錯）
+    // 登入綁定
     document.getElementById('loginSubmitBtn')?.addEventListener('click', performLoginAction);
     document.getElementById('passwordInput')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') performLoginAction();
+    });
+
+    // 忘記密碼按鈕綁定
+    document.getElementById('forgotBtn')?.addEventListener('click', async (e) => {
+        e.preventDefault(); // 防止網頁亂跳
+
+        // 1. 跳出瀏覽器內建的輸入框，請客人輸入 Email
+        const email = prompt('請輸入您預約時使用的電子郵件：\n(我們將寄送重設密碼的連結給您)');
+
+        if (!email) return; // 如果客人按取消或沒輸入，就什麼都不做
+        if (!email.includes('@')) return alert('請輸入有效的電子郵件格式！');
+
+        try {
+            // 2. 呼叫我們後端寫好的忘記密碼 API
+            const res = await fetch('/api/customer/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+
+            const data = await res.json();
+
+            // 3. 顯示後端回傳的訊息 (也就是那句完美的模糊化回覆)
+            alert(data.message);
+
+        } catch (error) {
+            console.error('忘記密碼發生錯誤:', error);
+            alert('系統連線失敗，請稍後再試。');
+        }
     });
 }
 

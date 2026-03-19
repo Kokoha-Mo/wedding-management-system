@@ -5,6 +5,17 @@ document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
     loadBooks('處理中');
 });
+async function loadAllServices() {
+    try {
+        const res  = await fetch(`${API_BASE}/books/services`, { credentials: 'include' });
+        if (!res.ok) return;
+        const list = await res.json();
+        window._serviceMap = {};
+        list.forEach(s => {
+            window._serviceMap[String(s.id)] = { name: s.name, price: s.price || 0 };
+        });
+    } catch (e) { /* 靜默失敗 */ }
+}
 
 // ════════════════════════════════════════
 // 初始化 Sidebar 員工資訊
@@ -467,6 +478,101 @@ async function saveBookInfo() {
 }
 
 // ════════════════════════════════════════
+// API：查看 book_details（查看需求按鈕）
+// ════════════════════════════════════════
+
+// 記住目前開啟的 bookId，儲存時使用
+let currentViewBookId = null;
+
+async function viewBookDetails(bookId) {
+    currentViewBookId = bookId;
+    try {
+        const res  = await fetch(`${API_BASE}/books/${bookId}/details`, { credentials: 'include' });
+        const data = await res.json();
+
+        // 1. 填入備註
+        const notesEl = document.getElementById('modify-notes');
+        if (notesEl) notesEl.value = data.notes || '';
+
+        // 2. 先把所有 modal checkbox 取消勾選
+        document.querySelectorAll('#modal-modify .modal-service-cb').forEach(cb => {
+            cb.checked = false;
+            // 同步關閉子項目
+            const targetId = cb.id.replace('main-', 'sub-');
+            const subBox = document.getElementById(targetId);
+            if (subBox) {
+                subBox.classList.add('opacity-50', 'pointer-events-none');
+                subBox.querySelectorAll('input').forEach(i => { i.disabled = true; i.checked = false; });
+            }
+        });
+
+        // 3. 根據 API 回傳的 serviceId 自動勾選
+        const checkedIds = new Set((data.services || []).map(s => String(s.serviceId)));
+
+        // Step A：先勾選主 checkbox（main-*），並開啟對應子項目
+        document.querySelectorAll('#modal-modify .modal-service-cb[id^="main-"]').forEach(cb => {
+            const sid = cb.getAttribute('data-service-id');
+            if (checkedIds.has(sid)) {
+                cb.checked = true;
+                const targetId = cb.id.replace('main-', 'sub-');
+                const subBox = document.getElementById(targetId);
+                if (subBox) {
+                    subBox.classList.remove('opacity-50', 'pointer-events-none');
+                    subBox.querySelectorAll('input').forEach(i => i.disabled = false);
+                }
+            }
+        });
+
+        // Step B：再勾選子 checkbox（沒有 id 或不是 main- 開頭的）
+        document.querySelectorAll('#modal-modify .modal-service-cb:not([id^="main-"])').forEach(cb => {
+            const sid = cb.getAttribute('data-service-id');
+            if (checkedIds.has(sid)) {
+                cb.checked = true;
+            }
+        });
+
+        // 顯示已選服務清單
+        const serviceListEl = document.getElementById('modify-service-list');
+        if (serviceListEl) {
+            if (data.services && data.services.length > 0) {
+                serviceListEl.innerHTML = data.services.map(s =>
+                    `<li class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <span class="material-icons text-primary text-base">check_circle</span>
+                ${s.serviceName}
+                <span class="ml-auto text-[11px] text-gray-400">NT$ ${(s.unitPrice || 0).toLocaleString()}</span>
+            </li>`
+                ).join('');
+
+                // ★ 補上總價計算
+                const total = data.services.reduce((sum, s) => sum + (s.unitPrice || 0), 0);
+                const totalEl = document.getElementById('modify-total-price');
+                if (totalEl) totalEl.textContent = 'NT$ ' + total.toLocaleString();
+
+            } else {
+                serviceListEl.innerHTML = '<li class="text-sm text-gray-400">尚無服務細項</li>';
+                const totalEl = document.getElementById('modify-total-price');
+                if (totalEl) totalEl.textContent = 'NT$ 0';
+            }
+        }
+
+        // 5. 建立 serviceId -> {name, price} Map 並綁定即時更新事件
+        window._serviceMap = {};
+        (data.services || []).forEach(s => {
+            window._serviceMap[String(s.serviceId)] = { name: s.serviceName, price: s.unitPrice || 0 };
+        });
+
+        // 6. 開啟 modal
+        toggleModal('modal-modify');
+
+    } catch (err) {
+        console.error('[API] 載入細項失敗:', err);
+        showToast('載入失敗，請稍後再試', 'error');
+    }
+}
+
+
+
+// ════════════════════════════════════════
 // API：查看已簽約詳細摘要（純文字）
 // ════════════════════════════════════════
 async function viewBookDetail(bookId) {
@@ -523,16 +629,15 @@ async function viewBookDetail(bookId) {
     }
 }
 
+
+
 // ════════════════════════════════════════
 // API：儲存需求設定（PUT /books/{id}/details）
 // ════════════════════════════════════════
 async function saveBookDetails() {
     if (!currentViewBookId) return;
 
-    // 收集備註
     const notes = document.getElementById('modify-notes')?.value.trim() || '';
-
-    // 收集所有勾選的 checkbox（有 data-service-id 的）
     const details = [];
     document.querySelectorAll('#modal-modify .modal-service-cb:checked').forEach(cb => {
         details.push({
@@ -545,20 +650,23 @@ async function saveBookDetails() {
     try {
         const res = await fetch(`${API_BASE}/books/${currentViewBookId}/details`, {
             method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({notes, details})
+            body: JSON.stringify({ notes, details })
         });
 
         if (res.ok) {
-            toggleModal('modal-modify');
             showToast('需求設定已儲存！');
-            // 即時更新卡片備註顯示
+
+            // ★ 儲存後重新從 API 撈資料，刷新上方已選清單
+            await viewBookDetails(currentViewBookId);
+
+            // 同步更新卡片備註
             const card = document.querySelector(`[data-book-id="${currentViewBookId}"]`);
             if (card) {
                 const notesEl = card.querySelector('.line-clamp-2');
                 if (notesEl) notesEl.textContent = '"' + (notes || '無備註') + '"';
-                card.dataset.notes = notes; // 同步更新 dataset
+                card.dataset.notes = notes;
             }
         } else {
             showToast('儲存失敗，請稍後再試', 'error');
@@ -646,7 +754,7 @@ function renderPendingCards(books) {
                 </div>
             </div>
             <div class="flex border-t border-gray-100 bg-gray-50/30">
-                <button onclick="viewBookDetail(${bookId})"
+                <button onclick="viewBookDetails(${bookId})"
                     class="flex-1 py-2.5 text-[12px] font-medium text-gray-500 hover:text-gray-700 border-r border-gray-100 transition-colors">
                     查看需求
                 </button>
@@ -656,7 +764,7 @@ function renderPendingCards(books) {
                 </button>
                 <button onclick="updateBookStatus(${bookId}, '已簽約')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
-                    接案處理
+                    轉為簽約
                 </button>
                 <button onclick="updateBookStatus(${bookId}, '取消')"
                     class="flex-1 py-2.5 text-[12px] font-bold text-red-400 hover:bg-red-50 transition-colors">

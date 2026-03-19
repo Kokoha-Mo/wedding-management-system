@@ -837,18 +837,14 @@
                                 style="font-size: 10px; color: var(--rose-dark); background: #FDF8F8; padding: 4px 10px; border-radius: 4px; font-weight: bold; letter-spacing: 0.1em;">資料已建檔</span>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">新人姓名
-                                    Name</label><input type="text" class="form-control-custom" value="Joy & Kevin"
-                                    readonly></div>
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">聯絡手機
-                                    Phone</label><input type="tel" class="form-control-custom" value="0912-345-678"
-                                    readonly></div>
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">LINE
-                                    ID</label><input type="text" class="form-control-custom" value="joy_wedding_123"
-                                    readonly></div>
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">電子郵件
-                                    Email</label><input type="email" class="form-control-custom"
-                                    value="joy.wedding@example.com" readonly></div>
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">新人姓名 Name</label>
+                                <input type="text" id="input-name" class="form-control-custom" readonly></div>
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">聯絡手機 Phone</label>
+                                <input type="tel" id="input-tel" class="form-control-custom" readonly></div>
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">LINE ID</label>
+                                <input type="text" id="input-lineid" class="form-control-custom" readonly></div>
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">電子郵件 Email</label>
+                                <input type="email" id="input-email" class="form-control-custom" readonly></div>
                         </div>
                     </div>
 
@@ -867,15 +863,12 @@
 
                         <div id="weddingInfoFields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                             <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">預計婚期
-                                    Wedding Date</label><input type="date" class="form-control-custom editable-field"
-                                    value="2026-10-15" readonly></div>
+                                    Wedding Date</label><input type="date" id="input-wedding-date" class="form-control-custom editable-field" readonly></div>
                             <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">賓客規模 (人數)
-                                    Guest Scale</label><input type="number" class="form-control-custom editable-field"
-                                    value="250" placeholder="請輸入預計人數" readonly></div>
+                                    Guest Scale</label><input type="number" id="input-guest-scale" class="form-control-custom editable-field" placeholder="請輸入預計人數" readonly></div>
                             <div style="grid-column: span 2;"><label
                                     style="font-size: 11px; color: var(--text-muted); font-weight: bold;">宴客場地
-                                    Venue</label><input type="text" class="form-control-custom editable-field"
-                                    value="東方文華酒店" placeholder="請輸入您屬意的飯店或場地 (若尚未決定可留空)" readonly></div>
+                                    Venue</label><input type="text" id="input-venue" class="form-control-custom editable-field" placeholder="請輸入您屬意的飯店或場地 (若尚未決定可留空)" readonly></div>
 
                             <div
                                 style="grid-column: span 2; padding-top: 10px; border-top: 1px dashed var(--border-grey);">
@@ -901,8 +894,8 @@
                             <div style="grid-column: span 2;">
                                 <label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">婚宴備註
                                     Notes</label>
-                                <textarea class="form-control-custom editable-field" style="min-height: 80px;"
-                                    placeholder="例如：全素桌需求、絕對不想出現的花材..." readonly>全素桌 2 桌，需要戶外證婚場地規劃。</textarea>
+                                <textarea id="input-notes" class="form-control-custom editable-field" style="min-height: 80px;"
+                                    placeholder="例如：全素桌需求、絕對不想出現的花材..." readonly></textarea>
                             </div>
                         </div>
                     </div>
@@ -987,8 +980,8 @@
                             <div class="check-grid">
 
                                 <label class="check-item">
-                                    <input type="checkbox" class="group-main-trigger hidden-chk"
-                                        data-target="makeup-addons" data-category="團隊" data-price="18000"
+                                    <input type="checkbox" class="group-main-trigger hidden-chk" data-service-id="3"
+                                           data-target="makeup-addons" data-category="團隊" data-price="18000"
                                         id="cb-makeup">
                                     <span class="custom-chk"></span><span class="chk-text">新秘造型師</span><span
                                         class="price-tag">+NT$ 18,000</span>
@@ -999,13 +992,13 @@
                                         造型服務加購</div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                         <label class="sub-addon-item"><input type="checkbox"
-                                                class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
+                                                class="sub-addon-checkbox hidden-chk" data-service-id="4" data-category="團隊加購"
                                                 data-price="5000"><span class="custom-chk"></span><span
                                                 class="chk-text">新郎妝髮造型 <span
                                                     style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
                                                     5,000)</span></span></label>
                                         <label class="sub-addon-item"><input type="checkbox"
-                                                class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
+                                                class="sub-addon-checkbox hidden-chk" data-service-id="5" data-category="團隊加購"
                                                 data-price="2000"><span class="custom-chk"></span><span
                                                 class="chk-text">主婚人/親友妝髮 <span
                                                     style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
@@ -1014,9 +1007,9 @@
                                 </div>
 
                                 <label class="check-item">
-                                    <input type="checkbox" class="group-main-trigger hidden-chk"
+                                    <input type="checkbox" class="group-main-trigger hidden-chk" data-service-id="6"
                                         data-target="host-addons" data-category="團隊" data-price="18000" id="cb-host">
-                                    <span class="custom-chk"></span><span class="chk-text">婚禮企劃主持人</span><span
+                                    <span class="custom-chk"></span><span class="chk-text">專業婚禮主持人</span><span
                                         class="price-tag">+NT$ 18,000</span>
                                 </label>
                                 <div class="sub-addon-box" id="host-addons">
@@ -1024,13 +1017,7 @@
                                         style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">
                                         主持人等級選擇 (可選)</div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                        <label class="sub-addon-item"><input type="checkbox"
-                                                class="sub-addon-checkbox hidden-chk bundle-target-host-pro"
-                                                data-category="團隊加購" data-price="0"><span
-                                                class="custom-chk"></span><span class="chk-text">專業婚禮主持人 <span
-                                                    style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
-                                                    0)</span></span></label>
-                                        <label class="sub-addon-item"><input type="checkbox"
+                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="7"
                                                 class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
                                                 data-price="2000"><span class="custom-chk"></span><span
                                                 class="chk-text">品牌總監級主持人 <span
@@ -1040,7 +1027,7 @@
                                 </div>
 
                                 <label class="check-item">
-                                    <input type="checkbox" class="group-main-trigger hidden-chk"
+                                    <input type="checkbox" class="group-main-trigger hidden-chk" data-service-id="9"
                                         data-target="photo-addons" data-category="團隊" data-price="18000" id="cb-photo">
                                     <span class="custom-chk"></span><span class="chk-text">平面/動態紀實攝影師</span><span
                                         class="price-tag">+NT$ 18,000</span>
@@ -1050,25 +1037,25 @@
                                         style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">
                                         攝影服務加購</div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                        <label class="sub-addon-item"><input type="checkbox"
+                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="10"
                                                 class="sub-addon-checkbox hidden-chk bundle-target-sde"
                                                 data-category="團隊加購" data-price="15000"><span
                                                 class="custom-chk"></span><span class="chk-text">SDE 當日快剪快播 <span
                                                     style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
                                                     15,000)</span></span></label>
-                                        <label class="sub-addon-item"><input type="checkbox"
+                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="11"
                                                 class="sub-addon-checkbox hidden-chk bundle-target-double-cam"
                                                 data-category="團隊加購" data-price="12000"><span
                                                 class="custom-chk"></span><span class="chk-text">雙機位拍攝 <span
                                                     style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
                                                     12,000)</span></span></label>
-                                        <label class="sub-addon-item"><input type="checkbox"
+                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="12"
                                                 class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
                                                 data-price="5000"><span class="custom-chk"></span><span
                                                 class="chk-text">類婚紗與全家福引導 <span
                                                     style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
                                                     5,000)</span></span></label>
-                                        <label class="sub-addon-item"><input type="checkbox"
+                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="13"
                                                 class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
                                                 data-price="6000"><span class="custom-chk"></span><span
                                                 class="chk-text">空拍機壯闊空景拍攝 <span
@@ -1078,7 +1065,7 @@
                                 </div>
 
                                 <label class="check-item">
-                                    <input type="checkbox" class="group-main-trigger hidden-chk"
+                                    <input type="checkbox" class="group-main-trigger hidden-chk" data-service-id="14"
                                         data-target="sound-addons" data-category="團隊" data-price="18000" id="cb-sound">
                                     <span class="custom-chk"></span><span class="chk-text">燈光音響與影音場控</span><span
                                         class="price-tag">+NT$ 18,000</span>
@@ -1088,7 +1075,7 @@
                                         style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">
                                         硬體工程加購</div>
                                     <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                                        <label class="sub-addon-item"><input type="checkbox"
+                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="15"
                                                 class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
                                                 data-price="15000"><span class="custom-chk"></span><span
                                                 class="chk-text">專業 LIVE Band 音響工程系統 <span
@@ -1107,22 +1094,18 @@
                                 <span style="font-size: 11px; color: var(--text-muted);">自由加選</span>
                             </div>
                             <div class="check-grid">
-                                <label class="check-item"><input type="checkbox" class="hidden-chk main-trigger"
+                                <label class="check-item"><input type="checkbox" data-service-id="16" class="hidden-chk main-trigger"
                                         data-category="儀式" data-price="15800"><span class="custom-chk"></span><span
                                         class="chk-text">文定儀式引導與司儀</span><span class="price-tag">+NT$
                                         15,800</span></label>
-                                <label class="check-item"><input type="checkbox" class="hidden-chk main-trigger"
+                                <label class="check-item"><input type="checkbox" data-service-id="17" class="hidden-chk main-trigger"
                                         data-category="儀式" data-price="15800"><span class="custom-chk"></span><span
                                         class="chk-text">迎娶儀式流程控管</span><span class="price-tag">+NT$
                                         15,800</span></label>
-                                <label class="check-item"><input type="checkbox" class="hidden-chk main-trigger"
+                                <label class="check-item"><input type="checkbox" data-service-id="18" class="hidden-chk main-trigger"
                                         data-category="儀式" data-price="15800" id="cb-ceremony-outdoor"><span
                                         class="custom-chk"></span><span class="chk-text">戶外/室內證婚規劃</span><span
                                         class="price-tag">+NT$ 15,800</span></label>
-                                <label class="check-item"><input type="checkbox" class="hidden-chk main-trigger"
-                                        data-category="儀式" data-price="22800" id="cb-ceremony-double"><span
-                                        class="custom-chk"></span><span class="chk-text">雙儀式完整統籌 (早文定+午迎娶)</span><span
-                                        class="price-tag">+NT$ 22,800</span></label>
                             </div>
                         </div>
 
@@ -1137,7 +1120,7 @@
                                 <label class="check-item"
                                     style="align-items: flex-start; flex-direction: column; padding: 20px;">
                                     <div style="display: flex; width: 100%; align-items: center;">
-                                        <input type="checkbox" class="hidden-chk main-trigger" data-category="佈置"
+                                        <input type="checkbox" data-service-id="19" class="hidden-chk main-trigger" data-category="佈置"
                                             data-price="35000" id="cb-decor-welcome">
                                         <span class="custom-chk"></span>
                                         <span class="chk-text">迎賓與拍照區主題設計</span>
@@ -1152,7 +1135,7 @@
                                 <label class="check-item"
                                     style="align-items: flex-start; flex-direction: column; padding: 20px;">
                                     <div style="display: flex; width: 100%; align-items: center;">
-                                        <input type="checkbox" class="hidden-chk main-trigger" data-category="佈置"
+                                        <input type="checkbox" data-service-id="20" class="hidden-chk main-trigger" data-category="佈置"
                                             data-price="20000" id="cb-decor-table">
                                         <span class="custom-chk"></span>
                                         <span class="chk-text">宴客桌景與舞台視覺</span>
@@ -1167,7 +1150,7 @@
                                 <label class="check-item"
                                     style="align-items: flex-start; flex-direction: column; padding: 20px;">
                                     <div style="display: flex; width: 100%; align-items: center;">
-                                        <input type="checkbox" class="hidden-chk main-trigger" data-category="佈置"
+                                        <input type="checkbox" data-service-id="21" class="hidden-chk main-trigger" data-category="佈置"
                                             data-price="25000" id="cb-decor-flower-art">
                                         <span class="custom-chk"></span>
                                         <span class="chk-text">鮮花花藝佈置</span>
@@ -1182,7 +1165,7 @@
                                 <label class="check-item"
                                     style="align-items: flex-start; flex-direction: column; padding: 20px;">
                                     <div style="display: flex; width: 100%; align-items: center;">
-                                        <input type="checkbox" class="hidden-chk main-trigger" data-category="佈置"
+                                        <input type="checkbox" data-service-id="22" class="hidden-chk main-trigger" data-category="佈置"
                                             data-price="15000" id="cb-decor-print">
                                         <span class="custom-chk"></span>
                                         <span class="chk-text">品牌級平面視覺套組</span>
@@ -1262,7 +1245,7 @@
 
                     <div style="text-align: center; margin-top: 35px;">
                         <button class="consult-btn btn-next" style="width: 100%; max-width: 280px;"
-                            onclick="submitProposal()">確認無誤，送出提案</button>
+                            onclick="submitBookDetails()">確認無誤，送出提案</button>
                     </div>
                 </div>
             </section>
@@ -1441,29 +1424,12 @@
             updateBundleIncludesUI(type);
             calculateTotal();
         }
-
-        // 展開/收起詳細配置
-        const toggleAdvancedBtn = document.getElementById('toggleAdvancedBtn');
-        const advancedOptions = document.getElementById('advanced-options');
-        toggleAdvancedBtn.addEventListener('click', function () {
-            if (advancedOptions.style.display === 'none') {
-                advancedOptions.style.display = 'block';
-                this.innerHTML = '收起詳細服務配置 ▴';
-                this.style.background = 'var(--rose-dark)';
-                this.style.color = 'white';
-                window.scrollBy({ top: 200, behavior: 'smooth' });
-            } else {
-                advancedOptions.style.display = 'none';
-                this.innerHTML = '微調詳細服務配置 ▾';
-                this.style.background = '#fff';
-                this.style.color = 'var(--rose-dark)';
-            }
-        });
-
-        // 預設載入時觸發 Premium 組合
-        window.addEventListener('DOMContentLoaded', () => {
-            selectBundle('premium', document.querySelector('.bundle-card.active'));
-        });
+        function changeStep(delta) {
+            current += delta;
+            if (current < 1) current = 1;
+            if (current > totalSteps) current = totalSteps;
+            updateUI();
+        }
 
         // ── 婚宴資訊 修改與唯讀切換 ──
         const editInfoBtn = document.getElementById('editWeddingInfoBtn');
@@ -1476,7 +1442,7 @@
         let originalCheckboxStates = [];
 
         if (editInfoBtn) {
-            editInfoBtn.addEventListener('click', function () {
+            editInfoBtn.addEventListener('click', async function () {
                 if (!isEditing) {
                     isEditing = true;
                     originalValues = Array.from(editableFields).map(field => field.value);
@@ -1493,8 +1459,7 @@
                     this.textContent = '修改';
                     this.classList.remove('active');
                     cancelEditBtn.style.display = 'none';
-                    const saveModal = new bootstrap.Modal(document.getElementById('saveSuccessModal'));
-                    saveModal.show();
+                    await saveWeddingInfo();
                     if (current === 3) updateUI();
                 }
             });
@@ -1664,13 +1629,6 @@
 
         updateUI();
 
-        function changeStep(delta) {
-            current += delta;
-            if (current < 1) current = 1;
-            if (current > totalSteps) current = totalSteps;
-            updateUI();
-        }
-
         function submitProposal() { changeStep(1); }
 
         // ── 登入檢查：未登入直接踢回登入頁 ──
@@ -1679,6 +1637,136 @@
             window.location.href = './client_login.html';
         }
 
+        const API_BASE = 'http://localhost:8080/api/customer';
+
+        // ════════════════════════════════════════
+        // 頁面載入：讀取預約資料填入步驟一
+        // ════════════════════════════════════════
+        async function loadMyBook() {
+            try {
+                const res    = await fetch(`${API_BASE}/book`, {
+                    credentials: 'include'
+                });
+
+                if (!res.ok) {
+                    console.warn('找不到預約資料');
+                    return;
+                }
+
+                const book = await res.json();
+
+                // 填入唯讀欄位（新人基本資料）
+                setFieldValue('input-name',   book.customerName);
+                setFieldValue('input-tel',    book.tel);
+                setFieldValue('input-lineid', book.lineId);
+                setFieldValue('input-email',  book.email);
+
+                // 填入可編輯欄位（婚宴資訊）
+                setFieldValue('input-wedding-date',  book.weddingDate);
+                setFieldValue('input-guest-scale',   book.guestScale);
+                setFieldValue('input-venue',         book.place);
+                setFieldValue('input-notes',         book.content);
+
+                // 填入視覺定調
+                if (book.styles) {
+                    const radios = document.querySelectorAll('#themeTagsContainer input[type="radio"]');
+                    radios.forEach(radio => {
+                        if (radio.nextElementSibling.textContent.trim() === book.styles) {
+                            radio.checked = true;
+                        }
+                    });
+                }
+
+            } catch (err) {
+                console.error('載入預約資料失敗:', err);
+            }
+        }
+
+        function setFieldValue(id, value) {
+            const el = document.getElementById(id);
+            if (el && value != null) el.value = value;
+        }
+
+        // ════════════════════════════════════════
+        // 步驟一：儲存婚宴基本資訊
+        // ════════════════════════════════════════
+        async function saveWeddingInfo() {
+            const selectedTheme = document.querySelector('#themeTagsContainer input[type="radio"]:checked');
+
+            const payload = {
+                weddingDate: document.getElementById('input-wedding-date').value || null,
+                guestScale:  parseInt(document.getElementById('input-guest-scale').value) || null,
+                place:       document.getElementById('input-venue').value.trim() || null,
+                styles:      selectedTheme ? selectedTheme.nextElementSibling.textContent.trim() : null,
+                notes:     document.getElementById('input-notes').value.trim() || null
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/book`, {
+                    method:      'PATCH',
+                    headers:     { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body:        JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    // 儲存成功，顯示 modal（原本的 saveSuccessModal）
+                    const saveModal = new bootstrap.Modal(document.getElementById('saveSuccessModal'));
+                    saveModal.show();
+                } else {
+                    alert('儲存失敗，請稍後再試');
+                }
+            } catch (err) {
+                console.error('儲存失敗:', err);
+                console.error('fetch 錯誤類型:', err.name);
+                console.error('fetch 錯誤訊息:', err.message);
+                alert('連線失敗，請確認後端服務');
+            }
+        }
+
+        // ════════════════════════════════════════
+        // 步驟三：送出方案細節
+        // ════════════════════════════════════════
+        async function submitBookDetails() {
+            // 收集所有勾選的服務項目
+            const details = [];
+
+            document.querySelectorAll('.check-item input[type="checkbox"]:checked, .sub-addon-checkbox:checked').forEach(cb => {
+                const serviceId = parseInt(cb.getAttribute('data-service-id'));
+                const unitPrice = parseInt(cb.getAttribute('data-price') || 0);
+                if (serviceId) {
+                    details.push({ serviceId, unitPrice, ceremonyDate: null });
+                }
+            });
+
+            // 加入 A方案基底
+            details.unshift({ serviceId: 1, unitPrice: 43800, ceremonyDate: null }); // A方案 service_id 確認一下
+
+            try {
+                const res = await fetch(`${API_BASE}/book/details`, {
+                    method:      'POST',
+                    headers:     { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body:        JSON.stringify(details)
+                });
+
+                if (res.ok) {
+                    changeStep(1); // 進入步驟四
+                } else {
+                    alert('送出失敗，請稍後再試');
+                }
+            } catch (err) {
+                console.error('送出失敗:', err);
+                alert('連線失敗，請確認後端服務');
+            }
+        }
+
+        // ════════════════════════════════════════
+        // 初始化
+        // ════════════════════════════════════════
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMyBook();
+        });
     </script>
 </body>
 

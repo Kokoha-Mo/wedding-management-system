@@ -75,7 +75,7 @@ public class CustomerLoginController {
                 .build();
     }
 
-    // 這是配合新流程增加的：登入後強制修改密碼
+    // 登入後強制修改密碼
     @PostMapping("/update-password")
     public ResponseEntity<Map<String, String>> updatePassword(
             @RequestBody Map<String, String> request,

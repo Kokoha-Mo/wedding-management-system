@@ -8,7 +8,6 @@ public class CustomerLoginResponseDto {
     private String email;
     private String name;
     private Integer customerId;
-    // 用來告訴前端，這個客人是不是首次登入
     private boolean forcePasswordChange;
     private Integer projectId;
 }

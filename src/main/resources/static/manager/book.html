@@ -166,19 +166,6 @@
                                     <button onclick="clearFilters()" class="text-[11px] text-primary hover:underline font-medium">清除全部</button>
                                 </div>
 
-<!--                                &lt;!&ndash; 負責人 &ndash;&gt;-->
-<!--                                <div>-->
-<!--                                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">負責人</p>-->
-<!--                                    <div class="flex flex-wrap gap-1.5" id="filter-staff">-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="jack" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">jack</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Tina" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Tina</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Molly" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Molly</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Denny" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Denny</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Kokoha" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Kokoha</button>-->
-<!--                                        <button onclick="toggleFilter(this,'staff')" data-value="Joy" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-600 text-gray-500 hover:border-primary hover:text-primary transition-all">Joy</button>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-
                                 <!-- 視覺定調 -->
                                 <div>
                                     <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">視覺定調</p>
@@ -353,7 +340,7 @@
                     <div class="md:col-span-2">
                         <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">專屬視覺定調 Theme</label>
                         <div class="flex flex-wrap gap-2">
-                            <label class="cursor-pointer"><input type="radio" name="theme" class="hidden peer" checked><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">森林系</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="theme" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">森林系</span></label>
                             <label class="cursor-pointer"><input type="radio" name="theme" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">美式復古</span></label>
                             <label class="cursor-pointer"><input type="radio" name="theme" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">西式教堂</span></label>
                             <label class="cursor-pointer"><input type="radio" name="theme" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">中式老宅</span></label>
@@ -378,6 +365,79 @@
 <div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-create-customer-backdrop"></div>
 
 <!-- ═══════════════════════════════════════
+     Modal: 修改新人基本資料
+═══════════════════════════════════════ -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none" id="modal-edit-book">
+    <div class="relative w-full max-w-2xl mx-auto my-6 px-4">
+        <div class="border-0 rounded-xl shadow-xl relative flex flex-col w-full bg-white dark:bg-gray-800 outline-none focus:outline-none">
+
+            <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">修改新人基本資料</h3>
+                <button class="text-gray-400 hover:text-gray-600" onclick="toggleModal('modal-edit-book')">
+                    <span class="material-icons text-xl">close</span>
+                </button>
+            </div>
+
+            <div class="relative p-5 flex-auto space-y-4 max-h-[70vh] overflow-y-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">新人姓名 Name</label>
+                        <input type="text" id="edit-name" placeholder="王小明 & 李小美"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">電子郵件 Email</label>
+                        <input type="email" id="edit-email" placeholder="example@wedding.com" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">聯絡手機 Tel</label>
+                        <input type="tel" id="edit-tel" placeholder="0912345678"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">LINE ID</label>
+                        <input type="text" id="edit-lineid" placeholder="line_id"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">婚禮日期 Wedding Date</label>
+                        <input type="date" id="edit-wedding-date"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">賓客規模 Guest Scale</label>
+                        <input type="number" id="edit-guest-scale" placeholder="150"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">宴客場地 Venue</label>
+                        <input type="text" id="edit-place" placeholder="東方文華酒店"
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">視覺風格 Theme</label>
+                        <div class="flex flex-wrap gap-2" id="edit-theme-options">
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="森林系" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">森林系</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="美式復古" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">美式復古</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="西式教堂" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">西式教堂</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="中式老宅" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">中式老宅</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="極簡現代" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">極簡現代</span></label>
+                            <label class="cursor-pointer"><input type="radio" name="edit-theme" value="異國風情" class="hidden peer"><span class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-600 text-[11px] text-gray-500 peer-checked:bg-primary peer-checked:text-white transition-all inline-block font-medium">異國風情</span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 border-t border-gray-100 dark:border-gray-700 flex justify-end space-x-3 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-xl">
+                <button class="px-5 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" onclick="toggleModal('modal-edit-book')">取消</button>
+                <button class="bg-primary text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-600 transition-colors" onclick="saveBookInfo()">儲存資料</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-edit-book-backdrop"></div>
+
+<!-- ═══════════════════════════════════════
      Modal: 客戶需求與方案細項
 ═══════════════════════════════════════ -->
 <div class="hidden fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none" id="modal-modify">
@@ -393,6 +453,39 @@
 
             <div class="relative p-6 flex-auto space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
 
+                <!-- 顧客已選服務清單（從 API 載入）-->
+                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
+                    <h4 class="text-sm font-bold text-blue-700 dark:text-blue-300 mb-3 flex items-center">
+                        <span class="material-icons text-base mr-2">list_alt</span> 顧客已選服務項目
+                    </h4>
+                    <ul id="modify-service-list" class="space-y-1 text-gray-500 text-sm max-h-36 overflow-y-auto">
+                        <li>載入中...</li>
+                    </ul>
+                    <div class="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between" id="modify-total-row">
+                        <span class="text-sm font-bold text-blue-700">預估總計</span>
+                        <span class="text-sm font-bold text-blue-700" id="modify-total-price">NT$ 0</span>
+                    </div>
+                </div>
+
+                <!-- A方案：固定核心（不可取消）-->
+                <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border-2 border-amber-300 dark:border-amber-700">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="material-icons text-amber-500 text-xl">workspace_premium</span>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">A方案｜婚宴全時統籌</span>
+                                    <span class="text-xs font-bold bg-amber-400 text-white px-2 py-0.5 rounded-full">必選</span>
+                                </div>
+                                <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                                    包含婚禮統籌、期程規劃、場勘與資源整合，並於婚禮當日配置專業助理一名，確保流程執行之高品質與高效率。
+                                </p>
+                            </div>
+                        </div>
+                        <span class="text-sm font-bold text-amber-600 whitespace-nowrap ml-4">NT$ 43,800</span>
+                    </div>
+                </div>
+
                 <!-- B方案：婚禮團隊 -->
                 <div>
                     <h4 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -401,15 +494,15 @@
                     <div class="space-y-3">
                         <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
                             <div class="flex items-start">
-                                <input type="checkbox" id="main-makeup" onchange="toggleSubItems(this, 'sub-makeup')" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" checked>
+                                <input type="checkbox" id="main-makeup" data-service-id="3" onchange="toggleSubItems(this, 'sub-makeup')" class="modal-service-cb mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
                                         <label for="main-makeup" class="text-sm font-bold text-gray-800 dark:text-gray-200 cursor-pointer">1. 新秘造型師</label>
                                         <span class="text-[11px] font-bold text-primary">+NT$ 18,000</span>
                                     </div>
                                     <div id="sub-makeup" class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 pl-2 border-l-2 border-gray-200 dark:border-gray-600">
-                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" class="mr-2 rounded border-gray-300 text-primary"> 新郎妝髮造型 (+5000)</label>
-                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" class="mr-2 rounded border-gray-300 text-primary" checked> 主婚人/親友妝髮 (+2000)</label>
+                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" data-service-id="4" class="modal-service-cb mr-2 rounded border-gray-300 text-primary"> 新郎妝髮造型 (+5000)</label>
+                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" data-service-id="5" class="modal-service-cb mr-2 rounded border-gray-300 text-primary"> 主婚人/親友妝髮 (+2000)</label>
                                     </div>
                                 </div>
                             </div>
@@ -417,15 +510,14 @@
 
                         <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
                             <div class="flex items-start">
-                                <input type="checkbox" id="main-host" onchange="toggleSubItems(this, 'sub-host')" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" checked>
+                                <input type="checkbox" id="main-host" data-service-id="6" onchange="toggleSubItems(this, 'sub-host')" class="modal-service-cb mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
-                                        <label for="main-host" class="text-sm font-bold text-gray-800 dark:text-gray-200 cursor-pointer">2. 婚禮企劃主持人</label>
+                                        <label for="main-host" class="text-sm font-bold text-gray-800 dark:text-gray-200 cursor-pointer">2. 專業婚禮主持人</label>
                                         <span class="text-[11px] font-bold text-primary">+NT$ 18,000</span>
                                     </div>
                                     <div id="sub-host" class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 pl-2 border-l-2 border-gray-200 dark:border-gray-600">
-                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="radio" name="host-level" class="mr-2 border-gray-300 text-primary"> 品牌總監級主持人 (+2000)</label>
-                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="radio" name="host-level" class="mr-2 border-gray-300 text-primary" checked> 專業婚禮主持人 (+0)</label>
+                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="radio" data-service-id="7" name="host-level" class="modal-service-cb mr-2 border-gray-300 text-primary"> 品牌總監級主持人 (+2000)</label>
                                     </div>
                                 </div>
                             </div>
@@ -433,17 +525,17 @@
 
                         <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
                             <div class="flex items-start">
-                                <input type="checkbox" id="main-photo" onchange="toggleSubItems(this, 'sub-photo')" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" checked>
+                                <input type="checkbox" id="main-photo" data-service-id="9" onchange="toggleSubItems(this, 'sub-photo')" class="modal-service-cb mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
                                         <label for="main-photo" class="text-sm font-bold text-gray-800 dark:text-gray-200 cursor-pointer">3. 平面/動態紀實攝影師</label>
                                         <span class="text-[11px] font-bold text-primary">+NT$ 18,000</span>
                                     </div>
                                     <div id="sub-photo" class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 pl-2 border-l-2 border-gray-200 dark:border-gray-600">
-                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" class="mr-2 rounded border-gray-300 text-primary"> SDE 當日快剪快播 (+15,000)</label>
-                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" class="mr-2 rounded border-gray-300 text-primary" checked> 雙機位拍攝 (+12,000)</label>
-                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" class="mr-2 rounded border-gray-300 text-primary"> 類婚紗與全家福引導拍攝 (+5,000)</label>
-                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" class="mr-2 rounded border-gray-300 text-primary" checked> 空拍機壯闊空景拍攝 (+6,000)</label>
+                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" data-service-id="10" class="modal-service-cb mr-2 rounded border-gray-300 text-primary"> SDE 當日快剪快播 (+15,000)</label>
+                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" data-service-id="11" class="modal-service-cb mr-2 rounded border-gray-300 text-primary"> 雙機位拍攝 (+12,000)</label>
+                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" data-service-id="12" class="modal-service-cb mr-2 rounded border-gray-300 text-primary"> 類婚紗與全家福引導拍攝 (+5,000)</label>
+                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" data-service-id="13" class="modal-service-cb mr-2 rounded border-gray-300 text-primary"> 空拍機壯闊空景拍攝 (+6,000)</label>
                                     </div>
                                 </div>
                             </div>
@@ -451,14 +543,14 @@
 
                         <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
                             <div class="flex items-start">
-                                <input type="checkbox" id="main-audio" onchange="toggleSubItems(this, 'sub-audio')" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" checked>
+                                <input type="checkbox" id="main-audio" data-service-id="14" onchange="toggleSubItems(this, 'sub-audio')" class="modal-service-cb mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
                                         <label for="main-audio" class="text-sm font-bold text-gray-800 dark:text-gray-200 cursor-pointer">4. 燈光音響與影音場控</label>
                                         <span class="text-[11px] font-bold text-primary">+NT$ 18,000</span>
                                     </div>
                                     <div id="sub-audio" class="mt-2 pl-2 border-l-2 border-gray-200 dark:border-gray-600">
-                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" class="mr-2 rounded border-gray-300 text-primary"> 專業 LIVE Band 音響工程系統 (+15,000)</label>
+                                        <label class="flex items-center text-[11px] text-gray-600 cursor-pointer hover:text-primary"><input type="checkbox" data-service-id="15" class="modal-service-cb mr-2 rounded border-gray-300 text-primary"> 專業 LIVE Band 音響工程系統 (+15,000)</label>
                                     </div>
                                 </div>
                             </div>
@@ -473,17 +565,17 @@
                     </h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <label class="flex items-center cursor-pointer p-2 bg-gray-50 rounded-lg border border-transparent hover:border-gray-200 transition-colors">
-                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
+                            <input type="checkbox" data-service-id="16" class="modal-service-cb w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">文定儀式引導與司儀</span>
                             <span class="ml-auto text-[11px] font-bold text-primary">+NT$ 15,800</span>
                         </label>
                         <label class="flex items-center cursor-pointer p-2 bg-gray-50 rounded-lg border border-transparent hover:border-gray-200 transition-colors">
-                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
+                            <input type="checkbox" data-service-id="17" class="modal-service-cb w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">迎娶儀式流程控管</span>
                             <span class="ml-auto text-[11px] font-bold text-primary">+NT$ 15,800</span>
                         </label>
                         <label class="flex items-center cursor-pointer p-2 bg-gray-50 rounded-lg border border-transparent hover:border-gray-200 transition-colors">
-                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3" checked>
+                            <input type="checkbox" data-service-id="18" class="modal-service-cb w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">戶外/室內證婚規劃</span>
                             <span class="ml-auto text-[11px] font-bold text-primary">+NT$ 15,800</span>
                         </label>
@@ -497,7 +589,7 @@
                     </h4>
                     <div class="space-y-3">
                         <label class="flex items-start bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 cursor-pointer hover:border-primary transition-colors group">
-                            <input type="checkbox" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3" checked>
+                            <input type="checkbox" data-service-id="19" class="modal-service-cb mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
                             <div class="flex-1">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-bold text-gray-800 group-hover:text-primary transition-colors">迎賓與拍照區主題設計</span>
@@ -507,7 +599,7 @@
                             </div>
                         </label>
                         <label class="flex items-start bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 cursor-pointer hover:border-primary transition-colors group">
-                            <input type="checkbox" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3" checked>
+                            <input type="checkbox" data-service-id="20" class="modal-service-cb mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
                             <div class="flex-1">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-bold text-gray-800 group-hover:text-primary transition-colors">宴客桌景與舞台視覺</span>
@@ -517,7 +609,7 @@
                             </div>
                         </label>
                         <label class="flex items-start bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 cursor-pointer hover:border-primary transition-colors group">
-                            <input type="checkbox" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
+                            <input type="checkbox" data-service-id="21" class="modal-service-cb mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
                             <div class="flex-1">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-bold text-gray-800 group-hover:text-primary transition-colors">鮮花花藝佈置</span>
@@ -527,7 +619,7 @@
                             </div>
                         </label>
                         <label class="flex items-start bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 cursor-pointer hover:border-primary transition-colors group">
-                            <input type="checkbox" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
+                            <input type="checkbox" data-service-id="22" class="modal-service-cb mt-0.5 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary mr-3">
                             <div class="flex-1">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-bold text-gray-800 group-hover:text-primary transition-colors">品牌級平面視覺套組</span>
@@ -544,19 +636,78 @@
                     <h4 class="text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
                         <span class="material-icons text-primary mr-2 text-xl">edit_note</span> 婚宴備註 Notes
                     </h4>
-                    <textarea rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2.5 px-3 resize-none focus:ring-primary focus:border-primary text-gray-700 dark:text-gray-300" placeholder="輸入客戶的特殊需求或補充說明..."></textarea>
+                    <textarea id="modify-notes" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm py-2.5 px-3 resize-none focus:ring-primary focus:border-primary text-gray-700 dark:text-gray-300" placeholder="輸入客戶的特殊需求或補充說明..."></textarea>
                 </div>
 
             </div>
 
             <div class="p-5 border-t border-gray-100 dark:border-gray-700 flex justify-end space-x-3 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-xl">
                 <button class="px-5 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" onclick="toggleModal('modal-modify')">取消修改</button>
-                <button class="bg-primary text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-600 transition-colors" onclick="toggleModal('modal-modify')">儲存需求設定</button>
+                <button class="bg-primary text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-600 transition-colors" onclick="saveBookDetails()">儲存需求設定</button>
             </div>
         </div>
     </div>
 </div>
 <div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-modify-backdrop"></div>
+<!-- ═══════════════════════════════════════
+     Modal: 已簽約詳細摘要（純文字）
+═══════════════════════════════════════ -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none" id="modal-view-detail">
+    <div class="relative w-full max-w-2xl mx-auto my-6 px-4">
+        <div class="border-0 rounded-2xl shadow-xl relative flex flex-col w-full bg-white dark:bg-gray-800 outline-none focus:outline-none">
+
+            <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="detail-customer-name">客戶姓名</h3>
+                    <p class="text-xs text-gray-400 mt-1" id="detail-book-meta"></p>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600" onclick="toggleModal('modal-view-detail')">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            <div class="relative p-6 flex-auto space-y-6 max-h-[70vh] overflow-y-auto">
+
+                <!-- 基本資訊 -->
+                <div class="bg-gray-50 dark:bg-gray-900/40 rounded-xl p-4 space-y-2">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">新人基本資料</h4>
+                    <div class="grid grid-cols-2 gap-y-2 text-sm">
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">婚禮日期</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-wedding-date">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">賓客規模</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-guest-scale">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">宴客場地</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-place">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">視覺定調</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-styles">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">聯絡手機</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-tel">-</span></div>
+                        <div class="flex gap-2"><span class="text-gray-400 w-20 shrink-0">LINE ID</span><span class="font-medium text-gray-800 dark:text-gray-200" id="detail-lineid">-</span></div>
+                    </div>
+                </div>
+
+                <!-- 服務項目 -->
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">服務項目與報價</h4>
+                    <div class="border border-gray-100 dark:border-gray-700 rounded-xl overflow-hidden">
+                        <ul id="detail-services-list" class="divide-y divide-gray-100 dark:divide-gray-700"></ul>
+                        <div class="flex justify-between items-center px-4 py-3 bg-blue-50 dark:bg-blue-900/20">
+                            <span class="text-sm font-bold text-blue-700 dark:text-blue-300">預估總計</span>
+                            <span class="text-lg font-bold text-blue-700 dark:text-blue-300" id="detail-total">NT$ 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 備註 -->
+                <div id="detail-notes-wrap" class="hidden">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">備註需求</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/40 rounded-xl p-4 leading-relaxed italic" id="detail-notes"></p>
+                </div>
+
+            </div>
+
+            <div class="p-5 border-t border-gray-100 dark:border-gray-700 flex justify-end bg-gray-50/50 dark:bg-gray-800/50 rounded-b-xl">
+                <button class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium text-sm transition-colors" onclick="toggleModal('modal-view-detail')">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-view-detail-backdrop"></div>
 <script src="./ESJS/es_new_ver.js" defer></script>
 <script src="./ESJS/book.js"></script>
 

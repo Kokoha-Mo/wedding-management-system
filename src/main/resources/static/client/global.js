@@ -3,8 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── 元素選取 ───
     const navbar = document.querySelector('.navbar');
     const backToTopBtn = document.getElementById('backToTop');
-    const searchBtn = document.getElementById('search-btn');
-    const searchInput = document.getElementById('search-input');
 
     // ─── 變數設定 ───
     let lastScrollTop = 0;

@@ -2,7 +2,7 @@
  * 功能：同步電腦/手機導覽列、處理 JWT 與 記住帳號
  */
 
-const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 小時過期
+const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 小時過期跟jwt和cookie期限一樣
 
 document.addEventListener('DOMContentLoaded', () => {
   checkAuthStatus();

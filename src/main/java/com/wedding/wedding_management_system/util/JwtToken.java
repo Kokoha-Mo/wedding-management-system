@@ -10,7 +10,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
 public class JwtToken {
-    private static final long EXP_TIME = 10 * 60 * 1000; // 過期時間
+    private static final long EXP_TIME = 60 * 60 * 1000; // 過期時間跟cookie和前端期限一樣
     private static final long RESET_EXP_TIME = 10 * 60 * 1000; // 重設密碼專用 token（10分鐘有效）
     private static final String SECURT = "JoyChu1223334444555556666667777777"; // JS要設定
     private static final Key key = Keys.hmacShaKeyFor(SECURT.getBytes());

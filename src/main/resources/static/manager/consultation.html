@@ -1021,7 +1021,7 @@
                     this.isConverting = true;
 
                     // 呼叫 API，把 email 和 tel 一起傳給後端
-                    axios.post(`/api/books/from-consultation/${this.convertForm.consultationId}`, {
+                    axios.post(`/api/employee/books/from-consultation/${this.convertForm.consultationId}`, {
                         partnerName: this.convertForm.partnerName,
                         email: this.convertForm.email,
                         tel: this.convertForm.tel

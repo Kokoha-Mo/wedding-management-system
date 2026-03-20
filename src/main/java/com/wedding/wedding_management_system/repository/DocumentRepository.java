@@ -9,6 +9,7 @@ import com.wedding.wedding_management_system.entity.Document;
 import java.util.List;
 
 public interface DocumentRepository extends JpaRepository<Document, Integer> {
+    List<Document> findByTask_Id(Integer taskId);
 
     /**
      * 根據 task_id 和 status 查詢附檔

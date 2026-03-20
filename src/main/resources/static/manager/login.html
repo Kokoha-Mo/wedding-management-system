@@ -1,94 +1,164 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ES Admin - 系統登入</title>
 
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="../css/bootstrap.css">
-    <script src="../js/bootstrap.bundle.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <link rel="stylesheet" href="./ESCss/Login.css">
-    <script src="./ESJS/MainPage.js"></script>
-
-    <title>Enterprise System</title>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6",
+                        "accent-gold": "#C5A059",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    }
+                },
+            },
+        };
+    </script>
 
     <style>
         body {
             background-image: url("./Img/LoginBG.png");
             background-repeat: no-repeat;
             background-attachment: fixed;
-            overflow: hidden;
             background-size: cover;
             background-position: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-input {
+            transition: all 0.3s ease;
+        }
+
+        .login-input:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
         }
     </style>
-    
 </head>
 
+<body class="min-h-screen flex items-center justify-center p-4">
 
-<body>
-
-    <section class="py-1">
-        <div class="container">
-            <div class="row justify-content-center align-items-center min-vh-100">
-
-                <div class="col-11 col-md-5 login-box bg-white p-5 shadow">
-
-                    <div class="mb-4 text-center">
-                        <h3 class="fw-bold mb-2 text-dark">登入系統</h3>
-                        <p class="text-secondary small">Welcome back! Please enter your details.</p>
+    <div class="w-full max-w-[440px] animate-fade-in">
+        <div class="glass-card rounded-[2rem] shadow-2xl overflow-hidden">
+            <div class="p-8 lg:p-10">
+                <!-- Logo / Header -->
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4">
+                        <span class="text-primary font-bold text-3xl">ES</span>
                     </div>
-
-                    <form action="main_page.html">
-                        <div class="row g-4">
-
-                            <div class="col-12">
-                                <label for="employeeId" class="small fw-bold text-secondary mb-2">員工編號</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="bi bi-card-text"></i></span>
-                                    <input type="text" id="employeeId" name="employeeId" class="form-control"
-                                        placeholder="請輸入員工編號" required style="border-radius: 0 12px 12px 0 !important;">
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <label for="password" class="small fw-bold text-secondary mb-2">密碼</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
-                                    <input type="password" id="password" name="password"
-                                        class="form-control border-end-0" placeholder="請輸入密碼" required
-                                        style="border-radius: 0 !important;">
-                                    <button class="btn border" type="button" id="togglePassword"
-                                        style="border-radius: 0 12px 12px 0 !important; border-left: none;">
-                                        <i class="bi bi-eye-slash" id="eyeIcon"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="col-12 d-flex justify-content-between align-items-center">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="rememberMe">
-                                    <label class="form-check-label text-secondary small" for="rememberMe">記住我</label>
-                                </div>
-                                <a href="#" class="text-decoration-none small fw-bold"
-                                    onclick="alert('請洽管理員'); return false;">忘記密碼?</a>
-                            </div>
-
-                            <div class="col-12 mt-4">
-                                <button type="submit" id="submitBtn"
-                                    class="btn btn-primary w-100 fw-bold btn-login">登入</button>
-                            </div>
-
-                        </div>
-                    </form>
+                    <h2 class="text-2xl font-bold text-gray-900 tracking-tight">後台管理系統</h2>
+                    <p class="text-gray-500 mt-2 text-sm">請輸入您的電子信箱與密碼以繼續</p>
                 </div>
 
+                <!-- Alert Placeholder -->
+                <div id="login-alert" class="hidden mb-6 p-4 rounded-xl text-sm font-medium"></div>
+
+                <form id="loginForm" class="space-y-6">
+                    <!-- Email field -->
+                    <div>
+                        <label for="emailInput"
+                            class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">電子信箱</label>
+                        <div class="relative group">
+                            <span
+                                class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-primary transition-colors">
+                                <i class="bi bi-envelope text-lg"></i>
+                            </span>
+                            <input type="email" id="emailInput" required
+                                class="login-input w-full bg-gray-50 border-gray-100 rounded-2xl py-3.5 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary border transition-all"
+                                placeholder="name@company.com">
+                        </div>
+                    </div>
+
+                    <!-- Password field -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2 ml-1">
+                            <label for="passwordInput"
+                                class="block text-xs font-bold text-gray-400 uppercase tracking-wider">密碼</label>
+                        </div>
+                        <div class="relative group">
+                            <span
+                                class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-primary transition-colors">
+                                <i class="bi bi-shield-lock text-lg"></i>
+                            </span>
+                            <input type="password" id="passwordInput" required
+                                class="login-input w-full bg-gray-50 border-gray-100 rounded-2xl py-3.5 pl-12 pr-12 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary border transition-all"
+                                placeholder="••••••••">
+                            <button type="button" id="togglePassword"
+                                class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600 transition-colors">
+                                <i class="bi bi-eye-slash text-lg" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Submit -->
+                    <button type="submit" id="submitBtn"
+                        class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary/25 transform active:scale-[0.98] transition-all flex items-center justify-center group overflow-hidden relative">
+                        <span class="relative z-10 flex items-center">
+                            進入系統
+                            <i class="bi bi-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        </span>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]">
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Footer Info -->
+                <div class="mt-10 pt-6 border-t border-gray-100 text-center">
+                    <p class="text-gray-400 text-xs font-medium uppercase tracking-widest leading-relaxed">
+                        &copy; 2026 Wedding System<br>
+                        Enterprise Administration
+                    </p>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
 
+    <style>
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+    </style>
 
     <script>
         // 已經登入的狀態下導向正確頁面
@@ -97,6 +167,7 @@
             const deptId = sessionStorage.getItem("deptId");
             if (empId) {
                 const deptIdStr = String(deptId);
+                // 根據部門跳轉 (與原本邏輯一致)
                 if (deptIdStr === '1') {
                     window.location.replace("book.html");
                 } else if (deptIdStr === '7') {
@@ -107,6 +178,7 @@
             }
         }
 
+        // 頁面顯示（包含上一頁返回）處理
         window.addEventListener('pageshow', function (e) {
             if (e.persisted) {
                 checkLoggedIn();
@@ -116,77 +188,106 @@
         document.addEventListener('DOMContentLoaded', function () {
             checkLoggedIn();
 
+            // 密碼顯示/隱藏切換
             const toggleBtn = document.getElementById('togglePassword');
-            const passwordField = document.getElementById('password');
+            const passwordField = document.getElementById('passwordInput');
             const eyeIcon = document.getElementById('eyeIcon');
 
             toggleBtn.addEventListener('click', function () {
-
                 if (passwordField.type === 'password') {
                     passwordField.type = 'text';
-
-                    eyeIcon.classList.remove('bi-eye-slash');
-                    eyeIcon.classList.add('bi-eye');
+                    eyeIcon.classList.replace('bi-eye-slash', 'bi-eye');
                 } else {
                     passwordField.type = 'password';
+                    eyeIcon.classList.replace('bi-eye', 'bi-eye-slash');
+                }
+            });
 
-                    eyeIcon.classList.remove('bi-eye');
-                    eyeIcon.classList.add('bi-eye-slash');
+            // 輔助函式：顯示提示訊息
+            function showAlert(message, type = 'error') {
+                const alertEl = document.getElementById('login-alert');
+                alertEl.textContent = message;
+                alertEl.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-amber-50', 'text-amber-700');
+                if (type === 'error') {
+                    alertEl.classList.add('bg-red-50', 'text-red-700');
+                } else {
+                    alertEl.classList.add('bg-amber-50', 'text-amber-700');
+                }
+                alertEl.classList.remove('hidden');
+            }
+
+            // 登入表單提交實作
+            document.getElementById("loginForm").addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const email = document.getElementById("emailInput").value;
+                const pw = document.getElementById("passwordInput").value;
+                const submitBtn = document.getElementById("submitBtn");
+                const originalContent = submitBtn.innerHTML;
+
+                // 設置讀取狀態
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 mr-3 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    驗證中...
+                `;
+
+                try {
+                    const response = await fetch('/api/employee/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            emp_email: email, // 參數名需與後端對齊
+                            emp_password: pw
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        // 儲存至 sessionStorage
+                        sessionStorage.setItem("empId", data.empId);
+                        sessionStorage.setItem("empName", data.empName);
+                        sessionStorage.setItem("position", data.position);
+                        sessionStorage.setItem("deptId", data.deptId);
+                        sessionStorage.setItem("imgPath", data.imgPath || '');
+
+                        // 導向對應頁面
+                        const deptIdStr = String(data.deptId);
+                        if (deptIdStr === '1') {
+                            window.location.href = "book.html";
+                        } else if (deptIdStr === '7') {
+                            window.location.href = "consultation.html";
+                        } else {
+                            window.location.href = "quest_staff.html";
+                        }
+
+                    } else if (response.status === 401) {
+                        showAlert("電子信箱或密碼錯誤，請重新輸入");
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalContent;
+                    } else {
+                        showAlert("系統連線異常，請稍後再試");
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalContent;
+                    }
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    showAlert("網路連線失敗，請檢查網路連線");
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalContent;
                 }
             });
         });
 
 
-        // 真實登入請求
-        document.querySelector("form").addEventListener("submit", async function (e) {
-            e.preventDefault();
 
-            const id = document.getElementById("employeeId").value; // 使用者輸入的 Email 或帳號
-            const pw = document.getElementById("password").value;
-
-            try {
-                const response = await fetch('/api/employee/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        emp_email: id,
-                        emp_password: pw
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-
-                    // 將使用者的詳細資訊存入 sessionStorage
-                    sessionStorage.setItem("empId", data.empId);
-                    sessionStorage.setItem("empName", data.empName);
-                    sessionStorage.setItem("position", data.position);
-                    sessionStorage.setItem("deptId", data.deptId);
-                    sessionStorage.setItem("imgPath", data.imgPath || '');
-
-                    // 根據部門跳轉
-                    const deptIdStr = String(data.deptId);
-                    if (deptIdStr === '1') {
-                        window.location.href = "book.html";
-                    } else if (deptIdStr === '7') {
-                        window.location.href = "consultation.html";
-                    } else {
-                        window.location.href = "quest_staff.html";
-                    }
-
-                } else if (response.status === 401) {
-                    alert("帳號或密碼錯誤，請重新輸入");
-                } else {
-                    alert("系統發生未知的錯誤，請稍後再試");
-                }
-            } catch (error) {
-                console.error("登入請求發生異常", error);
-                alert("連線失敗，請檢查網路狀態");
-            }
-        });
 
         // 登出請求
         async function logout() {
@@ -195,16 +296,15 @@
                     method: 'POST',
                     credentials: 'include'
                 });
-
                 if (response.ok) {
                     sessionStorage.clear();
-                    window.location.href = "login.html"; // 返回登入頁
+                    window.location.href = "login.html";
                 } else {
+                    // This part was missing from the provided new code, adding it back for completeness
+                    // based on the original file's logout function.
                     alert("登出失敗，伺服器無回應");
                 }
             } catch (error) {
-                console.error("登出請求發生異常", error);
-                alert("連線失敗，請檢查網路狀態");
             }
         }
 

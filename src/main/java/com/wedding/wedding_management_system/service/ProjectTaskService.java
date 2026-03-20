@@ -146,6 +146,26 @@ public class ProjectTaskService {
                     return assignee;
                 }).collect(Collectors.toList());
                 dto.setAssignees(assignees);
+
+                // 查詢此任務負責人上傳的「待審核」成果附檔
+                List<Integer> ownerEmpIds = task.getTaskOwners().stream()
+                        .filter(o -> o.getEmployee() != null)
+                        .map(o -> o.getEmployee().getId())
+                        .collect(Collectors.toList());
+                if (!ownerEmpIds.isEmpty() && task.getProject() != null) {
+                    List<Document> docs = documentRepository.findByProjectIdAndStatusAndUploaderIds(
+                            task.getProject().getId(), "待審核", ownerEmpIds);
+                    List<TaskDTO.DocumentDTO> docDTOs = docs.stream().map(d -> {
+                        TaskDTO.DocumentDTO docDto = new TaskDTO.DocumentDTO();
+                        docDto.setId(d.getId());
+                        docDto.setName(d.getName());
+                        docDto.setFilePath(d.getFilePath());
+                        docDto.setFileType(d.getFileType());
+                        docDto.setStatus(d.getStatus());
+                        return docDto;
+                    }).collect(Collectors.toList());
+                    dto.setDocuments(docDTOs);
+                }
             }
 
             resultList.add(dto);

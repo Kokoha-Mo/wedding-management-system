@@ -3,6 +3,7 @@ package com.wedding.wedding_management_system.controller;
 import com.wedding.wedding_management_system.dto.BookResponseDTO;
 import com.wedding.wedding_management_system.dto.CreateBookRequestDTO;
 import com.wedding.wedding_management_system.dto.CustomerDTO;
+import com.wedding.wedding_management_system.dto.UpdateBookDetailsRequestDTO;
 import com.wedding.wedding_management_system.repository.BookRepository;
 import com.wedding.wedding_management_system.service.BookService;
 import com.wedding.wedding_management_system.service.ConsultationConvertService;
@@ -21,7 +22,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/employee/books")
 @RequiredArgsConstructor // 🌟 讓 Spring 自動幫你注入 final 變數
 public class BookController {
 
@@ -87,17 +88,22 @@ public class BookController {
 
     @GetMapping("/check-duplicate")
     public ResponseEntity<List<CustomerDTO>> checkDuplicate(
-            @RequestParam(required = false) String email) {
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String tel) {
 
-        List<CustomerDTO> similar = bookService.findSimilarCustomers(email);
+        List<CustomerDTO> similar = bookService.findSimilarCustomers(email, tel);
         return ResponseEntity.ok(similar);
     }
 
     @GetMapping
     public ResponseEntity<List<BookResponseDTO>> findByStatus(
-            @RequestParam(defaultValue = "處理中") String status) {
+            @RequestParam(defaultValue = "處理中") String status,
+            @RequestParam(required = false) Integer managerId) {
 
-        List<BookResponseDTO> books = bookService.findByStatus(status);
+        List<BookResponseDTO> books = (managerId !=null)
+                ? bookService.findByManagerAndStatus(managerId,status)
+                : bookService.findByStatus(status);
+
         return ResponseEntity.ok(books);
     }
 
@@ -108,12 +114,24 @@ public class BookController {
         return ResponseEntity.ok(result);
     }
 
+    @PatchMapping("/{id}/info")
+    public ResponseEntity<BookResponseDTO> updateBookInfo(
+            @PathVariable Integer id,
+            @RequestBody UpdateBookDetailsRequestDTO request) {
+        BookResponseDTO result = bookService.updateBookInfo(id, request);
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/status-counts")
-    public ResponseEntity<Map<String, Long>> statusCounts() {
-        Map<String, Long> counts = new HashMap<>();
-        counts.put("處理中", bookRepository.countByStatus("處理中"));
-        counts.put("已簽約", bookRepository.countByStatus("已簽約"));
-        counts.put("取消", bookRepository.countByStatus("取消"));
+    public ResponseEntity<Map<String, Long>> statusCounts(
+            @RequestParam(required = false) Integer managerId) {
+        Map<String, Long> counts = (managerId != null)
+                ? bookService.statusCountsByManager(managerId)
+                : Map.of(
+                "處理中", bookRepository.countByStatus("處理中"),
+                "已簽約", bookRepository.countByStatus("已簽約"),
+                "取消",   bookRepository.countByStatus("取消")
+        );
         return ResponseEntity.ok(counts);
     }
 

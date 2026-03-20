@@ -61,6 +61,22 @@ public class CustomerLoginController {
         }
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> me(
+            @CookieValue(value = "jwtToken", required = false) String token) {
+
+        if (token == null || !JwtToken.isValid(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        String email = JwtToken.getEmail(token);
+        Customer customer = customerService.findByEmail(email);
+
+        return ResponseEntity.ok(Map.of(
+                "name", customer.getName(),
+                "customerId", customer.getId()));
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
         ResponseCookie expiredCookie = ResponseCookie.from("jwtToken", "")

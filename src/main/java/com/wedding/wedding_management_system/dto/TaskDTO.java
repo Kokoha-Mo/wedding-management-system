@@ -30,6 +30,9 @@ public class TaskDTO {
     // --- 負責人清單 (因為一個任務可以有多個負責人) ---
     private List<AssigneeDTO> assignees;
 
+    // --- 成果附檔清單（待審核狀態的 documents）---
+    private List<DocumentDTO> documents;
+
     // 給 EmployeeController / ProjectTaskRepository 的 JPQL 使用的建構子！
     public TaskDTO(Integer taskId, String status, String serviceName, String customerName, LocalDateTime deadline,
             String managerContent, LocalDateTime updateAt) {
@@ -50,5 +53,17 @@ public class TaskDTO {
         private Integer empId;
         private String name;
         private String departmentName;
+    }
+
+    // 內部類別：附檔資訊
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DocumentDTO {
+        private Integer id;
+        private String name;
+        private String filePath;
+        private String fileType;
+        private String status;
     }
 }

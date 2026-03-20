@@ -287,56 +287,7 @@
         });
 
 
-        // 真實登入請求
-        document.querySelector("form").addEventListener("submit", async function (e) {
-            e.preventDefault();
 
-            const id = document.getElementById("employeeId").value; // 使用者輸入的 Email 或帳號
-            const pw = document.getElementById("password").value;
-
-            try {
-                const response = await fetch('/api/employee/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        emp_email: id,
-                        emp_password: pw
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-
-                    // 將使用者的詳細資訊存入 sessionStorage
-                    sessionStorage.setItem("empId", data.empId);
-                    sessionStorage.setItem("empName", data.empName);
-                    sessionStorage.setItem("position", data.position);
-                    sessionStorage.setItem("deptId", data.deptId);
-                    sessionStorage.setItem("imgPath", data.imgPath || '');
-
-                    // 根據部門跳轉
-                    const deptIdStr = String(data.deptId);
-                    if (deptIdStr === '1') {
-                        window.location.href = "book.html";
-                    } else if (deptIdStr === '7') {
-                        window.location.href = "consultation.html";
-                    } else {
-                        window.location.href = "quest_staff.html";
-                    }
-
-                } else if (response.status === 401) {
-                    alert("帳號或密碼錯誤，請重新輸入");
-                } else {
-                    alert("系統發生未知的錯誤，請稍後再試");
-                }
-            } catch (error) {
-                console.error("登入請求發生異常", error);
-                alert("連線失敗，請檢查網路狀態");
-            }
-        });
 
         // 登出請求
         async function logout() {

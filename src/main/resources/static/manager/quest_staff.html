@@ -14,7 +14,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -36,9 +35,8 @@
     </script>
 </head>
 
-<body id="app"
-    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden"
-    v-cloak>
+<body
+    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
 
     <div id="sidebar-overlay"
         class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity hidden cursor-pointer">
@@ -55,8 +53,8 @@
                 <img id="sidebar-avatar" alt="Joy Avatar"
                     class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
                 <div class="menu-category p-0 m-0">
-                    <div class="text-white font-medium">{{ emp.name || '未知員工' }}</div>
-                    <div class="text-xs text-gray-400 mt-1">{{ emp.position === 'MANAGER' ? '業務管理' : '員工' }}</div>
+                    <div class="text-white font-medium" id="sidebar-emp-name">Joy</div>
+                    <div class="text-xs text-gray-400 mt-1" id="sidebar-position">員工</div>
                 </div>
             </div>
         </div>
@@ -64,28 +62,28 @@
         <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
             <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 GENERAL</div>
-            <a v-if="emp.deptId === '7' || emp.deptId === '1'" id="nav-consultation"
+            <a id="nav-consultation"
                 class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="consultation.html">
                 <span
                     class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
             </a>
-            <a v-if="emp.deptId === '1'" id="nav-book"
+            <a id="nav-book"
                 class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="book.html">
                 <span
                     class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
             </a>
-            <a v-if="emp.deptId === '1'" id="nav-project"
+            <a id="nav-project"
                 class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="project.html">
                 <span
                     class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
             </a>
-            <a v-if="emp.deptId !== '1' && emp.deptId !== '7'" id="nav-task"
+            <a id="nav-task"
                 class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
                 href="quest_staff.html">
                 <span
@@ -125,7 +123,7 @@
                         <img id="header-avatar" alt="Joy Avatar"
                             class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
                             src="./Img/smile.jpg" />
-                        <span class="text-sm font-medium mr-1 text-gray-200">{{ emp.name || 'User' }}</span>
+                        <span class="text-sm font-medium mr-1 text-gray-200" id="header-emp-name">Joy</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                     </div>
 
@@ -159,7 +157,7 @@
                 <!-- Ongoing Projects Section -->
                 <section>
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold">進行中任務 (<span>{{ ongoingTasks.length }}</span>)</h3>
+                        <h3 class="text-lg font-bold">進行中任務 (<span id="ongoing-tasks-count">0</span>)</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="ongoing-tasks-container">
                         <!-- 由 JS 動態填入 -->
@@ -183,30 +181,8 @@
                                     <th class="px-6 py-4">操作</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-                                <tr v-if="historyTasks.length === 0">
-                                    <td colspan="5" class="px-6 py-10 text-center text-slate-400">目前尚無歷史任務紀錄</td>
-                                </tr>
-                                <tr v-for="task in historyTasks" :key="task.taskId"
-                                    class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                    <td class="px-6 py-4 font-semibold">{{ task.serviceName || '---' }}</td>
-                                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400">{{ task.customerName ||
-                                        '---' }}</td>
-                                    <td class="px-6 py-4 text-slate-50">{{ formatDate(task.updateAt) }}</td>
-                                    <td class="px-6 py-4">
-                                        <span class="px-2 py-1 text-[10px] font-bold rounded"
-                                            :class="task.status === '已完成' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
-                                            {{ task.status || '---' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button @click="openChat(task, true)"
-                                            class="text-blue-600 hover:text-blue-800 inline-flex items-center gap-1 font-medium">
-                                            <span class="material-icons text-sm">forum</span>
-                                            查看留言紀錄
-                                        </button>
-                                    </td>
-                                </tr>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm"
+                                id="history-tasks-body">
                             </tbody>
                         </table>
                         <div
@@ -266,232 +242,403 @@
     <div class="fixed bottom-6 right-6 z-[100] flex flex-col space-y-3 pointer-events-none" id="toastContainer"></div>
 
 
-    <!-- 任務協調留言板 Modal -->
-    <div v-if="showChat" class="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[450px] max-w-[95%] flex flex-col h-[500px]">
-            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ chatReadOnly ? '任務協調對話紀錄' : '任務協調留言板' }}
-                </h3>
-                <button @click="showChat = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <span class="material-icons">close</span>
-                </button>
-            </div>
-            <div id="chat-content" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
-                <div v-if="chatLoading" class="text-center text-slate-400 py-10">讀取中...</div>
-                <div v-else-if="chatMessages.length === 0" class="text-center text-slate-400 py-10 text-xs">尚無留言紀錄</div>
-                <div v-for="msg in chatMessages" :key="msg.id" class="flex flex-col"
-                    :class="String(msg.creatorId) === String(emp.id) ? 'items-end' : 'items-start'">
-                    <span class="text-[10px] text-gray-500 mb-1 font-medium">
-                        {{ String(msg.creatorId) === String(emp.id) ? '本人' : (msg.creatorPosition === 'MANAGER' ? `業務 -
-                        ${msg.creatorName}` : msg.creatorName) }}
-                        {{ formatTime(msg.createAt) }}
-                    </span>
-                    <div class="p-3 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed"
-                        :class="String(msg.creatorId) === String(emp.id) ? 'bg-primary text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-tl-none'">
-                        {{ msg.content }}
-                    </div>
-                </div>
-            </div>
-            <div v-if="!chatReadOnly" class="p-4 border-t border-gray-100 dark:border-gray-700">
-                <div class="flex items-center space-x-2">
-                    <input type="text" v-model="chatInput" @keyup.enter="sendMessage" placeholder="輸入訊息..."
-                        class="flex-1 border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-xl text-sm focus:ring-primary dark:text-white">
-                    <button @click="sendMessage" class="p-2 bg-primary text-white rounded-xl hover:bg-blue-600">
-                        <span class="material-icons">send</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 上傳任務成果 Modal -->
-    <div v-if="showUpload"
-        class="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[400px]">
-            <h3 class="text-xl font-bold mb-4 dark:text-white">上傳任務成果</h3>
-            <p class="text-sm text-gray-500 mb-6 font-medium">檔案上傳後將由業務進行審核，確認無誤後任務才會結案。</p>
-            <div
-                class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-primary transition-colors cursor-pointer mb-6 relative">
-                <input type="file" id="file-input" @change="handleFile"
-                    class="absolute inset-0 opacity-0 cursor-pointer">
-                <div class="pointer-events-none">
-                    <span class="material-icons text-4xl text-gray-300 mb-2">cloud_upload</span>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">點擊或拖拽檔案至此</p>
-                    <p v-if="fileNameDisplay" class="text-xs text-primary mt-2 font-medium">{{ fileNameDisplay }}</p>
-                </div>
-            </div>
-            <div class="flex space-x-3">
-                <button @click="showUpload = false" class="flex-1 py-2 text-gray-500 font-medium">取消</button>
-                <button @click="confirmUpload"
-                    class="flex-1 py-2 bg-primary text-white rounded-xl font-medium shadow-md">確認上傳</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        const { createApp, ref, reactive, onMounted, nextTick } = Vue;
+        document.addEventListener('DOMContentLoaded', async function () {
+            // 1. 初始化與驗證
+            const empId = sessionStorage.getItem('empId');
+            const empName = sessionStorage.getItem('empName');
+            const position = sessionStorage.getItem('position');
 
-        createApp({
-            setup() {
-                const emp = reactive({
-                    id: sessionStorage.getItem('empId'),
-                    name: sessionStorage.getItem('empName'),
-                    position: sessionStorage.getItem('position'),
-                    deptId: sessionStorage.getItem('deptId'),
-                    imgPath: sessionStorage.getItem('imgPath')
-                });
+            if (!empId) {
+                window.location.replace('login.html');
+                return;
+            }
 
-                if (!emp.id) {
-                    window.location.replace('login.html');
+            const deptId = sessionStorage.getItem('deptId');
+
+            // 顯示歡迎詞與人員資訊
+            document.getElementById('sidebar-emp-name').textContent = empName || '未知員工';
+            document.getElementById('header-emp-name').textContent = empName || '未知員工';
+            document.getElementById('sidebar-position').textContent = position === 'MANAGER' ? '業務管理' : '員工';
+
+            const welcomeTitleEl = document.getElementById('welcome-title');
+            if (welcomeTitleEl) welcomeTitleEl.textContent = `歡迎，${empName}`;
+
+            // 顯示頭像
+            const imgPath = sessionStorage.getItem('imgPath');
+            if (imgPath) {
+                const fullPath = imgPath.startsWith('http') ? imgPath : '/' + imgPath;
+                const sidebarAv = document.getElementById('sidebar-avatar');
+                const headerAv = document.getElementById('header-avatar');
+                if (sidebarAv) sidebarAv.src = fullPath;
+                if (headerAv) headerAv.src = fullPath;
+            }
+
+            // 2. 側邊欄權限控制
+            const navConsultation = document.getElementById('nav-consultation');
+            const navBook = document.getElementById('nav-book');
+            const navProject = document.getElementById('nav-project');
+            const navTask = document.getElementById('nav-task');
+
+            // 先隱藏所有受控項目 (個人資訊 nav-account 預設不隱藏)
+            if (navConsultation) navConsultation.style.display = 'none';
+            if (navBook) navBook.style.display = 'none';
+            if (navProject) navProject.style.display = 'none';
+            if (navTask) navTask.style.display = 'none';
+
+            // 根據 dept_id 顯示
+            if (deptId === '1') {
+                if (navBook) navBook.style.display = 'flex';
+                if (navProject) navProject.style.display = 'flex';
+            } else if (deptId === '7') {
+                if (navConsultation) navConsultation.style.display = 'flex';
+            } else {
+                if (navTask) navTask.style.display = 'flex';
+            }
+
+            // 2. 渲染進行中任務
+            async function fetchOngoingTasks() {
+                try {
+                    const response = await fetch(`/api/employee/task/${empId}`, {
+                        credentials: 'include'
+                    });
+                    if (response.ok) {
+                        const tasks = await response.json();
+                        renderOngoingTasks(tasks);
+                    }
+                } catch (error) {
+                    console.error('獲取進行中任務失敗:', error);
+                }
+            }
+
+            function renderOngoingTasks(tasks) {
+                const container = document.getElementById('ongoing-tasks-container');
+                const countSpan = document.getElementById('ongoing-tasks-count');
+
+                if (!container) return;
+                countSpan.textContent = tasks.length;
+                container.innerHTML = '';
+
+                if (tasks.length === 0) {
+                    container.innerHTML = '<div class="col-span-full py-10 text-center text-slate-500 bg-white rounded-xl border border-dashed">目前沒有進行中的任務</div>';
+                    return;
                 }
 
-                const ongoingTasks = ref([]);
-                const historyTasks = ref([]);
-                const showChat = ref(false);
-                const showUpload = ref(false);
-                const chatReadOnly = ref(false);
-                const activeTask = ref(null);
-                const chatMessages = ref([]);
-                const chatInput = ref('');
-                const chatLoading = ref(false);
-                const selectedFile = ref(null);
-                const fileNameDisplay = ref('');
+                tasks.forEach(task => {
+                    const deadlineDate = task.deadline ? new Date(task.deadline).toLocaleDateString() : '未設定';
+                    const isUrgent = task.deadline && (new Date(task.deadline) - new Date() < 86400000 * 3); // 3天內算急
 
-                const fetchOngoingTasks = async () => {
-                    try {
-                        const response = await fetch(`/api/employee/task/${emp.id}`, { credentials: 'include' });
-                        if (response.ok) ongoingTasks.value = await response.json();
-                    } catch (e) { console.error('Error fetching ongoing tasks:', e); }
-                };
-
-                const fetchHistoryTasks = async () => {
-                    try {
-                        const response = await fetch(`/api/employee/task/history/${emp.id}`, { credentials: 'include' });
-                        if (response.ok) historyTasks.value = await response.json();
-                    } catch (e) { console.error('Error fetching history tasks:', e); }
-                };
-
-                const openChat = async (task, readOnly = false) => {
-                    activeTask.value = task;
-                    chatReadOnly.value = readOnly;
-                    showChat.value = true;
-                    await fetchChatMessages(task.taskId);
-                };
-
-                const fetchChatMessages = async (taskId) => {
-                    chatLoading.value = true;
-                    try {
-                        const response = await fetch(`/api/employee/tc/${taskId}`, { credentials: 'include' });
-                        if (response.ok) {
-                            chatMessages.value = await response.json();
-                            nextTick(() => {
-                                const container = document.getElementById('chat-content');
-                                if (container) container.scrollTop = container.scrollHeight;
-                            });
-                        }
-                    } catch (e) { console.error('Error fetching chat:', e); }
-                    finally { chatLoading.value = false; }
-                };
-
-                const sendMessage = async () => {
-                    if (!chatInput.value.trim() || !activeTask.value) return;
-                    try {
-                        const response = await fetch('/api/employee/tc/mesg', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                            body: JSON.stringify({
-                                taskId: activeTask.value.taskId,
-                                createBy: emp.id,
-                                content: chatInput.value.trim()
-                            })
-                        });
-                        if (response.ok) {
-                            chatInput.value = '';
-                            await fetchChatMessages(activeTask.value.taskId);
-                        }
-                    } catch (e) { console.error('Error sending message:', e); }
-                };
-
-                const openUpload = (task) => {
-                    activeTask.value = task;
-                    showUpload.value = true;
-                    selectedFile.value = null;
-                    fileNameDisplay.value = '';
-                };
-
-                const handleFile = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        selectedFile.value = file;
-                        fileNameDisplay.value = file.name;
-                    }
-                };
-
-                const confirmUpload = async () => {
-                    if (!selectedFile.value || !activeTask.value) return alert('請選擇檔案');
-                    const fd = new FormData();
-                    fd.append('file', selectedFile.value);
-                    fd.append('taskId', activeTask.value.taskId);
-                    fd.append('empId', emp.id);
-                    try {
-                        const response = await fetch('/api/employee/task/upload', {
-                            method: 'POST',
-                            credentials: 'include',
-                            body: fd
-                        });
-                        if (response.ok) {
-                            alert(`檔案「${selectedFile.value.name}」已成功上傳並提交審核！`);
-                            showUpload.value = false;
-                        }
-                    } catch (e) { console.error('Upload failed:', e); }
-                };
-
-                const submitAudit = async (task) => {
-                    if (!confirm("確定要將此任務成果提交給業務審核嗎？任務狀態將改為「待審核」。")) return;
-                    try {
-                        const response = await fetch('/api/employee/task/status', {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                            body: JSON.stringify({ taskId: task.taskId, status: '待審核' })
-                        });
-                        if (response.ok) {
-                            alert("任務已成功提交審核！");
-                            fetchOngoingTasks();
-                            fetchHistoryTasks();
-                        }
-                    } catch (e) { console.error('Status update failed:', e); }
-                };
-
-                const isUrgent = (deadline) => {
-                    if (!deadline) return false;
-                    return (new Date(deadline) - new Date() < 86400000 * 3);
-                };
-
-                const formatDate = (date) => date ? new Date(date).toLocaleDateString() : '未設定';
-                const formatTime = (date) => date ? new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-
-                onMounted(() => {
-                    fetchOngoingTasks();
-                    fetchHistoryTasks();
-
-                    // Apply avatar to sidebar/header from session
-                    const fullPath = emp.imgPath ? (emp.imgPath.startsWith('http') ? emp.imgPath : '/' + emp.imgPath) : './Img/smile.jpg';
-                    const sbAv = document.getElementById('sidebar-avatar');
-                    const hrAv = document.getElementById('header-avatar');
-                    if (sbAv) sbAv.src = fullPath;
-                    if (hrAv) hrAv.src = fullPath;
+                    const cardHtml = `
+                        <div class="bg-white dark:bg-slate-900 border-2 ${isUrgent ? 'border-red-500 ring-2 ring-red-500 ring-opacity-50' : 'border-slate-200 dark:border-slate-800'} rounded-xl p-5 shadow-sm flex flex-col h-full">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-base font-bold">${task.serviceName || '未命名任務'}</h4>
+                                ${isUrgent ? '<span class="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded">即將過期</span>' : ''}
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">person</span> ${task.customerName || '未知客戶'}
+                                </div>
+                                <div class="flex items-center gap-1 ${isUrgent ? 'text-red-600 font-semibold' : ''}">
+                                    <span class="material-symbols-outlined text-sm">${isUrgent ? 'calendar_clock' : 'event'}</span> 截止：${deadlineDate}
+                                </div>
+                            </div>
+                            <div class="flex-1 mb-6">
+                                <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">任務詳情</h5>
+                                <p class="text-xs text-slate-500 leading-relaxed">${task.managerContent || '無詳細內容'}</p>
+                            </div>
+                            <div class="flex flex-col space-y-2 mt-4">
+                                <button onclick="openChatModal('${task.taskId}')"
+                                    class="w-full flex items-center justify-center py-2 px-4 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors">
+                                    <span class="material-icons text-sm mr-2">forum</span>
+                                    聯繫業務 / 留言紀錄
+                                </button>
+                                <div class="flex space-x-2">
+                                    <button onclick="openUploadModal('${task.taskId}')"
+                                        class="flex-1 flex items-center justify-center py-2 px-4 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors">
+                                        <span class="material-icons text-sm mr-2">upload_file</span>
+                                        上傳成果
+                                    </button>
+                                    <button onclick="submitAudit('${task.taskId}')"
+                                        class="flex-1 py-2 px-4 bg-primary text-white rounded-xl hover:bg-blue-600 shadow-md transition-colors">
+                                        提交審核
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', cardHtml);
                 });
-
-                return {
-                    emp, ongoingTasks, historyTasks, showChat, showUpload, chatReadOnly,
-                    activeTask, chatMessages, chatInput, chatLoading, fileNameDisplay,
-                    openChat, fetchOngoingTasks, sendMessage, openUpload, handleFile, confirmUpload, submitAudit,
-                    isUrgent, formatDate, formatTime
-                };
             }
-        }).mount('#app');
+
+            // 3. 渲染任務歷史
+            async function fetchHistoryTasks() {
+                try {
+                    const response = await fetch(`/api/employee/task/history/${empId}`, {
+                        credentials: 'include'
+                    });
+                    if (response.ok) {
+                        const tasks = await response.json();
+                        renderHistoryTasks(tasks);
+                    }
+                } catch (error) {
+                    console.error('獲取歷史任務失敗:', error);
+                }
+            }
+
+            function renderHistoryTasks(tasks) {
+                const tbody = document.getElementById('history-tasks-body');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+
+                tasks.forEach(task => {
+                    const updateDate = task.updateAt ? new Date(task.updateAt).toLocaleDateString() : '---';
+                    const statusClass = task.status === '已完成'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-amber-100 text-amber-700';
+
+                    const rowHtml = `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-4 font-semibold">${task.serviceName || '---'}</td>
+                            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">${task.customerName || '---'}</td>
+                            <td class="px-6 py-4 text-slate-500">${updateDate}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 ${statusClass} text-[10px] font-bold rounded">${task.status || '---'}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button onclick="openChatModal('${task.taskId}', true)"
+                                    class="text-blue-600 hover:text-blue-800 inline-flex items-center gap-1 font-medium">
+                                    <span class="material-icons text-sm">forum</span>
+                                    查看留言紀錄
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', rowHtml);
+                });
+            }
+
+            // 初次執行
+            await fetchOngoingTasks();
+            await fetchHistoryTasks();
+
+            // ================= Modal 與其他邏輯 =================
+            const chatModalHtml = `
+                <div id="chatModal" class="fixed inset-0 z-[110] flex items-center justify-center hidden bg-gray-900/60 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[450px] max-w-[95%] flex flex-col h-[500px]">
+                        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white">任務協調留言板</h3>
+                            <button onclick="closeChatModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <span class="material-icons">close</span>
+                            </button>
+                        </div>
+                        <div id="chat-content" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
+                            <!-- 留言內容動態產生 -->
+                        </div>
+                        <div id="chat-input-area" class="p-4 border-t border-gray-100 dark:border-gray-700">
+                            <div class="flex items-center space-x-2">
+                                <input type="text" id="chat-input" placeholder="輸入訊息..." class="flex-1 border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-xl text-sm focus:ring-primary dark:text-white">
+                                <button onclick="sendMessage()" class="p-2 bg-primary text-white rounded-xl hover:bg-blue-600">
+                                    <span class="material-icons">send</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            const uploadModalHtml = `
+                <div id="uploadModal" class="fixed inset-0 z-[110] flex items-center justify-center hidden bg-gray-900/60 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[400px]">
+                        <h3 class="text-xl font-bold mb-4 dark:text-white">上傳任務成果</h3>
+                        <p class="text-sm text-gray-500 mb-6 font-medium">檔案上傳後將由業務進行審核，確認無誤後任務才會結案。</p>
+                        <div class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-primary transition-colors cursor-pointer mb-6">
+                            <input type="file" id="file-input" class="hidden">
+                            <label for="file-input" class="cursor-pointer">
+                                <span class="material-icons text-4xl text-gray-300 mb-2">cloud_upload</span>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">點擊或拖拽檔案至此</p>
+                                <p id="file-name" class="text-xs text-primary mt-2 font-medium"></p>
+                            </label>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button onclick="closeUploadModal()" class="flex-1 py-2 text-gray-500 font-medium">取消</button>
+                            <button onclick="confirmUpload()" class="flex-1 py-2 bg-primary text-white rounded-xl font-medium shadow-md">確認上傳</button>
+                        </div>
+                    </div>
+                </div>`;
+
+            document.body.insertAdjacentHTML('beforeend', chatModalHtml + uploadModalHtml);
+
+            let activeTaskId = null;
+
+            window.openChatModal = async function (taskId, readOnly = false) {
+                activeTaskId = taskId;
+                const inputArea = document.getElementById('chat-input-area');
+                if (inputArea) inputArea.style.display = readOnly ? 'none' : 'block';
+                const title = document.querySelector('#chatModal h3');
+                if (title) title.innerText = readOnly ? '任務協調對話紀錄' : '任務協調留言板';
+
+                document.getElementById('chatModal').classList.remove('hidden');
+                // 這裡可以串接 /api/employee/tc/{taskId}
+                await fetchChatMessages(taskId);
+            };
+
+            window.closeChatModal = function () {
+                document.getElementById('chatModal').classList.add('hidden');
+                activeTaskId = null;
+            };
+
+            async function fetchChatMessages(taskId) {
+                const content = document.getElementById('chat-content');
+                if (!content) return;
+                content.innerHTML = '<div class="text-center text-slate-400 py-10">讀取中...</div>';
+
+                try {
+                    const response = await fetch(`/api/employee/tc/${taskId}`, { credentials: 'include' });
+                    if (response.ok) {
+                        const msgs = await response.json();
+                        content.innerHTML = '';
+                        if (msgs.length === 0) {
+                            content.innerHTML = '<div class="text-center text-slate-400 py-10 text-xs">尚無留言紀錄</div>';
+                        }
+                        msgs.forEach(msg => {
+                            const isMe = String(msg.creatorId) === String(empId);
+                            const isManager = msg.creatorPosition === 'MANAGER';
+                            const time = msg.createAt ? new Date(msg.createAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+                            // 根據需求：自己靠右 (items-end), 業務(或其他對應人員)靠左 (items-start)
+                            const alignmentClass = isMe ? 'items-end' : 'items-start';
+                            const bubbleClass = isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-tl-none';
+                            const label = isMe ? '本人' : (isManager ? `業務 - ${msg.creatorName}` : msg.creatorName);
+
+                            const msgHtml = `
+                                <div class="flex flex-col ${alignmentClass}">
+                                    <span class="text-[10px] text-gray-500 mb-1 font-medium">${label} ${time}</span>
+                                    <div class="${bubbleClass} p-3 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed">
+                                        ${msg.content}
+                                    </div>
+                                </div>
+                            `;
+                            content.insertAdjacentHTML('beforeend', msgHtml);
+                        });
+                        content.scrollTop = content.scrollHeight;
+                    }
+                } catch (error) {
+                    content.innerHTML = '<div class="text-center text-red-400 py-10 text-xs">訊息讀取失敗</div>';
+                }
+            }
+
+            window.sendMessage = async function () {
+                const input = document.getElementById('chat-input');
+                if (!input || !input.value.trim() || !activeTaskId) return;
+
+                try {
+                    const response = await fetch('/api/employee/tc/mesg', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            taskId: activeTaskId,
+                            createBy: empId,
+                            content: input.value.trim()
+                        })
+                    });
+
+                    if (response.ok) {
+                        input.value = '';
+                        await fetchChatMessages(activeTaskId);
+                    } else {
+                        alert('傳送失敗');
+                    }
+                } catch (error) {
+                    console.error('傳送訊息失敗:', error);
+                }
+            };
+
+            window.openUploadModal = function (taskId) {
+                activeTaskId = taskId;
+                document.getElementById('uploadModal').classList.remove('hidden');
+                document.getElementById('file-input').value = "";
+                document.getElementById('file-name').innerText = "";
+            };
+
+            window.closeUploadModal = function () {
+                document.getElementById('uploadModal').classList.add('hidden');
+            };
+
+            window.confirmUpload = async function () {
+                const fileInput = document.getElementById('file-input');
+                const file = fileInput.files[0];
+                if (!file) {
+                    alert('請選擇檔案');
+                    return;
+                }
+
+                if (!activeTaskId) {
+                    alert('任務 ID 遺失，請重試');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('taskId', activeTaskId);
+                formData.append('empId', empId); // 之前已經從 sessionStorage 取得
+
+                try {
+                    const response = await fetch('/api/employee/task/upload', {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        alert(`檔案「${file.name}」已成功上傳並提交審核！`);
+                        closeUploadModal();
+                        fileInput.value = "";
+                        document.getElementById('file-name').innerText = "";
+                        // 如果有需要，可以重新整理頁面
+                        // window.location.reload();
+                    } else {
+                        const errorData = await response.json();
+                        alert('上傳失敗: ' + (errorData.message || '未知錯誤'));
+                    }
+                } catch (error) {
+                    console.error('上傳檔案失敗:', error);
+                    alert('系統錯誤，請查閱主控台內容');
+                }
+            };
+
+            window.submitAudit = async function (taskId) {
+                if (!confirm("確定要將此任務成果提交給業務審核嗎？任務狀態將改為「待審核」。")) return;
+
+                try {
+                    const response = await fetch('/api/employee/task/status', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            taskId: taskId,
+                            status: '待審核'
+                        })
+                    });
+
+                    if (response.ok) {
+                        alert("任務已成功提交審核！");
+                        window.location.reload();
+                    } else {
+                        alert("提交失敗");
+                    }
+                } catch (error) {
+                    console.error('更新狀態失敗:', error);
+                }
+            };
+
+            document.addEventListener('change', function (e) {
+                if (e.target && e.target.id === 'file-input') {
+                    const fileName = e.target.files[0] ? e.target.files[0].name : "";
+                    const display = document.getElementById('file-name');
+                    if (display) display.innerText = fileName;
+                }
+            });
+        });
     </script>
 </body>
 

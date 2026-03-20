@@ -13,4 +13,6 @@ public interface BookDetailRepository extends JpaRepository<BookDetail, Integer>
     @Modifying
     @Transactional
     void deleteByBookId(Integer bookId);
+
+
 }

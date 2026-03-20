@@ -1,6 +1,7 @@
 package com.wedding.wedding_management_system.controller;
 
 import com.wedding.wedding_management_system.dto.BookDetailRequestDTO;
+import com.wedding.wedding_management_system.dto.BookDetailResponseDTO;
 import com.wedding.wedding_management_system.dto.BookResponseDTO;
 import com.wedding.wedding_management_system.dto.UpdateBookDetailsRequestDTO;
 import com.wedding.wedding_management_system.entity.Book;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +43,11 @@ public class CustomerBookController {
         return customerService.findByEmail(email);
     }
 
+    private Customer getCurrentCustomer() {
+        String email = (String) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        return customerService.findByEmail(email);
+    }
     // ════════════════════════════════════════
     // GET /api/customer/book
     // 讀取客戶自己的預約資料（步驟一顯示用）
@@ -88,6 +95,29 @@ public class CustomerBookController {
         bookRepository.save(book);
         log.info("客戶修改預約資料，customer_id={}, book_id={}", customer.getId(), book.getId());
         return ResponseEntity.ok(BookResponseDTO.from(book, customer));
+    }
+
+    // ════════════════════════════════════════
+// GET /api/customer/book/details
+// 讀取客戶自己的服務細項（步驟二載入用）
+// ════════════════════════════════════════
+    @GetMapping("/book/details")
+    public ResponseEntity<?> getMyBookDetails() {
+        Customer customer = getCurrentCustomer();
+
+        List<Book> books = bookRepository.findByCustomer(customer);
+        if (books.isEmpty())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "找不到預約資料"));
+
+        Book book = books.get(0);
+        List<BookDetailResponseDTO> result = bookDetailRepository
+                .findByBookIdOrderByServiceIdAsc(book.getId())
+                .stream()
+                .map(BookDetailResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
     }
 
     // ════════════════════════════════════════

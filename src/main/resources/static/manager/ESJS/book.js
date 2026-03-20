@@ -378,6 +378,23 @@ async function submitCreateBook() {
 // API：更新預約狀態
 // ════════════════════════════════════════
 async function updateBookStatus(bookId, newStatus) {
+// --- 【新增的驗證邏輯：如果是轉簽約，先檢查婚宴日期】 ---
+    if (newStatus === '已簽約') {
+        // 從畫面上找出對應的那張卡片
+        const card = document.querySelector(`div[data-book-id="${bookId}"]`);
+
+        if (card) {
+            // 讀取你在 render 裡面綁好的婚宴日期
+            const weddingDate = card.dataset.weddingDate;
+
+            // 檢查是否為空 (有時候沒資料會變成字串 'null'，所以一併擋掉)
+            if (!weddingDate || weddingDate === 'null' || weddingDate.trim() === '') {
+                showToast('請先點擊「修改資料」填寫婚宴日期，才能轉為簽約喔！', 'error');
+                return; // 靈魂 return！中斷執行，不打 API
+            }
+        }
+    }
+
     try {
         const res = await fetch(`${API_BASE}/books/${bookId}/update`, {
             method:  'PATCH',
@@ -528,6 +545,18 @@ async function viewBookDetails(bookId) {
             const sid = cb.getAttribute('data-service-id');
             if (checkedIds.has(sid)) {
                 cb.checked = true;
+
+                // 如果這個 service 有日期，回填到對應的日期 input
+                const service = (data.services || []).find(s => String(s.serviceId) === sid);
+                if (service?.ceremonyDate) {
+                    const dateInput = document.getElementById(`input-date-ceremony-${sid}`);
+                    if (dateInput) {
+                        dateInput.value = service.ceremonyDate;
+                        // 同時顯示日期框
+                        const container = document.getElementById(`date-${sid}`);
+                        if (container) container.classList.remove('hidden');
+                    }
+                }
             }
         });
 
@@ -628,7 +657,24 @@ async function viewBookDetail(bookId) {
         showToast('載入失敗，請稍後再試', 'error');
     }
 }
+// ════════════════════════════════════════
+// UI：切換專屬儀式日期的顯示與隱藏
+// ════════════════════════════════════════
+function toggleCeremonyDate(checkbox, dateContainerId) {
+    const container = document.getElementById(dateContainerId);
+    if (!container) return;
 
+    const dateInput = container.querySelector('input[type="date"]');
+
+    if (checkbox.checked) {
+        // 打勾時：顯示日期框
+        container.classList.remove('hidden');
+    } else {
+        // 取消打勾時：隱藏日期框，並且清空裡面原本填的值
+        container.classList.add('hidden');
+        if (dateInput) dateInput.value = '';
+    }
+}
 
 
 // ════════════════════════════════════════
@@ -640,10 +686,17 @@ async function saveBookDetails() {
     const notes = document.getElementById('modify-notes')?.value.trim() || '';
     const details = [];
     document.querySelectorAll('#modal-modify .modal-service-cb:checked').forEach(cb => {
+        const serviceId = parseInt(cb.getAttribute('data-service-id'));
+        if (!serviceId) return;
+
+        // 找對應的日期 input（只有特定 service 才有）
+        const dateInput = document.getElementById(`input-date-ceremony-${serviceId}`);
+        const ceremonyDate = dateInput?.value || null;
+
         details.push({
-            service_id: parseInt(cb.getAttribute('data-service-id')),
-            unit_price: parseInt(cb.getAttribute('data-price') || 0),
-            ceremony_date: null
+            service_id:    serviceId,
+            unit_price:    parseInt(cb.getAttribute('data-price') || 0),
+            ceremony_date: ceremonyDate
         });
     });
 
@@ -692,7 +745,7 @@ function renderPendingCards(books) {
     books.forEach(book => {
         const bookId = book.bookId;  // ← 先抽出來避免 template literal 問題
         const card = document.createElement('div');
-        card.className = 'snap-start shrink-0 w-[calc(33.333%-11px)] min-w-[360px] max-w-[420px] bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden hover:shadow-md transition-shadow';
+        card.className = 'snap-start shrink-0 w-[calc(50%-12px)] min-w-[400px] max-w-[480px] min-h-[500px] bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden hover:shadow-md transition-shadow';
         card.dataset.staff   = book.managerName  || '';
         card.dataset.theme   = book.styles       || '';
         card.dataset.guests  = book.guestScale   || '0';
@@ -707,67 +760,67 @@ function renderPendingCards(books) {
         card.dataset.email = book.email || '';
 
         card.innerHTML = `
-            <div class="p-4 flex-1">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-600">
+            <div class="p-6 flex-1 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="px-2.5 py-1 rounded text-[14px] font-bold bg-blue-50 text-blue-600">
                         ${book.managerName || '未分配'}
                     </span>
-                    <span class="text-[9px] text-gray-400 font-medium">
+                    <span class="text-[15px] text-gray-400 font-medium">
                         ${book.createAt ? book.createAt.split('T')[0] : ''}
                     </span>
                 </div>
-                <h4 class="text-[16px] font-bold text-gray-900 dark:text-white mb-3 truncate">
+                <h4 class="text-[18px] font-bold text-gray-900 dark:text-white mb-3 truncate">
                     ${book.customerName || ''}
                 </h4>
-                <div class="space-y-1.5">
-                    <div class="text-[12px] flex items-center">
+                <div class="space-y-2">
+                    <div class="text-[13px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">電子郵件</span>
                         <span class="font-medium truncate">${book.email || '-'}</span>
                     </div>
-                    <div class="text-[12px] flex items-center">
+                    <div class="text-[13px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">聯絡手機</span>
                         <span class="font-medium truncate">${book.tel || '-'}</span>
                     </div>
-                    <div class="text-[12px] flex items-center">
+                    <div class="text-[13px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">LINE ID</span>
                         <span class="font-medium truncate">${book.lineId || '-'}</span>
                     </div>
-                    <div class="text-[12px] flex items-center">
+                    <div class="text-[13px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">預計婚期</span>
                         <span class="font-medium truncate">${book.weddingDate || '-'}</span>
                     </div>
-                    <div class="text-[12px] flex items-center">
+                    <div class="text-[13px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">賓客規模</span>
                         <span class="font-medium truncate">${book.guestScale ? book.guestScale + ' 人' : '-'}</span>
                     </div>
-                    <div class="text-[12px] flex items-center">
+                    <div class="text-[13px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">宴客場地</span>
                         <span class="font-medium truncate">${book.place || '-'}</span>
                     </div>
-                    <div class="text-[12px] flex items-center">
+                    <div class="text-[13px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">視覺定調</span>
                         <span class="font-medium truncate">${book.styles || '-'}</span>
                     </div>
                 </div>
-                <div class="mt-3 p-2 bg-gray-50 rounded text-[12px] text-gray-500 italic border border-gray-100 line-clamp-2">
+                <div class="mt-5 p-3 bg-gray-50 rounded text-[12px] text-gray-500 italic border border-gray-100 line-clamp-2">
                     "${book.content || '無備註'}"
                 </div>
             </div>
-            <div class="flex border-t border-gray-100 bg-gray-50/30">
+            <div class="flex border-t border-gray-100 bg-gray-50/30 min-h-[56px]">
                 <button onclick="viewBookDetails(${bookId})"
-                    class="flex-1 py-2.5 text-[12px] font-medium text-gray-500 hover:text-gray-700 border-r border-gray-100 transition-colors">
+                    class="flex-1 py-4 text-[13px] font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-200 border-r border-gray-100 transition-colors">
                     查看需求
                 </button>
                 <button onclick="openEditModal(this)"
-                    class="flex-1 py-2.5 text-[12px] font-medium text-indigo-500 hover:bg-indigo-50 border-r border-gray-100 transition-colors">
+                    class="flex-1 py-2.5 text-[13px] font-bold text-indigo-500 hover:bg-indigo-50 border-r border-gray-100 transition-colors">
                     修改資料
                 </button>
                 <button onclick="updateBookStatus(${bookId}, '已簽約')"
-                    class="flex-1 py-2.5 text-[12px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
+                    class="flex-1 py-2.5 text-[13px] font-bold text-primary hover:bg-blue-50 border-r border-gray-100 transition-colors">
                     轉為簽約
                 </button>
                 <button onclick="updateBookStatus(${bookId}, '取消')"
-                    class="flex-1 py-2.5 text-[12px] font-bold text-red-400 hover:bg-red-50 transition-colors">
+                    class="flex-1 py-2.5 text-[13px] font-bold text-red-400 hover:bg-red-50 transition-colors">
                     取消預約
                 </button>
             </div>

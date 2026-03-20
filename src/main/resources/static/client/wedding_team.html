@@ -957,13 +957,14 @@
             const gridArea = document.getElementById('gridArea');
 
             sidebarFilters.innerHTML = CATEGORIES.map(cat => `
-            <button class="filter-btn" data-cat="${cat.id}">
-                ${cat.label}<span class="filter-dot"></span>
-            </button>`).join('');
+                <button class="filter-btn ${cat.id === this.activeFilter ? 'active' : ''}" data-cat="${cat.id}">
+                    ${cat.label}<span class="filter-dot"></span>
+                </button>`).join('');
 
             mobileFilterBar.innerHTML = CATEGORIES.map(cat => `
-            <button class="mobile-filter-chip" data-cat="${cat.id}">${cat.label}</button>`).join('');
-
+                <button class="mobile-filter-chip ${cat.id === this.activeFilter ? 'active' : ''}" data-cat="${cat.id}">
+                    ${cat.label}
+                </button>`).join('');
             gridArea.innerHTML = CATEGORIES.map((cat, idx) => {
                 const members = MEMBERS[cat.id] || [];
                 const divider = idx < CATEGORIES.length - 1 ? '<hr class="category-divider">' : '';
@@ -986,122 +987,146 @@
         }
 
         // ─── 篩選 + 動畫 + Modal ───
-        document.addEventListener('DOMContentLoaded', () => {
-            fetch('http://localhost:8080/api/team')
-                .then(res => res.json())
-                .then(rows => {
-                    CATEGORIES.forEach(cat => { MEMBERS[cat.id] = []; });
-                    rows.forEach(row => {
-                        const catId = DEPT_MAP[row.deptId];
-                        if (catId) MEMBERS[catId].push(row);
-                    });
-                    renderAll();
-                    initPage();
-                })
-                .catch(err => console.error('載入團隊資料失敗:', err));
+        // ─── Vue 接管 ───
+        const app = Vue.createApp({
+            data() {
+                return {
+                    members: {},
+                    activeFilter: 'planner',
+                    modalOpen: false,
+                    modalData: {}
+                }
+            },
+            mounted() {
+                fetch('http://localhost:8080/api/team')
+                    .then(res => res.json())
+                    .then(rows => {
+                        const result = {};
+                        CATEGORIES.forEach(cat => { result[cat.id] = []; });
+                        rows.forEach(row => {
+                            const catId = DEPT_MAP[row.deptId];
+                            if (catId) result[catId].push(row);
+                        });
+                        this.members = result;
 
-            const gridArea = document.getElementById('gridArea');
+                        // 資料拿到後，還是用原本的函式渲染（先維持現有邏輯）
+                        CATEGORIES.forEach(cat => { MEMBERS[cat.id] = this.members[cat.id] || []; });
+                        renderAll();
 
-            function getSections() { return document.querySelectorAll('.category-section'); }
-            function getDividers() { return document.querySelectorAll('.category-divider'); }
-            function getSidebarBtns() { return document.querySelectorAll('#sidebarFilters .filter-btn'); }
-            function getMobileBtns() { return document.querySelectorAll('.mobile-filter-chip'); }
+                        const gridArea = document.getElementById('gridArea');
 
-            function applyFilter(cat) {
-                getSections().forEach(s => {
-                    s.style.display = (cat === 'all' || s.dataset.section === cat) ? 'block' : 'none';
-                });
-                getDividers().forEach(d => { d.style.display = cat === 'all' ? 'block' : 'none'; });
-                document.querySelectorAll('.partner-card').forEach(c => c.classList.remove('visible'));
-                setTimeout(triggerVisible, 50);
-            }
+                        function getSections() { return document.querySelectorAll('.category-section'); }
+                        function getDividers() { return document.querySelectorAll('.category-divider'); }
+                        function getSidebarBtns() { return document.querySelectorAll('#sidebarFilters .filter-btn'); }
+                        function getMobileBtns() { return document.querySelectorAll('.mobile-filter-chip'); }
 
-            function setActive(cat) {
-                getSidebarBtns().forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
-                getMobileBtns().forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
-            }
-
-            function bindFilters() {
-                getSidebarBtns().forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        setActive(btn.dataset.cat);
-                        applyFilter(btn.dataset.cat);
-                        const navH = document.querySelector('.navbar').offsetHeight;
-                        window.scrollTo({ top: gridArea.getBoundingClientRect().top + window.pageYOffset - navH - 20, behavior: 'smooth' });
-                    });
-                });
-                getMobileBtns().forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        setActive(btn.dataset.cat);
-                        applyFilter(btn.dataset.cat);
-                        gridArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    });
-                });
-            }
-
-            function triggerVisible() {
-                const obs = new IntersectionObserver((entries) => {
-                    entries.forEach((e, i) => {
-                        if (e.isIntersecting) {
-                            setTimeout(() => e.target.classList.add('visible'), i * 80);
-                            obs.unobserve(e.target);
+                        function applyFilter(cat) {
+                            getSections().forEach(s => {
+                                s.style.display = (cat === 'all' || s.dataset.section === cat) ? 'block' : 'none';
+                            });
+                            getDividers().forEach(d => { d.style.display = cat === 'all' ? 'block' : 'none'; });
+                            document.querySelectorAll('.partner-card').forEach(c => c.classList.remove('visible'));
+                            setTimeout(triggerVisible, 50);
                         }
-                    });
-                }, { threshold: 0.1 });
-                document.querySelectorAll('.partner-card:not(.visible)').forEach(c => obs.observe(c));
+
+                        function setActive(cat) {
+                            this.activeFilter = cat;
+                            // 重新產生按鈕讓 class 更新
+                            sidebarFilters.innerHTML = CATEGORIES.map(c => `
+                                <button class="filter-btn ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
+                                    ${c.label}<span class="filter-dot"></span>
+                                </button>`).join('');
+                            mobileFilterBar.innerHTML = CATEGORIES.map(c => `
+                                <button class="mobile-filter-chip ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
+                                    ${c.label}
+                                </button>`).join('');
+                            // 重新綁定事件
+                            bindFilters();
+                        }
+                        setActive = setActive.bind(this);
+                        function bindFilters() {
+                            getSidebarBtns().forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    setActive(btn.dataset.cat);
+                                    applyFilter(btn.dataset.cat);
+                                    const navH = document.querySelector('.navbar').offsetHeight;
+                                    window.scrollTo({ top: gridArea.getBoundingClientRect().top + window.pageYOffset - navH - 20, behavior: 'smooth' });
+                                });
+                            });
+                            getMobileBtns().forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    setActive(btn.dataset.cat);
+                                    applyFilter(btn.dataset.cat);
+                                    gridArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                });
+                            });
+                        }
+
+                        function triggerVisible() {
+                            const obs = new IntersectionObserver((entries) => {
+                                entries.forEach((e, i) => {
+                                    if (e.isIntersecting) {
+                                        setTimeout(() => e.target.classList.add('visible'), i * 80);
+                                        obs.unobserve(e.target);
+                                    }
+                                });
+                            }, { threshold: 0.1 });
+                            document.querySelectorAll('.partner-card:not(.visible)').forEach(c => obs.observe(c));
+                        }
+
+                        function initPage() {
+                            bindFilters();
+                            setActive('planner');
+                            applyFilter('planner');
+                            triggerVisible();
+                        }
+
+                        initPage();
+
+                        // ─── PROFILE MODAL ───
+                        const backdrop = document.getElementById('profileBackdrop');
+                        const closeBtn = document.getElementById('modalClose');
+
+                        function openModal(card) {
+                            const d = card.dataset;
+                            const cat = CATEGORIES.find(c => c.id === d.cat);
+                            document.getElementById('modalTag').textContent = cat ? cat.eyebrow : '';
+                            document.getElementById('modalImg').src = d.img || '';
+                            document.getElementById('modalName').textContent = d.name || '';
+                            document.getElementById('modalYears').textContent = d.years || '—';
+                            document.getElementById('modalBio').textContent = d.bio || '';
+
+                            const tagWrap = document.getElementById('modalStyleTags');
+                            tagWrap.innerHTML = '';
+                            (d.styles || '').split(',').forEach(s => {
+                                const span = document.createElement('span');
+                                span.className = 'style-badge';
+                                span.textContent = s.trim();
+                                tagWrap.appendChild(span);
+                            });
+
+                            document.querySelector('.modal-content-col').scrollTop = 0;
+                            backdrop.classList.add('open');
+                            document.body.style.overflow = 'hidden';
+                        }
+
+                        function closeModal() {
+                            backdrop.classList.remove('open');
+                            document.body.style.overflow = '';
+                        }
+
+                        gridArea.addEventListener('click', e => {
+                            const card = e.target.closest('.partner-card');
+                            if (card) { e.preventDefault(); openModal(card); }
+                        });
+
+                        backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+                        closeBtn.addEventListener('click', closeModal);
+                        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+                    })
+                    .catch(err => console.error('載入團隊資料失敗:', err));
             }
-
-            function initPage() {
-                bindFilters();
-                setActive('planner');
-                applyFilter('planner');
-                triggerVisible();
-            }
-
-            // ─── PROFILE MODAL ───
-            const backdrop = document.getElementById('profileBackdrop');
-            const closeBtn = document.getElementById('modalClose');
-
-            function openModal(card) {
-                const d = card.dataset;
-
-                // modal tag：從 CATEGORIES 依 catId 找 eyebrow，完全前端，不存資料庫
-                const cat = CATEGORIES.find(c => c.id === d.cat);
-                document.getElementById('modalTag').textContent = cat ? cat.eyebrow : '';
-
-                document.getElementById('modalImg').src = d.img || '';
-                document.getElementById('modalName').textContent = d.name || '';
-                document.getElementById('modalYears').textContent = d.years || '—';
-                document.getElementById('modalBio').textContent = d.bio || '';
-
-                const tagWrap = document.getElementById('modalStyleTags');
-                tagWrap.innerHTML = '';
-                (d.styles || '').split(',').forEach(s => {
-                    const span = document.createElement('span');
-                    span.className = 'style-badge';
-                    span.textContent = s.trim();
-                    tagWrap.appendChild(span);
-                });
-
-                document.querySelector('.modal-content-col').scrollTop = 0;
-                backdrop.classList.add('open');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeModal() {
-                backdrop.classList.remove('open');
-                document.body.style.overflow = '';
-            }
-
-            gridArea.addEventListener('click', e => {
-                const card = e.target.closest('.partner-card');
-                if (card) { e.preventDefault(); openModal(card); }
-            });
-
-            backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
-            closeBtn.addEventListener('click', closeModal);
-            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-        });
+        }).mount('#gridArea');
     </script>
 </body>
 

@@ -470,15 +470,16 @@
                 <div>
                     <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">回報附檔</p>
                     <div v-if="resultModal.documents && resultModal.documents.length>0" class="space-y-2">
-                        <div v-for="doc in resultModal.documents" :key="doc.name"
-                             class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
+                        <a v-for="doc in resultModal.documents" :key="doc.id"
+                           :href="'/' + doc.filePath" target="_blank"
+                           class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
                             <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{{ doc.name || '未命名檔案' }}</span>
-                        </div>
+                        </a>
                     </div>
                     <div v-else class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
-                        <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">檔期確認對話截圖.pdf</span>
+                        <span class="material-icons text-gray-400 mr-3 text-[20px]">folder_open</span>
+                        <span class="text-sm text-gray-400">尚無回報附檔</span>
                     </div>
                 </div>
             </div>

@@ -23,6 +23,10 @@ public class Document {
     private Project project;
 
     @ManyToOne
+    @JoinColumn(name = "task_id")
+    private ProjectTask task;
+
+    @ManyToOne
     @JoinColumn(name = "uploaded_by")
     private Employee uploadedBy;
 
@@ -32,8 +36,7 @@ public class Document {
     @Column(name = "file_path", length = 1000)
     private String filePath;
 
-    // TODO: 之後要將 file_type 欄位長度擴充到 255，因為有些檔案類型可能會比較長
-    @Column(name = "file_type", length = 50)
+    @Column(name = "file_type", length = 255)
     private String fileType;
 
     @Column(length = 20)

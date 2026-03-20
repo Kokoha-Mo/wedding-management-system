@@ -43,11 +43,27 @@ public class ProjectTaskService {
     private final String UPLOAD_DIR = "uploads/";
 
     public List<TaskDTO> getInProgressTasksByEmployeeId(Integer empId) {
-        return projectTaskRepository.findTasksByEmployeeIdAndStatuses(empId, List.of("進行中"));
+        List<TaskDTO> tasks = projectTaskRepository.findTasksByEmployeeIdAndStatuses(empId, List.of("進行中"));
+        populateDocuments(tasks);
+        return tasks;
     }
 
     public List<TaskDTO> getHistoryTasksByEmployeeId(Integer empId) {
-        return projectTaskRepository.findTasksByEmployeeIdAndStatuses(empId, List.of("待審核", "已完成"));
+        List<TaskDTO> tasks = projectTaskRepository.findTasksByEmployeeIdAndStatuses(empId, List.of("待審核", "已完成"));
+        populateDocuments(tasks);
+        return tasks;
+    }
+
+    private void populateDocuments(List<TaskDTO> tasks) {
+        if (tasks == null || tasks.isEmpty()) return;
+        for (TaskDTO dto : tasks) {
+            List<Document> docs = documentRepository.findByTaskId(dto.getTaskId());
+            if (docs != null && !docs.isEmpty()) {
+                dto.setDocuments(docs.stream()
+                    .map(d -> new TaskDTO.DocumentDTO(d.getId(), d.getName(), d.getFilePath(), d.getFileType(), d.getStatus()))
+                    .collect(Collectors.toList()));
+            }
+        }
     }
 
     @Transactional
@@ -91,6 +107,7 @@ public class ProjectTaskService {
             // 3. 儲存紀錄到 Document 表
             Document document = new Document();
             document.setProject(task.getProject());
+            document.setTask(task);
             document.setUploadedBy(employee);
             document.setName(originalFilename);
             document.setFilePath(UPLOAD_DIR + fileName);
@@ -146,26 +163,6 @@ public class ProjectTaskService {
                     return assignee;
                 }).collect(Collectors.toList());
                 dto.setAssignees(assignees);
-
-                // 查詢此任務負責人上傳的「待審核」成果附檔
-                List<Integer> ownerEmpIds = task.getTaskOwners().stream()
-                        .filter(o -> o.getEmployee() != null)
-                        .map(o -> o.getEmployee().getId())
-                        .collect(Collectors.toList());
-                if (!ownerEmpIds.isEmpty() && task.getProject() != null) {
-                    List<Document> docs = documentRepository.findByProjectIdAndStatusAndUploaderIds(
-                            task.getProject().getId(), "待審核", ownerEmpIds);
-                    List<TaskDTO.DocumentDTO> docDTOs = docs.stream().map(d -> {
-                        TaskDTO.DocumentDTO docDto = new TaskDTO.DocumentDTO();
-                        docDto.setId(d.getId());
-                        docDto.setName(d.getName());
-                        docDto.setFilePath(d.getFilePath());
-                        docDto.setFileType(d.getFileType());
-                        docDto.setStatus(d.getStatus());
-                        return docDto;
-                    }).collect(Collectors.toList());
-                    dto.setDocuments(docDTOs);
-                }
             }
 
             resultList.add(dto);

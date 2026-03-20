@@ -55,13 +55,15 @@ public class ProjectTaskService {
     }
 
     private void populateDocuments(List<TaskDTO> tasks) {
-        if (tasks == null || tasks.isEmpty()) return;
+        if (tasks == null || tasks.isEmpty())
+            return;
         for (TaskDTO dto : tasks) {
             List<Document> docs = documentRepository.findByTaskId(dto.getTaskId());
             if (docs != null && !docs.isEmpty()) {
                 dto.setDocuments(docs.stream()
-                    .map(d -> new TaskDTO.DocumentDTO(d.getId(), d.getName(), d.getFilePath(), d.getFileType(), d.getStatus()))
-                    .collect(Collectors.toList()));
+                        .map(d -> new TaskDTO.DocumentDTO(d.getId(), d.getName(), d.getFilePath(), d.getFileType(),
+                                d.getStatus()))
+                        .collect(Collectors.toList()));
             }
         }
     }
@@ -71,11 +73,35 @@ public class ProjectTaskService {
         try {
             ProjectTask task = projectTaskRepository.findById(taskId)
                     .orElseThrow(() -> new RuntimeException("Task not found"));
+
+            // 【駁回邏輯】狀態改回「待指派」時，清除此任務的待審核附檔（DB 記錄 + 實體檔案）
+            if ("待指派".equals(status)) {
+                List<Document> pendingDocs = documentRepository.findByTask_IdAndStatus(taskId, "待審核");
+                for (Document doc : pendingDocs) {
+                    if (doc.getFilePath() != null) {
+                        try {
+                            Path fileToDelete = Paths.get(doc.getFilePath());
+                            Files.deleteIfExists(fileToDelete);
+                        } catch (IOException ioEx) {
+                            // 實體檔案刪除失敗只記錄 log，不影響主流程
+                            ioEx.printStackTrace();
+                        }
+                    }
+                }
+                documentRepository.deleteByTaskIdAndStatus(taskId, "待審核");
+            }
+
+            // 【審核通過邏輯】狀態改為「已完成」時，將附檔由「待審核」改為「已核准」
+            if ("已完成".equals(status)) {
+                documentRepository.updateStatusByTaskIdAndOldStatus(taskId, "待審核", "已核准");
+            }
+
             task.setStatus(status);
             task.setUpdateAt(LocalDateTime.now());
             projectTaskRepository.save(task);
             return true;
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -104,7 +130,7 @@ public class ProjectTaskService {
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(file.getInputStream(), filePath);
 
-            // 3. 儲存紀錄到 Document 表
+            // 3. 儲存紀錄到 Document 表（同時記錄 task 關聯，供管理端「查看成果」精準抓取）
             Document document = new Document();
             document.setProject(task.getProject());
             document.setTask(task);
@@ -163,6 +189,33 @@ public class ProjectTaskService {
                     return assignee;
                 }).collect(Collectors.toList());
                 dto.setAssignees(assignees);
+
+                // 根據任務狀態決定查詢哪種 status 的附檔
+                // - 待審核：員工已上傳尚未審核的附檔
+                // - 已完成 / 已結案：審核通過後已更新為已核准的附檔
+                String docStatus = null;
+                String taskStatus = task.getStatus();
+                if ("待審核".equals(taskStatus)) {
+                    docStatus = "待審核";
+                } else if ("已完成".equals(taskStatus) || "已結案".equals(taskStatus)) {
+                    docStatus = "已核准";
+                }
+
+                if (docStatus != null) {
+                    List<Document> docs = documentRepository.findByTask_IdAndStatus(task.getId(), docStatus);
+                    if (!docs.isEmpty()) {
+                        List<TaskDTO.DocumentDTO> docDTOs = docs.stream().map(d -> {
+                            TaskDTO.DocumentDTO docDto = new TaskDTO.DocumentDTO();
+                            docDto.setId(d.getId());
+                            docDto.setName(d.getName());
+                            docDto.setFilePath(d.getFilePath());
+                            docDto.setFileType(d.getFileType());
+                            docDto.setStatus(d.getStatus());
+                            return docDto;
+                        }).collect(Collectors.toList());
+                        dto.setDocuments(docDTOs);
+                    }
+                }
             }
 
             resultList.add(dto);

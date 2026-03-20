@@ -30,6 +30,14 @@ public class Document {
     @JoinColumn(name = "uploaded_by")
     private Employee uploadedBy;
 
+    /**
+     * 對應到哪一個任務（員工回報成果時使用，nullable 以相容舊有專案文件）
+     * JPA ddl-auto=update 會自動在 documents 表新增 task_id 欄位
+     */
+    @ManyToOne
+    @JoinColumn(name = "task_id", nullable = true)
+    private ProjectTask task;
+
     @Column(length = 255)
     private String name;
 

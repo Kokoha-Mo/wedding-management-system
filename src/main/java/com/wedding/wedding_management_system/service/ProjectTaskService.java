@@ -73,6 +73,11 @@ public class ProjectTaskService {
                 documentRepository.deleteByTaskIdAndStatus(taskId, "待審核");
             }
 
+            // 【審核通過邏輯】狀態改為「已完成」時，將附檔由「待審核」改為「已核准」
+            if ("已完成".equals(status)) {
+                documentRepository.updateStatusByTaskIdAndOldStatus(taskId, "待審核", "已核准");
+            }
+
             task.setStatus(status);
             task.setUpdateAt(LocalDateTime.now());
             projectTaskRepository.save(task);
@@ -167,19 +172,31 @@ public class ProjectTaskService {
                 }).collect(Collectors.toList());
                 dto.setAssignees(assignees);
 
-                // 精準查詢：直接用 task_id + status 取得此任務的待審核附檔
-                List<Document> docs = documentRepository.findByTask_IdAndStatus(task.getId(), "待審核");
-                if (!docs.isEmpty()) {
-                    List<TaskDTO.DocumentDTO> docDTOs = docs.stream().map(d -> {
-                        TaskDTO.DocumentDTO docDto = new TaskDTO.DocumentDTO();
-                        docDto.setId(d.getId());
-                        docDto.setName(d.getName());
-                        docDto.setFilePath(d.getFilePath());
-                        docDto.setFileType(d.getFileType());
-                        docDto.setStatus(d.getStatus());
-                        return docDto;
-                    }).collect(Collectors.toList());
-                    dto.setDocuments(docDTOs);
+                // 根據任務狀態決定查詢哪種 status 的附檔
+                // - 待審核：員工已上傳尚未審核的附檔
+                // - 已完成 / 已結案：審核通過後已更新為已核准的附檔
+                String docStatus = null;
+                String taskStatus = task.getStatus();
+                if ("待審核".equals(taskStatus)) {
+                    docStatus = "待審核";
+                } else if ("已完成".equals(taskStatus) || "已結案".equals(taskStatus)) {
+                    docStatus = "已核准";
+                }
+
+                if (docStatus != null) {
+                    List<Document> docs = documentRepository.findByTask_IdAndStatus(task.getId(), docStatus);
+                    if (!docs.isEmpty()) {
+                        List<TaskDTO.DocumentDTO> docDTOs = docs.stream().map(d -> {
+                            TaskDTO.DocumentDTO docDto = new TaskDTO.DocumentDTO();
+                            docDto.setId(d.getId());
+                            docDto.setName(d.getName());
+                            docDto.setFilePath(d.getFilePath());
+                            docDto.setFileType(d.getFileType());
+                            docDto.setStatus(d.getStatus());
+                            return docDto;
+                        }).collect(Collectors.toList());
+                        dto.setDocuments(docDTOs);
+                    }
                 }
             }
 

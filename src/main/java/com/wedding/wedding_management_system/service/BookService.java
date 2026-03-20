@@ -11,7 +11,13 @@ import com.wedding.wedding_management_system.dto.UpdateBookDetailsRequestDTO;
 import com.wedding.wedding_management_system.dto.CreateBookRequestDTO;
 import com.wedding.wedding_management_system.dto.CustomerDTO;
 import com.wedding.wedding_management_system.entity.*;
-import com.wedding.wedding_management_system.repository.*;
+import com.wedding.wedding_management_system.repository.BookDetailRepository;
+import com.wedding.wedding_management_system.repository.BookRepository;
+import com.wedding.wedding_management_system.repository.CustomerRepository;
+import com.wedding.wedding_management_system.repository.EmployeeRepository;
+import com.wedding.wedding_management_system.repository.ConsultationRepository;
+import com.wedding.wedding_management_system.repository.ServiceRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class BookService {
 
-    @Autowired private BookRepository       bookRepository;
+    @Autowired private BookRepository bookRepository;
     @Autowired private BookDetailRepository bookDetailRepository;   // ← 新增
-    @Autowired private CustomerRepository   customerRepository;
+    @Autowired private CustomerRepository customerRepository;
     @Autowired private EmployeeRepository   employeeRepository;
     @Autowired private PasswordEncoder      passwordEncoder;
     @Autowired private ConsultationRepository consultationRepository;
@@ -75,6 +81,9 @@ public class BookService {
                 : "12345678";
         c.setPassword(passwordEncoder.encode(rawPassword));
         log.info("新客戶建立，預設密碼為手機號碼");
+
+        // 2. 這裡打上「強制修改密碼」的暗號！
+        c.setResetToken("FORCE_RESET");
         return customerRepository.save(c);
     }
 
@@ -87,6 +96,24 @@ public class BookService {
     // ════════════════════════════════════════════════════════
     // 建立預約主單 + 細項
     // ════════════════════════════════════════════════════════
+
+    public List<CustomerDTO> findSimilarCustomers(String email, String tel) {
+        List<CustomerDTO> result = new ArrayList<>();
+
+        // 查 email
+        if (email != null && !email.isBlank()) {
+            customerRepository.findByEmail(email)
+                    .ifPresent(c -> result.add(CustomerDTO.from(c)));
+        }
+
+        // 查 tel（避免重複加入）
+        if (tel != null && !tel.isBlank() && result.isEmpty()) {
+            customerRepository.findFirstByTel(tel)
+                    .ifPresent(c -> result.add(CustomerDTO.from(c)));
+        }
+
+        return result;
+    }
     @Transactional
     public BookResponseDTO createBook(CreateBookRequestDTO dto) {
 
@@ -101,9 +128,10 @@ public class BookService {
             log.info("刪除客戶舊有預約，customer_id={}, 共{}筆", customer.getId(), existingBooks.size());
         }
 
-        // Step 3: 自動分配接案數最少的 manager
-        Employee manager = employeeRepository.findEmployeeWithLeastBooks()
-                .stream().findFirst()
+        // Step 3:🌟 修改：自動分配接案數最少的 "婚顧部 MANAGER"
+        Employee manager = employeeRepository.findManagerWithLeastBooks()
+                .stream()
+                .findFirst()
                 .orElseThrow(() -> new RuntimeException("目前沒有可分配的業務人員"));
 
         // Step 4: 建立新 book
@@ -131,51 +159,9 @@ public class BookService {
         return BookResponseDTO.from(saved, customer);
     }
 
-    // ════════════════════════════════════════════════════════
-    // 從諮詢單轉預約（不動）
-    // ════════════════════════════════════════════════════════
-    @Transactional
-    public BookResponseDTO convertFromConsultation(Integer consultationId) {
-        Consultation consultation = consultationRepository.findById(consultationId)
-                .orElseThrow(() -> new EntityNotFoundException("找不到諮詢單，id=" + consultationId));
-
-        CreateBookRequestDTO dto = new CreateBookRequestDTO();
-        dto.setName(consultation.getName());
-        dto.setTel(consultation.getTel());
-        dto.setEmail(consultation.getEmail());
-        dto.setLineId(consultation.getLineId());
-        dto.setWeddingDate(consultation.getWeddingDate());
-        dto.setStyles(consultation.getStyles());
-        dto.setContent(consultation.getAdditionalNotes());
-        // 諮詢單轉預約不帶 services，book_details 留空，後續由業務補填
-
-        BookResponseDTO result = createBook(dto);
-        consultation.setStatus("轉預約");
-        consultationRepository.save(consultation);
-        return result;
-    }
-
-    // ════════════════════════════════════════════════════════
-    // 其餘方法不動
-    // ════════════════════════════════════════════════════════
-    public List<CustomerDTO> findSimilarCustomers(String email, String tel) {
-        List<CustomerDTO> result = new ArrayList<>();
-
-        // 查 email
-        if (email != null && !email.isBlank()) {
-            customerRepository.findByEmail(email)
-                    .ifPresent(c -> result.add(CustomerDTO.from(c)));
-        }
-
-        // 查 tel（避免重複加入）
-        if (tel != null && !tel.isBlank() && result.isEmpty()) {
-            customerRepository.findFirstByTel(tel)
-                    .ifPresent(c -> result.add(CustomerDTO.from(c)));
-        }
-
-        return result;
-    }
-
+    /**
+     * 依狀態查詢列表（對應前端三個 tab）
+     */
     @Transactional(readOnly = true)
     public List<BookResponseDTO> findByStatus(String status) {
         return bookRepository.findByStatus(status)
@@ -240,6 +226,9 @@ public class BookService {
         return BookResponseDTO.from(saved, customer);
     }
 
+    /**
+     * 更新預約狀態
+     */
     @Transactional
     public BookResponseDTO updateStatus(Integer bookId, String newStatus) {
         Book book = bookRepository.findById(bookId)
@@ -247,6 +236,7 @@ public class BookService {
         log.info("更新預約狀態 book_id={}: {} → {}", bookId, book.getStatus(), newStatus);
         book.setStatus(newStatus);
         Book saved = bookRepository.save(book);
-        return BookResponseDTO.from(saved, saved.getCustomer());
+        Customer customer = saved.getCustomer();
+        return BookResponseDTO.from(saved, customer);
     }
 }

@@ -1,34 +1,29 @@
 package com.wedding.wedding_management_system.service;
 
-import com.wedding.wedding_management_system.dto.TaskDTO;
-import com.wedding.wedding_management_system.repository.ProjectTaskRepository;
-import com.wedding.wedding_management_system.repository.DocumentRepository;
-import com.wedding.wedding_management_system.repository.EmployeeRepository;
-import com.wedding.wedding_management_system.entity.TaskOwner;
-import com.wedding.wedding_management_system.repository.TaskOwnerRepository;
-import com.wedding.wedding_management_system.entity.Document;
-import com.wedding.wedding_management_system.entity.Employee;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.wedding.wedding_management_system.dto.TaskDTO;
+import com.wedding.wedding_management_system.entity.Document;
+import com.wedding.wedding_management_system.entity.Employee;
 import com.wedding.wedding_management_system.entity.ProjectTask;
+import com.wedding.wedding_management_system.entity.TaskOwner;
+import com.wedding.wedding_management_system.repository.DocumentRepository;
+import com.wedding.wedding_management_system.repository.EmployeeRepository;
 import com.wedding.wedding_management_system.repository.ProjectTaskRepository;
+import com.wedding.wedding_management_system.repository.TaskOwnerRepository;
 
 @Service
 public class ProjectTaskService {
@@ -164,12 +159,13 @@ public class ProjectTaskService {
             ProjectTask task = projectTaskRepository.findById(taskId)
                     .orElseThrow(() -> new RuntimeException("Task not found"));
 
+            // 【修正】先刪除舊的 TaskOwner 記錄，避免重複指派時出現舊數據
+            if (task.getTaskOwners() != null && !task.getTaskOwners().isEmpty()) {
+                taskOwnerRepository.deleteAll(task.getTaskOwners());
+            }
+
             // Save task owners
             if (assignees != null && !assignees.isEmpty()) {
-                // If there are previous owners, we might need to delete them. 
-                // But creating new ones is fine for now assuming new assignment.
-                // Assuming assignees are new assignees, usually we'd delete old assignees if re-assigning:
-                // taskOwnerRepository.deleteAll(task.getTaskOwners());
                 for (Integer empId : assignees) {
                     Employee employee = employeeRepository.findById(empId)
                             .orElseThrow(() -> new RuntimeException("Employee not found"));

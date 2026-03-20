@@ -27,7 +27,8 @@ public class ConsultationConvertService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public BookResponseDTO convertFromConsultation(Integer consultationId, String partnerName) {
+    public BookResponseDTO convertFromConsultation(Integer consultationId, String partnerName, String newEmail,
+            String newTel) {
 
         Consultation consultation = consultationRepository.findById(consultationId)
                 .orElseThrow(() -> new RuntimeException("找不到此諮詢單 ID: " + consultationId));
@@ -37,24 +38,39 @@ public class ConsultationConvertService {
         }
 
         // ==========================================
-        // 🌟 升級版防護網：檢查信箱或電話是否已經存在
+        // 🌟 1. 優先更新櫃檯人員修改的資料
         // ==========================================
-        // 1. 檢查信箱
+        if (newEmail != null && !newEmail.trim().isEmpty()) {
+            consultation.setEmail(newEmail.trim());
+        }
+        if (newTel != null && !newTel.trim().isEmpty()) {
+            consultation.setTel(newTel.trim());
+        }
+
+        // ==========================================
+        // 🌟 2. 升級版防護網：檢查信箱或電話是否已經存在
+        // ==========================================
+
+        // 檢查信箱
         if (consultation.getEmail() != null && !consultation.getEmail().trim().isEmpty()) {
             if (customerRepository.findByEmail(consultation.getEmail()).isPresent()) {
-                throw new RuntimeException("資料衝突！此信箱 (" + consultation.getEmail() + ") 已有建檔紀錄，請確認是否為舊客戶。");
+                // 加入 EMAIL_EXISTS 前綴，讓前端能精準抓錯
+                throw new RuntimeException("EMAIL_EXISTS:此信箱 (" + consultation.getEmail() + ") 已有建檔紀錄，請修改後再試。");
             }
         }
 
-        // 2. 檢查電話 (🌟 這裡改成 findFirstByTel)
-        if (consultation.getTel() != null && !consultation.getTel().trim().isEmpty()) {
-            if (customerRepository.findFirstByTel(consultation.getTel()).isPresent()) {
-                throw new RuntimeException("資料衝突！此電話 (" + consultation.getTel() + ") 已有建檔紀錄，請確認是否為舊客戶。");
-            }
+        // 嚴格清洗與驗證電話號碼
+        String cleanedTel = formatAndValidateTel(consultation.getTel());
+        consultation.setTel(cleanedTel); // 將清洗乾淨的電話寫回實體
+
+        // 檢查電話
+        if (customerRepository.findFirstByTel(cleanedTel).isPresent()) {
+            // 加入 TEL_EXISTS 前綴，讓前端能精準抓錯
+            throw new RuntimeException("TEL_EXISTS:此電話 (" + cleanedTel + ") 已有建檔紀錄，請修改後再試。");
         }
         // ==========================================
 
-        // 1. 建立新客戶 (Customer)
+        // 3. 建立新客戶 (Customer)
         Customer customer = new Customer();
         String fullName = consultation.getName();
         if (partnerName != null && !partnerName.trim().isEmpty()) {
@@ -63,40 +79,54 @@ public class ConsultationConvertService {
 
         customer.setName(fullName);
         customer.setEmail(consultation.getEmail());
-        customer.setTel(consultation.getTel());
+        customer.setTel(cleanedTel); // 確保進資料庫的是乾淨的 10 碼
         customer.setLineId(consultation.getLineId());
+        customer.setPassword(passwordEncoder.encode(cleanedTel));
+        // 🌟 確保從諮詢單轉過來的客戶，首次登入也會被引導去重設密碼
+        customer.setResetToken("FORCE_RESET");
 
-        String defaultPassword = consultation.getTel() != null ? consultation.getTel() : "12345678";
-        customer.setPassword(passwordEncoder.encode(defaultPassword));
         customer = customerRepository.save(customer);
 
-        // 🌟 2. 自動分配接案數最少的婚顧部 MANAGER
+        // 4. 自動分配接案數最少的婚顧部 MANAGER
         Employee manager = employeeRepository.findManagerWithLeastBooks()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("目前沒有可分配的婚顧部業務人員"));
 
-        // 3. 建立新預約單 (Book)
+        // 5. 建立新預約單 (Book)
         Book book = new Book();
         book.setCustomer(customer);
-        book.setManager(manager); // 🌟 綁定負責業務
+        book.setManager(manager);
         book.setWeddingDate(consultation.getWeddingDate());
         book.setStyles(consultation.getStyles());
         book.setStatus("處理中");
-
-        // 🌟 綁定客戶的補充說明到預約單的 Content
         book.setContent(consultation.getAdditionalNotes());
-
-        // 🌟 使用我們寫好的聰明解析器來處理賓客數
         book.setGuestScale(parseGuestScale(consultation.getGuestScale()));
-
         book = bookRepository.save(book);
 
-        // 4. 更新諮詢單狀態
+        // 6. 更新諮詢單狀態 (這時候也會連同修改後的信箱電話一起存進資料庫)
         consultation.setStatus("轉預約");
         consultationRepository.save(consultation);
 
-        return new BookResponseDTO();
+        // 🌟 修改這裡：回傳帶有完整資訊的 DTO
+        return BookResponseDTO.from(book, customer);
+    }
+
+    // ==========================================
+    // 專門處理電話號碼清洗與防呆 (加入 TEL_FORMAT 錯誤前綴)
+    // ==========================================
+    private String formatAndValidateTel(String rawTel) {
+        if (rawTel == null || rawTel.trim().isEmpty()) {
+            throw new RuntimeException("TEL_FORMAT:電話號碼不能為空，無法建立客戶檔案！");
+        }
+
+        String cleanedTel = rawTel.replaceAll("\\D", "");
+
+        if (!cleanedTel.matches("^09\\d{8}$")) {
+            throw new RuntimeException("TEL_FORMAT:電話號碼格式錯誤！請確認為 10 碼數字 (如: 0912345678)。");
+        }
+
+        return cleanedTel;
     }
 
     private Integer parseGuestScale(String scaleStr) {
@@ -104,7 +134,7 @@ public class ConsultationConvertService {
             return null; // 如果是尚未決定，直接回傳 null
         }
         try {
-            // 利用正則表達式濾出數字，例如 "100-150人" 會被切成 ["100", "150"]
+            // 利用正則表達式濾出數字
             String[] nums = scaleStr.split("\\D+");
             for (String num : nums) {
                 if (!num.isEmpty()) {

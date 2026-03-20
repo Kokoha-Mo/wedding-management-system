@@ -10,6 +10,7 @@ import com.wedding.wedding_management_system.service.ConsultationConvertService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/employee/books")
 @RequiredArgsConstructor // 🌟 讓 Spring 自動幫你注入 final 變數
@@ -44,23 +46,43 @@ public class BookController {
     @PostMapping("/from-consultation/{consultationId}")
     public ResponseEntity<?> convertFromConsultation(
             @PathVariable Integer consultationId,
-            @RequestBody Map<String, String> payload) { // 🌟 新增：用來接收前端傳來的 JSON
+            @RequestBody Map<String, String> payload) { // 🌟 接收前端傳來的 JSON
 
         try {
-            // 從 payload 中取出前端填寫的 partnerName
+            // 🌟 取出前端填寫的伴侶姓名，以及可能被櫃檯人員修改的信箱與電話
             String partnerName = payload.get("partnerName");
+            String email = payload.get("email");
+            String tel = payload.get("tel");
 
-            // 將伴侶姓名一併傳給 Service 處理
-            BookResponseDTO result = convertService.convertFromConsultation(consultationId, partnerName);
+            // 將所有資料一併傳給 Service 處理
+            BookResponseDTO result = convertService.convertFromConsultation(consultationId, partnerName, email, tel);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
+            String errorMsg = e.getMessage() != null ? e.getMessage() : "發生未知錯誤";
+
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
-            error.put("message", "轉預約失敗：" + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            error.put("message", errorMsg);
+
+            // 🌟 根據我們在 Service 層設定的錯誤前綴，精準回傳對應的 HTTP 狀態碼
+            if (errorMsg.startsWith("EMAIL_EXISTS:") || errorMsg.startsWith("TEL_EXISTS:")) {
+                // 這是業務邏輯的資源衝突，使用 warn 記錄即可，並回傳 409
+                log.warn("轉預約失敗 (資料衝突) - Consultation ID: {}, 原因: {}", consultationId, errorMsg);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+
+            } else if (errorMsg.startsWith("TEL_FORMAT:") || errorMsg.contains("找不到此諮詢單")
+                    || errorMsg.contains("已經轉換過了")) {
+                // 這是前端傳來的參數不合規，回傳 400
+                log.warn("轉預約失敗 (無效請求) - Consultation ID: {}, 原因: {}", consultationId, errorMsg);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+
+            } else {
+                // 真正未知的系統嚴重錯誤，才使用 error 級別記錄並印出 stack trace，回傳 500
+                log.error("轉預約發生非預期系統錯誤 - Consultation ID: " + consultationId, e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            }
         }
     }
 

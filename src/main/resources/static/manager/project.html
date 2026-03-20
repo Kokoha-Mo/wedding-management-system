@@ -11,9 +11,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Vue 3 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -26,23 +27,29 @@
                         "sidebar-bg": "#21252D",
                         "sidebar-hover": "#2C313C",
                     },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"],
-                    }
+                    fontFamily: { display: ["Inter", "sans-serif"] }
                 },
             },
         };
     </script>
 </head>
 
-<body
-    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
+<body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
 
-    <div id="sidebar-overlay"
-        class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity hidden cursor-pointer">
+<div id="app" class="flex w-full h-full overflow-hidden">
+
+    <!-- Sidebar Overlay -->
+    <div
+        v-show="sidebarOpen"
+        @click="sidebarOpen = false"
+        class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity cursor-pointer">
     </div>
-    <aside id="sidebar"
-        class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative -translate-x-full lg:translate-x-0">
+
+    <!-- Sidebar -->
+    <aside
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+        class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative">
+
         <div class="h-16 flex items-center justify-center">
             <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
             <div class="text-white font-bold text-lg tracking-wide menu-category p-0 m-0">Admin</div>
@@ -50,66 +57,63 @@
 
         <div class="px-4 py-4 mt-2 sidebar-user">
             <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
-                <img id="sidebar-avatar" alt="Avatar"
-                    class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
+                <img :src="avatarSrc" alt="Avatar"
+                    class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" />
                 <div class="menu-category p-0 m-0">
-                    <div id="sidebar-emp-name" class="text-white font-medium">載入中...</div>
-                    <div id="sidebar-position" class="text-xs text-gray-400 mt-1">...</div>
+                    <div class="text-white font-medium">{{ empName || '載入中...' }}</div>
+                    <div class="text-xs text-gray-400 mt-1">{{ positionLabel }}</div>
                 </div>
             </div>
         </div>
 
         <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
-            <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
-                GENERAL</div>
-            <a id="nav-consultation"
+            <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">GENERAL</div>
+
+            <a v-show="navVisible.consultation"
                 class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="consultation.html">
-                <span
-                    class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
+                <span class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
             </a>
-            <a id="nav-book"
+
+            <a v-show="navVisible.book"
                 class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="book.html">
-                <span
-                    class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
+                <span class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
             </a>
-            <a id="nav-project"
+
+            <a v-show="navVisible.project"
                 class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
                 href="project.html">
-                <span
-                    class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
+                <span class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap text-white">專案管理</div>
             </a>
-            <a id="nav-task"
+
+            <a v-show="navVisible.task"
                 class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="quest_staff.html">
-                <span
-                    class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
+                <span class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">任務管理</div>
             </a>
 
-            <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
-                系統設定</div>
+            <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">系統設定</div>
 
-            <a id="nav-account"
-                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="account.html">
-                <span
-                    class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
+                <span class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">個人資訊</div>
             </a>
         </nav>
     </aside>
 
+    <!-- Main Content -->
     <div class="flex-1 flex flex-col h-full overflow-hidden relative">
 
-        <header
-            class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
+        <!-- Header -->
+        <header class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
             <div class="flex items-center flex-1">
-                <button id="sidebar-hamburger"
+                <button @click="sidebarOpen = !sidebarOpen"
                     class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
                     <span class="material-icons">menu</span>
                 </button>
@@ -117,16 +121,15 @@
             </div>
             <div class="flex items-center space-x-4">
                 <div class="relative">
-                    <div id="user-menu-button"
+                    <div @click="showUserDropdown = !showUserDropdown"
                         class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
-                        <img id="header-avatar" alt="Avatar"
-                            class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
-                            src="./Img/smile.jpg" />
-                        <span id="header-emp-name" class="text-sm font-medium mr-1 text-gray-200">User</span>
+                        <img :src="avatarSrc" alt="Avatar"
+                            class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover" />
+                        <span class="text-sm font-medium mr-1 text-gray-200">{{ empName || 'User' }}</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                     </div>
-                    <div id="user-dropdown"
-                        class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">
+                    <div v-show="showUserDropdown"
+                        class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 z-50 border border-gray-100">
                         <a href="login.html"
                             class="flex items-center px-4 py-2.5 text-sm text-danger hover:bg-gray-50 transition-colors">
                             <span class="material-icons text-[18px] mr-3 text-danger">logout</span> 登出
@@ -136,98 +139,213 @@
             </div>
         </header>
 
-        <main
-            class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-6 lg:p-8">
+        <!-- Main -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-6 lg:p-8">
             <div class="w-full max-w-[1600px] mx-auto space-y-6">
-                <div
-                    class="glass-card rounded-t-2xl px-6 py-4 flex flex-col lg:flex-row justify-between items-center gap-4 border-b border-gray-100 dark:border-gray-700">
-                    <div
-                        class="flex items-center space-x-2 overflow-x-auto w-full lg:w-auto custom-scrollbar pb-1 lg:pb-0">
-                        <button data-filter="all"
-                            class="filter-btn px-4 py-2 bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900 rounded-lg text-sm font-bold shadow-sm whitespace-nowrap transition-colors">全部專案</button>
-                        <button data-filter="active"
-                            class="filter-btn px-4 py-2 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">進行中</button>
-                        <button data-filter="completed"
-                            class="filter-btn px-4 py-2 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">已結案</button>
+
+                <!-- Filter Bar -->
+                <div class="glass-card rounded-t-2xl px-6 py-4 flex flex-col lg:flex-row justify-between items-center gap-4 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center space-x-2 overflow-x-auto w-full lg:w-auto custom-scrollbar pb-1 lg:pb-0">
+                        <button @click="setFilter('all')"
+                            :class="currentFilter === 'all'
+                                ? 'bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900 font-bold shadow-sm'
+                                : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'"
+                            class="px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors">
+                            全部專案 ({{ allProjects.length }})
+                        </button>
+                        <button @click="setFilter('active')"
+                            :class="currentFilter === 'active'
+                                ? 'bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900 font-bold shadow-sm'
+                                : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'"
+                            class="px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors">
+                            進行中 ({{ activeCount }})
+                        </button>
+                        <button @click="setFilter('completed')"
+                            :class="currentFilter === 'completed'
+                                ? 'bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900 font-bold shadow-sm'
+                                : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'"
+                            class="px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors">
+                            已完成 ({{ completedCount }})
+                        </button>
                     </div>
                     <div class="flex items-center w-full lg:w-auto space-x-3">
                         <div class="relative w-full lg:w-64">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><span
-                                    class="material-icons text-sm">search</span></span>
-                            <input id="search-input"
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <span class="material-icons text-sm">search</span>
+                            </span>
+                            <input v-model="searchQuery" @input="currentPage = 1"
                                 class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 placeholder="搜尋客戶名稱..." type="text" />
                         </div>
                     </div>
                 </div>
 
+                <!-- Table -->
                 <div class="glass-card rounded-b-2xl shadow-sm overflow-hidden mt-0 border-t-0">
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
-                                <tr
-                                    class="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
-                                    <th id="th-name"
+                                <tr class="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
+                                    <th @click="setSortKey('projectId')"
                                         class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[18%] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none">
                                         <div class="flex items-center">
                                             專案編號 / 客戶
-                                            <span id="sort-icon-name"
-                                                class="material-icons text-[16px] ml-1 text-gray-300 dark:text-gray-600 transition-colors">unfold_more</span>
+                                            <span class="material-icons text-[16px] ml-1 transition-colors"
+                                                :class="sortKey === 'projectId' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-300 dark:text-gray-600'">
+                                                {{ sortKey === 'projectId' ? (sortDirection === 1 ? 'arrow_downward' : 'arrow_upward') : 'unfold_more' }}
+                                            </span>
                                         </div>
                                     </th>
-
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[12%]">
-                                        整體狀態
-                                    </th>
-
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[30%]">
-                                        各部執行概況
-                                    </th>
-
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">
-                                        專案更新日期
-                                    </th>
-
-                                    <th id="th-date"
+                                    <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[12%]">整體狀態</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[30%]">各部執行概況</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">專案更新日期</th>
+                                    <th @click="setSortKey('date')"
                                         class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors select-none">
                                         <div class="flex items-center">
                                             預計婚期 (Deadline)
-                                            <span id="sort-icon-date"
-                                                class="material-icons text-[16px] ml-1 text-indigo-500 dark:text-indigo-400">arrow_downward</span>
+                                            <span class="material-icons text-[16px] ml-1 transition-colors"
+                                                :class="sortKey === 'date' ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-300 dark:text-gray-600'">
+                                                {{ sortKey === 'date' ? (sortDirection === 1 ? 'arrow_downward' : 'arrow_upward') : 'unfold_more' }}
+                                            </span>
                                         </div>
                                     </th>
-
-                                    <th
-                                        class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right w-[10%]">
-                                        操作
-                                    </th>
+                                    <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right w-[10%]">操作</th>
                                 </tr>
                             </thead>
-                            <tbody id="project-table-body" class="divide-y divide-gray-100 dark:divide-gray-700/50">
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+
+                                <!-- Empty State -->
+                                <tr v-if="paginatedProjects.length === 0">
+                                    <td colspan="6" class="text-center py-8 text-gray-500">此分類目前沒有專案資料</td>
+                                </tr>
+
+                                <!-- Project Rows -->
+                                <tr v-for="project in paginatedProjects" :key="project.projectId"
+                                    :class="getRowClass(project)"
+                                    class="project-row transition-colors group">
+
+                                    <!-- 專案編號 / 客戶 -->
+                                    <td class="px-6 py-4">
+                                        <div class="font-bold text-gray-900 dark:text-white text-base">{{ project.customerName || '未知客戶' }}</div>
+                                        <div class="text-xs text-gray-500 mt-1">{{ project.projectNo || '' }}</div>
+                                    </td>
+
+                                    <!-- 狀態 -->
+                                    <td class="px-6 py-4">
+                                        <!-- 已完成 -->
+                                        <span v-if="project.status === '已完成'"
+                                            class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                            <span class="material-icons text-[14px] mr-1">task_alt</span> 已完成
+                                        </span>
+                                        <!-- 需注意 -->
+                                        <span v-else-if="project.daysRemaining !== null && project.daysRemaining <= 45"
+                                            class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/50">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5 animate-pulse"></span> 需注意
+                                        </span>
+                                        <!-- 進行中 -->
+                                        <span v-else
+                                            class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800/50">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> 進行中
+                                        </span>
+                                    </td>
+
+                                    <!-- 各部執行概況 -->
+                                    <td class="px-6 py-4">
+                                        <!-- 已完成 -->
+                                        <div v-if="project.status === '已完成'"
+                                            class="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+                                            <span class="material-icons text-[18px] mr-2 text-green-500">done_all</span>
+                                            <span>全數任務皆已完成並歸檔。</span>
+                                        </div>
+                                        <!-- 有任務 -->
+                                        <div v-else-if="project.tasks && project.tasks.length > 0"
+                                            class="flex flex-col gap-1.5 w-11/12 max-w-[360px] max-h-[100px] overflow-y-auto custom-scrollbar pr-1">
+                                            <div v-for="task in project.tasks" :key="task.taskId"
+                                                class="flex items-center text-xs font-medium px-2.5 py-1.5 rounded border"
+                                                :class="getTaskBadgeClass(task.status)">
+                                                <span class="w-1.5 h-1.5 rounded-full mr-1.5 flex-shrink-0"
+                                                    :class="getTaskDotClass(task.status)"></span>
+                                                <span class="truncate">{{ task.serviceName || task.taskName }}</span>
+                                                <span class="ml-auto pl-2 flex-shrink-0">{{ task.status }}</span>
+                                            </div>
+                                        </div>
+                                        <!-- 無任務 -->
+                                        <div v-else
+                                            class="flex flex-col gap-1.5 w-11/12 max-w-[360px]">
+                                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
+                                                <span class="text-xs">尚無任務資料</span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- 更新日期 -->
+                                    <td class="px-6 py-4">
+                                        <div class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">最後更新於：</div>
+                                        <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {{ project.updateAt ? project.updateAt.substring(0, 10) : '無更新紀錄' }}
+                                        </div>
+                                    </td>
+
+                                    <!-- 婚期 -->
+                                    <td class="px-6 py-4">
+                                        <!-- 已完成 -->
+                                        <template v-if="project.status === '已完成'">
+                                            <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">{{ project.weddingDate || '未定' }}</div>
+                                            <div class="text-xs text-gray-500 mt-1">專案已完成</div>
+                                        </template>
+                                        <!-- 需注意 -->
+                                        <template v-else-if="project.daysRemaining !== null && project.daysRemaining <= 45">
+                                            <div class="text-sm text-red-600 dark:text-red-400 font-bold">{{ project.weddingDate || '未定' }}</div>
+                                            <div class="text-xs text-red-500 mt-1 font-medium">即將到期 (剩餘 {{ project.daysRemaining }} 天)</div>
+                                        </template>
+                                        <!-- 一般 -->
+                                        <template v-else>
+                                            <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">{{ project.weddingDate || '未定' }}</div>
+                                            <div class="text-xs text-gray-500 mt-1">剩餘 {{ project.daysRemaining || 0 }} 天</div>
+                                        </template>
+                                    </td>
+
+                                    <!-- 操作 -->
+                                    <td class="px-6 py-4 text-right">
+                                        <!-- 已完成 → 查看紀錄 -->
+                                        <a v-if="project.status === '已完成'"
+                                            href="#" @click.prevent="openProjectRecordModal(project.projectId)"
+                                            class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                                            查看紀錄 <span class="material-icons text-[16px] ml-1">history</span>
+                                        </a>
+                                        <!-- 需注意 → 緊急處理 -->
+                                        <a v-else-if="project.daysRemaining !== null && project.daysRemaining <= 45"
+                                            :href="`project1.html?id=${project.projectId}`"
+                                            class="inline-flex items-center justify-center px-4 py-2 bg-red-500 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-red-600 transition-colors shadow-sm">
+                                            緊急處理 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
+                                        </a>
+                                        <!-- 一般 → 進入專案 -->
+                                        <a v-else :href="`project1.html?id=${project.projectId}`"
+                                            class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                                            進入專案 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
+                                        </a>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div
-                        class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-between">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">顯示 1 到 4 筆，共 24 筆進行中專案</span>
+                    <!-- Pagination -->
+                    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-between">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                            <template v-if="filteredAndSortedProjects.length === 0">顯示 0 筆，共 0 筆{{ filterLabel }}</template>
+                            <template v-else>顯示 {{ startIndex + 1 }} 到 {{ endIndex }} 筆，共 {{ filteredAndSortedProjects.length }} 筆{{ filterLabel }}</template>
+                        </span>
                         <div class="flex space-x-1">
-                            <button
-                                class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-400 bg-gray-50 dark:bg-gray-700 cursor-not-allowed"
-                                disabled>上一頁</button>
-                            <button
-                                class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm font-medium shadow-sm">1</button>
-                            <button
-                                class="px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md text-sm font-medium transition-colors">2</button>
-                            <button
-                                class="px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md text-sm font-medium transition-colors">...</button>
-                            <button
-                                class="px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md text-sm font-medium transition-colors">6</button>
-                            <button
-                                class="px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md text-sm font-medium transition-colors">下一頁</button>
+                            <button @click="prevPage" :disabled="currentPage === 1"
+                                :class="currentPage === 1 ? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'"
+                                class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors">上一頁</button>
+                            <div class="flex items-center px-3 font-bold text-indigo-600 dark:text-indigo-400 text-sm">
+                                {{ currentPage }} <span class="text-gray-400 font-normal mx-1">/</span> {{ totalPages }}
+                            </div>
+                            <button @click="nextPage" :disabled="currentPage >= totalPages"
+                                :class="currentPage >= totalPages ? 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'"
+                                class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors">下一頁</button>
                         </div>
                     </div>
                 </div>
@@ -236,93 +354,122 @@
         </main>
     </div>
 
-    <div id="projectRecordModal"
-        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity p-4">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[900px] max-w-full transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
+    <!-- ==================== 專案紀錄 Modal ==================== -->
+    <div v-show="showRecordModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[900px] max-w-full transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
 
-            <div
-                class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 rounded-t-2xl relative overflow-hidden">
-                <div
-                    class="absolute top-0 right-0 w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-full -mr-16 -mt-16 opacity-50 pointer-events-none">
-                </div>
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 rounded-t-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-full -mr-16 -mt-16 opacity-50 pointer-events-none"></div>
                 <div class="relative z-10">
                     <div class="flex items-center gap-3 mb-1">
-                        <span
-                            class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
                             <span class="material-icons text-[14px] mr-1">archive</span> 已歸檔結案
                         </span>
-                        <span id="record-project-no" class="text-sm text-gray-500 font-bold">讀取中...</span>
+                        <span class="text-sm text-gray-500 font-bold">{{ recordData.projectNo || '讀取中...' }}</span>
                     </div>
-                    <h3 id="record-customer-name" class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                        讀取中...
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ recordData.customerName ? recordData.customerName + ' 專案' : '讀取中...' }}
                     </h3>
                 </div>
-                <button onclick="closeProjectRecordModal()"
-                    class="relative z-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full p-2 transition-colors shadow-sm">
+                <button @click="closeRecordModal"
+                    class="relative z-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full p-2 transition-colors shadow-sm">
                     <span class="material-icons">close</span>
                 </button>
             </div>
 
+            <!-- Modal Body -->
             <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-8 bg-[#faf7f2] dark:bg-gray-900/50">
 
+                <!-- 基本資訊 Grid -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div
-                        class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">負責 PM</p>
-                        <p id="record-pm-name" class="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center">
-                            讀取中...
-                        </p>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <p class="text-xs text-gray-400 mb-1 font-medium">專案負責人</p>
+                        <div class="flex items-center text-sm font-bold text-gray-800 dark:text-gray-200">
+                            <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] mr-2">
+                                {{ recordData.pmName ? recordData.pmName.charAt(0) : '無' }}
+                            </span>
+                            {{ recordData.pmName || '尚未指派' }}
+                        </div>
                     </div>
-                    <div
-                        class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">實際婚期</p>
-                        <p id="record-wedding-date" class="text-sm font-bold text-gray-800 dark:text-gray-200">讀取中...</p>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <p class="text-xs text-gray-400 mb-1 font-medium">預計婚期</p>
+                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ recordData.weddingDate || '未定' }}</p>
                     </div>
-                    <div
-                        class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">專案歷時</p>
-                        <p id="record-duration" class="text-sm font-bold text-gray-800 dark:text-gray-200">讀取中...</p>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <p class="text-xs text-gray-400 mb-1 font-medium">執行時程</p>
+                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ (recordData.durationDays || 0) + ' 天' }}</p>
                     </div>
-                    <div
-                        class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-green-200 dark:border-green-800/50 shadow-sm relative overflow-hidden">
-                        <div class="absolute right-0 top-0 h-full w-1 bg-green-500"></div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1">帳務狀態</p>
-                        <p id="record-payment-status" class="text-sm font-bold text-green-600 dark:text-green-400 flex items-center">
-                            <span class="material-icons text-[16px] mr-1">check_circle</span> 讀取中...
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <p class="text-xs text-gray-400 mb-1 font-medium">付款狀態</p>
+                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center">
+                            <span class="material-icons text-[16px] mr-1">check_circle</span>
+                            {{ recordData.paymentStatus || '尚未付款' }}
                         </p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-2">
-
-                    <div class="space-y-4">
-                        <h4
-                            class="text-sm font-bold text-gray-400 tracking-wider uppercase border-b border-gray-200 dark:border-gray-700 pb-2">
-                            最終成果與歸檔文件</h4>
-                        <div id="record-documents"
-                            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-1 flex flex-col">
-                            <!-- 動態填入 Documents -->
+                <!-- 已核准文件 & 任務歷程 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 文件 -->
+                    <div>
+                        <h4 class="text-base font-bold text-gray-800 dark:text-white mb-3 flex items-center">
+                            <span class="material-icons text-indigo-500 mr-2 text-[20px]">folder_special</span>已核准文件
+                        </h4>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                            <div v-if="recordData.documents && recordData.documents.length > 0">
+                                <a v-for="(doc, idx) in recordData.documents" :key="idx"
+                                    :href="doc.downloadUrl || '#'"
+                                    :class="idx > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''"
+                                    class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors group" target="_blank">
+                                    <div class="flex items-center">
+                                        <div :class="doc.fileName && doc.fileName.toLowerCase().endsWith('.pdf') ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'"
+                                            class="w-10 h-10 rounded-lg flex items-center justify-center mr-3">
+                                            <span class="material-icons">{{ doc.fileName && doc.fileName.toLowerCase().endsWith('.pdf') ? 'picture_as_pdf' : 'description' }}</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ doc.fileName || '未知檔名' }}</p>
+                                            <p class="text-xs text-gray-500">{{ doc.uploadInfo }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="material-icons text-gray-400 group-hover:text-indigo-600">download</span>
+                                </a>
+                            </div>
+                            <div v-else class="p-4 text-sm text-gray-500 text-center">沒有已核准的文件</div>
                         </div>
                     </div>
 
-                    <div class="space-y-4">
-                        <h4
-                            class="text-sm font-bold text-gray-400 tracking-wider uppercase border-b border-gray-200 dark:border-gray-700 pb-2">
-                            任務執行</h4>
-                        <div id="record-tasks"
-                            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm h-full max-h-[300px] overflow-y-auto custom-scrollbar space-y-3">
-                            <!-- 動態填入 Tasks -->
+                    <!-- 任務歷程 -->
+                    <div>
+                        <h4 class="text-base font-bold text-gray-800 dark:text-white mb-3 flex items-center">
+                            <span class="material-icons text-indigo-500 mr-2 text-[20px]">history</span>任務歷程
+                        </h4>
+                        <div class="space-y-2">
+                            <div v-if="recordData.taskHistories && recordData.taskHistories.length > 0">
+                                <div v-for="task in recordData.taskHistories" :key="task.taskId"
+                                    class="flex justify-between items-center bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ task.taskName }}</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">{{ task.ownerInfo }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p :class="getTaskHistoryStatusClass(task.status)"
+                                            class="text-xs font-bold px-2 py-0.5 rounded inline-block">{{ task.status }}</p>
+                                        <p class="text-[10px] text-gray-400 mt-1">{{ task.time || '' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p v-else class="text-sm text-gray-500 text-center py-4">沒有任務紀錄</p>
                         </div>
                     </div>
-
                 </div>
 
             </div>
 
-            <div
-                class="p-5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl flex justify-end items-center">
-                <button onclick="closeProjectRecordModal()"
+            <!-- Modal Footer -->
+            <div class="p-5 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl flex justify-end">
+                <button @click="closeRecordModal"
                     class="px-6 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold transition-colors">
                     關閉紀錄
                 </button>
@@ -330,542 +477,232 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // ========================
-            // 【登入驗證】從 sessionStorage 取得目前登入的 Manager emp_id
-            const MANAGER_ID = sessionStorage.getItem('empId');
-            if (!MANAGER_ID) {
-                // 若 sessionStorage 中沒有 emp_id，代表尚未登入，導向登入頁
-                alert('請先登入！');
-                window.location.href = 'login.html';
-                return; // 中止後續程式執行
+</div><!-- #app -->
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            // Auth / User
+            managerId: '',
+            empName: '',
+            position: '',
+            imgPath: '',
+            deptId: '',
+            // UI State
+            sidebarOpen: false,
+            showUserDropdown: false,
+            // Projects
+            allProjects: [],
+            // Filter / Sort / Pagination
+            currentFilter: 'all',
+            currentPage: 1,
+            itemsPerPage: 5,
+            searchQuery: '',
+            sortKey: 'date',
+            sortDirection: 1,
+            // Record Modal
+            showRecordModal: false,
+            recordData: {
+                projectNo: '', customerName: '', pmName: '',
+                weddingDate: '', durationDays: 0, paymentStatus: '',
+                documents: [], taskHistories: []
+            },
+        };
+    },
+
+    computed: {
+        avatarSrc() {
+            if (!this.imgPath) return './Img/smile.jpg';
+            return this.imgPath.startsWith('http') ? this.imgPath : '/' + this.imgPath;
+        },
+        positionLabel() {
+            return this.position === 'MANAGER' ? '業務管理' : '員工';
+        },
+        navVisible() {
+            const d = this.deptId;
+            return {
+                consultation: d === '7',
+                book: d === '1',
+                project: d === '1',
+                task: d !== '1' && d !== '7',
+            };
+        },
+        activeCount() {
+            return this.allProjects.filter(p => p.status !== '已完成').length;
+        },
+        completedCount() {
+            return this.allProjects.filter(p => p.status === '已完成').length;
+        },
+        filterLabel() {
+            if (this.currentFilter === 'active') return '進行中專案';
+            if (this.currentFilter === 'completed') return '已完成專案';
+            return '專案';
+        },
+        filteredAndSortedProjects() {
+            let result = [...this.allProjects];
+
+            // 搜尋
+            if (this.searchQuery.trim()) {
+                const kw = this.searchQuery.toLowerCase();
+                result = result.filter(p => p.customerName && p.customerName.toLowerCase().includes(kw));
             }
-            // ========================
-            // 🔥 新增：個人資訊與側邊欄權限控制
-            initSidebar();
 
-            function initSidebar() {
-                const empId = sessionStorage.getItem('empId');
-                const empName = sessionStorage.getItem('empName');
-                const position = sessionStorage.getItem('position');
-                const deptId = sessionStorage.getItem('deptId');
+            // 狀態篩選
+            if (this.currentFilter === 'active') result = result.filter(p => p.status !== '已完成');
+            else if (this.currentFilter === 'completed') result = result.filter(p => p.status === '已完成');
 
-                if (!empId) {
-                    window.location.replace('login.html');
-                    return;
-                }
+            // 排序
+            result.sort((a, b) => {
+                const aComp = a.status === '已完成';
+                const bComp = b.status === '已完成';
+                if (aComp && !bComp) return 1;
+                if (!aComp && bComp) return -1;
 
-                // 顯示人員資訊
-                const sidebarEmpName = document.getElementById('sidebar-emp-name');
-                const headerEmpName = document.getElementById('header-emp-name');
-                const sidebarPosition = document.getElementById('sidebar-position');
-
-                if (sidebarEmpName) sidebarEmpName.textContent = empName || '未知員工';
-                if (headerEmpName) headerEmpName.textContent = empName || '未知員工';
-                if (sidebarPosition) sidebarPosition.textContent = position === 'MANAGER' ? '業務管理' : '員工';
-
-                // 顯示頭像
-                const imgPath = sessionStorage.getItem('imgPath');
-                if (imgPath) {
-                    const fullPath = imgPath.startsWith('http') ? imgPath : '/' + imgPath;
-                    const sidebarAv = document.getElementById('sidebar-avatar');
-                    const headerAv = document.getElementById('header-avatar');
-                    if (sidebarAv) sidebarAv.src = fullPath;
-                    if (headerAv) headerAv.src = fullPath;
-                }
-
-                // 側邊欄權限控制
-                const navIds = ['nav-consultation', 'nav-book', 'nav-project', 'nav-task'];
-                navIds.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.style.display = 'none';
-                });
-
-                if (deptId === '1') {
-                    ['nav-book', 'nav-project'].forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) el.style.display = 'flex';
-                    });
-                } else if (deptId === '7') {
-                    const el = document.getElementById('nav-consultation');
-                    if (el) el.style.display = 'flex';
+                if (this.sortKey === 'projectId') {
+                    return ((a.projectId || 0) - (b.projectId || 0)) * this.sortDirection;
                 } else {
-                    const el = document.getElementById('nav-task');
-                    if (el) el.style.display = 'flex';
+                    if (!a.weddingDate && !b.weddingDate) return 0;
+                    if (!a.weddingDate) return 1;
+                    if (!b.weddingDate) return -1;
+                    const dA = new Date(a.weddingDate), dB = new Date(b.weddingDate);
+                    const base = aComp ? dB - dA : dA - dB;
+                    return base * this.sortDirection;
                 }
-            }
-
-            // 全域變數設定
-            let allProjects = []; // 儲存從後端拿到的所有資料
-            let currentFilter = 'all'; // 目前的篩選狀態 (all, active, completed)
-            let currentPage = 1; // 目前頁數
-            const itemsPerPage = 5; // 每頁顯示幾筆
-            let searchQuery = ''; // 目前的搜尋關鍵字
-            let sortKey = 'date'; // 預設排序欄位 (date 或 name)
-            let sortDirection = 1; // 1: 預設排序, -1: 反向排序
-
-            // =================  排序核心邏輯 =================
-            function sortAllProjects() {
-                allProjects.sort((a, b) => {
-                    const isACompleted = (a.status === '已完成');
-                    const isBCompleted = (b.status === '已完成');
-
-                    // 1. 絕對優先權：進行中永遠排在已完成上面
-                    if (isACompleted && !isBCompleted) return 1;
-                    if (!isACompleted && isBCompleted) return -1;
-
-                    // 2. 狀態相同時，依據選擇的欄位與方向排序
-                    if (sortKey === 'projectId') {
-                        // 抓 projectNo (專案編號) 來當作排序依據
-                        const idA = a.projectId || 0;
-                        const idB = b.projectId || 0;
-                        // 字串比對 (英數字排序)
-                        return (idA - idB) * sortDirection;
-
-                    } else if (sortKey === 'date') {
-                        // 防呆：日期未定的專案永遠沉在底部，不受反向排序影響
-                        if (!a.weddingDate && !b.weddingDate) return 0;
-                        if (!a.weddingDate) return 1;
-                        if (!b.weddingDate) return -1;
-
-                        const dateA = new Date(a.weddingDate);
-                        const dateB = new Date(b.weddingDate);
-
-                        let res = 0;
-                        if (isACompleted) {
-                            res = dateB - dateA; // 已完成：預設降冪 (最近辦完的在上面)
-                        } else {
-                            res = dateA - dateB; // 進行中：預設升冪 (快到期的在上面)
-                        }
-                        return res * sortDirection;
-                    }
-                    return 0;
-                });
-            }
-
-            // 更新表頭的 Icon 顯示
-            function updateSortIcons() {
-                const iconName = document.getElementById('sort-icon-name');
-                const iconDate = document.getElementById('sort-icon-date');
-
-                // 重置所有 Icon 為預設灰色狀態
-                iconName.textContent = 'unfold_more';
-                iconName.className = 'material-icons text-[16px] ml-1 text-gray-300 dark:text-gray-600 transition-colors';
-                iconDate.textContent = 'unfold_more';
-                iconDate.className = 'material-icons text-[16px] ml-1 text-gray-300 dark:text-gray-600 transition-colors';
-
-                // 將被選中的欄位上色，並根據方向切換箭頭
-                const activeIcon = sortKey === 'projectId' ? iconName : iconDate;
-                activeIcon.classList.remove('text-gray-300', 'dark:text-gray-600');
-                activeIcon.classList.add('text-indigo-500', 'dark:text-indigo-400', 'font-bold');
-                activeIcon.textContent = sortDirection === 1 ? 'arrow_downward' : 'arrow_upward';
-            }
-
-            // 綁定點擊表頭事件
-            document.getElementById('th-name')?.addEventListener('click', () => {
-                if (sortKey === 'projectId') sortDirection *= -1; // 點擊同一個欄位，切換正逆序
-                else { sortKey = 'projectId'; sortDirection = 1; } // 點擊新欄位，重置為預設順序
-
-                updateSortIcons();
-                sortAllProjects();
-                currentPage = 1; // 重新排序後拉回第一頁
-                renderView();
             });
 
-            document.getElementById('th-date')?.addEventListener('click', () => {
-                if (sortKey === 'date') sortDirection *= -1;
-                else { sortKey = 'date'; sortDirection = 1; }
+            return result;
+        },
+        totalPages() {
+            return Math.ceil(this.filteredAndSortedProjects.length / this.itemsPerPage) || 1;
+        },
+        startIndex() {
+            return (this.currentPage - 1) * this.itemsPerPage;
+        },
+        endIndex() {
+            return Math.min(this.startIndex + this.itemsPerPage, this.filteredAndSortedProjects.length);
+        },
+        paginatedProjects() {
+            return this.filteredAndSortedProjects.slice(this.startIndex, this.endIndex);
+        },
+    },
 
-                updateSortIcons();
-                sortAllProjects();
-                currentPage = 1;
-                renderView();
-            });
+    methods: {
+        initSidebar() {
+            this.empName = sessionStorage.getItem('empName') || '';
+            this.position = sessionStorage.getItem('position') || '';
+            this.deptId = sessionStorage.getItem('deptId') || '';
+            this.imgPath = sessionStorage.getItem('imgPath') || '';
+        },
 
-            // ================= 1. 取得資料 =================
-            async function loadProjects() {
-                try {
-                    const url = `/api/manager/${MANAGER_ID}/projects`;
-                    console.log(`[DEBUG] 正在呼叫 API: ${url}`);  // 👈 確認實際打的 URL
-
-                    const response = await fetch(url, { credentials: 'include' }); // same-origin，Cookie 自動帶上，不需要 credentials: 'include'
-                    console.log(`[DEBUG] API 回應狀態: ${response.status}`); // 👈 確認 HTTP 狀態碼
-
-                    if (!response.ok) {
-                        if (response.status === 401 || response.status === 403) {
-                            console.error('[DEBUG] 驗證失敗 (401/403)，JWT Token 可能遺失或過期');
-                            alert("帳號驗證已過期或尚未登入，請重新登入！");
-                            sessionStorage.clear();
-                            window.location.href = 'login.html';
-                            return;
-                        }
-                        const errText = await response.text();
-                        console.error(`[DEBUG] API 錯誤內容:`, errText); // 👈 印出後端的錯誤訊息
-                        throw new Error(`API 發生錯誤 (${response.status})`);
+        async loadProjects() {
+            try {
+                const url = `/api/manager/${this.managerId}/projects`;
+                const res = await fetch(url, { credentials: 'include' });
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        alert("帳號驗證已過期或尚未登入，請重新登入！");
+                        sessionStorage.clear();
+                        window.location.href = 'login.html';
+                        return;
                     }
-                    allProjects = await response.json();
-                    console.log(`[DEBUG] 取得專案數量: ${allProjects.length}`, allProjects); // 👈 印出拿到幾筆資料
-
-                    // 直接呼叫排序函數與圖示更新
-                    sortAllProjects();
-                    updateSortIcons();
-
-                    renderView(); // 取得資料後，啟動畫面渲染
-                } catch (error) {
-                    console.error("無法取得專案資料:", error);
-                    const tbody = document.getElementById('project-table-body') || document.querySelector('tbody');
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red-500">資料載入失敗，請稍後再試。</td></tr>`;
+                    throw new Error(`API 錯誤 (${res.status})`);
                 }
+                this.allProjects = await res.json();
+            } catch (err) {
+                console.error('無法取得專案資料:', err);
+                this.allProjects = [];
             }
+        },
 
-            // ================= 2. 核心渲染控制器 =================
-            function renderView() {
-                // --- A. 處理資料篩選 ---
-                let filteredProjects = allProjects;
-                if (searchQuery.trim() !== '') {
-                    const keyword = searchQuery.toLowerCase();
-                    filteredProjects = filteredProjects.filter(p => {
-                        return p.customerName && p.customerName.toLowerCase().includes(keyword);
-                    });
-                }
+        setFilter(filter) {
+            this.currentFilter = filter;
+            this.currentPage = 1;
+        },
 
-                if (currentFilter === 'active') {
-                    filteredProjects = filteredProjects.filter(p => p.status !== '已完成');
-                } else if (currentFilter === 'completed') {
-                    filteredProjects = filteredProjects.filter(p => p.status === '已完成');
-                }
+        setSortKey(key) {
+            if (this.sortKey === key) this.sortDirection *= -1;
+            else { this.sortKey = key; this.sortDirection = 1; }
+            this.currentPage = 1;
+        },
 
-                // --- B. 處理陣列分頁計算 ---
-                const totalItems = filteredProjects.length;
-                const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+        prevPage() { if (this.currentPage > 1) this.currentPage--; },
+        nextPage() { if (this.currentPage < this.totalPages) this.currentPage++; },
 
-                if (currentPage > totalPages) currentPage = totalPages;
+        getRowClass(project) {
+            if (project.status === '已完成') return 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
+            if (project.daysRemaining !== null && project.daysRemaining <= 45) return 'hover:bg-red-50/30 dark:hover:bg-red-900/10';
+            return 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
+        },
 
-                const startIndex = (currentPage - 1) * itemsPerPage;
-                const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-                const paginatedProjects = filteredProjects.slice(startIndex, endIndex);
-
-                // --- C. 更新畫面 ---
-                renderTableHTML(paginatedProjects);
-                renderPaginationHTML(startIndex, endIndex, totalItems, totalPages);
-                updateFilterButtons();
-            }
-
-            // ================= 3. 渲染表格 =================
-            function renderTableHTML(projects) {
-                const tbody = document.getElementById('project-table-body') || document.querySelector('tbody');
-                tbody.innerHTML = '';
-
-                if (projects.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">此分類目前沒有專案資料</td></tr>`;
-                    return;
-                }
-
-                projects.forEach(project => {
-                    let statusHtml = '';
-                    let dateHtml = '';
-                    let actionHtml = '';
-                    let deptStatusHtml = ''; // 🔥 新增：各部執行概況 HTML
-
-                    // 更新日期的 HTML 組合
-                    let updateHtml = `
-                        <div class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">最後更新於：</div>
-                        <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            ${project.updateAt ? project.updateAt.substring(0, 10) : '無更新紀錄'}
-                        </div>
-                    `;
-
-                    // 🔥 各部執行概況動態產生（根據 project.tasks 去跑 dynamic render）
-                    if (project.tasks && project.tasks.length > 0) {
-                        let tasksHtml = project.tasks.map(task => {
-                            let statusClasses = '';
-                            if (task.status === '待指派') {
-                                statusClasses = 'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400';
-                            } else if (task.status === '待審核') {
-                                statusClasses = 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400';
-                            } else if (task.status === '進行中') {
-                                statusClasses = 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400';
-                            } else if (task.status === '已完成') {
-                                statusClasses = 'text-green-500 bg-green-50 dark:bg-green-900/30 dark:text-green-400';
-                            } else {
-                                statusClasses = 'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400';
-                            }
-
-                            return `
-                            <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
-                                <span class="text-[11px] font-bold text-gray-500 w-[50px] flex-shrink-0 truncate" title="${task.deptName || '未定'}">${task.deptName || '未定'}</span>
-                                <span class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate flex-1 ml-1" title="${task.taskName || '未命名任務'}">${task.taskName || '未命名任務'}</span>
-                                <span class="text-[10px] ${statusClasses} px-1.5 rounded font-bold ml-2 flex-shrink-0">${task.status || '未知'}</span>
-                            </div>
-                            `;
-                        }).join('');
-
-                        deptStatusHtml = `
-                        <div class="flex flex-col gap-1.5 w-11/12 max-w-[360px] max-h-[100px] overflow-y-auto custom-scrollbar pr-1">
-                            ${tasksHtml}
-                        </div>
-                        `;
-                    } else {
-                        deptStatusHtml = `
-                        <div class="flex flex-col gap-1.5 w-11/12 max-w-[360px]">
-                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 px-2.5 py-1.5 rounded border border-gray-100 dark:border-gray-600">
-                                <span class="text-xs">尚無任務資料</span>
-                            </div>
-                        </div>
-                        `;
-                    }
-
-                    let rowClass = 'project-row transition-colors group ';
-
-                    // 判斷狀態：已完成
-                    if (project.status === '已完成') {
-                        rowClass += 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
-                        statusHtml = `
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                            <span class="material-icons text-[14px] mr-1">task_alt</span> 已完成
-                        </span>`;
-
-                        // 🔥 如果已完成，部門概況直接顯示歸檔字樣
-                        deptStatusHtml = `
-                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
-                            <span class="material-icons text-[18px] mr-2 text-green-500">done_all</span>
-                            <span>全數任務皆已完成並歸檔。</span>
-                        </div>`;
-
-                        dateHtml = `
-                        <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">${project.weddingDate || '未定'}</div>
-                        <div class="text-xs text-gray-500 mt-1">專案已完成</div>`;
-
-                        actionHtml = `
-                        <a href="#" onclick="openProjectRecordModal(${project.projectId}, event)" class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
-                            查看紀錄 <span class="material-icons text-[16px] ml-1">history</span>
-                        </a>`;
-
-                        // 判斷狀態：緊急 (剩餘 <= 45 天)
-                    } else if (project.daysRemaining !== null && project.daysRemaining <= 45) {
-                        rowClass += 'hover:bg-red-50/30 dark:hover:bg-red-900/10';
-                        statusHtml = `
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/50">
-                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5 animate-pulse"></span> 需注意
-                        </span>`;
-
-                        dateHtml = `
-                        <div class="text-sm text-red-600 dark:text-red-400 font-bold">${project.weddingDate || '未定'}</div>
-                        <div class="text-xs text-red-500 mt-1 font-medium">即將到期 (剩餘 ${project.daysRemaining} 天)</div>`;
-
-                        actionHtml = `
-                        <a href="project1.html?id=${project.projectId}" class="inline-flex items-center justify-center px-4 py-2 bg-red-500 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-red-600 transition-colors shadow-sm">
-                            緊急處理 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
-                        </a>`;
-
-                        // 判斷狀態：一般進行中
-                    } else {
-                        rowClass += 'hover:bg-gray-50/80 dark:hover:bg-gray-800/50';
-                        statusHtml = `
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800/50">
-                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> 進行中
-                        </span>`;
-
-                        dateHtml = `
-                        <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">${project.weddingDate || '未定'}</div>
-                        <div class="text-xs text-gray-500 mt-1">剩餘 ${project.daysRemaining || 0} 天</div>`;
-
-                        actionHtml = `
-                        <a href="project1.html?id=${project.projectId}" class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
-                            進入專案 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
-                        </a>`;
-                    }
-
-                    const tr = document.createElement('tr');
-                    tr.className = rowClass;
-                    tr.innerHTML = `
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-gray-900 dark:text-white text-base">${project.customerName || '未知客戶'}</div>
-                            <div class="text-xs text-gray-500 mt-1">${project.projectNo || ''}</div>
-                        </td>
-                        <td class="px-6 py-4">${statusHtml}</td>
-                        <td class="px-6 py-4">${deptStatusHtml}</td>
-                        <td class="px-6 py-4">${updateHtml}</td> 
-                        <td class="px-6 py-4">${dateHtml}</td>
-                        <td class="px-6 py-4 text-right">${actionHtml}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-
-            // ================= 4. 渲染動態頁碼 =================
-            function renderPaginationHTML(startIndex, endIndex, totalItems, totalPages) {
-                const summaryText = document.querySelector('.px-6.py-4.border-t .text-sm.text-gray-500');
-                if (summaryText) {
-                    const statusName = currentFilter === 'all' ? '專案' : (currentFilter === 'active' ? '進行中專案' : '已完成專案');
-                    if (totalItems === 0) {
-                        summaryText.textContent = `顯示 0 筆，共 0 筆${statusName}`;
-                    } else {
-                        summaryText.textContent = `顯示 ${startIndex + 1} 到 ${endIndex} 筆，共 ${totalItems} 筆${statusName}`;
-                    }
-                }
-
-                const paginationContainer = document.querySelector('.flex.space-x-1');
-                if (paginationContainer) {
-                    const prevDisabled = currentPage === 1 ? 'disabled cursor-not-allowed opacity-50' : 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer';
-                    const nextDisabled = currentPage === totalPages || totalPages === 0 ? 'disabled cursor-not-allowed opacity-50' : 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer';
-
-                    paginationContainer.innerHTML = `
-                <button id="prev-page" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors ${prevDisabled}">上一頁</button>
-                <div class="flex items-center px-3 font-bold text-indigo-600 dark:text-indigo-400 text-sm">
-                    ${currentPage} <span class="text-gray-400 font-normal mx-1">/</span> ${totalPages}
-                </div>
-                <button id="next-page" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors ${nextDisabled}">下一頁</button>
-            `;
-
-                    const prevBtn = document.getElementById('prev-page');
-                    const nextBtn = document.getElementById('next-page');
-
-                    if (prevBtn && currentPage > 1) {
-                        prevBtn.addEventListener('click', () => {
-                            currentPage--;
-                            renderView();
-                        });
-                    }
-                    if (nextBtn && currentPage < totalPages) {
-                        nextBtn.addEventListener('click', () => {
-                            currentPage++;
-                            renderView();
-                        });
-                    }
-                }
-            }
-
-            // ================= 5. 更新上方篩選按鈕 =================
-            function updateFilterButtons() {
-                const completedCount = allProjects.filter(p => p.status === '已完成').length;
-                const activeCount = allProjects.length - completedCount;
-
-                document.querySelector('button[data-filter="all"]').textContent = `全部專案 (${allProjects.length})`;
-                document.querySelector('button[data-filter="active"]').textContent = `進行中 (${activeCount})`;
-                document.querySelector('button[data-filter="completed"]').textContent = `已完成 (${completedCount})`;
-
-                const filterBtns = document.querySelectorAll('.filter-btn');
-                filterBtns.forEach(btn => {
-                    if (btn.getAttribute('data-filter') === currentFilter) {
-                        btn.className = "filter-btn px-4 py-2 bg-gray-800 text-white dark:bg-gray-100 dark:text-gray-900 rounded-lg text-sm font-bold shadow-sm whitespace-nowrap transition-colors";
-                    } else {
-                        btn.className = "filter-btn px-4 py-2 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors whitespace-nowrap";
-                    }
-                });
-            }
-
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentFilter = btn.getAttribute('data-filter');
-                    currentPage = 1;
-                    renderView();
-                });
-            });
-
-            // ================= 6. Modal 控制 =================
-            window.openProjectRecordModal = async function (id, e) {
-                if (e) e.preventDefault();
-                
-                try {
-                    const res = await fetch(`/api/manager/projects/${id}/record`, { credentials: 'include' });
-                    if (!res.ok) throw new Error('取得紀錄失敗');
-                    const data = await res.json();
-                    
-                    document.getElementById('record-project-no').textContent = data.projectNo || `#WED-UNKNOWN`;
-                    document.getElementById('record-customer-name').textContent = `${data.customerName || '未命名'} 專案`;
-
-                    const firstChar = data.pmName ? data.pmName.charAt(0) : '無';
-                    document.getElementById('record-pm-name').innerHTML = `<span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] mr-2">${firstChar}</span> ${data.pmName || '尚未指派'}`;
-
-                    document.getElementById('record-wedding-date').textContent = data.weddingDate || '未定';
-                    document.getElementById('record-duration').textContent = (data.durationDays || 0) + ' 天';
-                    document.getElementById('record-payment-status').innerHTML = `<span class="material-icons text-[16px] mr-1">check_circle</span> ${data.paymentStatus || '尚未付款'}`;
-                    
-                    const docsContainer = document.getElementById('record-documents');
-                    if (data.documents && data.documents.length > 0) {
-                        docsContainer.innerHTML = data.documents.map((doc, idx) => {
-                            const icon = doc.fileName && doc.fileName.toLowerCase().endsWith('.pdf') ? 'picture_as_pdf' : 'description';
-                            const iconBg = doc.fileName && doc.fileName.toLowerCase().endsWith('.pdf') ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500';
-                            const borderClass = idx > 0 ? 'border-t border-gray-100 dark:border-gray-700' : '';
-                            return `
-                                <a href="${doc.downloadUrl || '#'}"
-                                    class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors group ${borderClass}" target="_blank">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center mr-3">
-                                            <span class="material-icons">${icon}</span>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${doc.fileName || '未知檔名'}</p>
-                                            <p class="text-xs text-gray-500">${doc.uploadInfo}</p>
-                                        </div>
-                                    </div>
-                                    <span class="material-icons text-gray-400 group-hover:text-indigo-600">download</span>
-                                </a>
-                            `;
-                        }).join('');
-                    } else {
-                        docsContainer.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center">沒有已核准的文件</div>';
-                    }
-
-                    const tasksContainer = document.getElementById('record-tasks');
-                    if (data.taskHistories && data.taskHistories.length > 0) {
-                        tasksContainer.innerHTML = data.taskHistories.map(task => {
-                            let statusClasses = '';
-                            if (task.status === '待指派') {
-                                statusClasses = 'text-gray-500 bg-gray-100';
-                            } else if (task.status === '待審核') {
-                                statusClasses = 'text-yellow-600 bg-yellow-50';
-                            } else if (task.status === '進行中') {
-                                statusClasses = 'text-blue-500 bg-blue-50';
-                            } else if (task.status === '已完成') {
-                                statusClasses = 'text-green-500 bg-green-50';
-                            } else {
-                                statusClasses = 'text-gray-500 bg-gray-100';
-                            }
-                            
-                            return `
-                                <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
-                                    <div>
-                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${task.taskName}</p>
-                                        <p class="text-xs text-gray-500 mt-0.5">${task.ownerInfo}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-xs font-bold ${statusClasses} px-2 py-0.5 rounded inline-block">${task.status}</p>
-                                        <p class="text-[10px] text-gray-400 mt-1">${task.time || ''}</p>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('');
-                    } else {
-                        tasksContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">沒有任務紀錄</p>';
-                    }
-                    
-                    document.getElementById('projectRecordModal').classList.remove('hidden');
-                } catch(err) {
-                    console.error(err);
-                    alert("無法載入紀錄，請稍後再試。");
-                }
+        getTaskBadgeClass(status) {
+            const map = {
+                '待指派': 'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-600',
+                '進行中': 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400 border-blue-100 dark:border-blue-800/30',
+                '待審核': 'text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400 border-amber-100',
+                '已完成': 'text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 border-green-100',
             };
+            return map[status] || 'text-gray-500 bg-gray-100 border-gray-200';
+        },
 
-            window.closeProjectRecordModal = function () {
-                document.getElementById('projectRecordModal').classList.add('hidden');
+        getTaskDotClass(status) {
+            const map = {
+                '待指派': 'bg-gray-400',
+                '進行中': 'bg-blue-500',
+                '待審核': 'bg-amber-500',
+                '已完成': 'bg-green-500',
             };
+            return map[status] || 'bg-gray-400';
+        },
 
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    searchQuery = e.target.value;
-                    currentPage = 1;
-                    renderView();
-                });
+        getTaskHistoryStatusClass(status) {
+            const map = {
+                '待指派': 'text-gray-500 bg-gray-100',
+                '待審核': 'text-yellow-600 bg-yellow-50',
+                '進行中': 'text-blue-500 bg-blue-50',
+                '已完成': 'text-green-500 bg-green-50',
+            };
+            return map[status] || 'text-gray-500 bg-gray-100';
+        },
+
+        async openProjectRecordModal(id) {
+            try {
+                const res = await fetch(`/api/manager/projects/${id}/record`, { credentials: 'include' });
+                if (!res.ok) throw new Error('取得紀錄失敗');
+                this.recordData = await res.json();
+                this.showRecordModal = true;
+            } catch (err) {
+                console.error(err);
+                alert("無法載入紀錄，請稍後再試。");
             }
+        },
 
-            // 🔥 程式進入點：載入資料
-            loadProjects();
+        closeRecordModal() {
+            this.showRecordModal = false;
+        },
+    },
+
+    mounted() {
+        const managerId = sessionStorage.getItem('empId');
+        if (!managerId) {
+            alert('請先登入！');
+            window.location.href = 'login.html';
+            return;
+        }
+        this.managerId = managerId;
+        this.initSidebar();
+        this.loadProjects();
+
+        // 點擊外部關閉 user dropdown
+        document.addEventListener('click', (e) => {
+            if (!this.$el.querySelector('.relative')?.contains(e.target)) {
+                this.showUserDropdown = false;
+            }
         });
-    </script>
+    },
+}).mount('#app');
+</script>
 </body>
-
 </html>

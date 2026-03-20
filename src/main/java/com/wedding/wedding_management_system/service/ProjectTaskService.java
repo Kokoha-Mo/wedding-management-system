@@ -55,11 +55,30 @@ public class ProjectTaskService {
         try {
             ProjectTask task = projectTaskRepository.findById(taskId)
                     .orElseThrow(() -> new RuntimeException("Task not found"));
+
+            // 【駁回邏輯】狀態改回「待指派」時，清除此任務的待審核附檔（DB 記錄 + 實體檔案）
+            if ("待指派".equals(status)) {
+                List<Document> pendingDocs = documentRepository.findByTask_IdAndStatus(taskId, "待審核");
+                for (Document doc : pendingDocs) {
+                    if (doc.getFilePath() != null) {
+                        try {
+                            Path fileToDelete = Paths.get(doc.getFilePath());
+                            Files.deleteIfExists(fileToDelete);
+                        } catch (IOException ioEx) {
+                            // 實體檔案刪除失敗只記錄 log，不影響主流程
+                            ioEx.printStackTrace();
+                        }
+                    }
+                }
+                documentRepository.deleteByTaskIdAndStatus(taskId, "待審核");
+            }
+
             task.setStatus(status);
             task.setUpdateAt(LocalDateTime.now());
             projectTaskRepository.save(task);
             return true;
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -88,9 +107,10 @@ public class ProjectTaskService {
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(file.getInputStream(), filePath);
 
-            // 3. 儲存紀錄到 Document 表
+            // 3. 儲存紀錄到 Document 表（同時記錄 task 關聯，供管理端「查看成果」精準抓取）
             Document document = new Document();
             document.setProject(task.getProject());
+            document.setTask(task);
             document.setUploadedBy(employee);
             document.setName(originalFilename);
             document.setFilePath(UPLOAD_DIR + fileName);
@@ -147,14 +167,9 @@ public class ProjectTaskService {
                 }).collect(Collectors.toList());
                 dto.setAssignees(assignees);
 
-                // 查詢此任務負責人上傳的「待審核」成果附檔
-                List<Integer> ownerEmpIds = task.getTaskOwners().stream()
-                        .filter(o -> o.getEmployee() != null)
-                        .map(o -> o.getEmployee().getId())
-                        .collect(Collectors.toList());
-                if (!ownerEmpIds.isEmpty() && task.getProject() != null) {
-                    List<Document> docs = documentRepository.findByProjectIdAndStatusAndUploaderIds(
-                            task.getProject().getId(), "待審核", ownerEmpIds);
+                // 精準查詢：直接用 task_id + status 取得此任務的待審核附檔
+                List<Document> docs = documentRepository.findByTask_IdAndStatus(task.getId(), "待審核");
+                if (!docs.isEmpty()) {
                     List<TaskDTO.DocumentDTO> docDTOs = docs.stream().map(d -> {
                         TaskDTO.DocumentDTO docDto = new TaskDTO.DocumentDTO();
                         docDto.setId(d.getId());

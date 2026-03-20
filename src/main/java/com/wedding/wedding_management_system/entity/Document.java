@@ -23,10 +23,6 @@ public class Document {
     private Project project;
 
     @ManyToOne
-    @JoinColumn(name = "task_id")
-    private ProjectTask task;
-
-    @ManyToOne
     @JoinColumn(name = "uploaded_by")
     private Employee uploadedBy;
 

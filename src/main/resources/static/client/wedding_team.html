@@ -915,86 +915,81 @@
         ];
 
         // ─── deptId → catId 對應表（對應後端 TeamDto.deptId）───
-        // deptId: 1=planner, 2=host, 3=photo, 4=sound, 5=makeup
         const DEPT_MAP = { 1: 'planner', 5: 'host', 4: 'photo', 3: 'sound', 6: 'makeup' };
 
-        // ─── 從 API 取得資料 ───
-        // API 回傳陣列，每筆包含 deptId, name, years, bio, styles, photoUrl（camelCase）
+        // ─── 全域成員資料（renderAll 使用）───
         const MEMBERS = {};
         CATEGORIES.forEach(cat => { MEMBERS[cat.id] = []; });
 
-        // ─── 渲染卡片（欄位：photo_url, name, years；不含 icon/tag）───
-        // ── renderCard ──
+        // ─── 渲染單張卡片 ───
         function renderCard(member, catId) {
             const cat = CATEGORIES.find(c => c.id === catId);
             const eyebrow = cat ? cat.eyebrow : '';
             return /*html*/`
-            <div class="partner-card"
-                data-name="${member.name}"
-                data-cat="${catId}"
-                data-years="${member.years}"
-                data-bio="${member.bio.replace(/"/g, '&quot;')}"
-                data-styles="${member.styles}"
-                data-img="${member.photoUrl}">
-                <div class="card-img-wrap">
-                    <img src="${member.photoUrl}" alt="${member.name}" loading="lazy">
-                    <div class="card-overlay"></div>
-                </div>
-                <div class="card-body">
-                    <span class="card-eyebrow">${eyebrow}</span>
-                    <p class="card-name">${member.name}</p>
-                    <p class="card-years">${member.years} Years of Experience</p>
-                    <div class="card-rule"></div>
-                    <span class="card-cta">查看詳細資訊</span>
-                </div>
-            </div>`;
+        <div class="partner-card"
+            data-name="${member.name}"
+            data-cat="${catId}"
+            data-years="${member.years}"
+            data-bio="${member.bio.replace(/"/g, '&quot;')}"
+            data-styles="${member.styles}"
+            data-img="${member.photoUrl}">
+            <div class="card-img-wrap">
+                <img src="${member.photoUrl}" alt="${member.name}" loading="lazy">
+                <div class="card-overlay"></div>
+            </div>
+            <div class="card-body">
+                <span class="card-eyebrow">${eyebrow}</span>
+                <p class="card-name">${member.name}</p>
+                <p class="card-years">${member.years} Years of Experience</p>
+                <div class="card-rule"></div>
+                <span class="card-cta">查看詳細資訊</span>
+            </div>
+        </div>`;
         }
 
-
+        // ─── 渲染整個 grid（篩選按鈕 + 卡片列表）───
         function renderAll() {
             const sidebarFilters = document.getElementById('sidebarFilters');
             const mobileFilterBar = document.getElementById('mobileFilterBar');
             const gridArea = document.getElementById('gridArea');
 
             sidebarFilters.innerHTML = CATEGORIES.map(cat => `
-                <button class="filter-btn ${cat.id === this.activeFilter ? 'active' : ''}" data-cat="${cat.id}">
-                    ${cat.label}<span class="filter-dot"></span>
-                </button>`).join('');
+            <button class="filter-btn" data-cat="${cat.id}">
+                ${cat.label}<span class="filter-dot"></span>
+            </button>`).join('');
 
             mobileFilterBar.innerHTML = CATEGORIES.map(cat => `
-                <button class="mobile-filter-chip ${cat.id === this.activeFilter ? 'active' : ''}" data-cat="${cat.id}">
-                    ${cat.label}
-                </button>`).join('');
+            <button class="mobile-filter-chip" data-cat="${cat.id}">
+                ${cat.label}
+            </button>`).join('');
+
             gridArea.innerHTML = CATEGORIES.map((cat, idx) => {
                 const members = MEMBERS[cat.id] || [];
                 const divider = idx < CATEGORIES.length - 1 ? '<hr class="category-divider">' : '';
                 return /*html*/`
-                <div class="category-section active" data-section="${cat.id}">
-                    <div class="category-header">
-                        <div class="category-header-left">
-                            <div class="category-accent-bar"></div>
-                            <div>
-                                <span class="category-label">${cat.eyebrow}</span>
-                                <h2 class="category-title">${cat.label}</h2>
-                            </div>
+            <div class="category-section active" data-section="${cat.id}">
+                <div class="category-header">
+                    <div class="category-header-left">
+                        <div class="category-accent-bar"></div>
+                        <div>
+                            <span class="category-label">${cat.eyebrow}</span>
+                            <h2 class="category-title">${cat.label}</h2>
                         </div>
-                        <span class="result-count">${members.length} 位夥伴</span>
                     </div>
-                    <div class="partner-grid">${members.map(m => renderCard(m, cat.id)).join('')}</div>
+                    <span class="result-count">${members.length} 位夥伴</span>
                 </div>
-                ${divider}`;
+                <div class="partner-grid">${members.map(m => renderCard(m, cat.id)).join('')}</div>
+            </div>
+            ${divider}`;
             }).join('');
         }
 
-        // ─── 篩選 + 動畫 + Modal ───
-        // ─── Vue 接管 ───
+        // ─── Vue 接管：資料管理 + API 呼叫 ───
         const app = Vue.createApp({
             data() {
                 return {
                     members: {},
-                    activeFilter: 'planner',
-                    modalOpen: false,
-                    modalData: {}
+                    activeFilter: 'planner'
                 }
             },
             mounted() {
@@ -1009,11 +1004,13 @@
                         });
                         this.members = result;
 
-                        // 資料拿到後，還是用原本的函式渲染（先維持現有邏輯）
+                        // 同步給全域 MEMBERS，供 renderAll 使用
                         CATEGORIES.forEach(cat => { MEMBERS[cat.id] = this.members[cat.id] || []; });
                         renderAll();
 
                         const gridArea = document.getElementById('gridArea');
+                        const sidebarFilters = document.getElementById('sidebarFilters');
+                        const mobileFilterBar = document.getElementById('mobileFilterBar');
 
                         function getSections() { return document.querySelectorAll('.category-section'); }
                         function getDividers() { return document.querySelectorAll('.category-divider'); }
@@ -1029,21 +1026,21 @@
                             setTimeout(triggerVisible, 50);
                         }
 
+                        // setActive：更新 Vue 資料 + 重新產生按鈕 active 樣式
                         function setActive(cat) {
                             this.activeFilter = cat;
-                            // 重新產生按鈕讓 class 更新
                             sidebarFilters.innerHTML = CATEGORIES.map(c => `
-                                <button class="filter-btn ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
-                                    ${c.label}<span class="filter-dot"></span>
-                                </button>`).join('');
+                            <button class="filter-btn ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
+                                ${c.label}<span class="filter-dot"></span>
+                            </button>`).join('');
                             mobileFilterBar.innerHTML = CATEGORIES.map(c => `
-                                <button class="mobile-filter-chip ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
-                                    ${c.label}
-                                </button>`).join('');
-                            // 重新綁定事件
+                            <button class="mobile-filter-chip ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
+                                ${c.label}
+                            </button>`).join('');
                             bindFilters();
                         }
                         setActive = setActive.bind(this);
+
                         function bindFilters() {
                             getSidebarBtns().forEach(btn => {
                                 btn.addEventListener('click', () => {

@@ -46,7 +46,7 @@ public class CustomerLoginController {
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
-                    .maxAge(60 * 60)
+                    .maxAge(60 * 60) // an hour
                     .build();
 
             result.setToken(null);

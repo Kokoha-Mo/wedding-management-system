@@ -241,13 +241,14 @@
                         </div>
                         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                             <!-- Table Header -->
-                            <div class="grid grid-cols-[2fr_1.5fr_2fr_1.5fr_1.5fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3">
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">姓名</span>
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">婚期</span>
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">場地</span>
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">視覺定調</span>
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">負責人</span>
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">操作</span>
+                            <div class="grid grid-cols-[1.5fr_2fr_1.5fr_2fr_1.5fr_1.5fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3 justify-items-center text-center">
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">簽約日期</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">姓名</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">婚期</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">場地</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">視覺定調</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">負責人</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">方案內容</span>
                             </div>
                             <!-- Table Rows（由 JS 動態渲染） -->
                             <div id="signed-list" class="divide-y divide-gray-100 dark:divide-gray-700"></div>
@@ -265,14 +266,14 @@
                                 <span class="w-1.5 h-4 bg-gray-400 rounded-full mr-2"></span>取消預約紀錄
                             </h3>
                         </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden ustify-items-center text-center">
                             <!-- Table Header -->
                             <div class="grid grid-cols-[2fr_2fr_2.5fr_2fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3">
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">狀態</span>
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">取消日期</span>
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">新人姓名</span>
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">手機號碼</span>
-                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">操作</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">狀態</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">取消日期</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">新人姓名</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">手機號碼</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">更改狀態</span>
                             </div>
                             <!-- Table Rows（由 JS 動態渲染） -->
                             <div id="cancelled-list" class="divide-y divide-gray-100 dark:divide-gray-700"></div>
@@ -575,7 +576,7 @@
                             <div id="date-16" class="hidden mt-2 pl-7">
                                 <div class="flex items-center gap-2">
                                     <span class="text-[11px] text-gray-500 font-bold">儀式日期：</span>
-                                    <input type="date" id="input-date-16" class="rounded border-gray-300 text-xs py-1 px-2 focus:ring-primary h-7 text-gray-600">
+                                    <input type="date" id="input-date-ceremony-16" class="rounded border-gray-300 text-xs py-1 px-2 focus:ring-primary h-7 text-gray-600">
                                 </div>
                             </div>
                         </div>

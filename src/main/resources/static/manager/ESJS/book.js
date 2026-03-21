@@ -1,10 +1,17 @@
 const API_BASE = 'http://localhost:8080/api/employee';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('input[id^="input-date-ceremony-"]').forEach(input => {
+        input.min = today;
+    });
     loadStatusCounts();
     initSidebar();
     loadBooks('處理中');
+    loadBooks('取消');
+
 });
+
 async function loadAllServices() {
     try {
         const res  = await fetch(`${API_BASE}/books/services`, { credentials: 'include' });
@@ -407,20 +414,11 @@ async function updateBookStatus(bookId, newStatus) {
             showToast('狀態已更新');
             loadStatusCounts();
             loadBooks('處理中');
+            loadBooks('取消');
         }
     } catch (err) {
         console.error('[API] 更新狀態失敗:', err);
     }
-}
-
-let currentEditingBookId = null;
-
-function findCheckbox(service) {
-    if (service.selector) return document.querySelector(service.selector);
-    const labels = Array.from(document.querySelectorAll('#modal-modify label'));
-    const label = labels.find(l => l.textContent.includes(service.name));
-    if (label) return label.querySelector('input') || document.getElementById(label.getAttribute('for'));
-    return null;
 }
 
 // ════════════════════════════════════════
@@ -540,19 +538,18 @@ async function viewBookDetails(bookId) {
             }
         });
 
-        // Step B：再勾選子 checkbox（沒有 id 或不是 main- 開頭的）
+        // Step B：勾選子 checkbox + 回填日期
         document.querySelectorAll('#modal-modify .modal-service-cb:not([id^="main-"])').forEach(cb => {
             const sid = cb.getAttribute('data-service-id');
             if (checkedIds.has(sid)) {
                 cb.checked = true;
 
-                // 如果這個 service 有日期，回填到對應的日期 input
+                // 回填儀式日期
                 const service = (data.services || []).find(s => String(s.serviceId) === sid);
                 if (service?.ceremonyDate) {
                     const dateInput = document.getElementById(`input-date-ceremony-${sid}`);
                     if (dateInput) {
                         dateInput.value = service.ceremonyDate;
-                        // 同時顯示日期框
                         const container = document.getElementById(`date-${sid}`);
                         if (container) container.classList.remove('hidden');
                     }
@@ -619,7 +616,7 @@ async function viewBookDetail(bookId) {
         document.getElementById('detail-guest-scale').textContent   = data.guestScale   ? data.guestScale + ' 人' : '-';
         document.getElementById('detail-place').textContent         = data.place        || '-';
         document.getElementById('detail-styles').textContent        = data.styles       || '-';
-        document.getElementById('detail-tel').textContent           = data.tel          || '-';
+        document.getElementById('detail-tel').textContent           = formatPhone(data.tel)|| '-';
         document.getElementById('detail-lineid').textContent        = data.lineId       || '-';
 
         // 服務項目清單
@@ -681,8 +678,13 @@ function toggleCeremonyDate(checkbox, dateContainerId) {
 // API：儲存需求設定（PUT /books/{id}/details）
 // ════════════════════════════════════════
 async function saveBookDetails() {
-    if (!currentViewBookId) return;
+    console.log('saveBookDetails 被呼叫'); // ← 最頂端
+    console.log('currentViewBookId:', currentViewBookId); // ← 最頂端
 
+    if (!currentViewBookId) {
+        console.log('currentViewBookId 是 null，直接 return'); // ← 加這行
+        return;
+    }
     const notes = document.getElementById('modify-notes')?.value.trim() || '';
     const details = [];
     document.querySelectorAll('#modal-modify .modal-service-cb:checked').forEach(cb => {
@@ -692,6 +694,8 @@ async function saveBookDetails() {
         // 找對應的日期 input（只有特定 service 才有）
         const dateInput = document.getElementById(`input-date-ceremony-${serviceId}`);
         const ceremonyDate = dateInput?.value || null;
+
+        console.log(`serviceId: ${serviceId}, ceremonyDate: ${ceremonyDate}`);
 
         details.push({
             service_id:    serviceId,
@@ -779,7 +783,7 @@ function renderPendingCards(books) {
                     </div>
                     <div class="text-[13px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">聯絡手機</span>
-                        <span class="font-medium truncate">${book.tel || '-'}</span>
+                        <span class="font-medium truncate">${formatPhone(book.tel) || '-'}</span>
                     </div>
                     <div class="text-[13px] flex items-center">
                         <span class="text-gray-400 w-16 shrink-0 font-medium">LINE ID</span>
@@ -843,15 +847,16 @@ function renderSignedTable(books) {
 
     books.forEach(book => {
         const row = document.createElement('div');
-        row.className = 'grid grid-cols-[2fr_1.5fr_2fr_1.5fr_1.5fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors items-center';
+        row.className = 'grid grid-cols-[1.5fr_2fr_1.5fr_2fr_1.5fr_1.5fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center';
         row.innerHTML = `
+            <span class="text-[12px] font-medium text-gray-800 dark:text-gray-200">${book.signAt || '-'}</span>
             <span class="text-[12px] font-medium text-gray-800 dark:text-gray-200">${book.customerName || '-'}</span>
             <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.weddingDate || '-'}</span>
             <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.place || '-'}</span>
             <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.styles || '-'}</span>
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-600 w-fit">${book.managerName || '-'}</span>
             <button onclick="viewBookDetail(${book.bookId})"
-                class="text-[12px] text-primary hover:underline font-medium text-left">
+                class="text-[12px] text-primary hover:underline font-medium">
                 查看詳細
             </button>
         `;
@@ -873,12 +878,12 @@ function renderCancelledTable(books) {
 
     books.forEach(book => {
         const row = document.createElement('div');
-        row.className = 'grid grid-cols-[2fr_2fr_2.5fr_2fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors items-center';
+        row.className = 'grid grid-cols-[2fr_2fr_2.5fr_2fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center';
         row.innerHTML = `
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 w-fit">已取消</span>
             <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.createAt ? book.createAt.split('T')[0] : '-'}</span>
             <span class="text-[12px] font-medium text-gray-800 dark:text-gray-200">${book.customerName || '-'}</span>
-            <span class="text-[12px] text-gray-500 dark:text-gray-400">${book.tel || '-'}</span>
+            <span class="text-[12px] text-gray-500 dark:text-gray-400">${formatPhone(book.tel) || '-'}</span>
             <button onclick="updateBookStatus(${book.bookId}, '處理中')"
                 class="text-[12px] font-bold text-primary hover:underline">
                 恢復預約
@@ -895,8 +900,8 @@ function renderCancelledTable(books) {
 // 工具函式
 // ════════════════════════════════════════
 function showToast(message, type = 'success') {
-    const colors = { success: '#22c55e', error: '#ef4444' };
-    const toast  = document.createElement('div');
+    const colors = {success: '#22c55e', error: '#ef4444'};
+    const toast = document.createElement('div');
     toast.textContent = message;
     toast.style.cssText = `
         position:fixed; bottom:24px; right:24px; z-index:9999;
@@ -906,4 +911,14 @@ function showToast(message, type = 'success') {
     `;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
+
+}
+    // 將 0912345678 轉換成 0912-345-678
+    function formatPhone(tel) {
+        if (!tel) return '-';
+        // 確保只處理 10 碼數字，否則原樣輸出
+        if (/^09\d{8}$/.test(tel)) {
+            return tel.replace(/(\d{4})(\d{3})(\d{3})/, '$1-$2-$3');
+        }
+        return tel;
 }

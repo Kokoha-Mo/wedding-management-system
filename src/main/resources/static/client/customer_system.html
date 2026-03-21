@@ -1390,7 +1390,7 @@
 
                 // 填入唯讀欄位（新人基本資料）
                 setFieldValue('input-name',   book.customerName);
-                setFieldValue('input-tel',    book.tel);
+                setFieldValue('input-tel',    formatPhone(book.tel));
                 setFieldValue('input-lineid', book.lineId);
                 setFieldValue('input-email',  book.email);
 
@@ -1536,6 +1536,16 @@
             document.getElementById('input-wedding-date').min = today;
             loadMyBook();
         });
+
+        // 將 0912345678 轉換成 0912-345-678
+        function formatPhone(tel) {
+            if (!tel) return '-';
+            // 確保只處理 10 碼數字，否則原樣輸出
+            if (/^09\d{8}$/.test(tel)) {
+                return tel.replace(/(\d{4})(\d{3})(\d{3})/, '$1-$2-$3');
+            }
+            return tel;
+        }
     </script>
 </body>
 

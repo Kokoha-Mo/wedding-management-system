@@ -18,6 +18,7 @@ public class JwtToken {
     public static String createToken(String subject) {
         String token = Jwts.builder()
                 .setSubject(subject)
+                .claim("role", "CUSTOMER")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXP_TIME))
                 .signWith(key, io.jsonwebtoken.SignatureAlgorithm.HS256)

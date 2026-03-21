@@ -23,10 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/* 檢查現在是誰在線 */
+
 /* 檢查現在是誰在線 */
 async function checkAuthStatus() {
   const user = localStorage.getItem('dv_username');
+
+  // 檢查 Session 是否過期
+  const loginTime = localStorage.getItem('dv_login_time');
+  if (loginTime && Date.now() - parseInt(loginTime) > SESSION_TIMEOUT) {
+    // Session 過期 → 強制登出
+    forceLogout();
+    return;
+  }
 
   if (!user) {
     syncNavbarUI(false);
@@ -48,19 +56,22 @@ async function checkAuthStatus() {
 
     if (res.ok) {
       const data = await res.json();
-      // 用後端回來的真實名字更新（並同步 localStorage）
       localStorage.setItem('dv_username', data.name);
       localStorage.setItem('dv_customer_id', data.customerId);
       syncNavbarUI(true, data.name);
-    } else {
-      // Cookie 無效或過期 → 清掉
+    } else if (res.status === 401 || res.status === 403) {
+      // 只有在明確知道 Token 過期或權限不足時，才清空登入狀態
       localStorage.removeItem('dv_username');
       localStorage.removeItem('dv_customer_id');
       localStorage.removeItem('dv_login_time');
       syncNavbarUI(false);
+    } else {
+      // 其他錯誤 (如 500 後端報錯、404 找不到路徑等) 則忽略，不強制登出
+      console.warn("身分驗證遇到異常，狀態碼：", res.status);
     }
   } catch (e) {
     // 網路錯誤 → 保持現狀不動
+    console.error("網路連線錯誤：", e);
   }
 }
 

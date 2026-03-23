@@ -1,10 +1,25 @@
 const API_BASE = 'http://localhost:8080/api/employee';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const today = new Date().toISOString().split('T')[0];
+    // 1. 取得「台灣當地時間」的今天日期，格式為 YYYY-MM-DD
+    const today = new Date().toLocaleDateString('sv-SE');
+
+    // 2. 限制「服務細項」的儀式日期
     document.querySelectorAll('input[id^="input-date-ceremony-"]').forEach(input => {
         input.min = today;
     });
+
+    // 3. 限制「新增預約」的婚宴日期 (input-wedding-date)
+    const inputWeddingDate = document.getElementById('input-wedding-date');
+    if (inputWeddingDate) {
+        inputWeddingDate.min = today;
+    }
+
+    // 4. 限制「修改資料」的婚宴日期 (edit-wedding-date)
+    const editWeddingDate = document.getElementById('edit-wedding-date');
+    if (editWeddingDate) {
+        editWeddingDate.min = today;
+    }
     loadStatusCounts();
     initSidebar();
     loadBooks('處理中');
@@ -400,8 +415,18 @@ async function updateBookStatus(bookId, newStatus) {
                 return; // 靈魂 return！中斷執行，不打 API
             }
         }
+        const customerName = card?.dataset.name || '此客戶';
+        const confirmed = window.confirm(
+            `確定要將「${customerName}」的預約轉為已簽約嗎？\n\n轉簽約後將自動建立專案與任務。`
+        );
+        if (!confirmed) return;
     }
-
+    if (newStatus === '取消') {
+        const card = document.querySelector(`div[data-book-id="${bookId}"]`);
+        const customerName = card?.dataset.name || '此客戶';
+        const confirmed = window.confirm(`確定要取消「${customerName}」的預約嗎？`);
+        if (!confirmed) return;
+    }
     try {
         const res = await fetch(`${API_BASE}/books/${bookId}/update`, {
             method:  'PATCH',
@@ -451,11 +476,44 @@ async function saveBookInfo() {
     if (!currentEditBookId) return;
 
     const selectedTheme = document.querySelector('input[name="edit-theme"]:checked');
-
     const email = document.getElementById('edit-email')?.value.trim() || '';
+    const tel   = document.getElementById('edit-tel')?.value.trim() || '';
+
     if (!email) {
         showToast('Email 為必填', 'error');
         return;
+    }
+
+    // ── 檢查重複（排除自己這筆）──
+    let checkResult = [];
+
+    if (email) {
+        const res = await fetch(
+            `${API_BASE}/books/check-duplicate?email=${encodeURIComponent(email)}`,
+            { credentials: 'include' }
+        );
+        const result = await res.json();
+        // 排除自己這筆（同一個 bookId 的不算重複）
+        checkResult = result.filter(c => String(c.bookId) !== String(currentEditBookId));
+    }
+
+    if (checkResult.length === 0 && tel) {
+        const res = await fetch(
+            `${API_BASE}/books/check-duplicate?tel=${encodeURIComponent(tel)}`,
+            { credentials: 'include' }
+        );
+        const result = await res.json();
+        checkResult = result.filter(c => String(c.bookId) !== String(currentEditBookId));
+    }
+
+    if (checkResult.length > 0) {
+        const confirmed = window.confirm(
+            `此 Email 或手機已有其他客戶資料：${checkResult[0].name}\n` +
+            `手機：${checkResult[0].tel}\n` +
+            `Email：${checkResult[0].email || '-'}\n\n` +
+            `確定要繼續儲存嗎？`
+        );
+        if (!confirmed) return;
     }
 
     const payload = {
@@ -561,16 +619,21 @@ async function viewBookDetails(bookId) {
         const serviceListEl = document.getElementById('modify-service-list');
         if (serviceListEl) {
             if (data.services && data.services.length > 0) {
-                serviceListEl.innerHTML = data.services.map(s =>
-                    `<li class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <span class="material-icons text-primary text-base">check_circle</span>
-                ${s.serviceName}
-                <span class="ml-auto text-[11px] text-gray-400">NT$ ${(s.unitPrice || 0).toLocaleString()}</span>
-            </li>`
-                ).join('');
+                serviceListEl.innerHTML = data.services.map(s =>{
+                // service_id 1 和 2 是 A方案基底，不顯示在清單
+                if (s.serviceId === 1 || s.serviceId === 2) return '';
+                return `<li class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                    <span class="material-icons text-primary text-base">check_circle</span>
+                    ${s.serviceName}
+                 <span class="ml-auto text-[11px] text-gray-400">NT$ ${(s.unitPrice || 0).toLocaleString()}</span>
+                 </li>`;
+            }).join('');
 
                 // ★ 補上總價計算
-                const total = data.services.reduce((sum, s) => sum + (s.unitPrice || 0), 0);
+                const addonsTotal = data.services
+                    .filter(s => s.serviceId !== 1 && s.serviceId !== 2)
+                    .reduce((sum, s) => sum + (s.unitPrice || 0), 0);
+                const total = 43800 + addonsTotal;
                 const totalEl = document.getElementById('modify-total-price');
                 if (totalEl) totalEl.textContent = 'NT$ ' + total.toLocaleString();
 

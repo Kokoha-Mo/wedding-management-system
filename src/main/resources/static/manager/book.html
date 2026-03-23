@@ -270,7 +270,7 @@
                             <!-- Table Header -->
                             <div class="grid grid-cols-[2fr_2fr_2.5fr_2fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3">
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">狀態</span>
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">取消日期</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">預約日期</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">新人姓名</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">手機號碼</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">更改狀態</span>
@@ -454,20 +454,6 @@
 
             <div class="relative px-6 pt-6 pb-2 flex-auto space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
 
-                <!-- 顧客已選服務清單（從 API 載入）-->
-                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
-                    <h4 class="text-sm font-bold text-blue-700 dark:text-blue-300 mb-3 flex items-center">
-                        <span class="material-icons text-base mr-2">list_alt</span> 顧客已選服務項目
-                    </h4>
-                    <ul id="modify-service-list" class="space-y-1 text-gray-500 text-sm max-h-36 overflow-y-auto">
-                        <li>載入中...</li>
-                    </ul>
-                    <div class="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between" id="modify-total-row">
-                        <span class="text-sm font-bold text-blue-700">預估總計</span>
-                        <span class="text-sm font-bold text-blue-700" id="modify-total-price">NT$ 0</span>
-                    </div>
-                </div>
-
                 <!-- A方案：固定核心（不可取消）-->
                 <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border-2 border-amber-300 dark:border-amber-700">
                     <div class="flex items-start justify-between">
@@ -484,6 +470,20 @@
                             </div>
                         </div>
                         <span class="text-sm font-bold text-amber-600 whitespace-nowrap ml-4">NT$ 43,800</span>
+                    </div>
+                </div>
+
+                <!-- 顧客已選服務清單（從 API 載入）-->
+                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
+                    <h4 class="text-sm font-bold text-blue-700 dark:text-blue-300 mb-3 flex items-center">
+                        <span class="material-icons text-base mr-2">list_alt</span> 顧客已選服務項目
+                    </h4>
+                    <ul id="modify-service-list" class="space-y-1 text-gray-500 text-sm max-h-36 overflow-y-auto">
+                        <li>載入中...</li>
+                    </ul>
+                    <div class="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between" id="modify-total-row">
+                        <span class="text-sm font-bold text-blue-700">預估總計</span>
+                        <span class="text-sm font-bold text-blue-700" id="modify-total-price">NT$ 0</span>
                     </div>
                 </div>
 

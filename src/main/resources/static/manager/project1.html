@@ -1168,10 +1168,11 @@
                         const data = await r.json();
                         const timeline = data.timeline || [];
                         if (timeline.length > 0) {
-                            // timeline 原始順序由舊到新，直接取最後一則即為最新訊息
-                            const lastMsg = timeline[timeline.length - 1];
+                            // API 回傳 timeline 是新→舊排序（loadClientChat 用 .reverse() 才變成舊→新），
+                            // 所以 index 0 才是最新的一則
+                            const lastMsg = timeline[0];
                             const pm = data.pmName || '';
-                            // 最後一則不是 PM 發的（即客戶發送），PM 還未回覆 → 亮紅點
+                            // 最新一則不是 PM 發的（即客戶發送），PM 還未回覆 → 亮紅點
                             const isPM = lastMsg.createBy === pm || lastMsg.createBy === '公司' || (lastMsg.createBy || '').includes('PM');
                             this.showClientUnread = !isPM;
                         }

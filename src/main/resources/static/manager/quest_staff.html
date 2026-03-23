@@ -353,7 +353,7 @@
                     <span class="text-[10px] text-gray-500 mb-1 font-medium">
                         {{ String(msg.creatorId) === String(emp.id) ? '本人' : (msg.creatorPosition === 'MANAGER' ? `業務 -
                         ${msg.creatorName}` : msg.creatorName) }}
-                        {{ formatTime(msg.createAt) }}
+                        {{ formatFullTime(msg.createAt) }}
                     </span>
                     <div class="p-3 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed"
                         :class="String(msg.creatorId) === String(emp.id) ? 'bg-primary text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-tl-none'">
@@ -704,8 +704,37 @@
                 const formatDate = (date) => {
                     if (!date) return '未設定';
                     const d = new Date(date);
-                    return `${d.toLocaleDateString()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+                    return `${d.getFullYear()}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')}`;
                 };
+                
+                // 專門為留言板設計：顯示 年/月/日 時:分:秒，並修正 8 小時時區差問題
+                const formatFullTime = (dateStr) => {
+                    if (!dateStr) return '';
+                    
+                    let d;
+                    if (typeof dateStr === 'string' && dateStr.includes('T') && !dateStr.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(dateStr)) {
+                        d = new Date(dateStr.replace('T', ' '));
+                    } else {
+                        d = new Date(dateStr);
+                    }
+                    
+                    if (isNaN(d.getTime())) return dateStr;
+                    
+                    // 修正 8 小時時區差問題：
+                    // 使用者反應資料庫存 7:36，實際是 15:36 送出，代表差了 8 小時
+                    d.setHours(d.getHours() + 8);
+                    
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const y = d.getFullYear();
+                    const mo = pad(d.getMonth() + 1);
+                    const da = pad(d.getDate());
+                    const h = pad(d.getHours());
+                    const mi = pad(d.getMinutes());
+                    const s = pad(d.getSeconds());
+                    
+                    return `${y}/${mo}/${da} ${h}:${mi}:${s}`;
+                };
+
                 const formatTime = (date) => date ? new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
                 onMounted(() => {
@@ -725,7 +754,7 @@
                     activeTask, chatMessages, chatInput, chatLoading, fileNameDisplay, imagePreview, selectedFile,
                     currentPage, itemsPerPage, paginatedHistoryTasks, totalPages, nextPage, prevPage, unreadTasks,
                     openChat, fetchOngoingTasks, fetchHistoryTasks, sendMessage, openUpload, handleFile, confirmUpload, submitAudit,
-                    isUrgent, formatDate, formatTime, getFileIcon
+                    isUrgent, formatDate, formatFullTime, formatTime, getFileIcon
                 };
             }
         }).mount('#app');

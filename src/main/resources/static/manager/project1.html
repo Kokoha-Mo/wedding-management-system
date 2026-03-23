@@ -936,7 +936,13 @@
                 // computed 取代 initSidebar 的 style.display 操作
                 navVisible() {
                     const d = this.empDeptId;
-                    return { consultation: d === '7', book: d === '1', project: d === '1', task: d !== '1' && d !== '7' };
+                    const r = this.empPosition;
+                    return {
+                        consultation: d === '7',
+                        book: d === '1' && r === 'MANAGER',
+                        project: d === '1' && r === 'MANAGER',
+                        task: (d === '1' && r !== 'MANAGER') || (d !== '1' && d !== '7'),
+                    };
                 },
 
                 // computed 取代 updateStatusCounts 的 DOM 操作

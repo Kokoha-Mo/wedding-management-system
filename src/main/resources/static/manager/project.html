@@ -523,11 +523,12 @@ createApp({
         },
         navVisible() {
             const d = this.deptId;
+            const r = this.position;
             return {
                 consultation: d === '7',
-                book: d === '1',
-                project: d === '1',
-                task: d !== '1' && d !== '7',
+                book: d === '1' && r === 'MANAGER',
+                project: d === '1' && r === 'MANAGER',
+                task: (d === '1' && r !== 'MANAGER') || (d !== '1' && d !== '7'),
             };
         },
         activeCount() {

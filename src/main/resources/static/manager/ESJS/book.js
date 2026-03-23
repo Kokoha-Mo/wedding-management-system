@@ -1,10 +1,25 @@
 const API_BASE = 'http://localhost:8080/api/employee';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const today = new Date().toISOString().split('T')[0];
+    // 1. 取得「台灣當地時間」的今天日期，格式為 YYYY-MM-DD
+    const today = new Date().toLocaleDateString('sv-SE');
+
+    // 2. 限制「服務細項」的儀式日期
     document.querySelectorAll('input[id^="input-date-ceremony-"]').forEach(input => {
         input.min = today;
     });
+
+    // 3. 限制「新增預約」的婚宴日期 (input-wedding-date)
+    const inputWeddingDate = document.getElementById('input-wedding-date');
+    if (inputWeddingDate) {
+        inputWeddingDate.min = today;
+    }
+
+    // 4. 限制「修改資料」的婚宴日期 (edit-wedding-date)
+    const editWeddingDate = document.getElementById('edit-wedding-date');
+    if (editWeddingDate) {
+        editWeddingDate.min = today;
+    }
     loadStatusCounts();
     initSidebar();
     loadBooks('處理中');

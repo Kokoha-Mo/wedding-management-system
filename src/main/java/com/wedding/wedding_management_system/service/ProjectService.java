@@ -189,6 +189,8 @@ public class ProjectService {
         }
 
         dto.setPaymentStatus(project.getPaymentStatus());
+        dto.setTotalPayment(project.getTotalPayment() != null ? project.getTotalPayment() : 0);
+        dto.setCreateAt(project.getCreateAt());
 
         // 轉換 Documents 列表
         if (project.getDocuments() != null) {
@@ -289,5 +291,18 @@ public class ProjectService {
                     dDto.setDownloadUrl(doc.getFilePath());
                     return dDto;
                 }).collect(Collectors.toList());
+    }
+
+    /**
+     * 更新專案帳務狀態
+     */
+    public boolean updateProjectPaymentStatus(Integer projectId, String status) {
+        Project project = projectRepository.findById(projectId).orElse(null);
+        if (project != null) {
+            project.setPaymentStatus(status);
+            projectRepository.save(project);
+            return true;
+        }
+        return false;
     }
 }

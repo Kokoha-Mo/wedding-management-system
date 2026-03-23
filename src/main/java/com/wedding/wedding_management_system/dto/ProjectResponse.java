@@ -44,6 +44,10 @@ public class ProjectResponse {
         private LocalDate weddingDate; // 實際婚期
         private Integer durationDays; // 專案歷時天數 (建立日與結案日的差值)
         private String paymentStatus; // 帳務狀態 (如：尾款已結清)
+        private Integer totalPayment; // 專案總金額
+        
+        @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+        private LocalDateTime createAt; // 專案建立時間
 
         // 巢狀清單：最終成果與歸檔文件
         private List<DocumentDTO> documents;

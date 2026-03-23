@@ -512,11 +512,16 @@
                     try {
                         const response = await fetch(`/api/employee/task/${emp.id}`, { credentials: 'include' });
                         if (response.ok) {
-                            const tasks = await response.json();
-                            ongoingTasks.value = tasks;
+                            const data = await response.json();
+                            // 排序：截止期限 (deadline) 由近到遠
+                            ongoingTasks.value = data.sort((a, b) => {
+                                const dateA = a.deadline ? new Date(a.deadline) : new Date(8640000000000000);
+                                const dateB = b.deadline ? new Date(b.deadline) : new Date(8640000000000000);
+                                return dateA - dateB;
+                            });
 
                             // 檢查每個任務的最新留言
-                            tasks.forEach(async (task) => {
+                            ongoingTasks.value.forEach(async (task) => {
                                 try {
                                     const chatRes = await fetch(`/api/employee/tc/${task.taskId}`, { credentials: 'include' });
                                     if (chatRes.ok) {

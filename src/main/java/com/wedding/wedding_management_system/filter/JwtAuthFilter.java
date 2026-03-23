@@ -24,22 +24,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = null;
+        String customerToken = null;
+        String empToken = null;
+
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if ("jwtToken".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
+                if ("customerToken".equals(cookie.getName())) {
+                    customerToken = cookie.getValue();
+                } else if ("jwtToken".equals(cookie.getName())) {
+                    empToken = cookie.getValue();
                 }
             }
         }
 
-        if (token != null && JwtToken.isValid(token)) {
+        // 根據請求路徑決定用哪個 token
+        String path = request.getRequestURI();
+        String token = path.startsWith("/api/customer/") ? customerToken : empToken;
+
+        if (token != null && JwtToken.isValid(token)
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
             String email = JwtToken.getEmail(token);
-            String role = JwtToken.getRole(token); // 獲取 JWT 中的 role
-            String authority = role != null && !role.isEmpty()
-                    ? "ROLE_" + role.toUpperCase()
-                    : "ROLE_CUSTOMER";
+            String authority = "ROLE_" + JwtToken.getRole(token);
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     email, null, List.of(new SimpleGrantedAuthority(authority)));
             SecurityContextHolder.getContext().setAuthentication(auth);

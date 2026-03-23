@@ -1387,6 +1387,17 @@
                 }
 
                 const book = await res.json();
+                // ── 已簽約：直接跳到籌備進度頁 ──
+                if (book.status === '已簽約') {
+                    window.location.href = './customer_progress.html';
+                    return;
+                }
+
+                // 把導覽列的「我的籌備進度」隱藏
+                if (book.status === '處理中') {
+                    const progressLinks = document.querySelectorAll('a[href="./customer_progress.html"]');
+                    progressLinks.forEach(link => link.style.display = 'none');
+                }
 
                 // 填入唯讀欄位（新人基本資料）
                 setFieldValue('input-name',   book.customerName);

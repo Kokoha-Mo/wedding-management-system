@@ -1143,7 +1143,7 @@
                                 ...m,
                                 isMe: String(m.creatorId) === String(this.empId),
                                 label: String(m.creatorId) === String(this.empId) ? '本人 (PM)' : (m.creatorPosition === 'MANAGER' ? `業務 - ${m.creatorName}` : m.creatorName),
-                                time: m.createAt ? new Date(m.createAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+                                time: m.createAt ? new Date(m.createAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
                             }));
                         }
                     } catch (e) { console.error(e); } finally {

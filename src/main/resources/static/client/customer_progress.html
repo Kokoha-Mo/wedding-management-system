@@ -494,6 +494,36 @@
             font-variation-settings: 'wght' 300;
         }
 
+        /* ─── 文件列表捲軸美化 ─── */
+        .doc-list-wrapper {
+            max-height: 240px;
+            /* 大約顯示 4~5 筆的高度，超過就捲動 */
+            overflow-y: auto;
+            padding-right: 8px;
+            /* 留一點空間給捲軸 */
+            margin-right: -8px;
+        }
+
+        /* 自訂捲軸樣式 (Chrome/Safari/Edge) */
+        .doc-list-wrapper::-webkit-scrollbar {
+            width: 4px;
+            /* 極細捲軸 */
+        }
+
+        .doc-list-wrapper::-webkit-scrollbar-track {
+            background: rgba(197, 160, 89, 0.05);
+            border-radius: 4px;
+        }
+
+        .doc-list-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(197, 160, 89, 0.3);
+            border-radius: 4px;
+        }
+
+        .doc-list-wrapper::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-gold);
+        }
+
         /* 籌備進度追蹤 */
         /* ─── 手風琴時間軸 (Timeline Accordion) ─── */
         .timeline-container {
@@ -899,21 +929,29 @@
                     <!-- 文件 -->
                     <div class="lux-card text-center">
                         <span class="card-eyebrow mb-4">Documents</span>
-                        <ul class="doc-list">
-                            <a v-for="doc in data.documents" :key="doc.name" :href="doc.url" target="_blank"
-                                class="doc-item">
-                                <div class="d-flex align-items-center">
-                                    <span class="material-symbols-outlined">{{ doc.icon }}</span>
-                                    <span style="font-size: 13px;">{{ doc.name }}</span>
+
+                        <div class="doc-list-wrapper">
+                            <ul class="doc-list">
+                                <a v-for="doc in data.documents" :key="doc.name" :href="doc.url" target="_blank"
+                                    class="doc-item">
+                                    <div class="d-flex align-items-center"
+                                        style="overflow: hidden; white-space: nowrap;">
+                                        <span class="material-symbols-outlined flex-shrink-0">{{ doc.icon }}</span>
+                                        <span
+                                            style="font-size: 13px; text-overflow: ellipsis; overflow: hidden; margin-right: 8px;">
+                                            {{ doc.name }}
+                                        </span>
+                                    </div>
+                                    <span class="material-symbols-outlined flex-shrink-0"
+                                        style="font-size: 16px; color: #ccc;">download</span>
+                                </a>
+                                <div v-if="!data.documents || data.documents.length === 0"
+                                    style="font-size: 12px; color: #aaa; margin-top: 16px;">
+                                    尚無正式文件
                                 </div>
-                                <span class="material-symbols-outlined"
-                                    style="font-size: 16px; color: #ccc;">download</span>
-                            </a>
-                            <div v-if="!data.documents || data.documents.length === 0"
-                                style="font-size: 12px; color: #aaa; margin-top: 16px;">
-                                尚無正式文件
-                            </div>
-                        </ul>
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -1191,7 +1229,7 @@
                 // 留言板陣列資料 (先清空，等 API 塞進來)
                 const messages = reactive([]);
                 const newMessage = ref('');
-                const hasUnread = ref(true);
+                const hasUnread = ref(false);
                 const selectedFiles = ref([]);
 
                 const clearUnread = () => { hasUnread.value = false; };
@@ -1305,6 +1343,14 @@
                                         attachments: mappedAttachments
                                     });
                                 });
+
+                                // 🌟 新增：判斷最後一則留言是否為顧問發送，決定是否亮起紅點
+                                if (messages.length > 0) {
+                                    const lastMsg = messages[messages.length - 1];
+                                    // 如果最後一則是 pm (顧問) 發的，就亮紅點
+                                    hasUnread.value = (lastMsg.sender === 'pm');
+                                }
+
                                 nextTick(() => {
                                     const container = document.getElementById('boardContainer');
                                     if (container) container.scrollTop = container.scrollHeight;

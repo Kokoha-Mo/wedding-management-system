@@ -145,16 +145,16 @@ public class CustomerProgressService {
         // ==========================================
         if (project.getDocuments() != null) {
             List<ProjectProgressDTO.DocumentDetail> formalDocs = project.getDocuments().stream()
-                // 🌟 核心修改：只過濾出 status 為 null 的檔案（PM 預設上傳的狀態）
-                .filter(doc -> doc.getStatus() == null) 
-                .map(doc -> {
-                    ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();
-                    docDto.setId(doc.getId());
-                    docDto.setName(doc.getName());
-                    docDto.setFileType(doc.getFileType());
-                    docDto.setFilePath(doc.getFilePath());
-                    return docDto;
-                }).collect(Collectors.toList());
+                    // 🌟 核心修改：只過濾出 status 為 null 的檔案（PM 預設上傳的狀態）
+                    .filter(doc -> doc.getStatus() == null)
+                    .map(doc -> {
+                        ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();
+                        docDto.setId(doc.getId());
+                        docDto.setName(doc.getName());
+                        docDto.setFileType(doc.getFileType());
+                        docDto.setFilePath(doc.getFilePath());
+                        return docDto;
+                    }).collect(Collectors.toList());
             dto.setDocuments(formalDocs);
         }
 
@@ -175,8 +175,8 @@ public class CustomerProgressService {
             }
 
             commDto.setContent(comm.getContent());
-            commDto.setCreateAt(comm.getCreateAt());
-
+            commDto.setCreateAt(comm.getCreateAt() != null ? comm.getCreateAt().plusHours(8) : null);
+            
             if (comm.getDocuments() != null) {
                 List<ProjectProgressDTO.DocumentDetail> docs = comm.getDocuments().stream().map(doc -> {
                     ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();

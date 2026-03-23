@@ -145,7 +145,8 @@ public class CustomerProgressService {
         // ==========================================
         if (project.getDocuments() != null) {
             List<ProjectProgressDTO.DocumentDetail> formalDocs = project.getDocuments().stream()
-                .filter(doc -> doc.getStatus() == null || "已核准".equals(doc.getStatus())) // 🌟 只顯示經理文件(無狀態)與已核准文件
+                // 🌟 核心修改：只過濾出 status 為 null 的檔案（PM 預設上傳的狀態）
+                .filter(doc -> doc.getStatus() == null) 
                 .map(doc -> {
                     ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();
                     docDto.setId(doc.getId());
@@ -237,7 +238,7 @@ public class CustomerProgressService {
         Map<String, List<ProjectTask>> groupedTasks = allTasks.stream()
                 .filter(t -> t.getService() != null)
                 .collect(Collectors.groupingBy(t -> {
-                    // 🌟 小奈除錯：這裡把 getName() 改成 getDeptName() 就沒問題了！
+                    // 🌟 除錯：這裡把 getName() 改成 getDeptName() 就沒問題了！
                     if (t.getService().getDepartment() != null
                             && t.getService().getDepartment().getDeptName() != null) {
                         return t.getService().getDepartment().getDeptName();

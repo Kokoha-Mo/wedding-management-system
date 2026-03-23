@@ -505,7 +505,15 @@
                 const fetchHistoryTasks = async () => {
                     try {
                         const response = await fetch(`/api/employee/task/history/${emp.id}`, { credentials: 'include' });
-                        if (response.ok) historyTasks.value = await response.json();
+                        if (response.ok) {
+                            const data = await response.json();
+                            // 排序：依據更新日期 (updateAt) 由新到舊
+                            historyTasks.value = data.sort((a, b) => {
+                                const dateA = a.updateAt ? new Date(a.updateAt) : new Date(0);
+                                const dateB = b.updateAt ? new Date(b.updateAt) : new Date(0);
+                                return dateB - dateA;
+                            });
+                        }
                     } catch (e) { console.error('Error fetching history tasks:', e); }
                 };
 

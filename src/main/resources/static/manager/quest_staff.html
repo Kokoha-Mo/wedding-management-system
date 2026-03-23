@@ -71,21 +71,21 @@
                     class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
             </a>
-            <a v-if="emp.deptId === '1'" id="nav-book"
+            <a v-if="emp.deptId === '1' && emp.position === 'MANAGER'" id="nav-book"
                 class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="book.html">
                 <span
                     class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
             </a>
-            <a v-if="emp.deptId === '1'" id="nav-project"
+            <a v-if="emp.deptId === '1' && emp.position === 'MANAGER'" id="nav-project"
                 class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="project.html">
                 <span
                     class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
             </a>
-            <a v-if="emp.deptId !== '1' && emp.deptId !== '7'" id="nav-task"
+            <a v-if="(emp.deptId === '1' && emp.position !== 'MANAGER') || (emp.deptId !== '1' && emp.deptId !== '7')" id="nav-task"
                 class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
                 href="quest_staff.html">
                 <span
@@ -505,7 +505,15 @@
                 const fetchHistoryTasks = async () => {
                     try {
                         const response = await fetch(`/api/employee/task/history/${emp.id}`, { credentials: 'include' });
-                        if (response.ok) historyTasks.value = await response.json();
+                        if (response.ok) {
+                            const data = await response.json();
+                            // 排序：依據更新日期 (updateAt) 由新到舊
+                            historyTasks.value = data.sort((a, b) => {
+                                const dateA = a.updateAt ? new Date(a.updateAt) : new Date(0);
+                                const dateB = b.updateAt ? new Date(b.updateAt) : new Date(0);
+                                return dateB - dateA;
+                            });
+                        }
                     } catch (e) { console.error('Error fetching history tasks:', e); }
                 };
 

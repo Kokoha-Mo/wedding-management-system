@@ -81,11 +81,17 @@ function initSidebar() {
     });
 
     if (deptId === '1') {
-        // 營運部/管理層：可看預約管理 & 專案管理
-        ['nav-book', 'nav-project'].forEach(id => {
-            const el = document.getElementById(id);
+        if (position === 'MANAGER') {
+            // 營運部/管理層：可看預約管理 & 專案管理
+            ['nav-book', 'nav-project'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'flex';
+            });
+        } else {
+            // Department 1 Staff: See Task management
+            const el = document.getElementById('nav-task');
             if (el) el.style.display = 'flex';
-        });
+        }
     } else if (deptId === '7') {
         // 接待部：可看諮詢管理
         const el = document.getElementById('nav-consultation');

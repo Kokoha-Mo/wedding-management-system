@@ -1,5 +1,6 @@
 package com.wedding.wedding_management_system.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,18 +12,12 @@ import com.wedding.wedding_management_system.dto.UpdateBookDetailsRequestDTO;
 import com.wedding.wedding_management_system.dto.CreateBookRequestDTO;
 import com.wedding.wedding_management_system.dto.CustomerDTO;
 import com.wedding.wedding_management_system.entity.*;
-import com.wedding.wedding_management_system.repository.BookDetailRepository;
-import com.wedding.wedding_management_system.repository.BookRepository;
-import com.wedding.wedding_management_system.repository.CustomerRepository;
-import com.wedding.wedding_management_system.repository.EmployeeRepository;
-import com.wedding.wedding_management_system.repository.ConsultationRepository;
-import com.wedding.wedding_management_system.repository.ServiceRepository;
+import com.wedding.wedding_management_system.repository.*;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,13 +28,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class BookService {
 
-    @Autowired private BookRepository bookRepository;
-    @Autowired private BookDetailRepository bookDetailRepository;   // ← 新增
-    @Autowired private CustomerRepository customerRepository;
-    @Autowired private EmployeeRepository   employeeRepository;
-    @Autowired private PasswordEncoder      passwordEncoder;
-    @Autowired private ConsultationRepository consultationRepository;
-    @Autowired private ServiceRepository serviceRepository;
+    private final BookRepository bookRepository;
+    private final BookDetailRepository bookDetailRepository;
+    private final CustomerRepository customerRepository;
+    private final EmployeeRepository   employeeRepository;
+    private final PasswordEncoder      passwordEncoder;
+    private final ServiceRepository serviceRepository;
+    private final ProjectRepository projectRepository;
+    private final ProjectTaskRepository projectTaskRepository;
+
 
     // ════════════════════════════════════════════════════════
     // 找或建立顧客（不動）
@@ -234,8 +231,53 @@ public class BookService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("找不到預約單，id=" + bookId));
         log.info("更新預約狀態 book_id={}: {} → {}", bookId, book.getStatus(), newStatus);
+
+        // ── 轉簽約前檢查婚宴日期 ──
+        if ("已簽約".equals(newStatus) && book.getWeddingDate() == null) {
+            throw new IllegalStateException("請先填寫婚宴日期才能轉為簽約");
+        }
         book.setStatus(newStatus);
         Book saved = bookRepository.save(book);
+
+        // ── 狀態改成已簽約時，自動建立 project ──
+        if ("已簽約".equals(newStatus)) {
+            // 檢查是否已有 project，避免重複建立
+            boolean projectExists = projectRepository.findByBook_Id(bookId).isPresent();
+
+            if (!projectExists) {
+                // 計算 book_details 總金額
+                List<BookDetail> details = bookDetailRepository.findByBookIdOrderByServiceIdAsc(bookId);
+                int totalPayment = details.stream()
+                        .mapToInt(d -> d.getUnitPrice() != null ? d.getUnitPrice() : 0)
+                        .sum();
+
+                Project project = new Project();
+                project.setBook(saved);
+                project.setTotalPayment(totalPayment);
+                project.setPaymentStatus("訂金結清");
+                project.setStatus("進行中");
+                projectRepository.save(project);
+
+                log.info("自動建立專案，book_id={}, total_payment={}", bookId, totalPayment);
+
+                // ── 把 book_details 每個服務項目建立成 ProjectTask ──
+                List<ProjectTask> tasks = details.stream()
+                        .filter(detail -> detail.getService() != null)
+                        .map(detail -> {
+                    ProjectTask task = new ProjectTask();
+                    Project savedProject= projectRepository.save(project);;
+                    task.setProject(savedProject);
+                    task.setService(detail.getService());
+                    task.setStatus("待指派");
+                    task.setUpdateAt(LocalDateTime.now());
+                    return task;
+                }).collect(Collectors.toList());
+
+                projectTaskRepository.saveAll(tasks);
+                log.info("自動建立任務，共{}筆", tasks.size());
+            }
+        }
+
         Customer customer = saved.getCustomer();
         return BookResponseDTO.from(saved, customer);
     }

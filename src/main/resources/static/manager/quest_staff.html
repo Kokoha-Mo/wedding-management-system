@@ -37,7 +37,8 @@
 </head>
 
 <body id="app"
-    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden" v-cloak>
+    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden"
+    v-cloak>
 
     <div id="sidebar-overlay"
         class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity hidden cursor-pointer">
@@ -51,8 +52,8 @@
 
         <div class="px-4 py-4 mt-2 sidebar-user">
             <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
-                <img id="sidebar-avatar" alt="Joy Avatar" class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover"
-                    src="./Img/smile.jpg" />
+                <img id="sidebar-avatar" alt="Joy Avatar"
+                    class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
                 <div class="menu-category p-0 m-0">
                     <div class="text-white font-medium">{{ emp.name || '未知員工' }}</div>
                     <div class="text-xs text-gray-400 mt-1">{{ emp.position === 'MANAGER' ? '業務管理' : '員工' }}</div>
@@ -63,25 +64,29 @@
         <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
             <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 GENERAL</div>
-            <a v-if="emp.deptId === '7' || emp.deptId === '1'" id="nav-consultation" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a v-if="emp.deptId === '7'" id="nav-consultation"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="consultation.html">
                 <span
                     class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
             </a>
-            <a v-if="emp.deptId === '1'" id="nav-book" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a v-if="emp.deptId === '1'" id="nav-book"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="book.html">
                 <span
                     class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
             </a>
-            <a v-if="emp.deptId === '1'" id="nav-project" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a v-if="emp.deptId === '1'" id="nav-project"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="project.html">
                 <span
                     class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
             </a>
-            <a v-if="emp.deptId !== '1' && emp.deptId !== '7'" id="nav-task" class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
+            <a v-if="emp.deptId !== '1' && emp.deptId !== '7'" id="nav-task"
+                class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
                 href="quest_staff.html">
                 <span
                     class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
@@ -91,7 +96,8 @@
             <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
                 系統設定</div>
 
-            <a id="nav-account" class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+            <a id="nav-account"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
                 href="account.html">
                 <span
                     class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
@@ -116,7 +122,8 @@
                 <div class="relative">
                     <div id="user-menu-button"
                         class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
-                        <img id="header-avatar" alt="Joy Avatar" class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
+                        <img id="header-avatar" alt="Joy Avatar"
+                            class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
                             src="./Img/smile.jpg" />
                         <span class="text-sm font-medium mr-1 text-gray-200">{{ emp.name || 'User' }}</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
@@ -155,7 +162,8 @@
                         <h3 class="text-lg font-bold">進行中任務 (<span>{{ ongoingTasks.length }}</span>)</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                        <div v-if="ongoingTasks.length === 0" class="col-span-full py-10 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
+                        <div v-if="ongoingTasks.length === 0"
+                            class="col-span-full py-10 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
                             目前沒有進行中的任務
                         </div>
                         <!-- Task Card -->
@@ -169,16 +177,20 @@
                             </div>
                             <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
                                 <div class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">person</span> {{ task.customerName || '未知客戶' }}
+                                    <span class="material-symbols-outlined text-sm">person</span> {{ task.customerName
+                                    || '未知客戶' }}
                                 </div>
-                                <div class="flex items-center gap-1" :class="{'text-red-600 font-semibold': isUrgent(task.deadline)}">
-                                    <span class="material-symbols-outlined text-sm">{{ isUrgent(task.deadline) ? 'calendar_clock' : 'event' }}</span> 截止：{{ formatDate(task.deadline) }}
+                                <div class="flex items-center gap-1"
+                                    :class="{'text-red-600 font-semibold': isUrgent(task.deadline)}">
+                                    <span class="material-symbols-outlined text-sm">{{ isUrgent(task.deadline) ?
+                                        'calendar_clock' : 'event' }}</span> 截止：{{ formatDate(task.deadline) }}
                                 </div>
                             </div>
                             <div class="flex-1 mb-6">
                                 <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                                     任務詳情</h5>
-                                <p class="text-xs text-slate-500 leading-relaxed">{{ task.managerContent || '無詳細內容' }}</p>
+                                <p class="text-xs text-slate-500 leading-relaxed">{{ task.managerContent || '無詳細內容' }}
+                                </p>
                             </div>
                             <div class="flex flex-col space-y-2 mt-4">
                                 <button @click="openChat(task)"
@@ -224,12 +236,16 @@
                                 <tr v-if="historyTasks.length === 0">
                                     <td colspan="5" class="px-6 py-10 text-center text-slate-400">目前尚無歷史任務紀錄</td>
                                 </tr>
-                                <tr v-for="task in historyTasks" :key="task.taskId" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                <tr v-for="task in paginatedHistoryTasks" :key="task.taskId"
+                                    class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                     <td class="px-6 py-4 font-semibold">{{ task.serviceName || '---' }}</td>
-                                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400">{{ task.customerName || '---' }}</td>
-                                    <td class="px-6 py-4 text-slate-50">{{ formatDate(task.updateAt) }}</td>
+                                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400">{{ task.customerName ||
+                                        '---' }}</td>
+                                    <td class="px-6 py-4 text-slate-500 dark:text-slate-50">{{ formatDate(task.updateAt)
+                                        }}</td>
                                     <td class="px-6 py-4">
-                                        <span class="px-2 py-1 text-[10px] font-bold rounded" :class="task.status === '已完成' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                                        <span class="px-2 py-1 text-[10px] font-bold rounded"
+                                            :class="task.status === '已完成' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
                                             {{ task.status || '---' }}
                                         </span>
                                     </td>
@@ -245,15 +261,22 @@
                         </table>
                         <div
                             class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                            <p class="text-xs text-slate-500">顯示 3 筆，共 42 筆紀錄</p>
+                            <p class="text-xs text-slate-500">
+                                顯示 {{ historyTasks.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }} 至 {{
+                                Math.min(currentPage * itemsPerPage, historyTasks.length) }} 筆，共 {{ historyTasks.length
+                                }} 筆紀錄
+                            </p>
                             <div class="flex gap-2">
-                                <button
-                                    class="p-1 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 text-slate-400 hover:text-primary disabled:opacity-50"
-                                    disabled>
+                                <button @click="prevPage"
+                                    class="p-1 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 text-slate-400 hover:text-primary disabled:opacity-50 transition-colors"
+                                    :disabled="currentPage === 1">
                                     <span class="material-symbols-outlined text-base leading-none">chevron_left</span>
                                 </button>
-                                <button
-                                    class="p-1 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 text-slate-400 hover:text-primary">
+                                <span class="text-xs flex items-center px-2 text-slate-500">頁次 {{ currentPage }} / {{
+                                    totalPages || 1 }}</span>
+                                <button @click="nextPage"
+                                    class="p-1 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 text-slate-400 hover:text-primary disabled:opacity-50 transition-colors"
+                                    :disabled="currentPage >= totalPages">
                                     <span class="material-symbols-outlined text-base leading-none">chevron_right</span>
                                 </button>
                             </div>
@@ -304,7 +327,8 @@
     <div v-if="showChat" class="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[450px] max-w-[95%] flex flex-col h-[500px]">
             <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ chatReadOnly ? '任務協調對話紀錄' : '任務協調留言板' }}</h3>
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ chatReadOnly ? '任務協調對話紀錄' : '任務協調留言板' }}
+                </h3>
                 <button @click="showChat = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <span class="material-icons">close</span>
                 </button>
@@ -312,12 +336,14 @@
             <div id="chat-content" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
                 <div v-if="chatLoading" class="text-center text-slate-400 py-10">讀取中...</div>
                 <div v-else-if="chatMessages.length === 0" class="text-center text-slate-400 py-10 text-xs">尚無留言紀錄</div>
-                <div v-for="msg in chatMessages" :key="msg.id" class="flex flex-col" :class="String(msg.creatorId) === String(emp.id) ? 'items-end' : 'items-start'">
+                <div v-for="msg in chatMessages" :key="msg.id" class="flex flex-col"
+                    :class="String(msg.creatorId) === String(emp.id) ? 'items-end' : 'items-start'">
                     <span class="text-[10px] text-gray-500 mb-1 font-medium">
-                        {{ String(msg.creatorId) === String(emp.id) ? '本人' : (msg.creatorPosition === 'MANAGER' ? `業務 - ${msg.creatorName}` : msg.creatorName) }} 
+                        {{ String(msg.creatorId) === String(emp.id) ? '本人' : (msg.creatorPosition === 'MANAGER' ? `業務 -
+                        ${msg.creatorName}` : msg.creatorName) }}
                         {{ formatTime(msg.createAt) }}
                     </span>
-                    <div class="p-3 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed" 
+                    <div class="p-3 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed"
                         :class="String(msg.creatorId) === String(emp.id) ? 'bg-primary text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-tl-none'">
                         {{ msg.content }}
                     </div>
@@ -325,7 +351,8 @@
             </div>
             <div v-if="!chatReadOnly" class="p-4 border-t border-gray-100 dark:border-gray-700">
                 <div class="flex items-center space-x-2">
-                    <input type="text" v-model="chatInput" @keyup.enter="sendMessage" placeholder="輸入訊息..." class="flex-1 border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-xl text-sm focus:ring-primary dark:text-white">
+                    <input type="text" v-model="chatInput" @keyup.enter="sendMessage" placeholder="輸入訊息..."
+                        class="flex-1 border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-xl text-sm focus:ring-primary dark:text-white">
                     <button @click="sendMessage" class="p-2 bg-primary text-white rounded-xl hover:bg-blue-600">
                         <span class="material-icons">send</span>
                     </button>
@@ -335,65 +362,80 @@
     </div>
 
     <!-- 上傳任務成果 Modal -->
-    <div v-if="showUpload" class="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[450px] shadow-2xl border border-gray-100 dark:border-gray-700">
+    <div v-if="showUpload"
+        class="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[450px] shadow-2xl border border-gray-100 dark:border-gray-700">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold dark:text-white">上傳任務成果</h3>
                 <button @click="showUpload = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <span class="material-icons">close</span>
                 </button>
             </div>
-            
+
             <p class="text-sm text-gray-500 mb-6 font-medium">檔案上傳後將由業務進行審核，確認無誤後任務才會結案。</p>
-            
+
             <!-- 待審核檔案列表 -->
-            <div v-if="activeTask && activeTask.documents && activeTask.documents.filter(d => d.status === '待審核').length > 0" class="mb-6">
+            <div v-if="activeTask && activeTask.documents && activeTask.documents.filter(d => d.status === '待審核').length > 0"
+                class="mb-6">
                 <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">已上傳待審核檔案</h4>
                 <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
-                    <div v-for="doc in activeTask.documents.filter(d => d.status === '待審核')" :key="doc.id" 
+                    <div v-for="doc in activeTask.documents.filter(d => d.status === '待審核')" :key="doc.id"
                         class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-primary/30 transition-colors">
                         <div class="flex items-center space-x-3 overflow-hidden">
                             <!-- 圖檔預覽或圖示 -->
-                            <div v-if="doc.fileType && doc.fileType.startsWith('image/')" class="w-8 h-8 rounded flex-shrink-0 overflow-hidden bg-gray-200">
+                            <div v-if="doc.fileType && doc.fileType.startsWith('image/')"
+                                class="w-8 h-8 rounded flex-shrink-0 overflow-hidden bg-gray-200">
                                 <img :src="'/' + doc.filePath" class="w-full h-full object-cover">
                             </div>
-                            <div v-else class="w-8 h-8 rounded flex-shrink-0 flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-500">
+                            <div v-else
+                                class="w-8 h-8 rounded flex-shrink-0 flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-500">
                                 <span class="material-icons text-xl">{{ getFileIcon(doc.fileType) }}</span>
                             </div>
                             <div class="flex flex-col overflow-hidden">
-                                <span class="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">{{ doc.name }}</span>
-                                <span class="text-[9px] text-gray-400">{{ (doc.fileType || '未知類型').split('/')[1]?.toUpperCase() }}</span>
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">{{ doc.name
+                                    }}</span>
+                                <span class="text-[9px] text-gray-400">{{ (doc.fileType ||
+                                    '未知類型').split('/')[1]?.toUpperCase() }}</span>
                             </div>
                         </div>
-                        <span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">待審核</span>
+                        <span
+                            class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">待審核</span>
                     </div>
                 </div>
             </div>
 
-            <div class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-6 text-center hover:border-primary transition-colors cursor-pointer mb-6 relative group bg-gray-50/50 dark:bg-gray-900/30">
+            <div
+                class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-6 text-center hover:border-primary transition-colors cursor-pointer mb-6 relative group bg-gray-50/50 dark:bg-gray-900/30">
                 <!-- 修改 accept 以支援圖檔 -->
-                <input type="file" id="file-input" @change="handleFile" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip" class="absolute inset-0 opacity-0 cursor-pointer">
-                
+                <input type="file" id="file-input" @change="handleFile" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip"
+                    class="absolute inset-0 opacity-0 cursor-pointer">
+
                 <div v-if="!selectedFile" class="pointer-events-none transition-transform group-hover:scale-105">
-                    <span class="material-icons text-4xl text-gray-300 group-hover:text-primary transition-colors mb-2">cloud_upload</span>
+                    <span
+                        class="material-icons text-4xl text-gray-300 group-hover:text-primary transition-colors mb-2">cloud_upload</span>
                     <p class="text-sm text-gray-600 dark:text-gray-400">點擊或拖拽檔案至此</p>
                     <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tight">支援：圖檔、PDF、Office 文件 (10MB內)</p>
                 </div>
-                
+
                 <div v-else class="pointer-events-none flex flex-col items-center">
-                    <div v-if="imagePreview" class="w-20 h-20 rounded-lg overflow-hidden border-2 border-primary/20 mb-2 shadow-sm">
+                    <div v-if="imagePreview"
+                        class="w-20 h-20 rounded-lg overflow-hidden border-2 border-primary/20 mb-2 shadow-sm">
                         <img :src="imagePreview" class="w-full h-full object-cover">
                     </div>
-                    <span v-else class="material-icons text-4xl text-primary mb-2">{{ getFileIcon(selectedFile.type) }}</span>
-                    <p class="text-xs text-primary font-bold bg-blue-50 dark:bg-blue-900/40 py-1.5 px-3 rounded-xl border border-blue-100 dark:border-blue-800/50">
+                    <span v-else class="material-icons text-4xl text-primary mb-2">{{ getFileIcon(selectedFile.type)
+                        }}</span>
+                    <p
+                        class="text-xs text-primary font-bold bg-blue-50 dark:bg-blue-900/40 py-1.5 px-3 rounded-xl border border-blue-100 dark:border-blue-800/50">
                         {{ fileNameDisplay }} ({{ (selectedFile.size / 1024 / 1024).toFixed(2) }}MB)
                     </p>
                 </div>
             </div>
 
             <div class="flex space-x-3">
-                <button @click="showUpload = false" class="flex-1 py-2.5 text-gray-500 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors">取消</button>
-                <button @click="confirmUpload" :disabled="!selectedFile" 
+                <button @click="showUpload = false"
+                    class="flex-1 py-2.5 text-gray-500 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors">取消</button>
+                <button @click="confirmUpload" :disabled="!selectedFile"
                     class="flex-1 py-2.5 bg-primary text-white rounded-xl font-bold shadow-md shadow-primary/20 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:shadow-none">
                     確認上傳
                 </button>
@@ -416,6 +458,7 @@
 
                 if (!emp.id) {
                     window.location.replace('login.html');
+                    return {};
                 }
 
                 const ongoingTasks = ref([]);
@@ -430,6 +473,27 @@
                 const selectedFile = ref(null);
                 const fileNameDisplay = ref('');
                 const imagePreview = ref('');
+
+                const currentPage = ref(1);
+                const itemsPerPage = ref(5);
+
+                const paginatedHistoryTasks = Vue.computed(() => {
+                    const start = (currentPage.value - 1) * itemsPerPage.value;
+                    const end = start + itemsPerPage.value;
+                    return historyTasks.value.slice(start, end);
+                });
+
+                const totalPages = Vue.computed(() => {
+                    return Math.ceil(historyTasks.value.length / itemsPerPage.value);
+                });
+
+                const nextPage = () => {
+                    if (currentPage.value < totalPages.value) currentPage.value++;
+                };
+
+                const prevPage = () => {
+                    if (currentPage.value > 1) currentPage.value--;
+                };
 
                 const fetchOngoingTasks = async () => {
                     try {
@@ -512,7 +576,7 @@
                         const maxSize = 10 * 1024 * 1024; // 10MB
                         if (file.size > maxSize) {
                             alert('檔案大小超過 10MB 限制，請重新選擇較小的檔案。');
-                            e.target.value = ''; 
+                            e.target.value = '';
                             selectedFile.value = null;
                             fileNameDisplay.value = '';
                             return;
@@ -533,12 +597,12 @@
 
                 const confirmUpload = async () => {
                     if (!selectedFile.value || !activeTask.value) return alert('請選擇檔案');
-                    
+
                     const fd = new FormData();
                     fd.append('file', selectedFile.value);
                     fd.append('taskId', activeTask.value.taskId);
                     fd.append('empId', emp.id);
-                    
+
                     try {
                         const response = await fetch('/api/employee/task/upload', {
                             method: 'POST',
@@ -554,8 +618,8 @@
                             const error = await response.json();
                             alert(`上傳失敗：${error.message || '未知錯誤'}`);
                         }
-                    } catch (e) { 
-                        console.error('Upload failed:', e); 
+                    } catch (e) {
+                        console.error('Upload failed:', e);
                         alert('上傳失敗，請檢查網路連線或檔案格式');
                     }
                 };
@@ -593,13 +657,14 @@
                     const fullPath = emp.imgPath ? (emp.imgPath.startsWith('http') ? emp.imgPath : '/' + emp.imgPath) : './Img/smile.jpg';
                     const sbAv = document.getElementById('sidebar-avatar');
                     const hrAv = document.getElementById('header-avatar');
-                    if(sbAv) sbAv.src = fullPath;
-                    if(hrAv) hrAv.src = fullPath;
+                    if (sbAv) sbAv.src = fullPath;
+                    if (hrAv) hrAv.src = fullPath;
                 });
 
                 return {
                     emp, ongoingTasks, historyTasks, showChat, showUpload, chatReadOnly,
                     activeTask, chatMessages, chatInput, chatLoading, fileNameDisplay, imagePreview, selectedFile,
+                    currentPage, itemsPerPage, paginatedHistoryTasks, totalPages, nextPage, prevPage,
                     openChat, fetchOngoingTasks, fetchHistoryTasks, sendMessage, openUpload, handleFile, confirmUpload, submitAudit,
                     isUrgent, formatDate, formatTime, getFileIcon
                 };

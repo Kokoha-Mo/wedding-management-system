@@ -166,6 +166,7 @@ public class BookDetailController {
                     item.put("serviceId",   d.getService().getId());
                     item.put("serviceName", d.getService().getName());
                     item.put("unitPrice",   d.getUnitPrice() != null ? d.getUnitPrice() : d.getService().getPrice());
+                    item.put("ceremonyDate", d.getCeremonyDate() != null ? d.getCeremonyDate().toString() : null);
                     return item;
                 })
                 .collect(Collectors.toList());

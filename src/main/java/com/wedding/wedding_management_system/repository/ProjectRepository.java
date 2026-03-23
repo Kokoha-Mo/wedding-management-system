@@ -37,4 +37,6 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
 
     // 8. 查詢特定客戶的最新專案 (根據專案建立時間排序，取第一筆)
     Optional<Project> findFirstByBook_Customer_EmailOrderByCreateAtDesc(String email);
+
+    Optional<Project> findByBook_Id(Integer BookId);
 }

@@ -57,8 +57,20 @@ public class ProjectTaskService {
     private void populateDocuments(List<TaskDTO> tasks) {
         if (tasks == null || tasks.isEmpty())
             return;
+        
+        List<Integer> taskIds = tasks.stream()
+                .map(TaskDTO::getTaskId)
+                .collect(Collectors.toList());
+        
+        List<Document> allDocs = documentRepository.findByTask_IdIn(taskIds);
+        
+        // 將所有附檔依 taskId 分組
+        java.util.Map<Integer, List<Document>> docsMap = allDocs.stream()
+                .filter(d -> d.getTask() != null)
+                .collect(Collectors.groupingBy(d -> d.getTask().getId()));
+        
         for (TaskDTO dto : tasks) {
-            List<Document> docs = documentRepository.findByTask_Id(dto.getTaskId());
+            List<Document> docs = docsMap.get(dto.getTaskId());
             if (docs != null && !docs.isEmpty()) {
                 dto.setDocuments(docs.stream()
                         .map(d -> new TaskDTO.DocumentDTO(d.getId(), d.getName(), d.getFilePath(), d.getFileType(),

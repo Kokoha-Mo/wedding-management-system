@@ -104,7 +104,7 @@ public class CustomerProgressService {
             LocalDate wedDate = book != null ? book.getWeddingDate() : null;
 
             // ==========================================
-            // 🌟 方案 A 商業邏輯：計算是否逾期 (OVERDUE)
+            // 🌟 商業邏輯：計算是否逾期 (OVERDUE)
             // ==========================================
             LocalDate today = LocalDate.now();
             boolean isMidOverdue = false;
@@ -137,14 +137,13 @@ public class CustomerProgressService {
                 p2.setDueDate(""); // 已繳清不顯示日期
             } else if (isMidOverdue) {
                 p2.setStatus("OVERDUE");
-                // 🌟 移除三角形符號，保持文字乾淨
                 p2.setDueDate(wedDate != null
                         ? "已逾期 (" + wedDate.minusMonths(3).format(DateTimeFormatter.ofPattern("yyyy.MM.dd")) + " 前)"
-                        : "已逾期 (待確認)");
+                        : "已逾期 (繳款日期待確認)");
             } else {
                 p2.setStatus(isDepositPaid ? "PENDING" : "NONE");
                 p2.setDueDate(wedDate != null ? wedDate.minusMonths(3).format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
-                        : "待確認");
+                        : "繳款日期待確認");
             }
             paymentList.add(p2);
 
@@ -156,14 +155,13 @@ public class CustomerProgressService {
                 p3.setDueDate("");
             } else if (isFinalOverdue) {
                 p3.setStatus("OVERDUE");
-                // 🌟 移除三角形符號，保持文字乾淨
                 p3.setDueDate(wedDate != null
                         ? "已逾期 (" + wedDate.minusDays(14).format(DateTimeFormatter.ofPattern("yyyy.MM.dd")) + " 前)"
-                        : "已逾期 (待確認)");
+                        : "已逾期 (繳款日期待確認)");
             } else {
                 p3.setStatus(isMidPaid ? "PENDING" : "NONE");
                 p3.setDueDate(wedDate != null ? wedDate.minusDays(14).format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
-                        : "待確認");
+                        : "繳款日期待確認");
             }
             paymentList.add(p3);
 

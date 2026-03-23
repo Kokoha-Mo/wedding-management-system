@@ -60,17 +60,30 @@ async function checkAuthStatus() {
       localStorage.setItem('dv_customer_id', data.customerId);
       syncNavbarUI(true, data.name);
     } else if (res.status === 401 || res.status === 403) {
-      // 只有在明確知道 Token 過期或權限不足時，才清空登入狀態
+      // 嘗試讀取後端回傳的訊息
+      let errMsg = '';
+      try {
+        const errData = await res.json();
+        errMsg = errData?.message || '';
+      } catch (_) { /* 讀不到 body 就忽略 */ }
+
+      // 清空登入狀態
       localStorage.removeItem('dv_username');
       localStorage.removeItem('dv_customer_id');
       localStorage.removeItem('dv_login_time');
       syncNavbarUI(false);
 
-      // 如果目前在需要登入才能進入的頁面，直接跳轉回登入頁
+      // 如果目前在需要登入才能進入的頁面才需要跳轉
       const protectedPages = ['customer_progress.html', 'customer_system.html'];
       const currentPage = window.location.pathname.split('/').pop();
       if (protectedPages.includes(currentPage)) {
-        window.location.href = './client_login.html';
+        if (errMsg && errMsg.includes('停用')) {
+          // 帳號已停用 → 先顯示通知彈窗，再跳轉
+          showAccountDisabledModal(errMsg, './client_login.html');
+        } else {
+          // 一般 token 過期 → 直接跳轉
+          window.location.href = './client_login.html';
+        }
       }
     } else {
       // 其他錯誤 (如 500 後端報錯、404 找不到路徑等) 則忽略，不強制登出
@@ -80,6 +93,153 @@ async function checkAuthStatus() {
     // 網路錯誤 → 保持現狀不動
     console.error("網路連線錯誤：", e);
   }
+}
+
+/* 帳號停用通知彈窗（顯示後自動導回登入頁） */
+function showAccountDisabledModal(message, redirectUrl) {
+  // 防止重複建立
+  if (document.getElementById('dvDisabledOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'dvDisabledOverlay';
+  overlay.innerHTML = /*HTML*/`
+    <style>
+      #dvDisabledOverlay {
+        position: fixed; inset: 0; z-index: 99999;
+        background: rgba(20,15,10,0.60);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        display: flex; align-items: center; justify-content: center;
+        padding: 24px; box-sizing: border-box;
+        animation: dvdFadeIn 0.3s ease;
+      }
+      @keyframes dvdFadeIn { from{opacity:0} to{opacity:1} }
+
+      #dvDisabledBox {
+        background: #faf7f2;
+        border-radius: 2px;
+        box-shadow: 0 8px 48px rgba(45,37,32,0.18), 0 2px 12px rgba(45,37,32,0.08);
+        width: 100%; max-width: 400px;
+        padding: 52px 44px 44px;
+        box-sizing: border-box;
+        text-align: center;
+        position: relative;
+        animation: dvdSlideUp 0.45s cubic-bezier(0.16,1,0.3,1) both;
+      }
+      @keyframes dvdSlideUp {
+        from { opacity:0; transform:translateY(28px) scale(0.97); }
+        to   { opacity:1; transform:translateY(0) scale(1); }
+      }
+
+      /* 四角框線 */
+      #dvDisabledBox::before, #dvDisabledBox::after {
+        content:''; position:absolute; width:18px; height:18px;
+        border-color:rgba(197,160,89,0.45); border-style:solid;
+      }
+      #dvDisabledBox::before { top:-1px; left:-1px; border-width:1px 0 0 1px; }
+      #dvDisabledBox::after  { bottom:-1px; right:-1px; border-width:0 1px 1px 0; }
+      #dvDisabledBox .dvd-corner-tr { position:absolute; top:-1px; right:-1px; width:18px; height:18px; border-color:rgba(197,160,89,0.45); border-style:solid; border-width:1px 1px 0 0; }
+      #dvDisabledBox .dvd-corner-bl { position:absolute; bottom:-1px; left:-1px;  width:18px; height:18px; border-color:rgba(197,160,89,0.45); border-style:solid; border-width:0 0 1px 1px; }
+
+      .dvd-icon-wrap {
+        width: 64px; height: 64px; border-radius: 50%;
+        border: 1px solid rgba(197,160,89,0.3);
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 24px;
+        background: radial-gradient(circle, rgba(197,160,89,0.08) 0%, transparent 80%);
+      }
+      .dvd-eyebrow {
+        display: block; font-size: 9px; letter-spacing: 0.5em;
+        text-transform: uppercase; color: rgba(197,160,89,0.85); margin-bottom: 10px;
+        font-family: 'Plus Jakarta Sans','Noto Sans TC',sans-serif;
+      }
+      .dvd-title {
+        font-family: 'Bodoni Moda','Noto Serif TC',serif;
+        font-size: 22px; font-weight: 400; color: #2D2520;
+        letter-spacing: 0.06em; margin-bottom: 16px; line-height: 1.3;
+      }
+      .dvd-divider {
+        display: flex; align-items: center; gap: 12px;
+        margin: 0 auto 18px; width: 80%;
+      }
+      .dvd-divider::before,.dvd-divider::after {
+        content:''; flex:1; height:1px; background:rgba(197,160,89,0.25);
+      }
+      .dvd-dot { width:4px; height:4px; background:rgba(197,160,89,0.5); transform:rotate(45deg); }
+      .dvd-msg {
+        font-size: 13px; color: #7A6F66; letter-spacing: 0.06em;
+        line-height: 1.9; margin-bottom: 28px;
+        font-family: 'Plus Jakarta Sans','Noto Sans TC',sans-serif;
+      }
+      .dvd-btn {
+        display: inline-block; width: 100%;
+        background: transparent; border: 1px solid rgba(197,160,89,0.6);
+        color: #2D2520; padding: 0.9rem;
+        font-size: 10px; font-weight: 500; letter-spacing: 0.44em;
+        text-transform: uppercase;
+        font-family: 'Plus Jakarta Sans','Noto Sans TC',sans-serif;
+        cursor: pointer; position: relative; overflow: hidden;
+        transition: color 0.35s, border-color 0.35s;
+      }
+      .dvd-btn::before {
+        content:''; position:absolute; inset:0;
+        background: linear-gradient(135deg,#C5A059 0%,#A68648 100%);
+        opacity:0; transition:opacity 0.35s;
+      }
+      .dvd-btn:hover { color:#fff; border-color:#C5A059; }
+      .dvd-btn:hover::before { opacity:1; }
+      .dvd-btn span { position:relative; z-index:1; }
+      .dvd-countdown {
+        font-size: 11px; color: #B0A49A; letter-spacing: 0.08em;
+        margin-top: 12px; font-family: 'Plus Jakarta Sans','Noto Sans TC',sans-serif;
+      }
+    </style>
+
+    <div id="dvDisabledBox">
+      <div class="dvd-corner-tr"></div>
+      <div class="dvd-corner-bl"></div>
+
+      <div class="dvd-icon-wrap">
+        <span class="material-symbols-outlined"
+          style="font-size:28px; color:#C5A059;
+                 font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 24;">
+          lock_person
+        </span>
+      </div>
+
+      <span class="dvd-eyebrow">Account Status</span>
+      <h2 class="dvd-title">帳號已停用</h2>
+
+      <div class="dvd-divider"><div class="dvd-dot"></div></div>
+
+      <p class="dvd-msg" id="dvdMessage">${message || '此帳號已被停用，如有疑問請聯繫客服。'}</p>
+
+      <button class="dvd-btn" id="dvdOkBtn">
+        <span>返回登入頁</span>
+      </button>
+      <p class="dvd-countdown" id="dvdCountdown">將於 <strong id="dvdSec">5</strong> 秒後自動跳轉</p>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // 倒數計時自動跳轉
+  let sec = 5;
+  const secEl = document.getElementById('dvdSec');
+  const timer = setInterval(() => {
+    sec--;
+    if (secEl) secEl.textContent = sec;
+    if (sec <= 0) {
+      clearInterval(timer);
+      window.location.href = redirectUrl;
+    }
+  }, 1000);
+
+  // 手動點擊立即跳轉
+  document.getElementById('dvdOkBtn').addEventListener('click', () => {
+    clearInterval(timer);
+    window.location.href = redirectUrl;
+  });
 }
 
 /* UI：同步更新電腦與手機的導覽列 */

@@ -99,8 +99,9 @@ public class SecurityConfig {
                                                 .anyRequest().permitAll());
                 // .httpBasic(Customizer.withDefaults()); // 可以移除 Basic Auth，改用 JWT
 
-                http.addFilterBefore(new com.wedding.wedding_management_system.filter.JwtFilter(),
-                                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+                // http.addFilterBefore(new
+                // com.wedding.wedding_management_system.filter.JwtFilter(),
+                // org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
         }

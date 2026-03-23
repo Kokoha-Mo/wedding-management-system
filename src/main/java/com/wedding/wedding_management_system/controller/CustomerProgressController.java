@@ -29,10 +29,10 @@ public class CustomerProgressController {
 
         String token = null;
 
-        // 🌟 關鍵修改：尋找名為 "jwtToken" 的 Cookie
+        // 🌟 關鍵修改：尋找名為 "customerToken" 的 Cookie
         if (request.getCookies() != null) {
             for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                if ("jwtToken".equals(cookie.getName())) {
+                if ("customerToken".equals(cookie.getName())) {
                     token = cookie.getValue();
                     break;
                 }

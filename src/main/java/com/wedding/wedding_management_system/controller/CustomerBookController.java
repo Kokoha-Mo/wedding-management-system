@@ -38,7 +38,8 @@ public class CustomerBookController {
 
     // ── 工具：從 token 取得客戶，驗證失敗回 null ──
     private Customer getCustomerFromToken(String token) {
-        if (token == null || !JwtToken.isValid(token)) return null;
+        if (token == null || !JwtToken.isValid(token))
+            return null;
         String email = JwtToken.getEmail(token);
         return customerService.findByEmail(email);
     }
@@ -48,13 +49,14 @@ public class CustomerBookController {
                 .getAuthentication().getPrincipal();
         return customerService.findByEmail(email);
     }
+
     // ════════════════════════════════════════
     // GET /api/customer/book
     // 讀取客戶自己的預約資料（步驟一顯示用）
     // ════════════════════════════════════════
     @GetMapping("/book")
     public ResponseEntity<?> getMyBook(
-            @CookieValue(value = "jwtToken", required = false) String token) {
+            @CookieValue(value = "customerToken", required = false) String token) {
 
         Customer customer = getCustomerFromToken(token);
         if (customer == null)
@@ -74,7 +76,7 @@ public class CustomerBookController {
     // ════════════════════════════════════════
     @PatchMapping("/book")
     public ResponseEntity<?> updateMyBook(
-            @CookieValue(value = "jwtToken", required = false) String token,
+            @CookieValue(value = "customerToken", required = false) String token,
             @RequestBody UpdateBookDetailsRequestDTO dto) {
 
         Customer customer = getCustomerFromToken(token);
@@ -86,11 +88,16 @@ public class CustomerBookController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "找不到預約資料"));
 
         Book book = books.get(0);
-        if (dto.getWeddingDate() != null) book.setWeddingDate(dto.getWeddingDate());
-        if (dto.getGuestScale()  != null) book.setGuestScale(dto.getGuestScale());
-        if (dto.getPlace()       != null) book.setPlace(dto.getPlace());
-        if (dto.getStyles()      != null) book.setStyles(dto.getStyles());
-        if (dto.getNotes()     != null) book.setContent(dto.getNotes());
+        if (dto.getWeddingDate() != null)
+            book.setWeddingDate(dto.getWeddingDate());
+        if (dto.getGuestScale() != null)
+            book.setGuestScale(dto.getGuestScale());
+        if (dto.getPlace() != null)
+            book.setPlace(dto.getPlace());
+        if (dto.getStyles() != null)
+            book.setStyles(dto.getStyles());
+        if (dto.getNotes() != null)
+            book.setContent(dto.getNotes());
 
         bookRepository.save(book);
         log.info("客戶修改預約資料，customer_id={}, book_id={}", customer.getId(), book.getId());
@@ -98,9 +105,9 @@ public class CustomerBookController {
     }
 
     // ════════════════════════════════════════
-// GET /api/customer/book/details
-// 讀取客戶自己的服務細項（步驟二載入用）
-// ════════════════════════════════════════
+    // GET /api/customer/book/details
+    // 讀取客戶自己的服務細項（步驟二載入用）
+    // ════════════════════════════════════════
     @GetMapping("/book/details")
     public ResponseEntity<?> getMyBookDetails() {
         Customer customer = getCurrentCustomer();
@@ -126,7 +133,7 @@ public class CustomerBookController {
     // ════════════════════════════════════════
     @PostMapping("/book/details")
     public ResponseEntity<?> submitBookDetails(
-            @CookieValue(value = "jwtToken", required = false) String token,
+            @CookieValue(value = "customerToken", required = false) String token,
             @RequestBody List<BookDetailRequestDTO> details) {
 
         Customer customer = getCustomerFromToken(token);

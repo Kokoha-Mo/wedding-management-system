@@ -44,7 +44,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (token != null && JwtToken.isValid(token)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             String email = JwtToken.getEmail(token);
-            String authority = "ROLE_" + JwtToken.getRole(token);
+
+            String rawRole = JwtToken.getRole(token);
+            String normalizedRole = (rawRole == null) ? "" : rawRole.trim().toUpperCase();
+            String authority = "ROLE_" + normalizedRole;
+
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     email, null, List.of(new SimpleGrantedAuthority(authority)));
             SecurityContextHolder.getContext().setAuthentication(auth);

@@ -23,6 +23,7 @@ public class BookResponseDTO {
     private String  status;
     private LocalDateTime createAt;
     private String managerName;
+    private String signAt;
 
     public static BookResponseDTO from(Book book, Customer customer) {
         BookResponseDTO dto = new BookResponseDTO();
@@ -47,7 +48,16 @@ public class BookResponseDTO {
             String englishName = fullName.replaceAll("[^a-zA-Z\\s]", "").trim();
             dto.managerName = englishName.isEmpty() ? fullName : englishName;//
         }
+        try {
+            if (book.getProject() != null && book.getProject().getCreateAt() != null) {
+                dto.signAt = book.getProject().getCreateAt().toLocalDate().toString();
+            }
+        } catch (Exception e) {
+            dto.signAt = null;
+        }
         return dto;
     }
+
+
 
 }

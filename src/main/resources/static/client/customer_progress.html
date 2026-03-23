@@ -467,8 +467,10 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.85); /* 帶有質感的半透明黑底 */
-            z-index: 9999; /* 確保層級最高，能蓋過原本的 Chat Modal */
+            background: rgba(0, 0, 0, 0.85);
+            /* 帶有質感的半透明黑底 */
+            z-index: 9999;
+            /* 確保層級最高，能蓋過原本的 Chat Modal */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -482,15 +484,21 @@
             border-radius: 8px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
             transform: scale(0.95);
-            animation: zoomIn 0.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 加點微彈性的動態感 */
+            animation: zoomIn 0.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* 加點微彈性的動態感 */
             cursor: default;
         }
 
         @keyframes fadeIn {
-            to { opacity: 1; }
+            to {
+                opacity: 1;
+            }
         }
+
         @keyframes zoomIn {
-            to { transform: scale(1); }
+            to {
+                transform: scale(1);
+            }
         }
 
         /* 將原本圖片的 hover 游標改成指標 */
@@ -564,24 +572,29 @@
 
         /* 2. 歷史檔案的隱藏式質感捲軸 */
         .doc-list-wrapper {
-            max-height: 180px; /* 大約顯示 4 筆的高度，超過就捲動 */
+            max-height: 180px;
+            /* 大約顯示 4 筆的高度，超過就捲動 */
             overflow-y: auto;
-            padding-right: 8px; /* 留一點空間給捲軸 */
+            padding-right: 8px;
+            /* 留一點空間給捲軸 */
             margin-right: -8px;
         }
 
         /* 自訂極細捲軸樣式 */
         .doc-list-wrapper::-webkit-scrollbar {
-            width: 4px; 
+            width: 4px;
         }
+
         .doc-list-wrapper::-webkit-scrollbar-track {
             background: rgba(197, 160, 89, 0.05);
             border-radius: 4px;
         }
+
         .doc-list-wrapper::-webkit-scrollbar-thumb {
             background: rgba(197, 160, 89, 0.3);
             border-radius: 4px;
         }
+
         .doc-list-wrapper::-webkit-scrollbar-thumb:hover {
             background: var(--accent-gold);
         }
@@ -967,11 +980,17 @@
                         <ul class="doc-list">
                             <li v-for="pay in data.payments" :key="pay.title" class="doc-item">
                                 <span style="font-size: 13px; color: var(--text-main);">{{ pay.title }}</span>
+
                                 <span v-if="pay.status === 'PAID'"
                                     style="font-size: 12px; color: var(--accent-gold);">已結清</span>
+
                                 <span v-else-if="pay.status === 'PENDING'" style="font-size: 11px; color: #888;">期限: {{
                                     pay.dueDate }}</span>
-                                <span v-else style="font-size: 11px; color: #ccc;">未結清</span>
+
+                                <span v-else-if="pay.status === 'OVERDUE'" class="text-danger fw-bold"
+                                    style="font-size: 11px;">{{ pay.dueDate }}</span>
+
+                                <span v-else style="font-size: 11px; color: #ccc;">未開始</span>
                             </li>
                         </ul>
 
@@ -991,34 +1010,43 @@
                     <!-- 文件 -->
                     <div class="lux-card text-center">
                         <span class="card-eyebrow mb-4">Documents</span>
-                        
-                        <a v-if="latestDocument" :href="latestDocument.url" target="_blank" class="latest-doc-card mb-3 text-start">
+
+                        <a v-if="latestDocument" :href="latestDocument.url" target="_blank"
+                            class="latest-doc-card mb-3 text-start">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="doc-icon-box flex-shrink-0">
-                                    <span class="material-symbols-outlined" style="color: white; font-size: 20px;">{{ latestDocument.icon }}</span>
+                                    <span class="material-symbols-outlined" style="color: white; font-size: 20px;">{{
+                                        latestDocument.icon }}</span>
                                 </div>
                                 <div style="flex: 1; overflow: hidden;">
                                     <div class="d-flex align-items-center mb-1">
-                                        <span style="font-size: 11px; color: var(--accent-gold); font-weight: 500; letter-spacing: 0.05em;">顧問最新上傳</span>
+                                        <span
+                                            style="font-size: 11px; color: var(--accent-gold); font-weight: 500; letter-spacing: 0.05em;">顧問最新上傳</span>
                                     </div>
-                                    <div class="text-truncate fw-bold" style="font-size: 13px; color: var(--text-main);">
+                                    <div class="text-truncate fw-bold"
+                                        style="font-size: 13px; color: var(--text-main);">
                                         {{ latestDocument.name }}
                                     </div>
                                 </div>
-                                <span class="material-symbols-outlined flex-shrink-0" style="color: var(--accent-gold);">download</span>
+                                <span class="material-symbols-outlined flex-shrink-0"
+                                    style="color: var(--accent-gold);">download</span>
                             </div>
                         </a>
 
                         <div class="doc-list-wrapper" v-if="otherDocuments.length > 0">
                             <ul class="doc-list text-start">
-                                <a v-for="doc in otherDocuments" :key="doc.name" :href="doc.url" target="_blank" class="doc-item">
-                                    <div class="d-flex align-items-center" style="overflow: hidden; white-space: nowrap;">
+                                <a v-for="doc in otherDocuments" :key="doc.name" :href="doc.url" target="_blank"
+                                    class="doc-item">
+                                    <div class="d-flex align-items-center"
+                                        style="overflow: hidden; white-space: nowrap;">
                                         <span class="material-symbols-outlined flex-shrink-0">{{ doc.icon }}</span>
-                                        <span style="font-size: 13px; text-overflow: ellipsis; overflow: hidden; margin-right: 8px;">
+                                        <span
+                                            style="font-size: 13px; text-overflow: ellipsis; overflow: hidden; margin-right: 8px;">
                                             {{ doc.name }}
                                         </span>
                                     </div>
-                                    <span class="material-symbols-outlined flex-shrink-0" style="font-size: 16px; color: #ccc;">download</span>
+                                    <span class="material-symbols-outlined flex-shrink-0"
+                                        style="font-size: 16px; color: #ccc;">download</span>
                                 </a>
                             </ul>
                         </div>
@@ -1193,8 +1221,7 @@
 
                                                 <img v-if="att.type.startsWith('image/') && !att.loadError"
                                                     :src="att.url" class="msg-img-attachment" alt="附圖"
-                                                    @error="att.loadError = true"
-                                                    @click="openImagePreview(att.url)">
+                                                    @error="att.loadError = true" @click="openImagePreview(att.url)">
 
                                                 <span v-if="att.type.startsWith('image/') && att.loadError"
                                                     class="msg-file-link"
@@ -1269,8 +1296,10 @@
 
         <!-- 圖片放大預覽 -->
         <div v-if="previewImageUrl" class="image-lightbox" @click="closeImagePreview">
-            <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-4" aria-label="關閉" style="z-index: 2;"></button>
-            <img :src="previewImageUrl" alt="放大預覽" @click.stop> </div>
+            <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-4" aria-label="關閉"
+                style="z-index: 2;"></button>
+            <img :src="previewImageUrl" alt="放大預覽" @click.stop>
+        </div>
     </main>
 
     <footer class="site-footer">
@@ -1320,7 +1349,7 @@
                 const closeImagePreview = () => {
                     previewImageUrl.value = null;
                 };
-                
+
                 const clearUnread = () => { hasUnread.value = false; };
 
                 // 🌟 新增：檢查特定階段的所有任務是否已全部完成
@@ -1352,7 +1381,7 @@
                 // 🌟 新增：抓出最新的一筆檔案 (假設陣列最後一筆是最新的)
                 const latestDocument = computed(() => {
                     if (!data.documents || data.documents.length === 0) return null;
-                    return data.documents[data.documents.length - 1]; 
+                    return data.documents[data.documents.length - 1];
                     // 如果你的後端是把最新的放第一筆，請改成 return data.documents[0];
                 });
 

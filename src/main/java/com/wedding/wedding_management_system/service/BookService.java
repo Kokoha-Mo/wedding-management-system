@@ -203,8 +203,7 @@ public class BookService {
     public Map<String, Long> statusCountsByManager(Integer managerId) {
         return Map.of(
                 "處理中", bookRepository.countByManager_IdAndStatus(managerId, "處理中"),
-                "已簽約", bookRepository.countByManager_IdAndStatus(managerId, "已簽約"),
-                "取消",   bookRepository.countByManager_IdAndStatus(managerId, "取消")
+                "已簽約", bookRepository.countByManager_IdAndStatus(managerId, "已簽約")
         );
     }
 
@@ -240,7 +239,7 @@ public class BookService {
      * 更新預約狀態
      */
     @Transactional
-    public BookResponseDTO updateStatus(Integer bookId, String newStatus) {
+    public BookResponseDTO updateStatus(Integer bookId, String newStatus, Integer managerId) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("找不到預約單，id=" + bookId));
         log.info("更新預約狀態 book_id={}: {} → {}", bookId, book.getStatus(), newStatus);
@@ -250,6 +249,14 @@ public class BookService {
             throw new IllegalStateException("請先填寫婚宴日期才能轉為簽約");
         }
         book.setStatus(newStatus);
+        if (managerId != null) {
+            // 🌟 先用 managerId 去資料庫把這個 Employee 實體撈出來
+            Employee employee = employeeRepository.findById(managerId)
+                    .orElseThrow(() -> new EntityNotFoundException("找不到此員工，id=" + managerId));
+
+            // 🌟 然後再把整個 Employee 物件塞給 Book
+            book.setManager(employee);
+        }
         Book saved = bookRepository.save(book);
 
         // ── 狀態改成已簽約時，自動建立 project ──

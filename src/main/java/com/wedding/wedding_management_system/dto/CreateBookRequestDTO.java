@@ -30,13 +30,14 @@ public class CreateBookRequestDTO {
     private String name;
 
     @NotBlank(message = "手機號碼為必填")
-    @Pattern(regexp = "^[0-9\\-+\\s]{7,20}$", message = "手機格式不正確")
+    @Pattern(regexp = "^\\d{10}$", message = "手機號碼必須為 10 位數字")
     private String tel;
 
     public String setTel() {
         return tel == null ? null : tel.replaceAll("[^0-9]", "");
     }
 
+    @NotBlank(message = "Email 不能為空")
     @Email(message = "Email 格式不正確")
     private String email;
 

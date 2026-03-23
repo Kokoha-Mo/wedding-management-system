@@ -113,9 +113,13 @@ async function loadStatusCounts() {
             credentials: 'include'
         });
         const counts = await res.json();
+        const resCancel = await fetch(`${API_BASE}/books/status-counts`, {
+            credentials: 'include'
+        });
+        const countsCancel = await resCancel.json();
         document.getElementById('badge-pending').textContent   = counts['處理中'] ?? 0;
         document.getElementById('badge-signed').textContent    = counts['已簽約'] ?? 0;
-        document.getElementById('badge-cancelled').textContent = counts['取消']   ?? 0;
+        document.getElementById('badge-cancelled').textContent = countsCancel['取消']   ?? 0;
     } catch (err) {
         console.error('[API] 載入狀態數量失敗:', err);
     }
@@ -258,11 +262,13 @@ async function loadBooks(status = '處理中') {
     try {
         const managerId = sessionStorage.getItem('empId');
 
+        let url = `${API_BASE}/books?status=${encodeURIComponent(status)}`;
+        if (status !== '取消') {
+            url += `&managerId=${managerId}`;
+        }
+
         // --- 1. 發送請求 ---
-        const res = await fetch(
-            `${API_BASE}/books?status=${encodeURIComponent(status)}&managerId=${managerId}`,
-            { credentials: 'include' }
-        );
+        const res = await fetch(url, { credentials: 'include' });
 
         // --- 2. 檢查 HTTP 狀態碼 (防護一) ---
         if (!res.ok) {
@@ -303,7 +309,6 @@ async function loadBooks(status = '處理中') {
                 //console.log('✔ 已從 result.content 中取出陣列');
                 result = result.content;
             } else {
-                //console.error('❌ 無法在回傳物件中找到陣列，強制設為空陣列 [] 避免報錯');
                 result = [];
             }
         }
@@ -329,7 +334,18 @@ async function submitCreateBook() {
     const email = document.getElementById('input-email').value.trim();
 
     if (!name || !tel) {
-        alert('請填寫姓名與手機號碼');
+        showToast('請填寫姓名與手機號碼');
+        return;
+    }
+
+    if (!/^\d{10}$/.test(tel)) {
+        showToast('手機號碼錯誤，必須為 10 位數字！', 'error');
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showToast('Email 格式不正確（例如：example@gmail.com）', 'error');
         return;
     }
 
@@ -395,11 +411,11 @@ async function submitCreateBook() {
             loadStatusCounts();
             loadBooks('處理中');
         } else {
-            alert('建立失敗：' + (result.message || '請確認欄位'));
+            showToast('建立失敗：' + (result.message || '請確認欄位'));
         }
     } catch (err) {
         console.error(err);
-        alert('連線失敗，請確認後端服務是否啟動');
+        showToast('連線失敗，請確認後端服務是否啟動');
     }
 }
 
@@ -419,7 +435,7 @@ async function updateBookStatus(bookId, newStatus) {
             // 檢查是否為空 (有時候沒資料會變成字串 'null'，所以一併擋掉)
             if (!weddingDate || weddingDate === 'null' || weddingDate.trim() === '') {
                 showToast('請先點擊「修改資料」填寫婚宴日期，才能轉為簽約喔！', 'error');
-                return; // 靈魂 return！中斷執行，不打 API
+                return;
             }
         }
         const customerName = card?.dataset.name || '此客戶';
@@ -434,12 +450,23 @@ async function updateBookStatus(bookId, newStatus) {
         const confirmed = window.confirm(`確定要取消「${customerName}」的預約嗎？`);
         if (!confirmed) return;
     }
+
+    if (newStatus === '處理中') {
+        const confirmed = window.confirm('確定要恢復這筆預約嗎？\n恢復後，此案件將由您接手處理！');
+        if (!confirmed) return;
+    }
+    const payload = { status: newStatus };
+
+    if (newStatus === '處理中') {
+        payload.managerId = sessionStorage.getItem('empId');
+    }
+
     try {
         const res = await fetch(`${API_BASE}/books/${bookId}/update`, {
             method:  'PATCH',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body:    JSON.stringify({ status: newStatus })
+            body:    JSON.stringify({ status: newStatus,managerId: parseInt(sessionStorage.getItem('empId')) })
         });
 
         if (res.ok) {
@@ -488,6 +515,17 @@ async function saveBookInfo() {
 
     if (!email) {
         showToast('Email 為必填', 'error');
+        return;
+    }
+
+    if (!tel || !/^\d{10}$/.test(tel)) {
+        showToast('手機號碼錯誤，必須為 10 位數字！', 'error');
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showToast('Email 格式不正確（例如：example@gmail.com）', 'error');
         return;
     }
 

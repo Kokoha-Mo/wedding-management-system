@@ -103,6 +103,23 @@ public class CustomerProgressService {
             // 基準日 (婚期)
             LocalDate wedDate = book != null ? book.getWeddingDate() : null;
 
+            // ==========================================
+            // 🌟 展示用邏輯 (Demo Only)：依照時間自動推進付款狀態
+            // ==========================================
+            LocalDate today = LocalDate.now();
+            if (wedDate != null) {
+                // 判斷 1：如果今天 >= 婚期前 3 個月，自動結清期中款 (與訂金)
+                if (!today.isBefore(wedDate.minusMonths(3))) {
+                    isDepositPaid = true;
+                    isMidPaid = true;
+                }
+                // 判斷 2：如果今天 >= 婚期前 14 天，自動結清尾款
+                if (!today.isBefore(wedDate.minusDays(14))) {
+                    isFinalPaid = true;
+                }
+            }
+            // ==========================================
+
             // 1. 訂金 20%
             ProjectProgressDTO.PaymentDTO p1 = new ProjectProgressDTO.PaymentDTO();
             p1.setTitle("訂金 20% (NT$ " + String.format("%,d", deposit) + ")");
@@ -176,7 +193,7 @@ public class CustomerProgressService {
 
             commDto.setContent(comm.getContent());
             commDto.setCreateAt(comm.getCreateAt() != null ? comm.getCreateAt().plusHours(8) : null);
-            
+
             if (comm.getDocuments() != null) {
                 List<ProjectProgressDTO.DocumentDetail> docs = comm.getDocuments().stream().map(doc -> {
                     ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();

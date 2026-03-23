@@ -97,16 +97,25 @@ public class BookService {
     public List<CustomerDTO> findSimilarCustomers(String email, String tel) {
         List<CustomerDTO> result = new ArrayList<>();
 
-        // 查 email
         if (email != null && !email.isBlank()) {
-            customerRepository.findByEmail(email)
-                    .ifPresent(c -> result.add(CustomerDTO.from(c)));
+            customerRepository.findByEmail(email).ifPresent(c -> {
+                CustomerDTO dto = CustomerDTO.from(c);
+                // 找該客戶的 book
+                bookRepository.findByCustomer(c).stream()
+                        .findFirst()
+                        .ifPresent(b -> dto.setBookId(b.getId()));
+                result.add(dto);
+            });
         }
 
-        // 查 tel（避免重複加入）
         if (tel != null && !tel.isBlank() && result.isEmpty()) {
-            customerRepository.findFirstByTel(tel)
-                    .ifPresent(c -> result.add(CustomerDTO.from(c)));
+            customerRepository.findFirstByTel(tel).ifPresent(c -> {
+                CustomerDTO dto = CustomerDTO.from(c);
+                bookRepository.findByCustomer(c).stream()
+                        .findFirst()
+                        .ifPresent(b -> dto.setBookId(b.getId()));
+                result.add(dto);
+            });
         }
 
         return result;
@@ -144,14 +153,17 @@ public class BookService {
         Book saved = bookRepository.save(book);
         log.info("預約建立成功，book_id={}", saved.getId());
 
-        // 自動帶入 service_id=1（A方案｜婚宴全時統籌）
-        serviceRepository.findById(1).ifPresent(service -> {
-            BookDetail defaultDetail = new BookDetail();
-            defaultDetail.setBook(saved);
-            defaultDetail.setService(service);
-            defaultDetail.setUnitPrice(service.getPrice());
-            bookDetailRepository.save(defaultDetail);
-            log.info("自動帶入 A方案，book_id={}", saved.getId());
+        // 自動帶入 service_id=1 和 service_id=2（A方案）
+        List<Integer> aServiceIds = List.of(1, 2);
+        aServiceIds.forEach(serviceId -> {
+            serviceRepository.findById(serviceId).ifPresent(service -> {
+                BookDetail defaultDetail = new BookDetail();
+                defaultDetail.setBook(saved);
+                defaultDetail.setService(service);
+                defaultDetail.setUnitPrice(service.getPrice());
+                bookDetailRepository.save(defaultDetail);
+                log.info("自動帶入 A方案服務，service_id={}, book_id={}", serviceId, saved.getId());
+            });
         });
         return BookResponseDTO.from(saved, customer);
     }

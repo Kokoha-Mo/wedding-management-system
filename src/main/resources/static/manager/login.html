@@ -305,6 +305,7 @@
                     alert("登出失敗，伺服器無回應");
                 }
             } catch (error) {
+                console.error("登出請求發生錯誤：", error);
             }
         }
 

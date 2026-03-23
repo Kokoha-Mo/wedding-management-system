@@ -11,6 +11,8 @@ import java.util.List;
 public interface DocumentRepository extends JpaRepository<Document, Integer> {
     List<Document> findByTask_Id(Integer taskId);
 
+    List<Document> findByTask_IdIn(List<Integer> taskIds);
+
     /**
      * 根據 task_id 和 status 查詢附檔
      * 用於「查看成果」時精準取得特定任務的附檔

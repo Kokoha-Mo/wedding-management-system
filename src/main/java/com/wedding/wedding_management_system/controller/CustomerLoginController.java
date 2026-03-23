@@ -5,7 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue; // 🌟 新增這個 Import
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,7 @@ import com.wedding.wedding_management_system.entity.Customer;
 import com.wedding.wedding_management_system.service.CustomerLoginService;
 import com.wedding.wedding_management_system.service.CustomerService;
 import com.wedding.wedding_management_system.service.EmailService;
-import com.wedding.wedding_management_system.util.JwtToken; // 🌟 把註解拿掉！
+import com.wedding.wedding_management_system.util.JwtToken;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,11 +42,11 @@ public class CustomerLoginController {
         try {
             CustomerLoginResponseDto result = customerLoginService.login(loginDto);
 
-            ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", result.getToken())
+            ResponseCookie jwtCookie = ResponseCookie.from("customerToken", result.getToken())
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
-                    .maxAge(60 * 60)
+                    .maxAge(60 * 60) // an hour
                     .build();
 
             result.setToken(null);
@@ -61,9 +61,25 @@ public class CustomerLoginController {
         }
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> me(
+            @CookieValue(value = "customerToken", required = false) String token) {
+
+        if (token == null || !JwtToken.isValid(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        String email = JwtToken.getEmail(token);
+        Customer customer = customerService.findByEmail(email);
+
+        return ResponseEntity.ok(Map.of(
+                "name", customer.getName(),
+                "customerId", customer.getId()));
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
-        ResponseCookie expiredCookie = ResponseCookie.from("jwtToken", "")
+        ResponseCookie expiredCookie = ResponseCookie.from("customerToken", "")
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
@@ -79,7 +95,7 @@ public class CustomerLoginController {
     @PostMapping("/update-password")
     public ResponseEntity<Map<String, String>> updatePassword(
             @RequestBody Map<String, String> request,
-            @CookieValue(value = "jwtToken", required = false) String token) {
+            @CookieValue(value = "customerToken", required = false) String token) {
 
         // 1. 確認客人已經成功登入了 (Cookie 裡有帶 Token)
         if (token == null || !JwtToken.isValid(token)) {

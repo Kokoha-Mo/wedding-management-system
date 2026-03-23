@@ -65,6 +65,13 @@ async function checkAuthStatus() {
       localStorage.removeItem('dv_customer_id');
       localStorage.removeItem('dv_login_time');
       syncNavbarUI(false);
+
+      // 如果目前在需要登入才能進入的頁面，直接跳轉回登入頁
+      const protectedPages = ['customer_progress.html', 'customer_system.html'];
+      const currentPage = window.location.pathname.split('/').pop();
+      if (protectedPages.includes(currentPage)) {
+        window.location.href = './client_login.html';
+      }
     } else {
       // 其他錯誤 (如 500 後端報錯、404 找不到路徑等) 則忽略，不強制登出
       console.warn("身分驗證遇到異常，狀態碼：", res.status);

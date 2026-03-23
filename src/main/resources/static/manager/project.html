@@ -39,16 +39,13 @@
 <div id="app" class="flex w-full h-full overflow-hidden">
 
     <!-- Sidebar Overlay -->
-    <div
-        v-show="sidebarOpen"
-        @click="sidebarOpen = false"
-        class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity cursor-pointer">
+    <div id="sidebar-overlay"
+        class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity hidden cursor-pointer">
     </div>
 
     <!-- Sidebar -->
-    <aside
-        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-        class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative">
+    <aside id="sidebar"
+        class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative -translate-x-full lg:translate-x-0">
 
         <div class="h-16 flex items-center justify-center">
             <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
@@ -111,9 +108,9 @@
     <div class="flex-1 flex flex-col h-full overflow-hidden relative">
 
         <!-- Header -->
-        <header class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
+        <header class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 relative z-40 shadow-sm text-white">
             <div class="flex items-center flex-1">
-                <button @click="sidebarOpen = !sidebarOpen"
+                <button id="sidebar-hamburger"
                     class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
                     <span class="material-icons">menu</span>
                 </button>
@@ -121,15 +118,20 @@
             </div>
             <div class="flex items-center space-x-4">
                 <div class="relative">
-                    <div @click="showUserDropdown = !showUserDropdown"
+                    <div id="user-menu-button"
                         class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
                         <img :src="avatarSrc" alt="Avatar"
                             class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover" />
                         <span class="text-sm font-medium mr-1 text-gray-200">{{ empName || 'User' }}</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                     </div>
-                    <div v-show="showUserDropdown"
-                        class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 z-50 border border-gray-100">
+                    <div id="user-dropdown"
+                        class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">
+                        <a href="account.html"
+                            class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span> Profile
+                        </a>
+                        <hr class="my-1 border-gray-100">
                         <a href="login.html"
                             class="flex items-center px-4 py-2.5 text-sm text-danger hover:bg-gray-50 transition-colors">
                             <span class="material-icons text-[18px] mr-3 text-danger">logout</span> 登出
@@ -214,18 +216,29 @@
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
 
+                                <!-- Loading State -->
+                                <tr v-if="projectsLoading">
+                                    <td colspan="6" class="text-center py-10 text-gray-500">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
+                                            <p>正在載入專案資料...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+
                                 <!-- Empty State -->
-                                <tr v-if="paginatedProjects.length === 0">
+                                <tr v-else-if="paginatedProjects.length === 0">
                                     <td colspan="6" class="text-center py-8 text-gray-500">此分類目前沒有專案資料</td>
                                 </tr>
 
                                 <!-- Project Rows -->
-                                <tr v-for="project in paginatedProjects" :key="project.projectId"
-                                    :class="getRowClass(project)"
-                                    class="project-row transition-colors group">
+                                <template v-else>
+                                    <tr v-for="project in paginatedProjects" :key="project.projectId"
+                                        :class="getRowClass(project)"
+                                        class="project-row transition-colors group">
 
-                                    <!-- 專案編號 / 客戶 -->
-                                    <td class="px-6 py-4">
+                                        <!-- 專案編號 / 客戶 -->
+                                        <td class="px-6 py-4">
                                         <div class="font-bold text-gray-900 dark:text-white text-base">{{ project.customerName || '未知客戶' }}</div>
                                         <div class="text-xs text-gray-500 mt-1">{{ project.projectNo || '' }}</div>
                                     </td>
@@ -306,26 +319,27 @@
                                     </td>
 
                                     <!-- 操作 -->
-                                    <td class="px-6 py-4 text-right">
-                                        <!-- 已完成 → 查看紀錄 -->
-                                        <a v-if="project.status === '已完成'"
-                                            href="#" @click.prevent="openProjectRecordModal(project.projectId)"
-                                            class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
-                                            查看紀錄 <span class="material-icons text-[16px] ml-1">history</span>
-                                        </a>
-                                        <!-- 需注意 → 緊急處理 -->
-                                        <a v-else-if="project.daysRemaining !== null && project.daysRemaining <= 45"
-                                            :href="`project1.html?id=${project.projectId}`"
-                                            class="inline-flex items-center justify-center px-4 py-2 bg-red-500 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-red-600 transition-colors shadow-sm">
-                                            緊急處理 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
-                                        </a>
-                                        <!-- 一般 → 進入專案 -->
-                                        <a v-else :href="`project1.html?id=${project.projectId}`"
-                                            class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
-                                            進入專案 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
-                                        </a>
-                                    </td>
-                                </tr>
+                                        <td class="px-6 py-4 text-right">
+                                            <!-- 已完成 → 查看紀錄 -->
+                                            <a v-if="project.status === '已完成'"
+                                                href="#" @click.prevent="openProjectRecordModal(project.projectId)"
+                                                class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                                                查看紀錄 <span class="material-icons text-[16px] ml-1">history</span>
+                                            </a>
+                                            <!-- 需注意 → 緊急處理 -->
+                                            <a v-else-if="project.daysRemaining !== null && project.daysRemaining <= 45"
+                                                :href="`project1.html?id=${project.projectId}`"
+                                                class="inline-flex items-center justify-center px-4 py-2 bg-red-500 border border-transparent rounded-lg text-sm font-bold text-white hover:bg-red-600 transition-colors shadow-sm">
+                                                緊急處理 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
+                                            </a>
+                                            <!-- 一般 → 進入專案 -->
+                                            <a v-else :href="`project1.html?id=${project.projectId}`"
+                                                class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                                                進入專案 <span class="material-icons text-[16px] ml-1">arrow_forward</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </template>
                             </tbody>
                         </table>
                     </div>
@@ -496,6 +510,7 @@ createApp({
             showUserDropdown: false,
             // Projects
             allProjects: [],
+            projectsLoading: true,
             // Filter / Sort / Pagination
             currentFilter: 'all',
             currentPage: 1,
@@ -599,6 +614,7 @@ createApp({
         },
 
         async loadProjects() {
+            this.projectsLoading = true;
             try {
                 const url = `/api/manager/${this.managerId}/projects`;
                 const res = await fetch(url, { credentials: 'include' });
@@ -615,6 +631,8 @@ createApp({
             } catch (err) {
                 console.error('無法取得專案資料:', err);
                 this.allProjects = [];
+            } finally {
+                this.projectsLoading = false;
             }
         },
 

@@ -321,10 +321,13 @@
                                         <!-- 待指派 / 卡關 -->
                                         <div v-if="task.status==='待指派' || task.status==='卡關'"
                                             class="flex items-center gap-2 flex-shrink-0 pt-1">
-                                            <button @click="openChatModal(task.taskId,false)"
-                                                class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
-                                                <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
-                                            </button>
+                                            <div class="relative inline-block">
+                                                <button @click="openChatModal(task.taskId,false)"
+                                                    class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
+                                                    <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
+                                                </button>
+                                                <span v-show="taskUnread[task.taskId]" class="pulse-hint border-2 border-white"></span>
+                                            </div>
                                             <button @click="openAssignModal(task)"
                                                 class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors flex items-center whitespace-nowrap">
                                                 指派任務 <span class="material-icons text-[16px] ml-1">person_add_alt</span>
@@ -335,10 +338,13 @@
                                         <div v-else-if="task.status==='待審核'"
                                             class="flex flex-col items-end gap-2 flex-shrink-0 pt-1">
                                             <div class="flex space-x-2">
-                                                <button @click="openChatModal(task.taskId,false)" title="任務留言板"
-                                                    class="px-3 py-1.5 bg-gray-50 text-gray-600 font-bold rounded-lg text-xs hover:bg-gray-100 transition-colors">
-                                                    <span class="material-icons text-[16px]">forum</span>
-                                                </button>
+                                                <div class="relative inline-block">
+                                                    <button @click="openChatModal(task.taskId,false)" title="任務留言板"
+                                                        class="px-3 py-1.5 bg-gray-50 text-gray-600 font-bold rounded-lg text-xs hover:bg-gray-100 transition-colors">
+                                                        <span class="material-icons text-[16px]">forum</span>
+                                                    </button>
+                                                    <span v-show="taskUnread[task.taskId]" class="pulse-hint border-2 border-white"></span>
+                                                </div>
                                                 <button @click="openRejectModal(task.taskId)"
                                                     class="px-3 py-1.5 bg-red-50 text-red-600 font-bold rounded-lg text-xs hover:bg-red-100 transition-colors">駁回</button>
                                                 <button @click="approveTask(task.taskId)"
@@ -358,10 +364,13 @@
                                         <div v-else-if="task.status==='進行中'"
                                             class="flex flex-col items-end gap-2 flex-shrink-0 pt-1">
                                             <div class="flex items-center gap-2">
-                                                <button @click="openChatModal(task.taskId,false)"
-                                                    class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
-                                                    <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
-                                                </button>
+                                                <div class="relative inline-block">
+                                                    <button @click="openChatModal(task.taskId,false)"
+                                                        class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
+                                                        <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
+                                                    </button>
+                                                    <span v-show="taskUnread[task.taskId]" class="pulse-hint border-2 border-white"></span>
+                                                </div>
                                                 <button @click="openAssignModal(task,true)"
                                                     class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors flex items-center whitespace-nowrap">
                                                     查看詳情 <span
@@ -373,10 +382,13 @@
                                         <!-- 已完成/已結案 → 只留下 查看核准成果 與 任務留言板 -->
                                         <div v-else class="flex flex-col items-end gap-2 flex-shrink-0 pt-1">
                                             <div class="flex items-center gap-2">
-                                                <button @click="openChatModal(task.taskId,false)"
-                                                    class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
-                                                    <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
-                                                </button>
+                                                <div class="relative inline-block">
+                                                    <button @click="openChatModal(task.taskId,false)"
+                                                        class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
+                                                        <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
+                                                    </button>
+                                                    <span v-show="taskUnread[task.taskId]" class="pulse-hint border-2 border-white"></span>
+                                                </div>
                                             </div>
                                             <button
                                                 v-if="task.status==='\u5df2\u5b8c\u6210' || task.status==='\u5df2\u7d50\u6848'"
@@ -505,7 +517,7 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                             要求完成期限 <span v-if="!assignModal.readOnly" class="text-red-500">*</span>
                         </label>
-                        <input type="date" v-model="assignModal.deadline" :readonly="assignModal.readOnly"
+                        <input type="date" v-model="assignModal.deadline" :readonly="assignModal.readOnly" :min="todayDate"
                             class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
                     </div>
                     <!-- 備註 -->
@@ -870,7 +882,10 @@
                     docs: [], docsLoading: false,
 
                     // UI
-                    sidebarOpen: false, userDropdownOpen: false, showClientUnread: true,
+                    sidebarOpen: false, userDropdownOpen: false, showClientUnread: false,
+
+                    // 任務留言板紅點（taskId → boolean）
+                    taskUnread: {},
 
                     // 員工頭像配色池
                     empColors: ['bg-indigo-100 text-indigo-600', 'bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-pink-100 text-pink-600', 'bg-amber-100 text-amber-600'],
@@ -942,6 +957,13 @@
                         if (this.activeFilter === 'completed') return t.status === '已完成' || t.status === '已結案';
                     });
                 },
+                todayDate() {
+                    const today = new Date();
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                    const dd = String(today.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                }
             },
 
             // ══════════════════════════════════════════════════════
@@ -963,6 +985,9 @@
                     this.projectId = p.get('id') || p.get('projectId') || 1;
 
                     await Promise.all([this.fetchProjectInfo(), this.fetchTasks(), this.loadDocs()]);
+                    // 初始化各紅點
+                    await this.checkClientUnread();
+                    await this.checkAllTaskUnread();
                 },
 
                 // ── API：專案基本資訊
@@ -1082,6 +1107,8 @@
 
                 // ── 留言板 Modal
                 async openChatModal(taskId, readOnly = false) {
+                    // 開啟後清除此 task 的紅點
+                    this.taskUnread[taskId] = false;
                     Object.assign(this.chatModal, { open: true, readOnly, activeTaskId: taskId, loading: true, messages: [], inputText: '' });
                     try {
                         const r = await fetch(`/api/employee/tc/${taskId}`, { credentials: 'include' });
@@ -1100,6 +1127,26 @@
                     }
                 },
                 closeChatModal() { this.chatModal.open = false; this.chatModal.activeTaskId = null; },
+
+                // 預先檢查所有任務留言板是否有未讀（最後一則為員工/非本人發送）
+                async checkAllTaskUnread() {
+                    const ids = this.tasks.map(t => t.taskId);
+                    await Promise.all(ids.map(id => this.checkTaskUnread(id)));
+                },
+                async checkTaskUnread(taskId) {
+                    try {
+                        const r = await fetch(`/api/employee/tc/${taskId}`, { credentials: 'include' });
+                        if (!r.ok) return;
+                        const msgs = await r.json();
+                        if (msgs.length > 0) {
+                            const lastMsg = msgs[msgs.length - 1];
+                            // 最後一則不是本人（PM）發的 → 亮紅點
+                            this.taskUnread[taskId] = String(lastMsg.creatorId) !== String(this.empId);
+                        } else {
+                            this.taskUnread[taskId] = false;
+                        }
+                    } catch (e) { console.error(e); }
+                },
                 async sendChatMsg() {
                     const text = this.chatModal.inputText.trim();
                     if (!text) return;
@@ -1112,6 +1159,24 @@
 
                 // ── 客服通道 Modal
                 async openClientChatModal() { this.clientChat.open = true; this.showClientUnread = false; await this.loadClientChat(); },
+
+                // 預先檢查客服通道是否有未讀（最後一則為客戶發送）
+                async checkClientUnread() {
+                    try {
+                        const r = await fetch(`/api/manager/projects/${this.projectId}/communication`);
+                        if (!r.ok) return;
+                        const data = await r.json();
+                        const timeline = data.timeline || [];
+                        if (timeline.length > 0) {
+                            // timeline 原始順序由舊到新，直接取最後一則即為最新訊息
+                            const lastMsg = timeline[timeline.length - 1];
+                            const pm = data.pmName || '';
+                            // 最後一則不是 PM 發的（即客戶發送），PM 還未回覆 → 亮紅點
+                            const isPM = lastMsg.createBy === pm || lastMsg.createBy === '公司' || (lastMsg.createBy || '').includes('PM');
+                            this.showClientUnread = !isPM;
+                        }
+                    } catch (e) { console.error(e); }
+                },
                 closeClientChat() { this.clientChat.open = false; this.clientChat.attachedFiles = []; this.clientChat.inputText = ''; },
                 async loadClientChat() {
                     this.clientChat.loading = true;

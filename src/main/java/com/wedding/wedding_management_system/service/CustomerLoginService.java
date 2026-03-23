@@ -8,6 +8,7 @@ import com.wedding.wedding_management_system.dto.CustomerLoginResponseDto;
 import com.wedding.wedding_management_system.entity.Customer;
 import com.wedding.wedding_management_system.repository.BookRepository;
 import com.wedding.wedding_management_system.repository.CustomerRepository;
+import com.wedding.wedding_management_system.repository.ProjectRepository;
 import com.wedding.wedding_management_system.util.JwtToken;
 
 @Service
@@ -20,6 +21,9 @@ public class CustomerLoginService {
 
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     CustomerLoginService(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
@@ -46,6 +50,10 @@ public class CustomerLoginService {
         result.setEmail(customer.getEmail());
         result.setName(customer.getName());
         result.setForcePasswordChange("FORCE_RESET".equals(customer.getResetToken()));
+
+        // 🌟 新增：查詢該客戶是否有專案，並存入 DTO
+        boolean hasProject = projectRepository.existsByBook_Customer_Id(customer.getId());
+        result.setHasProject(hasProject);
 
         return result;
     }

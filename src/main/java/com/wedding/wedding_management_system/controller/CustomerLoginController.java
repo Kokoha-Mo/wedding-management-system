@@ -15,6 +15,7 @@ import com.wedding.wedding_management_system.dto.CustomerLoginDto;
 import com.wedding.wedding_management_system.dto.CustomerLoginResponseDto;
 import com.wedding.wedding_management_system.dto.ResetPasswordDto;
 import com.wedding.wedding_management_system.entity.Customer;
+import com.wedding.wedding_management_system.repository.ProjectRepository;
 import com.wedding.wedding_management_system.service.CustomerLoginService;
 import com.wedding.wedding_management_system.service.CustomerService;
 import com.wedding.wedding_management_system.service.EmailService;
@@ -36,6 +37,9 @@ public class CustomerLoginController {
 
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @PostMapping("/login")
     public ResponseEntity<CustomerLoginResponseDto> login(@RequestBody CustomerLoginDto loginDto) {
@@ -86,9 +90,13 @@ public class CustomerLoginController {
                     .body(Map.of("message", e.getMessage()));
         }
 
+        // 🌟 查詢是否有專案
+        boolean hasProject = projectRepository.existsByBook_Customer_Id(customer.getId());
+        
         return ResponseEntity.ok(Map.of(
                 "name", customer.getName(),
-                "customerId", customer.getId()));
+                "customerId", customer.getId(),
+                "hasProject", hasProject));
     }
 
     @PostMapping("/logout")

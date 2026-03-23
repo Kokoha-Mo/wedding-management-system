@@ -58,12 +58,15 @@ async function checkAuthStatus() {
       const data = await res.json();
       localStorage.setItem('dv_username', data.name);
       localStorage.setItem('dv_customer_id', data.customerId);
-      syncNavbarUI(true, data.name);
+      localStorage.setItem('dv_has_project', data.hasProject); // 🌟 儲存專案狀態
+      
+      syncNavbarUI(true, data.name, data.hasProject);
     } else if (res.status === 401 || res.status === 403) {
       // 只有在明確知道 Token 過期或權限不足時，才清空登入狀態
       localStorage.removeItem('dv_username');
       localStorage.removeItem('dv_customer_id');
       localStorage.removeItem('dv_login_time');
+      localStorage.removeItem('dv_has_project'); // 🌟 清除專案狀態
       syncNavbarUI(false);
 
       // 如果目前在需要登入才能進入的頁面，直接跳轉回登入頁
@@ -83,7 +86,8 @@ async function checkAuthStatus() {
 }
 
 /* UI：同步更新電腦與手機的導覽列 */
-function syncNavbarUI(isLoggedIn, username = "") {
+// 🌟 新增 hasProject 參數，預設為 null
+function syncNavbarUI(isLoggedIn, username = "", hasProject = null) {
   const deskLogin = document.getElementById('loginLinkDesktop');
   const deskUserWrap = document.getElementById('userDropdownWrap');
   const deskUserBtn = document.getElementById('userDropdownBtn');
@@ -91,6 +95,15 @@ function syncNavbarUI(isLoggedIn, username = "") {
   const mobUserMenu = document.getElementById('mobileUserMenu');
   const mobWelcome = document.getElementById('mobileWelcome');
   const mobLogout = document.getElementById('logoutBtnMobile');
+
+  // 🌟 1. 抓取桌機版與手機版的兩個選單按鈕
+  const deskPlanLink = document.querySelector('#userDropdownWrap a[href="./customer_system.html"]');
+  const deskProgressLink = document.querySelector('#userDropdownWrap a[href="./customer_progress.html"]');
+  const mobPlanLink = document.querySelector('#mobileUserMenu a[href="./customer_system.html"]');
+  const mobProgressLink = document.querySelector('#mobileUserMenu a[href="./customer_progress.html"]');
+
+  // 🌟 2. 決定專案狀態：如果有傳入就用傳入的，沒有的話去 localStorage 抓 (確保重新整理不會錯亂)
+  const isProjectExists = hasProject !== null ? hasProject : (localStorage.getItem('dv_has_project') === 'true');
 
   if (isLoggedIn) {
     if (deskLogin) deskLogin.style.setProperty('display', 'none', 'important');
@@ -100,6 +113,23 @@ function syncNavbarUI(isLoggedIn, username = "") {
     if (mobUserMenu) mobUserMenu.style.display = 'block';
     if (mobWelcome) mobWelcome.textContent = `歡迎, ${username}`;
     if (mobLogout) mobLogout.style.display = 'block';
+    
+    // 🌟 3. 核心邏輯：根據 isProjectExists 來控制顯示哪一個選單
+    if (isProjectExists) {
+        // 【已有專案】：顯示「我的籌備進度」，隱藏「我的婚禮規劃」
+        // 桌機版因為是 <li> 裡面包 <a>，所以我們隱藏外層的 <li> 避免留空隙 (.parentElement)
+        if (deskPlanLink) deskPlanLink.parentElement.style.display = 'none';
+        if (deskProgressLink) deskProgressLink.parentElement.style.display = 'block';
+        if (mobPlanLink) mobPlanLink.style.display = 'none';
+        if (mobProgressLink) mobProgressLink.style.display = 'block';
+    } else {
+        // 【尚無專案】：顯示「我的婚禮規劃」，隱藏「我的籌備進度」
+        if (deskPlanLink) deskPlanLink.parentElement.style.display = 'block';
+        if (deskProgressLink) deskProgressLink.parentElement.style.display = 'none';
+        if (mobPlanLink) mobPlanLink.style.display = 'block';
+        if (mobProgressLink) mobProgressLink.style.display = 'none';
+    }
+
   } else {
     if (deskLogin) deskLogin.style.display = 'block';
     if (mobLogin) mobLogin.style.display = 'block';
@@ -163,6 +193,9 @@ function completeLoginProcess(data, email, rememberMe) {
   localStorage.setItem('dv_username', data.name || data.email);
   localStorage.setItem('dv_login_time', Date.now());
 
+  // 🌟 登入成功時，立刻把專案狀態存起來
+  localStorage.setItem('dv_has_project', data.hasProject === true);
+  
   if (data.customerId) {
     localStorage.setItem('dv_customer_id', data.customerId);
   }

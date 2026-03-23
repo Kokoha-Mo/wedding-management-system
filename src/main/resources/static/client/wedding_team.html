@@ -915,42 +915,39 @@
         ];
 
         // ─── deptId → catId 對應表（對應後端 TeamDto.deptId）───
-        // deptId: 1=planner, 2=host, 3=photo, 4=sound, 5=makeup
         const DEPT_MAP = { 1: 'planner', 5: 'host', 4: 'photo', 3: 'sound', 6: 'makeup' };
 
-        // ─── 從 API 取得資料 ───
-        // API 回傳陣列，每筆包含 deptId, name, years, bio, styles, photoUrl（camelCase）
+        // ─── 全域成員資料（renderAll 使用）───
         const MEMBERS = {};
         CATEGORIES.forEach(cat => { MEMBERS[cat.id] = []; });
 
-        // ─── 渲染卡片（欄位：photo_url, name, years；不含 icon/tag）───
-        // ── renderCard ──
+        // ─── 渲染單張卡片 ───
         function renderCard(member, catId) {
             const cat = CATEGORIES.find(c => c.id === catId);
             const eyebrow = cat ? cat.eyebrow : '';
             return /*html*/`
-            <div class="partner-card"
-                data-name="${member.name}"
-                data-cat="${catId}"
-                data-years="${member.years}"
-                data-bio="${member.bio.replace(/"/g, '&quot;')}"
-                data-styles="${member.styles}"
-                data-img="${member.photoUrl}">
-                <div class="card-img-wrap">
-                    <img src="${member.photoUrl}" alt="${member.name}" loading="lazy">
-                    <div class="card-overlay"></div>
-                </div>
-                <div class="card-body">
-                    <span class="card-eyebrow">${eyebrow}</span>
-                    <p class="card-name">${member.name}</p>
-                    <p class="card-years">${member.years} Years of Experience</p>
-                    <div class="card-rule"></div>
-                    <span class="card-cta">查看詳細資訊</span>
-                </div>
-            </div>`;
+        <div class="partner-card"
+            data-name="${member.name}"
+            data-cat="${catId}"
+            data-years="${member.years}"
+            data-bio="${member.bio.replace(/"/g, '&quot;')}"
+            data-styles="${member.styles}"
+            data-img="${member.photoUrl}">
+            <div class="card-img-wrap">
+                <img src="${member.photoUrl}" alt="${member.name}" loading="lazy">
+                <div class="card-overlay"></div>
+            </div>
+            <div class="card-body">
+                <span class="card-eyebrow">${eyebrow}</span>
+                <p class="card-name">${member.name}</p>
+                <p class="card-years">${member.years} Years of Experience</p>
+                <div class="card-rule"></div>
+                <span class="card-cta">查看詳細資訊</span>
+            </div>
+        </div>`;
         }
 
-
+        // ─── 渲染整個 grid（篩選按鈕 + 卡片列表）───
         function renderAll() {
             const sidebarFilters = document.getElementById('sidebarFilters');
             const mobileFilterBar = document.getElementById('mobileFilterBar');
@@ -962,146 +959,171 @@
             </button>`).join('');
 
             mobileFilterBar.innerHTML = CATEGORIES.map(cat => `
-            <button class="mobile-filter-chip" data-cat="${cat.id}">${cat.label}</button>`).join('');
+            <button class="mobile-filter-chip" data-cat="${cat.id}">
+                ${cat.label}
+            </button>`).join('');
 
             gridArea.innerHTML = CATEGORIES.map((cat, idx) => {
                 const members = MEMBERS[cat.id] || [];
                 const divider = idx < CATEGORIES.length - 1 ? '<hr class="category-divider">' : '';
                 return /*html*/`
-                <div class="category-section active" data-section="${cat.id}">
-                    <div class="category-header">
-                        <div class="category-header-left">
-                            <div class="category-accent-bar"></div>
-                            <div>
-                                <span class="category-label">${cat.eyebrow}</span>
-                                <h2 class="category-title">${cat.label}</h2>
-                            </div>
+            <div class="category-section active" data-section="${cat.id}">
+                <div class="category-header">
+                    <div class="category-header-left">
+                        <div class="category-accent-bar"></div>
+                        <div>
+                            <span class="category-label">${cat.eyebrow}</span>
+                            <h2 class="category-title">${cat.label}</h2>
                         </div>
-                        <span class="result-count">${members.length} 位夥伴</span>
                     </div>
-                    <div class="partner-grid">${members.map(m => renderCard(m, cat.id)).join('')}</div>
+                    <span class="result-count">${members.length} 位夥伴</span>
                 </div>
-                ${divider}`;
+                <div class="partner-grid">${members.map(m => renderCard(m, cat.id)).join('')}</div>
+            </div>
+            ${divider}`;
             }).join('');
         }
 
-        // ─── 篩選 + 動畫 + Modal ───
-        document.addEventListener('DOMContentLoaded', () => {
-            fetch('http://localhost:8080/api/team')
-                .then(res => res.json())
-                .then(rows => {
-                    CATEGORIES.forEach(cat => { MEMBERS[cat.id] = []; });
-                    rows.forEach(row => {
-                        const catId = DEPT_MAP[row.deptId];
-                        if (catId) MEMBERS[catId].push(row);
-                    });
-                    renderAll();
-                    initPage();
-                })
-                .catch(err => console.error('載入團隊資料失敗:', err));
+        // ─── Vue 接管：資料管理 + API 呼叫 ───
+        const app = Vue.createApp({
+            data() {
+                return {
+                    members: {},
+                    activeFilter: 'planner'
+                }
+            },
+            mounted() {
+                fetch('http://localhost:8080/api/team')
+                    .then(res => res.json())
+                    .then(rows => {
+                        const result = {};
+                        CATEGORIES.forEach(cat => { result[cat.id] = []; });
+                        rows.forEach(row => {
+                            const catId = DEPT_MAP[row.deptId];
+                            if (catId) result[catId].push(row);
+                        });
+                        this.members = result;
 
-            const gridArea = document.getElementById('gridArea');
+                        // 同步給全域 MEMBERS，供 renderAll 使用
+                        CATEGORIES.forEach(cat => { MEMBERS[cat.id] = this.members[cat.id] || []; });
+                        renderAll();
 
-            function getSections() { return document.querySelectorAll('.category-section'); }
-            function getDividers() { return document.querySelectorAll('.category-divider'); }
-            function getSidebarBtns() { return document.querySelectorAll('#sidebarFilters .filter-btn'); }
-            function getMobileBtns() { return document.querySelectorAll('.mobile-filter-chip'); }
+                        const gridArea = document.getElementById('gridArea');
+                        const sidebarFilters = document.getElementById('sidebarFilters');
+                        const mobileFilterBar = document.getElementById('mobileFilterBar');
 
-            function applyFilter(cat) {
-                getSections().forEach(s => {
-                    s.style.display = (cat === 'all' || s.dataset.section === cat) ? 'block' : 'none';
-                });
-                getDividers().forEach(d => { d.style.display = cat === 'all' ? 'block' : 'none'; });
-                document.querySelectorAll('.partner-card').forEach(c => c.classList.remove('visible'));
-                setTimeout(triggerVisible, 50);
-            }
+                        function getSections() { return document.querySelectorAll('.category-section'); }
+                        function getDividers() { return document.querySelectorAll('.category-divider'); }
+                        function getSidebarBtns() { return document.querySelectorAll('#sidebarFilters .filter-btn'); }
+                        function getMobileBtns() { return document.querySelectorAll('.mobile-filter-chip'); }
 
-            function setActive(cat) {
-                getSidebarBtns().forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
-                getMobileBtns().forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
-            }
-
-            function bindFilters() {
-                getSidebarBtns().forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        setActive(btn.dataset.cat);
-                        applyFilter(btn.dataset.cat);
-                        const navH = document.querySelector('.navbar').offsetHeight;
-                        window.scrollTo({ top: gridArea.getBoundingClientRect().top + window.pageYOffset - navH - 20, behavior: 'smooth' });
-                    });
-                });
-                getMobileBtns().forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        setActive(btn.dataset.cat);
-                        applyFilter(btn.dataset.cat);
-                        gridArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    });
-                });
-            }
-
-            function triggerVisible() {
-                const obs = new IntersectionObserver((entries) => {
-                    entries.forEach((e, i) => {
-                        if (e.isIntersecting) {
-                            setTimeout(() => e.target.classList.add('visible'), i * 80);
-                            obs.unobserve(e.target);
+                        function applyFilter(cat) {
+                            getSections().forEach(s => {
+                                s.style.display = (cat === 'all' || s.dataset.section === cat) ? 'block' : 'none';
+                            });
+                            getDividers().forEach(d => { d.style.display = cat === 'all' ? 'block' : 'none'; });
+                            document.querySelectorAll('.partner-card').forEach(c => c.classList.remove('visible'));
+                            setTimeout(triggerVisible, 50);
                         }
-                    });
-                }, { threshold: 0.1 });
-                document.querySelectorAll('.partner-card:not(.visible)').forEach(c => obs.observe(c));
+
+                        // setActive：更新 Vue 資料 + 重新產生按鈕 active 樣式
+                        function setActive(cat) {
+                            this.activeFilter = cat;
+                            sidebarFilters.innerHTML = CATEGORIES.map(c => `
+                            <button class="filter-btn ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
+                                ${c.label}<span class="filter-dot"></span>
+                            </button>`).join('');
+                            mobileFilterBar.innerHTML = CATEGORIES.map(c => `
+                            <button class="mobile-filter-chip ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
+                                ${c.label}
+                            </button>`).join('');
+                            bindFilters();
+                        }
+                        setActive = setActive.bind(this);
+
+                        function bindFilters() {
+                            getSidebarBtns().forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    setActive(btn.dataset.cat);
+                                    applyFilter(btn.dataset.cat);
+                                    const navH = document.querySelector('.navbar').offsetHeight;
+                                    window.scrollTo({ top: gridArea.getBoundingClientRect().top + window.pageYOffset - navH - 20, behavior: 'smooth' });
+                                });
+                            });
+                            getMobileBtns().forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    setActive(btn.dataset.cat);
+                                    applyFilter(btn.dataset.cat);
+                                    gridArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                });
+                            });
+                        }
+
+                        function triggerVisible() {
+                            const obs = new IntersectionObserver((entries) => {
+                                entries.forEach((e, i) => {
+                                    if (e.isIntersecting) {
+                                        setTimeout(() => e.target.classList.add('visible'), i * 80);
+                                        obs.unobserve(e.target);
+                                    }
+                                });
+                            }, { threshold: 0.1 });
+                            document.querySelectorAll('.partner-card:not(.visible)').forEach(c => obs.observe(c));
+                        }
+
+                        function initPage() {
+                            bindFilters();
+                            setActive('planner');
+                            applyFilter('planner');
+                            triggerVisible();
+                        }
+
+                        initPage();
+
+                        // ─── PROFILE MODAL ───
+                        const backdrop = document.getElementById('profileBackdrop');
+                        const closeBtn = document.getElementById('modalClose');
+
+                        function openModal(card) {
+                            const d = card.dataset;
+                            const cat = CATEGORIES.find(c => c.id === d.cat);
+                            document.getElementById('modalTag').textContent = cat ? cat.eyebrow : '';
+                            document.getElementById('modalImg').src = d.img || '';
+                            document.getElementById('modalName').textContent = d.name || '';
+                            document.getElementById('modalYears').textContent = d.years || '—';
+                            document.getElementById('modalBio').textContent = d.bio || '';
+
+                            const tagWrap = document.getElementById('modalStyleTags');
+                            tagWrap.innerHTML = '';
+                            (d.styles || '').split(',').forEach(s => {
+                                const span = document.createElement('span');
+                                span.className = 'style-badge';
+                                span.textContent = s.trim();
+                                tagWrap.appendChild(span);
+                            });
+
+                            document.querySelector('.modal-content-col').scrollTop = 0;
+                            backdrop.classList.add('open');
+                            document.body.style.overflow = 'hidden';
+                        }
+
+                        function closeModal() {
+                            backdrop.classList.remove('open');
+                            document.body.style.overflow = '';
+                        }
+
+                        gridArea.addEventListener('click', e => {
+                            const card = e.target.closest('.partner-card');
+                            if (card) { e.preventDefault(); openModal(card); }
+                        });
+
+                        backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+                        closeBtn.addEventListener('click', closeModal);
+                        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+                    })
+                    .catch(err => console.error('載入團隊資料失敗:', err));
             }
-
-            function initPage() {
-                bindFilters();
-                setActive('planner');
-                applyFilter('planner');
-                triggerVisible();
-            }
-
-            // ─── PROFILE MODAL ───
-            const backdrop = document.getElementById('profileBackdrop');
-            const closeBtn = document.getElementById('modalClose');
-
-            function openModal(card) {
-                const d = card.dataset;
-
-                // modal tag：從 CATEGORIES 依 catId 找 eyebrow，完全前端，不存資料庫
-                const cat = CATEGORIES.find(c => c.id === d.cat);
-                document.getElementById('modalTag').textContent = cat ? cat.eyebrow : '';
-
-                document.getElementById('modalImg').src = d.img || '';
-                document.getElementById('modalName').textContent = d.name || '';
-                document.getElementById('modalYears').textContent = d.years || '—';
-                document.getElementById('modalBio').textContent = d.bio || '';
-
-                const tagWrap = document.getElementById('modalStyleTags');
-                tagWrap.innerHTML = '';
-                (d.styles || '').split(',').forEach(s => {
-                    const span = document.createElement('span');
-                    span.className = 'style-badge';
-                    span.textContent = s.trim();
-                    tagWrap.appendChild(span);
-                });
-
-                document.querySelector('.modal-content-col').scrollTop = 0;
-                backdrop.classList.add('open');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeModal() {
-                backdrop.classList.remove('open');
-                document.body.style.overflow = '';
-            }
-
-            gridArea.addEventListener('click', e => {
-                const card = e.target.closest('.partner-card');
-                if (card) { e.preventDefault(); openModal(card); }
-            });
-
-            backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
-            closeBtn.addEventListener('click', closeModal);
-            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-        });
+        }).mount('#gridArea');
     </script>
 </body>
 

@@ -23,26 +23,55 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
 /* 檢查現在是誰在線 */
-function checkAuthStatus() {
-  const user = sessionStorage.getItem('dv_username') || localStorage.getItem('dv_username');
-  const loginTime = sessionStorage.getItem('dv_login_time') || localStorage.getItem('dv_login_time');
-  const now = Date.now();
+async function checkAuthStatus() {
+  const user = localStorage.getItem('dv_username');
 
-  if (user) {
-    if (loginTime && (now - loginTime > SESSION_TIMEOUT)) {
-      forceLogout();
-      return;
-    }
-    syncNavbarUI(true, user);
+  // 檢查 Session 是否過期
+  const loginTime = localStorage.getItem('dv_login_time');
+  if (loginTime && Date.now() - parseInt(loginTime) > SESSION_TIMEOUT) {
+    // Session 過期 → 強制登出
+    forceLogout();
+    return;
+  }
 
-    // 已登入卻在登入頁 → 直接導回首頁
-    if (window.location.pathname.includes('client_login')) {
-      window.location.href = './index.html';
-      return;
-    }
-  } else {
+  if (!user) {
     syncNavbarUI(false);
+    return;
+  }
+
+  // 先用 localStorage 快速顯示（避免閃爍）
+  syncNavbarUI(true, user);
+
+  // 已登入卻在登入頁 → 直接導回首頁
+  if (window.location.pathname.includes('client_login')) {
+    window.location.href = './index.html';
+    return;
+  }
+
+  // 問後端 Cookie 是否真的有效
+  try {
+    const res = await fetch('/api/customer/me', { credentials: 'include' });
+
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('dv_username', data.name);
+      localStorage.setItem('dv_customer_id', data.customerId);
+      syncNavbarUI(true, data.name);
+    } else if (res.status === 401 || res.status === 403) {
+      // 只有在明確知道 Token 過期或權限不足時，才清空登入狀態
+      localStorage.removeItem('dv_username');
+      localStorage.removeItem('dv_customer_id');
+      localStorage.removeItem('dv_login_time');
+      syncNavbarUI(false);
+    } else {
+      // 其他錯誤 (如 500 後端報錯、404 找不到路徑等) 則忽略，不強制登出
+      console.warn("身分驗證遇到異常，狀態碼：", res.status);
+    }
+  } catch (e) {
+    // 網路錯誤 → 保持現狀不動
+    console.error("網路連線錯誤：", e);
   }
 }
 

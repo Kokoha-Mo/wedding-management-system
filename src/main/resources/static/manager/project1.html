@@ -81,15 +81,15 @@
     <div id="app" class="flex w-full h-full overflow-hidden">
 
         <!-- Sidebar 遮罩 -->
-        <div v-if="sidebarOpen" @click="sidebarOpen=false"
-            class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm cursor-pointer"></div>
+        <div id="sidebar-overlay"
+            class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm hidden transition-opacity cursor-pointer"></div>
 
         <!-- ═══ Sidebar ═══ -->
-        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-            class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative">
+        <aside id="sidebar"
+            class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative -translate-x-full lg:translate-x-0">
             <div class="h-16 flex items-center justify-center">
                 <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
-                <div class="text-white font-bold text-lg tracking-wide p-0 m-0">Admin</div>
+                <div class="text-white font-bold text-lg tracking-wide menu-category p-0 m-0">Admin</div>
             </div>
             <div class="px-4 py-4 mt-2 sidebar-user">
                 <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
@@ -147,10 +147,9 @@
 
             <!-- Header -->
             <header
-                class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
+                class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 relative z-40 shadow-sm text-white">
                 <div class="flex items-center flex-1">
-                    <!-- @click 取代 addEventListener -->
-                    <button @click="sidebarOpen=!sidebarOpen"
+                    <button id="sidebar-hamburger"
                         class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
                         <span class="material-icons">menu</span>
                     </button>
@@ -158,16 +157,15 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="relative">
-                        <div @click="userDropdownOpen=!userDropdownOpen"
+                        <div id="user-menu-button"
                             class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
                             <img :src="avatarSrc" alt="Avatar"
                                 class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover" />
                             <span class="text-sm font-medium mr-1 text-gray-200">{{ empName }}</span>
                             <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                         </div>
-                        <!-- v-show 取代 classList.toggle('hidden') -->
-                        <div v-show="userDropdownOpen"
-                            class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 z-50 border border-gray-100">
+                        <div id="user-dropdown"
+                            class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">
                             <a href="account.html"
                                 class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                 <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span>
@@ -176,7 +174,7 @@
                             <hr class="my-1 border-gray-100">
                             <a href="login.html"
                                 class="flex items-center px-4 py-2.5 text-sm text-red-500 hover:bg-gray-50 transition-colors">
-                                <span class="material-icons text-[18px] mr-3 text-red-500">logout</span> Log Out
+                                <span class="material-icons text-[18px] mr-3 text-red-500">logout</span> 登出
                             </a>
                         </div>
                     </div>
@@ -1143,7 +1141,7 @@
                                 ...m,
                                 isMe: String(m.creatorId) === String(this.empId),
                                 label: String(m.creatorId) === String(this.empId) ? '本人 (PM)' : (m.creatorPosition === 'MANAGER' ? `業務 - ${m.creatorName}` : m.creatorName),
-                                time: m.createAt ? new Date(m.createAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+                                time: m.createAt ? new Date(m.createAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
                             }));
                         }
                     } catch (e) { console.error(e); } finally {

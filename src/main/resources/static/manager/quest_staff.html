@@ -178,8 +178,10 @@
                             </div>
                             <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
                                 <div class="flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm text-blue-500">supervisor_account</span>
-                                    <span class="font-medium text-slate-700 dark:text-slate-300">{{ task.managerName || '未指定業務' }}</span>
+                                    <span
+                                        class="material-symbols-outlined text-sm text-blue-500">supervisor_account</span>
+                                    <span class="font-medium text-slate-700 dark:text-slate-300">{{ task.managerName ||
+                                        '未指定業務' }}</span>
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <span class="material-symbols-outlined text-sm">person</span> {{ task.customerName
@@ -706,24 +708,24 @@
                     const d = new Date(date);
                     return `${d.getFullYear()}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')}`;
                 };
-                
+
                 // 專門為留言板設計：顯示 年/月/日 時:分:秒，並修正 8 小時時區差問題
                 const formatFullTime = (dateStr) => {
                     if (!dateStr) return '';
-                    
+
                     let d;
                     if (typeof dateStr === 'string' && dateStr.includes('T') && !dateStr.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(dateStr)) {
                         d = new Date(dateStr.replace('T', ' '));
                     } else {
                         d = new Date(dateStr);
                     }
-                    
+
                     if (isNaN(d.getTime())) return dateStr;
-                    
+
                     // 修正 8 小時時區差問題：
                     // 使用者反應資料庫存 7:36，實際是 15:36 送出，代表差了 8 小時
-                    d.setHours(d.getHours() + 8);
-                    
+                    // d.setHours(d.getHours() + 8);
+
                     const pad = (n) => n.toString().padStart(2, '0');
                     const y = d.getFullYear();
                     const mo = pad(d.getMonth() + 1);
@@ -731,7 +733,7 @@
                     const h = pad(d.getHours());
                     const mi = pad(d.getMinutes());
                     const s = pad(d.getSeconds());
-                    
+
                     return `${y}/${mo}/${da} ${h}:${mi}:${s}`;
                 };
 

@@ -85,7 +85,8 @@
                     class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
                 <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
             </a>
-            <a v-if="(emp.deptId === '1' && emp.position !== 'MANAGER') || (emp.deptId !== '1' && emp.deptId !== '7')" id="nav-task"
+            <a v-if="(emp.deptId === '1' && emp.position !== 'MANAGER') || (emp.deptId !== '1' && emp.deptId !== '7')"
+                id="nav-task"
                 class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
                 href="quest_staff.html">
                 <span
@@ -194,9 +195,16 @@
                             </div>
                             <div class="flex flex-col space-y-2 mt-4">
                                 <button @click="openChat(task)"
-                                    class="w-full flex items-center justify-center py-2 px-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
+                                    class="w-full flex items-center justify-center py-2 px-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors relative">
                                     <span class="material-icons text-sm mr-2">forum</span>
                                     聯繫業務 / 留言紀錄
+                                    <!-- 紅點提示 -->
+                                    <span v-if="unreadTasks.has(task.taskId)"
+                                        class="absolute top-2 right-2 flex h-2 w-2">
+                                        <span
+                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                    </span>
                                 </button>
 
                                 <div class="flex space-x-2">
@@ -473,6 +481,7 @@
                 const selectedFile = ref(null);
                 const fileNameDisplay = ref('');
                 const imagePreview = ref('');
+                const unreadTasks = ref(new Set());
 
                 const currentPage = ref(1);
                 const itemsPerPage = ref(5);
@@ -498,7 +507,32 @@
                 const fetchOngoingTasks = async () => {
                     try {
                         const response = await fetch(`/api/employee/task/${emp.id}`, { credentials: 'include' });
-                        if (response.ok) ongoingTasks.value = await response.json();
+                        if (response.ok) {
+                            const tasks = await response.json();
+                            ongoingTasks.value = tasks;
+
+                            // 檢查每個任務的最新留言
+                            tasks.forEach(async (task) => {
+                                try {
+                                    const chatRes = await fetch(`/api/employee/tc/${task.taskId}`, { credentials: 'include' });
+                                    if (chatRes.ok) {
+                                        const messages = await chatRes.json();
+                                        if (messages.length > 0) {
+                                            const lastMsg = messages[messages.length - 1];
+                                            // 如果最新留言的發送者不是目前員工，則標記為有新訊息（紅點）
+                                            // 注意：後端回傳的是 creatorId
+                                            if (String(lastMsg.creatorId) !== String(emp.id)) {
+                                                unreadTasks.value.add(task.taskId);
+                                            } else {
+                                                unreadTasks.value.delete(task.taskId);
+                                            }
+                                        } else {
+                                            unreadTasks.value.delete(task.taskId);
+                                        }
+                                    }
+                                } catch (e) { console.error('Check unread error:', e); }
+                            });
+                        }
                     } catch (e) { console.error('Error fetching ongoing tasks:', e); }
                 };
 
@@ -521,6 +555,10 @@
                     activeTask.value = task;
                     chatReadOnly.value = readOnly;
                     showChat.value = true;
+
+                    // 點開後清除紅點
+                    unreadTasks.value.delete(task.taskId);
+
                     await fetchChatMessages(task.taskId);
                 };
 
@@ -676,7 +714,7 @@
                 return {
                     emp, ongoingTasks, historyTasks, showChat, showUpload, chatReadOnly,
                     activeTask, chatMessages, chatInput, chatLoading, fileNameDisplay, imagePreview, selectedFile,
-                    currentPage, itemsPerPage, paginatedHistoryTasks, totalPages, nextPage, prevPage,
+                    currentPage, itemsPerPage, paginatedHistoryTasks, totalPages, nextPage, prevPage, unreadTasks,
                     openChat, fetchOngoingTasks, fetchHistoryTasks, sendMessage, openUpload, handleFile, confirmUpload, submitAudit,
                     isUrgent, formatDate, formatTime, getFileIcon
                 };

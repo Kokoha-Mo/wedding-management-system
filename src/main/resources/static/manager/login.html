@@ -166,10 +166,16 @@
             const empId = sessionStorage.getItem("empId");
             const deptId = sessionStorage.getItem("deptId");
             if (empId) {
+                // 根據部門及角色跳轉
+                const role = sessionStorage.getItem("position"); 
                 const deptIdStr = String(deptId);
-                // 根據部門跳轉 (與原本邏輯一致)
+                
                 if (deptIdStr === '1') {
-                    window.location.replace("book.html");
+                    if (role === 'MANAGER') {
+                        window.location.replace("project.html");
+                    } else {
+                        window.location.replace("quest_staff.html");
+                    }
                 } else if (deptIdStr === '7') {
                     window.location.replace("consultation.html");
                 } else {
@@ -260,8 +266,14 @@
 
                         // 導向對應頁面
                         const deptIdStr = String(data.deptId);
+                        const role = data.position; // position contains the role
+
                         if (deptIdStr === '1') {
-                            window.location.href = "book.html";
+                            if (role === 'MANAGER') {
+                                window.location.href = "project.html";
+                            } else {
+                                window.location.href = "quest_staff.html";
+                            }
                         } else if (deptIdStr === '7') {
                             window.location.href = "consultation.html";
                         } else {

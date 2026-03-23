@@ -517,8 +517,12 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                             要求完成期限 <span v-if="!assignModal.readOnly" class="text-red-500">*</span>
                         </label>
-                        <input type="date" v-model="assignModal.deadline" :readonly="assignModal.readOnly" :min="todayDate"
+                        <input type="date" v-model="assignModal.deadline" :readonly="assignModal.readOnly" :min="todayDate" :max="maxDeadlineDate"
                             class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                        <p v-if="maxDeadlineDate" class="text-xs text-gray-400 mt-1 flex items-center">
+                            <span class="material-icons text-[13px] mr-1">info</span>
+                            截止日需在婚期（{{ project.weddingDate }}）前
+                        </p>
                     </div>
                     <!-- 備註 -->
                     <div>
@@ -932,7 +936,13 @@
                 // computed 取代 initSidebar 的 style.display 操作
                 navVisible() {
                     const d = this.empDeptId;
-                    return { consultation: d === '7', book: d === '1', project: d === '1', task: d !== '1' && d !== '7' };
+                    const r = this.empPosition;
+                    return {
+                        consultation: d === '7',
+                        book: d === '1' && r === 'MANAGER',
+                        project: d === '1' && r === 'MANAGER',
+                        task: (d === '1' && r !== 'MANAGER') || (d !== '1' && d !== '7'),
+                    };
                 },
 
                 // computed 取代 updateStatusCounts 的 DOM 操作
@@ -962,6 +972,17 @@
                     const yyyy = today.getFullYear();
                     const mm = String(today.getMonth() + 1).padStart(2, '0');
                     const dd = String(today.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                },
+                // 最晚截止日 = 婚期前一天（不含婚期當天）
+                maxDeadlineDate() {
+                    if (!this.project.weddingDate) return '';
+                    const d = new Date(this.project.weddingDate);
+                    if (isNaN(d.getTime())) return '';
+                    d.setDate(d.getDate() - 1);
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
                     return `${yyyy}-${mm}-${dd}`;
                 }
             },
@@ -1054,6 +1075,10 @@
                 async submitAssign() {
                     if (!this.assignModal.selectedEmpIds.length) { alert('請至少選擇一位負責人！'); return; }
                     if (!this.assignModal.deadline) { alert('請選擇要求完成期限！'); return; }
+                    if (this.maxDeadlineDate && this.assignModal.deadline > this.maxDeadlineDate) {
+                        alert(`要求完成期限須在婚期（${this.project.weddingDate}）前，不得包含結婚當天。`);
+                        return;
+                    }
                     this.assignModal.submitting = true;
                     try {
                         const r = await fetch(`/api/manager/projects/tasks/${this.assignModal.taskId}/assign`, {

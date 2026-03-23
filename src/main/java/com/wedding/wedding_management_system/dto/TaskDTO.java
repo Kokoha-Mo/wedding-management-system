@@ -19,6 +19,8 @@ public class TaskDTO {
     private LocalDateTime deadline;
     private String managerContent;
     private LocalDateTime updateAt;
+    private Integer managerId;
+    private String managerName;
 
     // --- 從 Service 拉出來的資訊 ---
     private Integer serviceId;
@@ -35,7 +37,7 @@ public class TaskDTO {
 
     // 給 EmployeeController / ProjectTaskRepository 的 JPQL 使用的建構子！
     public TaskDTO(Integer taskId, String status, String serviceName, String customerName, LocalDateTime deadline,
-            String managerContent, LocalDateTime updateAt) {
+            String managerContent, LocalDateTime updateAt, Integer managerId, String managerName) {
         this.taskId = taskId;
         this.status = status;
         this.serviceName = serviceName;
@@ -43,6 +45,8 @@ public class TaskDTO {
         this.deadline = deadline;
         this.managerContent = managerContent;
         this.updateAt = updateAt;
+        this.managerId = managerId;
+        this.managerName = managerName;
     }
 
     // 內部類別：負責人資訊

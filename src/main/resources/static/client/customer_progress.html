@@ -494,32 +494,56 @@
             font-variation-settings: 'wght' 300;
         }
 
-        /* ─── 文件列表捲軸美化 ─── */
+        /* ─── 文件區塊優化 ─── */
+        /* 1. 最新檔案的高級卡片 */
+        .latest-doc-card {
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.08), rgba(197, 160, 89, 0.02));
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .latest-doc-card:hover {
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.15), rgba(197, 160, 89, 0.05));
+            border-color: rgba(197, 160, 89, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.1);
+        }
+
+        .doc-icon-box {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gold);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(197, 160, 89, 0.2);
+        }
+
+        /* 2. 歷史檔案的隱藏式質感捲軸 */
         .doc-list-wrapper {
-            max-height: 240px;
-            /* 大約顯示 4~5 筆的高度，超過就捲動 */
+            max-height: 180px; /* 大約顯示 4 筆的高度，超過就捲動 */
             overflow-y: auto;
-            padding-right: 8px;
-            /* 留一點空間給捲軸 */
+            padding-right: 8px; /* 留一點空間給捲軸 */
             margin-right: -8px;
         }
 
-        /* 自訂捲軸樣式 (Chrome/Safari/Edge) */
+        /* 自訂極細捲軸樣式 */
         .doc-list-wrapper::-webkit-scrollbar {
-            width: 4px;
-            /* 極細捲軸 */
+            width: 4px; 
         }
-
         .doc-list-wrapper::-webkit-scrollbar-track {
             background: rgba(197, 160, 89, 0.05);
             border-radius: 4px;
         }
-
         .doc-list-wrapper::-webkit-scrollbar-thumb {
             background: rgba(197, 160, 89, 0.3);
             border-radius: 4px;
         }
-
         .doc-list-wrapper::-webkit-scrollbar-thumb:hover {
             background: var(--accent-gold);
         }
@@ -929,29 +953,41 @@
                     <!-- 文件 -->
                     <div class="lux-card text-center">
                         <span class="card-eyebrow mb-4">Documents</span>
+                        
+                        <a v-if="latestDocument" :href="latestDocument.url" target="_blank" class="latest-doc-card mb-3 text-start">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="doc-icon-box flex-shrink-0">
+                                    <span class="material-symbols-outlined" style="color: white; font-size: 20px;">{{ latestDocument.icon }}</span>
+                                </div>
+                                <div style="flex: 1; overflow: hidden;">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span style="font-size: 11px; color: var(--accent-gold); font-weight: 500; letter-spacing: 0.05em;">顧問最新上傳</span>
+                                    </div>
+                                    <div class="text-truncate fw-bold" style="font-size: 13px; color: var(--text-main);">
+                                        {{ latestDocument.name }}
+                                    </div>
+                                </div>
+                                <span class="material-symbols-outlined flex-shrink-0" style="color: var(--accent-gold);">download</span>
+                            </div>
+                        </a>
 
-                        <div class="doc-list-wrapper">
-                            <ul class="doc-list">
-                                <a v-for="doc in data.documents" :key="doc.name" :href="doc.url" target="_blank"
-                                    class="doc-item">
-                                    <div class="d-flex align-items-center"
-                                        style="overflow: hidden; white-space: nowrap;">
+                        <div class="doc-list-wrapper" v-if="otherDocuments.length > 0">
+                            <ul class="doc-list text-start">
+                                <a v-for="doc in otherDocuments" :key="doc.name" :href="doc.url" target="_blank" class="doc-item">
+                                    <div class="d-flex align-items-center" style="overflow: hidden; white-space: nowrap;">
                                         <span class="material-symbols-outlined flex-shrink-0">{{ doc.icon }}</span>
-                                        <span
-                                            style="font-size: 13px; text-overflow: ellipsis; overflow: hidden; margin-right: 8px;">
+                                        <span style="font-size: 13px; text-overflow: ellipsis; overflow: hidden; margin-right: 8px;">
                                             {{ doc.name }}
                                         </span>
                                     </div>
-                                    <span class="material-symbols-outlined flex-shrink-0"
-                                        style="font-size: 16px; color: #ccc;">download</span>
+                                    <span class="material-symbols-outlined flex-shrink-0" style="font-size: 16px; color: #ccc;">download</span>
                                 </a>
-                                <div v-if="!data.documents || data.documents.length === 0"
-                                    style="font-size: 12px; color: #aaa; margin-top: 16px;">
-                                    尚無正式文件
-                                </div>
                             </ul>
                         </div>
 
+                        <div v-if="!latestDocument" style="font-size: 12px; color: #aaa; margin-top: 16px;">
+                            尚無正式文件
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1260,6 +1296,20 @@
                     return false;
                 };
 
+                // 🌟 新增：抓出最新的一筆檔案 (假設陣列最後一筆是最新的)
+                const latestDocument = computed(() => {
+                    if (!data.documents || data.documents.length === 0) return null;
+                    return data.documents[data.documents.length - 1]; 
+                    // 如果你的後端是把最新的放第一筆，請改成 return data.documents[0];
+                });
+
+                // 🌟 新增：過濾出除了最新檔案以外的「歷史檔案」，並反轉排序讓較新的在上方
+                const otherDocuments = computed(() => {
+                    if (!data.documents || data.documents.length <= 1) return [];
+                    return data.documents.slice(0, -1).reverse();
+                    // 如果你的後端是最新的放第一筆，請改成 return data.documents.slice(1);
+                });
+
                 // 🚀 核心：向後端撈取專案進度與留言紀錄
                 const fetchProjectProgress = () => {
                     axios.get(`/api/customer/my-project/progress`, { withCredentials: true }).then(response => {
@@ -1502,7 +1552,8 @@
                     data, dashOffset, getCatIcon, hasUnread, clearUnread,
                     messages, newMessage, postMessage, selectedFiles,
                     handleFileUpload, removeSelectedFile,
-                    isPhaseCompleted, isSubmitting
+                    isPhaseCompleted, isSubmitting,
+                    latestDocument, otherDocuments
                 }
             }
         }).mount('#app');

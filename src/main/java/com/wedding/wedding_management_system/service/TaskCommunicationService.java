@@ -26,7 +26,13 @@ public class TaskCommunicationService {
     private EmployeeRepository employeeRepository;
 
     public List<TaskCommunicationDTO> getCommunicationsByTaskId(Integer taskId) {
-        return taskCommunicationRepository.findByTaskId(taskId);
+        List<TaskCommunicationDTO> dtos = taskCommunicationRepository.findByTaskId(taskId);
+        dtos.forEach(dto -> {
+            if (dto.getCreateAt() != null) {
+                dto.setCreateAt(dto.getCreateAt().plusHours(8));
+            }
+        });
+        return dtos;
     }
 
     @Transactional

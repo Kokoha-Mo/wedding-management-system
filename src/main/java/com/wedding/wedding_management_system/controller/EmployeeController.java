@@ -83,13 +83,15 @@ public class EmployeeController {
     public ResponseEntity<List<TaskDTO.AssigneeDTO>> getEmployeesByDept(@PathVariable("deptId") Integer deptId) {
         List<Employee> employees = employeeService.getEmployeesByDeptId(deptId);
 
-        List<TaskDTO.AssigneeDTO> responseList = employees.stream().map(emp -> {
-            TaskDTO.AssigneeDTO dto = new TaskDTO.AssigneeDTO();
-            dto.setEmpId(emp.getId());
-            dto.setName(emp.getName());
-            dto.setDepartmentName(emp.getDepartment() != null ? emp.getDepartment().getDeptName() : "未知部門");
-            return dto;
-        }).collect(Collectors.toList());
+        List<TaskDTO.AssigneeDTO> responseList = employees.stream()
+                .filter(emp -> !"MANAGER".equalsIgnoreCase(emp.getRole()))
+                .map(emp -> {
+                    TaskDTO.AssigneeDTO dto = new TaskDTO.AssigneeDTO();
+                    dto.setEmpId(emp.getId());
+                    dto.setName(emp.getName());
+                    dto.setDepartmentName(emp.getDepartment() != null ? emp.getDepartment().getDeptName() : "未知部門");
+                    return dto;
+                }).collect(Collectors.toList());
 
         return ResponseEntity.ok(responseList);
     }

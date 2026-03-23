@@ -400,8 +400,18 @@ async function updateBookStatus(bookId, newStatus) {
                 return; // 靈魂 return！中斷執行，不打 API
             }
         }
+        const customerName = card?.dataset.name || '此客戶';
+        const confirmed = window.confirm(
+            `確定要將「${customerName}」的預約轉為已簽約嗎？\n\n轉簽約後將自動建立專案與任務。`
+        );
+        if (!confirmed) return;
     }
-
+    if (newStatus === '取消') {
+        const card = document.querySelector(`div[data-book-id="${bookId}"]`);
+        const customerName = card?.dataset.name || '此客戶';
+        const confirmed = window.confirm(`確定要取消「${customerName}」的預約嗎？`);
+        if (!confirmed) return;
+    }
     try {
         const res = await fetch(`${API_BASE}/books/${bookId}/update`, {
             method:  'PATCH',

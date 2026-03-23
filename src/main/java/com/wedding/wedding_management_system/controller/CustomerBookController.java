@@ -87,6 +87,7 @@ public class CustomerBookController {
         if (books.isEmpty())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "找不到預約資料"));
 
+
         Book book = books.get(0);
         if (dto.getWeddingDate() != null)
             book.setWeddingDate(dto.getWeddingDate());

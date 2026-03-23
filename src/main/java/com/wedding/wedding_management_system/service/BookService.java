@@ -134,11 +134,21 @@ public class BookService {
             log.info("刪除客戶舊有預約，customer_id={}, 共{}筆", customer.getId(), existingBooks.size());
         }
 
-        // Step 3:🌟 修改：自動分配接案數最少的 "婚顧部 MANAGER"
-        Employee manager = employeeRepository.findManagerWithLeastBooks()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("目前沒有可分配的業務人員"));
+        // Step 3:🌟 分配 manager：自己建的or自動分配接案數最少的 "婚顧部 MANAGER"
+        Employee manager;
+        if (dto.getManagerId() != null) {
+            // 直接指定該婚顧
+            manager = employeeRepository.findById(dto.getManagerId())
+                    .orElseThrow(() -> new RuntimeException("找不到指定的業務人員"));
+            log.info("指定分配 manager_id={}", dto.getManagerId());
+        } else {
+            // 自動分配接案數最少的
+            manager = employeeRepository.findManagerWithLeastBooks()
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("目前沒有可分配的業務人員"));
+            log.info("自動分配 manager_id={}", manager.getId());
+        }
 
         // Step 4: 建立新 book
         Book book = new Book();
@@ -197,15 +207,6 @@ public class BookService {
                 "取消",   bookRepository.countByManager_IdAndStatus(managerId, "取消")
         );
     }
-
-//    @Transactional(readOnly = true)
-//    public Map<String, Long> statusCounts() {
-//        return Map.of(
-//                "處理中",  bookRepository.countByStatus("處理中"),
-//                "已簽約",  bookRepository.countByStatus("已簽約"),
-//                "取消預約", bookRepository.countByStatus("取消預約")
-//        );
-//    }
 
     @Transactional
     public BookResponseDTO updateBookInfo(Integer bookId, UpdateBookDetailsRequestDTO request) {

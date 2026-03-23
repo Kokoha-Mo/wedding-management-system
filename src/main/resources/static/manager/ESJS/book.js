@@ -370,7 +370,8 @@ async function submitCreateBook() {
         guest_scale:  parseInt(document.getElementById('input-guest-count').value) || null,
         place:        document.getElementById('input-venue').value.trim(),
         styles,
-        content:      document.getElementById('input-notes').value.trim()
+        content:      document.getElementById('input-notes').value.trim(),
+        manager_id:   parseInt(sessionStorage.getItem('empId')) || null
     };
 
     try {

@@ -58,4 +58,7 @@ public class CreateBookRequestDTO {
 
     // 婚宴備註（對應 books.content）
     private String content;
+
+    @JsonProperty("manager_id")
+    private Integer managerId;
 }

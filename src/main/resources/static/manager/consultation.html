@@ -24,9 +24,10 @@
 
         // 防呆：如果沒登入，或是部門 ID 不是 7 (接待部)
         if (!deptId || String(deptId) !== '7') {
-            alert('【權限不足】此頁面為接待部專屬，您無法訪問！');
-            // 踢回後台首頁 (配合你的系統，導向專案管理頁)
-            window.location.replace('./project.html');
+            // 等 DOM 載入後顯示自訂 Modal，避免原生 alert()（此時 Vue 尚未掛載）
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('pre-auth-modal').style.display = 'flex';
+            });
         }
     </script>
 
@@ -123,6 +124,22 @@
 
 <body
     class="bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-200 h-screen overflow-hidden">
+
+    <!-- 純 HTML 權限不足 Modal（Vue 掛載前使用，不依賴 Vue） -->
+    <div id="pre-auth-modal"
+        style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(17,24,39,0.7); align-items:center; justify-content:center; padding:1rem;">
+        <div style="background:#fff; border-radius:1rem; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:400px; max-width:100%; padding:2rem; display:flex; flex-direction:column; align-items:center; text-align:center;">
+            <div style="width:56px; height:56px; border-radius:50%; background:#fee2e2; display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+                <span class="material-icons" style="font-size:2rem; color:#ef4444;">lock</span>
+            </div>
+            <h3 style="font-size:1.25rem; font-weight:700; color:#111827; margin-bottom:0.5rem;">權限不足</h3>
+            <p style="font-size:0.875rem; color:#6b7280; margin-bottom:1.5rem;">此頁面為接待部專屬，您無法訪問！</p>
+            <button onclick="window.location.replace('./login.html')"
+                style="width:100%; padding:0.625rem; background:#4f46e5; color:#fff; border:none; border-radius:0.75rem; font-size:0.875rem; font-weight:700; cursor:pointer;">
+                確定
+            </button>
+        </div>
+    </div>
 
     <div id="app" class="flex h-full w-full relative">
 
@@ -645,6 +662,25 @@
                 </div>
             </div>
         </div>
+
+        <!-- ── Alert Modal ── -->
+        <div v-show="alertModal.open"
+            class="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 flex flex-col p-6 items-center">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 text-indigo-500 mb-4 mx-auto">
+                    <span class="material-icons text-3xl">info</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 text-center mb-2">系統提示</h3>
+                <p class="text-sm text-gray-600 text-center mb-6 whitespace-pre-wrap">{{ alertModal.message }}</p>
+                <div class="w-full flex justify-center">
+                    <button @click="closeAlertModal"
+                        class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        確定
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
     <!-- 載入 Bootstrap JS 用於 Offcanvas & Modal -->
     <script src="./ESJS/bootstrap.bundle.min.js"></script>
@@ -686,7 +722,9 @@
                     convertTelError: false,
                     convertTelErrorMsg: '',
                     isConverting: false,
-                    convertModalInstance: null
+                    convertModalInstance: null,
+                    // Alert Modal
+                    alertModal: { open: false, message: '', callback: null }
                 }
             },
             computed: {
@@ -779,6 +817,19 @@
                 this.initSidebar();
             },
             methods: {
+                // ── Alert Modal
+                showAlert(message, callback = null) {
+                    this.alertModal.message = message;
+                    this.alertModal.callback = callback;
+                    this.alertModal.open = true;
+                },
+                closeAlertModal() {
+                    this.alertModal.open = false;
+                    if (this.alertModal.callback) {
+                        this.alertModal.callback();
+                        this.alertModal.callback = null;
+                    }
+                },
                 initSidebar() {
                     const empId = sessionStorage.getItem('empId');
                     const empName = sessionStorage.getItem('empName');
@@ -861,18 +912,17 @@
                         .catch(error => {
                             // 🌟 新增：如果後端回傳 401 (未授權/Token過期)
                             if (error.response && error.response.status === 401) {
-                                alert("您的登入已過期，出於安全考量，請重新登入！");
-
-                                // 徹底清除前端暫存的過期資料
-                                sessionStorage.clear();
-
-                                // 強制踢回登入頁
-                                window.location.replace('./login.html');
+                                this.showAlert('您的登入已過期，出於安全考量，請重新登入！', () => {
+                                    // 徹底清除前端暫存的過期資料
+                                    sessionStorage.clear();
+                                    // 強制踢回登入頁
+                                    window.location.replace('./login.html');
+                                });
                                 return; // 終止後續執行
                             }
 
                             console.error("無法載入諮詢單資料:", error);
-                            alert("載入資料失敗，請確認後端伺服器是否啟動。");
+                            this.showAlert('載入資料失敗，請確認後端伺服器是否啟動。');
                         })
                         .finally(() => {
                             // 🌟 新增這區塊：不管成功或失敗，最後都把載入動畫關掉
@@ -935,13 +985,13 @@
                                     // 確保 selectedItem 的狀態也更新，這樣畫面上才不會有落差
                                     this.selectedItem.status = newStatusStr;
                                 }
-                                alert('狀態已成功更新！');
+                                this.showAlert('狀態已成功更新！');
                                 // 注意：更新完我們不自動關閉 Offcanvas，讓 PM 可以繼續看資料
                             }
                         })
                         .catch(error => {
                             console.error("更新失敗:", error);
-                            alert("狀態更新失敗，請稍後再試。");
+                            this.showAlert('狀態更新失敗，請稍後再試。');
                         });
                 },
 
@@ -1046,9 +1096,10 @@
                         tel: this.convertForm.tel
                     }, { withCredentials: true })
                         .then(response => {
-                            alert('🎉 成功轉為正式預約！已建立客戶帳號。');
                             this.convertModalInstance.hide();
-                            this.fetchConsultations(); // 重新撈取畫面，該筆狀態會自動變成「轉預約」
+                            this.showAlert('🎉 成功轉為正式預約！已建立客戶帳號。', () => {
+                                this.fetchConsultations(); // 重新撈取畫面，該筆狀態會自動變成「轉預約」
+                            });
                         })
                         .catch(error => {
                             let errorMsg = '發生未知錯誤';
@@ -1067,9 +1118,9 @@
                                 this.convertTelError = true;
                                 this.convertTelErrorMsg = errorMsg.split('TEL_FORMAT:')[1];
                             } else {
-                                // 如果是其他未預期的系統錯誤，才使用傳統的 alert
+                                // 如果是其他未預期的系統錯誤，使用自訂 Alert Modal
                                 console.error(error);
-                                alert('轉換失敗：' + errorMsg);
+                                this.showAlert('轉換失敗：' + errorMsg);
                             }
                         })
                         .finally(() => {

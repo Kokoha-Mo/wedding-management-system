@@ -6,7 +6,9 @@ import com.wedding.wedding_management_system.repository.ConsultationRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +61,25 @@ public class ConsultationService {
      * 獲取所有諮詢單 (依建立時間由新到舊排序)
      */
     public List<Consultation> getAllConsultations() {
-        return consultationRepository.findAllByOrderByCreatedAtDesc();
+        List<Consultation> originalList = consultationRepository.findAllByOrderByCreatedAtDesc();
+
+        // ==========================================
+        // 🌟 方案 A 實作：將 Entity 複製一份 (避免 Hibernate 髒檢查)，然後手動 +8 小時
+        // ==========================================
+        return originalList.stream().map(original -> {
+            Consultation copy = new Consultation();
+            
+            // 使用 Spring 內建工具將原資料的屬性全部複製到 copy 身上
+            BeanUtils.copyProperties(original, copy);
+
+            // 針對建單時間手動 +8 小時 (UTC 轉 台灣時間)
+            if (copy.getCreatedAt() != null) {
+                copy.setCreatedAt(copy.getCreatedAt().plusHours(8));
+            }
+            
+            return copy; // 回傳帶有 UTC+8 時間的複製品給 Controller
+        }).collect(Collectors.toList());
+        
     }
 
     /**

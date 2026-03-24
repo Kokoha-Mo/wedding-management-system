@@ -769,8 +769,14 @@
                             <p v-if="msg.content" class="m-0 whitespace-pre-wrap">{{ msg.content }}</p>
                             <div v-if="msg.documents && msg.documents.length" class="flex flex-wrap gap-2 mt-2">
                                 <template v-for="doc in msg.documents" :key="doc.filePath">
-                                    <img v-if="doc.fileType && doc.fileType.startsWith('image/')" :src="doc.filePath"
+                                    <img v-if="doc.fileType && doc.fileType.startsWith('image/') && !doc.imgError" 
+                                        :src="doc.filePath" 
+                                        @error="doc.imgError = true"
                                         class="max-w-[160px] max-h-[160px] rounded object-cover border border-gray-200 shadow-sm mt-2" />
+                                    <div v-else-if="doc.fileType && doc.fileType.startsWith('image/') && doc.imgError"
+                                        class="inline-flex items-center gap-1 p-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-gray-500 dark:text-gray-400 text-xs mt-2 w-fit">
+                                        <span class="material-icons text-[14px]">broken_image</span>圖片無法預覽
+                                    </div>
                                     <a v-else :href="doc.filePath" target="_blank"
                                         class="inline-flex items-center gap-1 p-2 bg-white/60 dark:bg-gray-800/60 border border-indigo-200 dark:border-indigo-800 rounded text-indigo-600 dark:text-indigo-400 text-xs mt-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors">
                                         <span class="material-icons text-[14px]">description</span>{{ doc.name }}

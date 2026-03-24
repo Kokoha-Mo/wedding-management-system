@@ -668,6 +668,41 @@
     </div>
 </div>
 <div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-modify-backdrop"></div>
+<!-- ==================== Alert Modal ==================== -->
+<div id="modal-alert" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
+        <div class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 mb-4">
+            <span class="material-icons text-3xl" id="alert-icon">info</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">系統提示</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap" id="alert-message"></p>
+        <button onclick="closeAlert()"
+                class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors">
+            確定
+        </button>
+    </div>
+</div>
+
+<!-- ==================== Confirm Modal ==================== -->
+<div id="modal-confirm" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
+        <div class="flex items-center justify-center w-14 h-14 rounded-full mb-4" id="confirm-icon-wrap">
+            <span class="material-icons text-3xl" id="confirm-icon">help_outline</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">確認操作</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap" id="confirm-message"></p>
+        <div class="w-full flex gap-3">
+            <button onclick="resolveConfirm(false)"
+                    class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold transition-colors">
+                取消
+            </button>
+            <button id="confirm-ok-btn" onclick="resolveConfirm(true)"
+                    class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors">
+                確定
+            </button>
+        </div>
+    </div>
+</div>
 <!-- ═══════════════════════════════════════
      Modal: 已簽約詳細摘要（純文字）
 ═══════════════════════════════════════ -->

@@ -1,5 +1,44 @@
 const API_BASE = 'http://localhost:8080/api/employee';
 
+// ════════════════════════════════════════
+// Alert / Confirm Modal 函式
+// ════════════════════════════════════════
+function showAlert(message, icon = 'info') {
+    document.getElementById('alert-message').textContent = message;
+    document.getElementById('alert-icon').textContent = icon;
+    document.getElementById('modal-alert').classList.remove('hidden');
+}
+
+function closeAlert() {
+    document.getElementById('modal-alert').classList.add('hidden');
+    if (window._alertCallback) { window._alertCallback(); window._alertCallback = null; }
+}
+
+let _confirmResolve = null;
+
+function showConfirm(message, type = 'default') {
+    document.getElementById('confirm-message').textContent = message;
+    const iconWrap = document.getElementById('confirm-icon-wrap');
+    const icon     = document.getElementById('confirm-icon');
+    const okBtn    = document.getElementById('confirm-ok-btn');
+    if (type === 'danger') {
+        iconWrap.className = 'flex items-center justify-center w-14 h-14 rounded-full mb-4 bg-red-100 dark:bg-red-900/30 text-red-500';
+        icon.textContent   = 'warning';
+        okBtn.className    = 'flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold shadow-sm transition-colors';
+    } else {
+        iconWrap.className = 'flex items-center justify-center w-14 h-14 rounded-full mb-4 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500';
+        icon.textContent   = 'help_outline';
+        okBtn.className    = 'flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors';
+    }
+    document.getElementById('modal-confirm').classList.remove('hidden');
+    return new Promise(resolve => { _confirmResolve = resolve; });
+}
+
+function resolveConfirm(result) {
+    document.getElementById('modal-confirm').classList.add('hidden');
+    if (_confirmResolve) { _confirmResolve(result); _confirmResolve = null; }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. 取得「台灣當地時間」的今天日期，格式為 YYYY-MM-DD
     const today = new Date().toLocaleDateString('sv-SE');
@@ -328,8 +367,14 @@ async function loadBooks(status = '處理中') {
         //console.log("從後端拿到的第一筆資料時間是：", result[0].createAt);
 
         // ★★★ 關鍵：印出後端回傳的原始資料 ★★★
-        result.sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
-        //console.log(`[載入列表 - ${status}] 後端回傳的原始資料:`, result);
+        result.sort((a, b) => {
+            // 優先使用 updateAt，如果沒有才用 createAt，確保用來排序的時間跟畫面上顯示的一樣
+            const timeA = new Date(a.updateAt || a.createAt || 0).getTime();
+            const timeB = new Date(b.updateAt || b.createAt || 0).getTime();
+
+            // timeB - timeA 代表「降冪排列」，也就是最新/數字越大的排越前面
+            return timeB - timeA;
+        });
 
         // --- 4. 檢查是否為陣列 (防護二) ---
         if (!Array.isArray(result)) {
@@ -404,7 +449,7 @@ async function submitCreateBook() {
 
     // 有重複 → 提示確認
     if (checkResult.length > 0) {
-        const confirmed = window.confirm(
+        const confirmed = await showConfirm(
             `此客戶已有資料：${checkResult[0].name}\n` +
             `手機：${checkResult[0].tel}\n` +
             `Email：${checkResult[0].email || '-'}\n\n` +
@@ -472,7 +517,7 @@ async function updateBookStatus(bookId, newStatus) {
             }
         }
         const customerName = card?.dataset.name || '此客戶';
-        const confirmed = window.confirm(
+        const confirmed = await showConfirm(
             `確定要將「${customerName}」的預約轉為已簽約嗎？\n\n轉簽約後將自動建立專案與任務。`
         );
         if (!confirmed) return;
@@ -480,12 +525,12 @@ async function updateBookStatus(bookId, newStatus) {
     if (newStatus === '取消') {
         const card = document.querySelector(`div[data-book-id="${bookId}"]`);
         const customerName = card?.dataset.name || '此客戶';
-        const confirmed = window.confirm(`確定要取消「${customerName}」的預約嗎？`);
+        const confirmed = await showConfirm(`確定要取消「${customerName}」的預約嗎？`,'danger');
         if (!confirmed) return;
     }
 
     if (newStatus === '處理中') {
-        const confirmed = window.confirm('確定要恢復這筆預約嗎？\n恢復後，此案件將由您接手處理！');
+        const confirmed = await showConfirm('確定要恢復這筆預約嗎？\n恢復後，此案件將由您接手處理！');
         if (!confirmed) return;
     }
     const payload = { status: newStatus };
@@ -599,7 +644,7 @@ async function saveBookInfo() {
     }
 
     if (checkResult.length > 0) {
-        const confirmed = window.confirm(
+        const confirmed = showConfirm(
             `此 Email 或手機已有其他客戶資料：${checkResult[0].name}\n` +
             `手機：${checkResult[0].tel}\n` +
             `Email：${checkResult[0].email || '-'}\n\n` +

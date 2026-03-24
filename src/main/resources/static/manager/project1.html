@@ -57,6 +57,13 @@
                 box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
             }
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
 
         .pulse-hint {
             position: absolute;
@@ -183,8 +190,15 @@
 
             <!-- Main -->
             <main
-                class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6">
-                <div class="w-full max-w-[1600px] mx-auto space-y-5">
+                class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6 flex flex-col">
+                
+                <!-- 全頁載入中畫面 -->
+                <div v-if="pageLoading" class="flex-1 flex flex-col items-center justify-center text-center py-20 text-indigo-500">
+                    <span class="material-icons animate-spin text-[48px] mb-4 block">autorenew</span>
+                    <p class="text-[16px] font-bold tracking-widest uppercase">載入專案資料中...</p>
+                </div>
+
+                <div v-else class="w-full max-w-[1600px] mx-auto space-y-5 fade-in">
 
                     <!-- 專案標題列 -->
                     <div
@@ -885,6 +899,7 @@
             // ══════════════════════════════════════════════════════
             data() {
                 return {
+                    pageLoading: true,
                     // 登入者
                     empId: '', empName: '載入中...', empPosition: '', empDeptId: '', empAvatarPath: './Img/smile.jpg',
                     projectId: null,
@@ -1031,6 +1046,7 @@
             methods: {
                 // ── 初始化（取代 DOMContentLoaded）
                 async init() {
+                    this.pageLoading = true;
                     const id = sessionStorage.getItem('empId');
                     if (!id) { window.location.replace('login.html'); return; }
                     this.empId = id;
@@ -1043,10 +1059,18 @@
                     const p = new URLSearchParams(window.location.search);
                     this.projectId = p.get('id') || p.get('projectId') || 1;
 
-                    await Promise.all([this.fetchProjectInfo(), this.fetchTasks(), this.loadDocs()]);
-                    // 初始化各紅點
-                    await this.checkClientUnread();
+                    // 🌟 同步加载所有数据（任务、文件、未读状态）以实现同步显示
+                    await Promise.all([
+                        this.fetchProjectInfo(),
+                        this.fetchTasks(),
+                        this.loadDocs(),
+                        this.checkClientUnread()
+                    ]);
+                    
+                    // fetchTasks 必須先做完，this.tasks 才有資料，這時候才能檢查紅點
                     await this.checkAllTaskUnread();
+
+                    this.pageLoading = false;
                 },
 
                 // ── API：專案基本資訊

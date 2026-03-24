@@ -24,6 +24,7 @@ public class BookResponseDTO {
     private LocalDateTime createAt;
     private String managerName;
     private String signAt;
+    private String updateAt;
 
     public static BookResponseDTO from(Book book, Customer customer) {
         BookResponseDTO dto = new BookResponseDTO();
@@ -35,6 +36,7 @@ public class BookResponseDTO {
         dto.content      = book.getContent();
         dto.status       = book.getStatus();
         dto.createAt     = book.getCreateAt();
+        dto.setUpdateAt(book.getUpdateAt() != null ? book.getUpdateAt().toString() : null);
 
         if (customer != null) {
             dto.customerName = customer.getName();

@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Table(name = "books")
@@ -53,6 +54,10 @@ public class Book {
 
     @Column(length = 1000)
     private String content;
+
+    @LastModifiedDate
+    @Column(name = "update_at")
+    private LocalDateTime updateAt;
 
     @JsonIgnore
     @OneToMany(mappedBy = "book")

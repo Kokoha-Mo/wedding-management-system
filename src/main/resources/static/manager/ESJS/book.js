@@ -1054,12 +1054,13 @@ function renderCancelledTable(books) {
 
     books.forEach(book => {
         const row = document.createElement('div');
-        row.className = 'grid grid-cols-[2fr_2fr_2.5fr_2fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center';
+        row.className = 'grid grid-cols-[2fr_2.5fr_2.5fr_2.5fr_1.5fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center';
         row.innerHTML = `
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 w-fit">已取消</span>
-            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.createAt ? book.createAt.split('T')[0] : '-'}</span>
+            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.updateAt ? book.updateAt.split('T')[0] : '-'}</span>
             <span class="text-[12px] font-medium text-gray-800 dark:text-gray-200">${book.customerName || '-'}</span>
+            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.email || '-'}</span>
             <span class="text-[12px] text-gray-500 dark:text-gray-400">${formatPhone(book.tel) || '-'}</span>
+            <span class="px-2 py-0.5 rounded text-[12px] font-bold bg-blue-50 text-blue-600 w-fit">${book.managerName || '-'}</span>
             <button onclick="updateBookStatus(${book.bookId}, '處理中')"
                 class="text-[12px] font-bold text-primary hover:underline">
                 恢復預約

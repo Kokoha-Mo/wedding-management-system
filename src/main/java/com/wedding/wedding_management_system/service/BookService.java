@@ -1,6 +1,7 @@
 package com.wedding.wedding_management_system.service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -249,6 +251,7 @@ public class BookService {
             throw new IllegalStateException("請先填寫婚宴日期才能轉為簽約");
         }
         book.setStatus(newStatus);
+        book.setUpdateAt(java.time.LocalDateTime.now(ZoneId.of("Asia/Taipei")));
         if (managerId != null) {
             // 🌟 先用 managerId 去資料庫把這個 Employee 實體撈出來
             Employee employee = employeeRepository.findById(managerId)

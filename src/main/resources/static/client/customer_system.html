@@ -1387,6 +1387,11 @@
                 }
 
                 const book = await res.json();
+                if (book.status === '已簽約') {
+                    showProjectConvertedBlocker();
+                    return;
+                }
+
                 if (book.status === '處理中') {
                     document.querySelectorAll('a[href="./customer_system.html"]')
                         .forEach(link => link.parentElement.style.display = 'none');
@@ -1449,6 +1454,9 @@
                     // 儲存成功，顯示 modal（原本的 saveSuccessModal）
                     const saveModal = new bootstrap.Modal(document.getElementById('saveSuccessModal'));
                     saveModal.show();
+                } else if (res.status === 403) {
+                    // 攔截原本後端針對 PATCH 的 403
+                    showProjectConvertedBlocker();
                 } else {
                     alert('儲存失敗，請稍後再試');
                 }
@@ -1492,6 +1500,18 @@
         // 步驟三：送出方案細節
         // ════════════════════════════════════════
         async function submitBookDetails() {
+            // 為了不改後端邏輯，純前端防禦：在真正送出前快速向後端檢查一次狀態！
+            try {
+                const checkRes = await fetch(`${API_BASE}/book`, { credentials: 'include' });
+                if (checkRes.ok) {
+                    const checkBook = await checkRes.json();
+                    if (checkBook.status === '已簽約') {
+                        showProjectConvertedBlocker();
+                        return; // 中斷送出
+                    }
+                }
+            } catch(e) { console.error('狀態檢查失敗', e); }
+
             // 收集所有勾選的服務項目
             const details = [];
 
@@ -1548,6 +1568,43 @@
                 return tel.replace(/(\d{4})(\d{3})(\d{3})/, '$1-$2-$3');
             }
             return tel;
+        }
+
+        // ════════════════════════════════════════
+        // 全域攔截：如果已經簽約，彈出擋板
+        // ════════════════════════════════════════
+        function showProjectConvertedBlocker() {
+            if (document.getElementById('dvBlockSignedOverlay')) return;
+
+            const overlay = createSharedModal({
+                id: 'dvBlockSignedOverlay',
+                icon: 'lock',
+                iconColor: '#C5A059',
+                eyebrow: 'ACCESS RESTRICTED',
+                title: '專屬籌備進行中',
+                message: '您已完成階段性合約，專案已進入正式籌備階段。<br>後續請至「我的籌備進度」查看詳細追蹤！',
+                buttonText: '前往籌備進度',
+                buttonId: 'dvGoProgressBtn',
+                countdownSecs: 5
+            });
+
+            document.body.style.overflow = 'hidden';
+
+            let sec = 5;
+            const secEl = overlay.querySelector('.dv-modal-countdown strong');
+            const timer = setInterval(() => {
+                sec--;
+                if (secEl) secEl.textContent = sec;
+                if (sec <= 0) {
+                    clearInterval(timer);
+                    window.location.href = './customer_progress.html';
+                }
+            }, 1000);
+
+            overlay.querySelector('#dvGoProgressBtn').addEventListener('click', () => {
+                clearInterval(timer);
+                window.location.href = './customer_progress.html';
+            });
         }
     </script>
 </body>

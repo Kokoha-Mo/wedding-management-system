@@ -36,6 +36,8 @@ public class BookService {
     private final ServiceRepository serviceRepository;
     private final ProjectRepository projectRepository;
     private final ProjectTaskRepository projectTaskRepository;
+    private final CustomerLoginService customerLoginService;
+    private final EmailService emailService;
 
 
     // ════════════════════════════════════════════════════════
@@ -65,23 +67,33 @@ public class BookService {
             }
         }
 
-        // 3. 都查無 → 建立新客戶，密碼預設為手機號碼
+        // 3. 都查無 → 建立新客戶（密碼先用隨機佔位，之後透過驗證信設定）
         log.info("查無客戶，建立新客戶");
         Customer c = new Customer();
         c.setName(ReName(dto.getName()));
         c.setTel(dto.getTel());
         c.setEmail(dto.getEmail());
         c.setLineId(dto.getLineId());
-        // 預設密碼為手機號碼（去除非數字字元）
+        // 密碼先以手機號碼佔位（僅為滿足 NOT NULL，客戶尚未能登入）
+        // TODO【上線前修改】將下方改為：passwordEncoder.encode(UUID.randomUUID().toString())
         String rawPassword = dto.getTel() != null
                 ? dto.getTel().replaceAll("[^0-9]", "")
                 : "12345678";
         c.setPassword(passwordEncoder.encode(rawPassword));
-        log.info("新客戶建立，預設密碼為手機號碼");
+        Customer saved = customerRepository.save(c);
 
-        // 2. 這裡打上「強制修改密碼」的暗號！
-        c.setResetToken("FORCE_RESET");
-        return customerRepository.save(c);
+        // 寄送帳號設定驗證信（僅在有 email 時才送）
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            try {
+                String token = customerLoginService.generateAndSaveResetToken(dto.getEmail());
+                emailService.sendResetPasswordEmail(dto.getEmail(), saved.getName(), token);
+                log.info("已寄送帳號設定驗證信給新客戶 email={}", dto.getEmail());
+            } catch (Exception e) {
+                log.warn("驗證信寄送失敗，email={}, 原因={}", dto.getEmail(), e.getMessage());
+            }
+        }
+
+        return saved;
     }
 
     private @NonNull String ReName(String raw) {

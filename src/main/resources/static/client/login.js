@@ -58,8 +58,8 @@ async function checkAuthStatus() {
       const data = await res.json();
       localStorage.setItem('dv_username', data.name);
       localStorage.setItem('dv_customer_id', data.customerId);
-      localStorage.setItem('dv_has_project', data.hasProject); // 🌟 儲存專案狀態
-      
+      localStorage.setItem('dv_has_project', data.hasProject); // 儲存專案狀態
+
       syncNavbarUI(true, data.name, data.hasProject);
     } else if (res.status === 401 || res.status === 403) {
       // 嘗試讀取後端回傳的訊息
@@ -73,7 +73,7 @@ async function checkAuthStatus() {
       localStorage.removeItem('dv_username');
       localStorage.removeItem('dv_customer_id');
       localStorage.removeItem('dv_login_time');
-      localStorage.removeItem('dv_has_project'); // 🌟 清除專案狀態
+      localStorage.removeItem('dv_has_project'); // 清除專案狀態
       syncNavbarUI(false);
 
       // 如果目前在需要登入才能進入的頁面才需要跳轉
@@ -100,135 +100,23 @@ async function checkAuthStatus() {
 
 /* 帳號停用通知彈窗（顯示後自動導回登入頁） */
 function showAccountDisabledModal(message, redirectUrl) {
-  // 防止重複建立
   if (document.getElementById('dvDisabledOverlay')) return;
 
-  const overlay = document.createElement('div');
-  overlay.id = 'dvDisabledOverlay';
-  overlay.innerHTML = /*HTML*/`
-    <style>
-      #dvDisabledOverlay {
-        position: fixed; inset: 0; z-index: 99999;
-        background: rgba(20,15,10,0.60);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        display: flex; align-items: center; justify-content: center;
-        padding: 24px; box-sizing: border-box;
-        animation: dvdFadeIn 0.3s ease;
-      }
-      @keyframes dvdFadeIn { from{opacity:0} to{opacity:1} }
-
-      #dvDisabledBox {
-        background: #faf7f2;
-        border-radius: 2px;
-        box-shadow: 0 8px 48px rgba(45,37,32,0.18), 0 2px 12px rgba(45,37,32,0.08);
-        width: 100%; max-width: 400px;
-        padding: 52px 44px 44px;
-        box-sizing: border-box;
-        text-align: center;
-        position: relative;
-        animation: dvdSlideUp 0.45s cubic-bezier(0.16,1,0.3,1) both;
-      }
-      @keyframes dvdSlideUp {
-        from { opacity:0; transform:translateY(28px) scale(0.97); }
-        to   { opacity:1; transform:translateY(0) scale(1); }
-      }
-
-      /* 四角框線 */
-      #dvDisabledBox::before, #dvDisabledBox::after {
-        content:''; position:absolute; width:18px; height:18px;
-        border-color:rgba(197,160,89,0.45); border-style:solid;
-      }
-      #dvDisabledBox::before { top:-1px; left:-1px; border-width:1px 0 0 1px; }
-      #dvDisabledBox::after  { bottom:-1px; right:-1px; border-width:0 1px 1px 0; }
-      #dvDisabledBox .dvd-corner-tr { position:absolute; top:-1px; right:-1px; width:18px; height:18px; border-color:rgba(197,160,89,0.45); border-style:solid; border-width:1px 1px 0 0; }
-      #dvDisabledBox .dvd-corner-bl { position:absolute; bottom:-1px; left:-1px;  width:18px; height:18px; border-color:rgba(197,160,89,0.45); border-style:solid; border-width:0 0 1px 1px; }
-
-      .dvd-icon-wrap {
-        width: 64px; height: 64px; border-radius: 50%;
-        border: 1px solid rgba(197,160,89,0.3);
-        display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 24px;
-        background: radial-gradient(circle, rgba(197,160,89,0.08) 0%, transparent 80%);
-      }
-      .dvd-eyebrow {
-        display: block; font-size: 9px; letter-spacing: 0.5em;
-        text-transform: uppercase; color: rgba(197,160,89,0.85); margin-bottom: 10px;
-        font-family: 'Plus Jakarta Sans','Noto Sans TC',sans-serif;
-      }
-      .dvd-title {
-        font-family: 'Bodoni Moda','Noto Serif TC',serif;
-        font-size: 22px; font-weight: 400; color: #2D2520;
-        letter-spacing: 0.06em; margin-bottom: 16px; line-height: 1.3;
-      }
-      .dvd-divider {
-        display: flex; align-items: center; gap: 12px;
-        margin: 0 auto 18px; width: 80%;
-      }
-      .dvd-divider::before,.dvd-divider::after {
-        content:''; flex:1; height:1px; background:rgba(197,160,89,0.25);
-      }
-      .dvd-dot { width:4px; height:4px; background:rgba(197,160,89,0.5); transform:rotate(45deg); }
-      .dvd-msg {
-        font-size: 13px; color: #7A6F66; letter-spacing: 0.06em;
-        line-height: 1.9; margin-bottom: 28px;
-        font-family: 'Plus Jakarta Sans','Noto Sans TC',sans-serif;
-      }
-      .dvd-btn {
-        display: inline-block; width: 100%;
-        background: transparent; border: 1px solid rgba(197,160,89,0.6);
-        color: #2D2520; padding: 0.9rem;
-        font-size: 10px; font-weight: 500; letter-spacing: 0.44em;
-        text-transform: uppercase;
-        font-family: 'Plus Jakarta Sans','Noto Sans TC',sans-serif;
-        cursor: pointer; position: relative; overflow: hidden;
-        transition: color 0.35s, border-color 0.35s;
-      }
-      .dvd-btn::before {
-        content:''; position:absolute; inset:0;
-        background: linear-gradient(135deg,#C5A059 0%,#A68648 100%);
-        opacity:0; transition:opacity 0.35s;
-      }
-      .dvd-btn:hover { color:#fff; border-color:#C5A059; }
-      .dvd-btn:hover::before { opacity:1; }
-      .dvd-btn span { position:relative; z-index:1; }
-      .dvd-countdown {
-        font-size: 11px; color: #B0A49A; letter-spacing: 0.08em;
-        margin-top: 12px; font-family: 'Plus Jakarta Sans','Noto Sans TC',sans-serif;
-      }
-    </style>
-
-    <div id="dvDisabledBox">
-      <div class="dvd-corner-tr"></div>
-      <div class="dvd-corner-bl"></div>
-
-      <div class="dvd-icon-wrap">
-        <span class="material-symbols-outlined"
-          style="font-size:28px; color:#C5A059;
-                 font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 24;">
-          lock_person
-        </span>
-      </div>
-
-      <span class="dvd-eyebrow">Account Status</span>
-      <h2 class="dvd-title">帳號已停用</h2>
-
-      <div class="dvd-divider"><div class="dvd-dot"></div></div>
-
-      <p class="dvd-msg" id="dvdMessage">${message || '此帳號已被停用，如有疑問請聯繫客服。'}</p>
-
-      <button class="dvd-btn" id="dvdOkBtn">
-        <span>返回登入頁</span>
-      </button>
-      <p class="dvd-countdown" id="dvdCountdown">將於 <strong id="dvdSec">5</strong> 秒後自動跳轉</p>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
+  const overlay = createSharedModal({
+    id: 'dvDisabledOverlay',
+    icon: 'lock_person',
+    iconColor: '#C5A059',
+    eyebrow: 'Account Status',
+    title: '帳號已停用',
+    message: message || '此帳號已被停用，如有疑問請聯繫客服。',
+    buttonText: '返回登入頁',
+    buttonId: 'dvdOkBtn',
+    countdownSecs: 5
+  });
 
   // 倒數計時自動跳轉
   let sec = 5;
-  const secEl = document.getElementById('dvdSec');
+  const secEl = overlay.querySelector('.dv-modal-countdown strong');
   const timer = setInterval(() => {
     sec--;
     if (secEl) secEl.textContent = sec;
@@ -239,14 +127,14 @@ function showAccountDisabledModal(message, redirectUrl) {
   }, 1000);
 
   // 手動點擊立即跳轉
-  document.getElementById('dvdOkBtn').addEventListener('click', () => {
+  overlay.querySelector('#dvdOkBtn').addEventListener('click', () => {
     clearInterval(timer);
     window.location.href = redirectUrl;
   });
 }
 
 /* UI：同步更新電腦與手機的導覽列 */
-// 🌟 新增 hasProject 參數，預設為 null
+// 新增 hasProject 參數，預設為 null
 function syncNavbarUI(isLoggedIn, username = "", hasProject = null) {
   const deskLogin = document.getElementById('loginLinkDesktop');
   const deskUserWrap = document.getElementById('userDropdownWrap');
@@ -256,13 +144,13 @@ function syncNavbarUI(isLoggedIn, username = "", hasProject = null) {
   const mobWelcome = document.getElementById('mobileWelcome');
   const mobLogout = document.getElementById('logoutBtnMobile');
 
-  // 🌟 1. 抓取桌機版與手機版的兩個選單按鈕
+  // 1. 抓取桌機版與手機版的兩個選單按鈕
   const deskPlanLink = document.querySelector('#userDropdownWrap a[href="./customer_system.html"]');
   const deskProgressLink = document.querySelector('#userDropdownWrap a[href="./customer_progress.html"]');
   const mobPlanLink = document.querySelector('#mobileUserMenu a[href="./customer_system.html"]');
   const mobProgressLink = document.querySelector('#mobileUserMenu a[href="./customer_progress.html"]');
 
-  // 🌟 2. 決定專案狀態：如果有傳入就用傳入的，沒有的話去 localStorage 抓 (確保重新整理不會錯亂)
+  // 2. 決定專案狀態：如果有傳入就用傳入的，沒有的話去 localStorage 抓 (確保重新整理不會錯亂)
   const isProjectExists = hasProject !== null ? hasProject : (localStorage.getItem('dv_has_project') === 'true');
 
   if (isLoggedIn) {
@@ -273,21 +161,21 @@ function syncNavbarUI(isLoggedIn, username = "", hasProject = null) {
     if (mobUserMenu) mobUserMenu.style.display = 'block';
     if (mobWelcome) mobWelcome.textContent = `歡迎, ${username}`;
     if (mobLogout) mobLogout.style.display = 'block';
-    
-    // 🌟 3. 核心邏輯：根據 isProjectExists 來控制顯示哪一個選單
+
+    // 3. 核心邏輯：根據 isProjectExists 來控制顯示哪一個選單
     if (isProjectExists) {
-        // 【已有專案】：顯示「我的籌備進度」，隱藏「我的婚禮規劃」
-        // 桌機版因為是 <li> 裡面包 <a>，所以我們隱藏外層的 <li> 避免留空隙 (.parentElement)
-        if (deskPlanLink) deskPlanLink.parentElement.style.display = 'none';
-        if (deskProgressLink) deskProgressLink.parentElement.style.display = 'block';
-        if (mobPlanLink) mobPlanLink.style.display = 'none';
-        if (mobProgressLink) mobProgressLink.style.display = 'block';
+      // 【已有專案】：顯示「我的籌備進度」，隱藏「我的婚禮規劃」
+      // 桌機版因為是 <li> 裡面包 <a>，所以我們隱藏外層的 <li> 避免留空隙 (.parentElement)
+      if (deskPlanLink) deskPlanLink.parentElement.style.display = 'none';
+      if (deskProgressLink) deskProgressLink.parentElement.style.display = 'block';
+      if (mobPlanLink) mobPlanLink.style.display = 'none';
+      if (mobProgressLink) mobProgressLink.style.display = 'block';
     } else {
-        // 【尚無專案】：顯示「我的婚禮規劃」，隱藏「我的籌備進度」
-        if (deskPlanLink) deskPlanLink.parentElement.style.display = 'block';
-        if (deskProgressLink) deskProgressLink.parentElement.style.display = 'none';
-        if (mobPlanLink) mobPlanLink.style.display = 'block';
-        if (mobProgressLink) mobProgressLink.style.display = 'none';
+      // 【尚無專案】：顯示「我的婚禮規劃」，隱藏「我的籌備進度」
+      if (deskPlanLink) deskPlanLink.parentElement.style.display = 'block';
+      if (deskProgressLink) deskProgressLink.parentElement.style.display = 'none';
+      if (mobPlanLink) mobPlanLink.style.display = 'block';
+      if (mobProgressLink) mobProgressLink.style.display = 'none';
     }
 
   } else {
@@ -305,7 +193,7 @@ async function performLoginAction() {
   const pass = document.getElementById('passwordInput')?.value.trim();
   const rememberMe = document.getElementById('rememberMe')?.checked;
 
-  if (!email || !pass) return alert('請完整填寫電子郵件與密碼');
+  if (!email || !pass) return showStyledAlertModal('請完整填寫電子郵件與密碼');
 
   try {
     // 1. POST 請求給後端
@@ -323,28 +211,18 @@ async function performLoginAction() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.message || '登入失敗，請檢查帳號密碼');
+      showStyledAlertModal(errorData.message || '登入失敗，請檢查帳號密碼');
       return;
     }
 
     const data = await response.json();
 
-    // 2. 判斷是否被後端標記為「首次登入強制修改密碼」
-    if (data.forcePasswordChange) {
-      sessionStorage.setItem('temp_force_name', data.name || data.email);
-      if (data.customerId) {
-        sessionStorage.setItem('temp_force_id', data.customerId);
-      }
-      window.location.href = './reset_password.html?mode=force';
-      return;
-    }
-
-    // 3. 正常老客戶登入
+    // 正常登入
     completeLoginProcess(data, email, rememberMe);
 
   } catch (error) {
     console.error('登入發生錯誤:', error);
-    alert('伺服器連線失敗，請稍後再試');
+    showStyledAlertModal('伺服器連線失敗，請稍後再試');
   }
 }
 
@@ -353,9 +231,9 @@ function completeLoginProcess(data, email, rememberMe) {
   localStorage.setItem('dv_username', data.name || data.email);
   localStorage.setItem('dv_login_time', Date.now());
 
-  // 🌟 登入成功時，立刻把專案狀態存起來
+  // 登入成功時，立刻把專案狀態存起來
   localStorage.setItem('dv_has_project', data.hasProject === true);
-  
+
   if (data.customerId) {
     localStorage.setItem('dv_customer_id', data.customerId);
   }
@@ -370,6 +248,30 @@ function completeLoginProcess(data, email, rememberMe) {
   setTimeout(() => {
     window.location.href = './index.html';
   }, 1800);
+}
+
+/* 顯示登入成功轉場彈窗 */
+function showSuccessModal(username) {
+  const overlay = createSharedModal({
+    id: 'dvSuccessTransOverlay',
+    icon: 'check',
+    iconColor: '#C5A059',
+    eyebrow: 'LOGIN SUCCESSFUL',
+    title: '歡迎回來',
+    message: `${username}，您已成功登入<br>正在為您跳轉至專屬頁面⋯`,
+    buttonText: '前往首頁探索',
+    buttonId: 'dvsGoBtn'
+  });
+
+  // 把按鈕改成不顯眼的外觀，並加上跳轉事件
+  const btn = overlay.querySelector('#dvsGoBtn');
+  btn.style.background = 'transparent';
+  btn.style.color = '#7A6F66';
+  btn.style.borderColor = 'rgba(197,160,89,0.3)';
+
+  btn.addEventListener('click', () => {
+    window.location.href = './index.html';
+  });
 }
 
 /* 登出處理 */
@@ -393,8 +295,86 @@ async function forceLogout() {
   localStorage.removeItem('dv_login_time');
   localStorage.removeItem('dv_customer_id');
   sessionStorage.clear();
-  alert('您已成功登出');
-  window.location.href = './index.html';
+  showStyledAlertModal('您已成功登出');
+  setTimeout(() => {
+    window.location.href = './index.html';
+  }, 1500);
+}
+
+/* 共用彈窗產生器 */
+function createSharedModal(options) {
+  const {
+    id,
+    icon = 'info',
+    iconColor = '#C5A059',
+    eyebrow = 'System Message',
+    title = '系統提示',
+    message = '',
+    buttonText = '確定',
+    buttonId = 'dvModalOkBtn',
+    countdownSecs = null
+  } = options;
+
+  const overlay = document.createElement('div');
+  overlay.id = id;
+  overlay.className = 'dv-modal-overlay';
+
+  let countdownHtml = '';
+  if (countdownSecs !== null) {
+    countdownHtml = `<p class="dv-modal-countdown">將於 <strong>${countdownSecs}</strong> 秒後自動跳轉</p>`;
+  }
+
+  overlay.innerHTML = /*HTML*/`
+    <div class="dv-modal-box">
+      <div class="dvd-corner-tr"></div>
+      <div class="dvd-corner-bl"></div>
+
+      <div class="dv-modal-icon-wrap">
+        <span class="material-symbols-outlined"
+          style="font-size:28px; color:${iconColor};
+                 font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 24;">
+          ${icon}
+        </span>
+      </div>
+
+      <span class="dv-modal-eyebrow">${eyebrow}</span>
+      <h2 class="dv-modal-title">${title}</h2>
+
+      <div class="dv-modal-divider"><div class="dv-modal-dot"></div></div>
+
+      <p class="dv-modal-msg">${message}</p>
+
+      <button class="dv-modal-btn" id="${buttonId}">
+        <span>${buttonText}</span>
+      </button>
+      ${countdownHtml}
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+/* 顯示可共用的樣式化警告彈窗 */
+function showStyledAlertModal(message) {
+  if (document.getElementById('dvAlertOverlay')) {
+    document.getElementById('dvAlertOverlay').remove();
+  }
+
+  const overlay = createSharedModal({
+    id: 'dvAlertOverlay',
+    icon: 'info',
+    iconColor: '#C5A059',
+    eyebrow: 'System Message',
+    title: '系統提示',
+    message: message,
+    buttonText: '確定',
+    buttonId: 'dvAlertOkBtn'
+  });
+
+  overlay.querySelector('#dvAlertOkBtn').addEventListener('click', () => {
+    overlay.remove();
+  });
 }
 
 /* 初始化：記住帳號、綁定按鈕與 Enter */

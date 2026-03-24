@@ -10,4 +10,5 @@ public class CustomerLoginResponseDto {
     private Integer customerId;
     private boolean forcePasswordChange;
     private Integer projectId;
+    private String message; // 錯誤訊息（登入失敗時使用）
 }

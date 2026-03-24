@@ -81,15 +81,15 @@
     <div id="app" class="flex w-full h-full overflow-hidden">
 
         <!-- Sidebar 遮罩 -->
-        <div v-if="sidebarOpen" @click="sidebarOpen=false"
-            class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm cursor-pointer"></div>
+        <div id="sidebar-overlay"
+            class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm hidden transition-opacity cursor-pointer"></div>
 
         <!-- ═══ Sidebar ═══ -->
-        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-            class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative">
+        <aside id="sidebar"
+            class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative -translate-x-full lg:translate-x-0">
             <div class="h-16 flex items-center justify-center">
                 <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
-                <div class="text-white font-bold text-lg tracking-wide p-0 m-0">Admin</div>
+                <div class="text-white font-bold text-lg tracking-wide menu-category p-0 m-0">Admin</div>
             </div>
             <div class="px-4 py-4 mt-2 sidebar-user">
                 <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
@@ -147,10 +147,9 @@
 
             <!-- Header -->
             <header
-                class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
+                class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 relative z-40 shadow-sm text-white">
                 <div class="flex items-center flex-1">
-                    <!-- @click 取代 addEventListener -->
-                    <button @click="sidebarOpen=!sidebarOpen"
+                    <button id="sidebar-hamburger"
                         class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
                         <span class="material-icons">menu</span>
                     </button>
@@ -158,16 +157,15 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="relative">
-                        <div @click="userDropdownOpen=!userDropdownOpen"
+                        <div id="user-menu-button"
                             class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
                             <img :src="avatarSrc" alt="Avatar"
                                 class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover" />
                             <span class="text-sm font-medium mr-1 text-gray-200">{{ empName }}</span>
                             <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                         </div>
-                        <!-- v-show 取代 classList.toggle('hidden') -->
-                        <div v-show="userDropdownOpen"
-                            class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 z-50 border border-gray-100">
+                        <div id="user-dropdown"
+                            class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">
                             <a href="account.html"
                                 class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                 <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span>
@@ -176,7 +174,7 @@
                             <hr class="my-1 border-gray-100">
                             <a href="login.html"
                                 class="flex items-center px-4 py-2.5 text-sm text-red-500 hover:bg-gray-50 transition-colors">
-                                <span class="material-icons text-[18px] mr-3 text-red-500">logout</span> Log Out
+                                <span class="material-icons text-[18px] mr-3 text-red-500">logout</span> 登出
                             </a>
                         </div>
                     </div>
@@ -218,7 +216,23 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="relative z-10 flex flex-wrap items-center gap-3">
+                        <div class="relative z-10 flex flex-wrap items-start gap-3 mt-1">
+                            <!-- 付款狀態按鈕區塊 -->
+                            <div class="mr-4 flex flex-col items-end">
+                                <span v-if="project.paymentStatus === '尾款結清'"
+                                    class="text-sm font-bold text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-4 py-2.5 rounded-lg flex items-center shadow-sm">
+                                    <span class="material-icons text-[18px] mr-1">check_circle</span> 全額付清
+                                </span>
+                                <button v-else @click="updatePaymentStatus"
+                                    class="bg-green-50 hover:bg-green-600 text-green-600 hover:text-white dark:bg-green-900/30 dark:hover:bg-green-500 dark:text-green-400 dark:hover:text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm flex items-center transition-colors border border-green-100 dark:border-green-800">
+                                    <span class="material-icons text-[18px] mr-1.5">payments</span>
+                                    {{ paymentButtonInfo.btnText }}
+                                </button>
+                                <span v-if="project.paymentStatus !== '尾款結清'" class="text-xs text-gray-400 mt-1 mr-1">
+                                    期限: {{ paymentButtonInfo.deadlineDesc }} | 金額: ${{ paymentButtonInfo.amount }}
+                                </span>
+                            </div>
+
                             <div class="relative inline-block">
                                 <!-- @click.prevent 取代 onclick="openClientChatModal(event)" -->
                                 <button @click.prevent="openClientChatModal"
@@ -876,7 +890,7 @@
                     projectId: null,
 
                     // 專案資訊（{{ }} 插值，取代 getElementById + textContent）
-                    project: { customerName: '', projectNo: '', weddingDate: '' },
+                    project: { customerName: '', projectNo: '', weddingDate: '', paymentStatus: '訂金結清', totalPayment: 0, createAt: '' },
 
                     // 任務
                     tasks: [], tasksLoading: true,
@@ -943,6 +957,30 @@
                         project: d === '1' && r === 'MANAGER',
                         task: (d === '1' && r !== 'MANAGER') || (d !== '1' && d !== '7'),
                     };
+                },
+
+                // 付款狀態按鈕資訊
+                paymentButtonInfo() {
+                    let btnText = '';
+                    let deadlineDesc = '';
+                    let amountStr = '0';
+                    let nextStatus = '';
+                    const total = this.project.totalPayment || 0;
+
+                    if (this.project.paymentStatus === '訂金結清') {
+                        btnText = '結清期中款';
+                        deadlineDesc = '3個月內'; // 可以根據 createAt 計算，但這裡直接顯示文字
+                        // 確保無條件進位或捨去，這裡用 Math.round 或直接乘
+                        amountStr = Math.round(total * 0.5).toLocaleString();
+                        nextStatus = '期中款結清';
+                    } else if (this.project.paymentStatus === '期中款結清') {
+                        btnText = '結清尾款';
+                        deadlineDesc = '婚期 14 天前';
+                        amountStr = Math.round(total * 0.3).toLocaleString();
+                        nextStatus = '尾款結清';
+                    }
+
+                    return { btnText, deadlineDesc, amount: amountStr, nextStatus };
                 },
 
                 // computed 取代 updateStatusCounts 的 DOM 操作
@@ -1017,8 +1055,39 @@
                         const r = await fetch(`/api/manager/projects/${this.projectId}/record`, { credentials: 'include' });
                         if (!r.ok) return this.handleAuth(r.status);
                         const d = await r.json();
-                        this.project = { customerName: d.customerName || '未定客戶', projectNo: d.projectNo || '', weddingDate: d.weddingDate || '' };
+                        this.project = { 
+                            customerName: d.customerName || '未定客戶', 
+                            projectNo: d.projectNo || '', 
+                            weddingDate: d.weddingDate || '',
+                            paymentStatus: d.paymentStatus || '訂金結清', // 預設為訂金結清
+                            totalPayment: d.totalPayment || 0,
+                            createAt: d.createAt || ''
+                        };
                     } catch (e) { console.error(e); }
+                },
+
+                // ── 更新付款狀態
+                async updatePaymentStatus() {
+                    const info = this.paymentButtonInfo;
+                    if (!info.nextStatus) return;
+
+                    if (!confirm(`確定要將帳務狀態更新為「${info.nextStatus}」嗎？\n此操作代表已確認收到款項 $${info.amount}。`)) return;
+
+                    try {
+                        const r = await fetch(`/api/manager/projects/${this.projectId}/payment-status`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ paymentStatus: info.nextStatus })
+                        });
+                        if (r.ok) {
+                            alert('帳務狀態更新成功！');
+                            await this.fetchProjectInfo(); // 重新拉取專案資訊以更新狀態
+                        } else {
+                            alert('更新失敗，請稍後再試。');
+                        }
+                    } catch (e) {
+                        alert('網路異常，請聯絡管理員。');
+                    }
                 },
 
                 // ── API：任務列表
@@ -1143,7 +1212,7 @@
                                 ...m,
                                 isMe: String(m.creatorId) === String(this.empId),
                                 label: String(m.creatorId) === String(this.empId) ? '本人 (PM)' : (m.creatorPosition === 'MANAGER' ? `業務 - ${m.creatorName}` : m.creatorName),
-                                time: m.createAt ? new Date(m.createAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+                                time: m.createAt ? new Date(m.createAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
                             }));
                         }
                     } catch (e) { console.error(e); } finally {

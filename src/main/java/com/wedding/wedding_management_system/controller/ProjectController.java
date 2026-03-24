@@ -212,4 +212,28 @@ public class ProjectController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    // Update Project Payment Status
+    @PostMapping("/projects/{projectId}/payment-status")
+    public ResponseEntity<?> updatePaymentStatus(
+            @PathVariable("projectId") Integer projectId,
+            @RequestBody Map<String, String> request) {
+        try {
+            String newStatus = request.get("paymentStatus");
+            boolean success = projectService.updateProjectPaymentStatus(projectId, newStatus);
+            Map<String, Object> response = new HashMap<>();
+            if (success) {
+                response.put("success", true);
+                response.put("message", "Payment status updated successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to update payment status");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

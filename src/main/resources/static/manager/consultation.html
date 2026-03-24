@@ -268,7 +268,14 @@
 
                     <!-- 諮詢單列表 Data Table -->
                     <div class="glass-card rounded-2xl overflow-hidden">
-                        <div class="overflow-x-auto">
+
+                        <div v-if="isLoading" class="text-center py-16 text-gray-500">
+                            <span
+                                class="material-icons animate-spin text-accent-gold text-4xl mb-3 block">autorenew</span>
+                            <p class="font-medium tracking-wider">正在載入諮詢單資料...</p>
+                        </div>
+
+                        <div v-else class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr
@@ -366,7 +373,7 @@
 
                         <!-- 分頁 -->
                         <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between"
-                            v-if="filteredConsultations.length > 0">
+                            v-if="!isLoading && filteredConsultations.length > 0">
                             <span class="text-sm text-gray-500">
                                 共 {{ filteredConsultations.length }} 筆資料 (第 {{ currentPage }} / {{ totalPages }} 頁)
                             </span>
@@ -647,6 +654,7 @@
         createApp({
             data() {
                 return {
+                    isLoading: true, // 🌟 新增這行：預設開啟載入中狀態
                     searchQuery: '',
                     statusFilter: 'all',
                     consultations: [],
@@ -828,6 +836,8 @@
                 },
                 // 🚀 從後端獲取資料
                 fetchConsultations() {
+                    this.isLoading = true; // 🌟 發送請求前，確保開啟載入狀態
+
                     axios.get('/api/consultations')
                         .then(response => {
                             if (response.data.success) {
@@ -863,6 +873,10 @@
 
                             console.error("無法載入諮詢單資料:", error);
                             alert("載入資料失敗，請確認後端伺服器是否啟動。");
+                        })
+                        .finally(() => {
+                            // 🌟 新增這區塊：不管成功或失敗，最後都把載入動畫關掉
+                            this.isLoading = false;
                         });
                 },
 

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
@@ -34,6 +35,8 @@ public class ProjectProgressDTO {
         private Integer id;             // 對應 ProjectCommunication 的 id
         private String createBy;        // 發送者 (對應 createBy)
         private String content;         // 內容 (對應 content)
+        // 🌟 核心修改：加上 JsonFormat 標註，強制轉換為台北時區並指定格式
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Taipei")
         private LocalDateTime createAt; // 時間 (對應 createAt)
         
         // 附件列表

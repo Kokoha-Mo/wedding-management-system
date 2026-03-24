@@ -95,7 +95,7 @@ public class CustomerProgressService {
             int midPayment = (int) (total * 0.5);
             int finalPayment = total - deposit - midPayment; // 確保加總不漏小數點
 
-            // 狀態判定邏輯 (依照你的 SQL 註解設計)
+            // 狀態判定邏輯 (來自資料庫的真實狀態)
             boolean isDepositPaid = pStatus.contains("訂金") || pStatus.contains("期中") || pStatus.contains("尾款");
             boolean isMidPaid = pStatus.contains("期中") || pStatus.contains("尾款");
             boolean isFinalPaid = pStatus.contains("尾款");
@@ -103,7 +103,26 @@ public class CustomerProgressService {
             // 基準日 (婚期)
             LocalDate wedDate = book != null ? book.getWeddingDate() : null;
 
-            // 1. 訂金 20%
+            // ==========================================
+            // 🌟 商業邏輯：計算是否逾期 (OVERDUE)
+            // ==========================================
+            LocalDate today = LocalDate.now();
+            boolean isMidOverdue = false;
+            boolean isFinalOverdue = false;
+
+            if (wedDate != null) {
+                // 如果今天 >= 婚期前 3 個月，且「期中款未繳清」-> 標記為逾期
+                if (!today.isBefore(wedDate.minusMonths(3)) && !isMidPaid) {
+                    isMidOverdue = true;
+                }
+                // 如果今天 >= 婚期前 14 天，且「尾款未繳清」-> 標記為逾期
+                if (!today.isBefore(wedDate.minusDays(14)) && !isFinalPaid) {
+                    isFinalOverdue = true;
+                }
+            }
+            // ==========================================
+
+            // 1. 訂金 20% (通常立約即繳，若未繳視為待繳納)
             ProjectProgressDTO.PaymentDTO p1 = new ProjectProgressDTO.PaymentDTO();
             p1.setTitle("訂金 20% (NT$ " + String.format("%,d", deposit) + ")");
             p1.setStatus(isDepositPaid ? "PAID" : "PENDING");
@@ -113,26 +132,36 @@ public class CustomerProgressService {
             // 2. 期中款 50%
             ProjectProgressDTO.PaymentDTO p2 = new ProjectProgressDTO.PaymentDTO();
             p2.setTitle("期中款 50% (NT$ " + String.format("%,d", midPayment) + ")");
-            p2.setStatus(isMidPaid ? "PAID" : (isDepositPaid ? "PENDING" : "NONE"));
             if (isMidPaid) {
+                p2.setStatus("PAID");
                 p2.setDueDate(""); // 已繳清不顯示日期
+            } else if (isMidOverdue) {
+                p2.setStatus("OVERDUE");
+                p2.setDueDate(wedDate != null
+                        ? "已逾期 (" + wedDate.minusMonths(3).format(DateTimeFormatter.ofPattern("yyyy.MM.dd")) + " 前)"
+                        : "已逾期 (繳款日期待確認)");
             } else {
-                // 期中款預設為婚期前 3 個月
+                p2.setStatus(isDepositPaid ? "PENDING" : "NONE");
                 p2.setDueDate(wedDate != null ? wedDate.minusMonths(3).format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
-                        : "待確認");
+                        : "繳款日期待確認");
             }
             paymentList.add(p2);
 
             // 3. 尾款 30%
             ProjectProgressDTO.PaymentDTO p3 = new ProjectProgressDTO.PaymentDTO();
             p3.setTitle("尾款 30% (NT$ " + String.format("%,d", finalPayment) + ")");
-            p3.setStatus(isFinalPaid ? "PAID" : (isMidPaid ? "PENDING" : "NONE"));
             if (isFinalPaid) {
+                p3.setStatus("PAID");
                 p3.setDueDate("");
+            } else if (isFinalOverdue) {
+                p3.setStatus("OVERDUE");
+                p3.setDueDate(wedDate != null
+                        ? "已逾期 (" + wedDate.minusDays(14).format(DateTimeFormatter.ofPattern("yyyy.MM.dd")) + " 前)"
+                        : "已逾期 (繳款日期待確認)");
             } else {
-                // 尾款預設為婚期前 14 天
+                p3.setStatus(isMidPaid ? "PENDING" : "NONE");
                 p3.setDueDate(wedDate != null ? wedDate.minusDays(14).format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
-                        : "待確認");
+                        : "繳款日期待確認");
             }
             paymentList.add(p3);
 
@@ -145,16 +174,16 @@ public class CustomerProgressService {
         // ==========================================
         if (project.getDocuments() != null) {
             List<ProjectProgressDTO.DocumentDetail> formalDocs = project.getDocuments().stream()
-                // 🌟 核心修改：只過濾出 status 為 null 的檔案（PM 預設上傳的狀態）
-                .filter(doc -> doc.getStatus() == null) 
-                .map(doc -> {
-                    ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();
-                    docDto.setId(doc.getId());
-                    docDto.setName(doc.getName());
-                    docDto.setFileType(doc.getFileType());
-                    docDto.setFilePath(doc.getFilePath());
-                    return docDto;
-                }).collect(Collectors.toList());
+                    // 🌟 核心修改：只過濾出 status 為 null 的檔案（PM 預設上傳的狀態）
+                    .filter(doc -> doc.getStatus() == null)
+                    .map(doc -> {
+                        ProjectProgressDTO.DocumentDetail docDto = new ProjectProgressDTO.DocumentDetail();
+                        docDto.setId(doc.getId());
+                        docDto.setName(doc.getName());
+                        docDto.setFileType(doc.getFileType());
+                        docDto.setFilePath(doc.getFilePath());
+                        return docDto;
+                    }).collect(Collectors.toList());
             dto.setDocuments(formalDocs);
         }
 
@@ -175,7 +204,7 @@ public class CustomerProgressService {
             }
 
             commDto.setContent(comm.getContent());
-            commDto.setCreateAt(comm.getCreateAt());
+            commDto.setCreateAt(comm.getCreateAt() != null ? comm.getCreateAt().plusHours(8) : null);
 
             if (comm.getDocuments() != null) {
                 List<ProjectProgressDTO.DocumentDetail> docs = comm.getDocuments().stream().map(doc -> {

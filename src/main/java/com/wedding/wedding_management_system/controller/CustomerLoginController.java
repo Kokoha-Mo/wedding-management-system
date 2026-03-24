@@ -57,6 +57,7 @@ public class CustomerLoginController {
 
         } catch (RuntimeException e) {
             CustomerLoginResponseDto errorBody = new CustomerLoginResponseDto();
+            errorBody.setMessage(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
         }
     }
@@ -71,6 +72,19 @@ public class CustomerLoginController {
 
         String email = JwtToken.getEmail(token);
         Customer customer = customerService.findByEmail(email);
+
+        if (customer == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "查無此客戶"));
+        }
+
+        // 檢查帳號是否已被停用（即使 token 仍在有效期，也要在這裡擋住）
+        try {
+            customerLoginService.disableAccount(email);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", e.getMessage()));
+        }
 
         return ResponseEntity.ok(Map.of(
                 "name", customer.getName(),
@@ -154,5 +168,18 @@ public class CustomerLoginController {
         }
 
         return ResponseEntity.ok(Map.of("message", "若該電子郵件已註冊，您將在幾分鐘內收到重設密碼信件。"));
+    }
+
+    // ── 停用帳號 ──
+    @PostMapping("/disable-account")
+    public ResponseEntity<Map<String, String>> disableAccount(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        try {
+            customerLoginService.disableAccount(email);
+            return ResponseEntity.ok(Map.of("message", "此帳號目前未被停用"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 }

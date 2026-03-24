@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.wedding.wedding_management_system.dto.CustomerLoginDto;
 import com.wedding.wedding_management_system.dto.CustomerLoginResponseDto;
 import com.wedding.wedding_management_system.entity.Customer;
+import com.wedding.wedding_management_system.repository.BookRepository;
 import com.wedding.wedding_management_system.repository.CustomerRepository;
 import com.wedding.wedding_management_system.util.JwtToken;
 
@@ -16,6 +17,9 @@ public class CustomerLoginService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private BookRepository bookRepository;
 
     CustomerLoginService(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
@@ -29,6 +33,9 @@ public class CustomerLoginService {
         if (!passwordEncoder.matches(dto.getPassword(), customer.getPassword())) {
             throw new RuntimeException("密碼錯誤");
         }
+
+        // 檢查帳號是否已被停用（book status 為「取消」）
+        disableAccount(customer.getEmail());
 
         CustomerLoginResponseDto result = new CustomerLoginResponseDto();
         result.setToken(JwtToken.createToken(customer.getEmail()));
@@ -112,5 +119,20 @@ public class CustomerLoginService {
         customerRepository.save(customer);
 
         return token;
+    }
+
+    // ── 停用帳號檢查 ──
+    // 若該客戶有任何一筆預約的 status 為「取消」，則拋出例外，禁止登入
+    public void disableAccount(String email) {
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("查無此帳號"));
+
+        boolean isCancelled = bookRepository.findByCustomer(customer)
+                .stream()
+                .anyMatch(book -> "取消".equals(book.getStatus()));
+
+        if (isCancelled) {
+            throw new RuntimeException("此帳號已被停用，如有疑問請聯繫客服");
+        }
     }
 }

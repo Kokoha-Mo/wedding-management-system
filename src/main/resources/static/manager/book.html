@@ -29,6 +29,14 @@
             },
         };
     </script>
+    <style>
+        #card-slider::-webkit-scrollbar { display: none; }
+        #card-slider { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
 <body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
@@ -219,10 +227,7 @@
                             </div>
                         </div>
 
-                        <style>
-                            #card-slider::-webkit-scrollbar { display: none; }
-                            #card-slider { -ms-overflow-style: none; scrollbar-width: none; }
-                        </style>
+
 
                         <!-- 卡片由 JS 動態渲染 -->
                         <div id="card-slider" class="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 pt-1 px-1 -mx-1"></div>
@@ -243,9 +248,9 @@
                             <!-- Table Header -->
                             <div class="grid grid-cols-[1.5fr_2fr_1.5fr_2fr_1.5fr_1.5fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3 justify-items-center text-center">
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">簽約日期</span>
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">姓名</span>
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">婚期</span>
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">場地</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">新人姓名</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">婚禮日期</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">婚宴場地</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">視覺定調</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">負責人</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">方案內容</span>
@@ -269,8 +274,9 @@
                         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden ustify-items-center text-center">
                             <!-- Table Header -->
                             <div class="grid grid-cols-[2fr_2fr_2.5fr_2fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3">
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">狀態</span>
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">預約日期</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">取消日期</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">原負責人</span>
+<!--                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">狀態</span>-->
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">新人姓名</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">手機號碼</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">更改狀態</span>

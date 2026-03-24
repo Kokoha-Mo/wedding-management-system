@@ -259,6 +259,40 @@ function toggleSubItems(mainCheckbox, subContainerId) {
 // API：載入預約列表 (已加入錯誤捕捉與陣列檢查)
 // ════════════════════════════════════════
 async function loadBooks(status = '處理中') {
+    // ── 顯示 loading ──
+    if (status === '處理中') {
+        document.getElementById('card-slider').innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
+                <svg style="width:36px;height:36px;animation:spin 0.8s linear infinite;margin-bottom:12px;"
+                     viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p class="text-sm font-medium">正在載入預約資料...</p>
+            </div>
+        `;
+    }
+    if (status === '已簽約') {
+        document.getElementById('signed-list').innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
+                <svg style="width:36px;height:36px;animation:spin 0.8s linear infinite;margin-bottom:12px;"
+                     viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p class="text-sm font-medium">正在載入資料...</p>
+            </div>
+        `;
+    }
+    if (status === '取消') {
+        document.getElementById('cancelled-list').innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
+                <svg style="width:36px;height:36px;animation:spin 0.8s linear infinite;margin-bottom:12px;"
+                     viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p class="text-sm font-medium">正在載入資料...</p>
+            </div>
+        `;
+    }
     try {
         const managerId = sessionStorage.getItem('empId');
 
@@ -274,7 +308,7 @@ async function loadBooks(status = '處理中') {
         if (!res.ok) {
             // 💡 加上這段：如果遇到 401 或 403，代表憑證過期或沒權限
             if (res.status === 401 || res.status === 403) {
-                alert("您的登入已過期，請重新登入！");
+                ShowToast("您的登入已過期，請重新登入！");
                 sessionStorage.clear(); // 清除使用者的暫存資料
                 window.location.replace("login.html"); // 自動踢回登入頁
                 return;
@@ -486,6 +520,7 @@ async function updateBookStatus(bookId, newStatus) {
 let currentEditBookId = null;
 
 function openEditModal(btn) {
+
     const card = btn.closest('.snap-start');
     if (!card) return;
 
@@ -508,6 +543,19 @@ function openEditModal(btn) {
 
 async function saveBookInfo() {
     if (!currentEditBookId) return;
+    const saveBtn = document.querySelector('#modal-edit-book button[onclick="saveBookInfo()"]');
+
+    // disabled + 轉圈
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `
+            <svg style="display:inline-block; width:16px; height:16px; vertical-align:middle; margin-right:8px; animation:spin 0.8s linear infinite;" 
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            </svg>
+            儲存中...
+        `;
+    }
 
     const selectedTheme = document.querySelector('input[name="edit-theme"]:checked');
     const email = document.getElementById('edit-email')?.value.trim() || '';
@@ -593,6 +641,13 @@ async function saveBookInfo() {
         console.error('[API] 修改資料失敗:', err);
         showToast('連線失敗', 'error');
     }
+    finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '儲存資料';
+        }
+    }
+
 }
 
 // ════════════════════════════════════════
@@ -786,13 +841,20 @@ function toggleCeremonyDate(checkbox, dateContainerId) {
 // API：儲存需求設定（PUT /books/{id}/details）
 // ════════════════════════════════════════
 async function saveBookDetails() {
-    console.log('saveBookDetails 被呼叫'); // ← 最頂端
-    console.log('currentViewBookId:', currentViewBookId); // ← 最頂端
+    if (!currentViewBookId) return;
 
-    if (!currentViewBookId) {
-        console.log('currentViewBookId 是 null，直接 return'); // ← 加這行
-        return;
+    const saveBtn = document.querySelector('#modal-modify button[onclick="saveBookDetails()"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `
+        <svg style="display:inline-block;width:14px;height:14px;vertical-align:middle;margin-right:6px;animation:spin 0.8s linear infinite;"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+        儲存中...
+    `;
     }
+
     const notes = document.getElementById('modify-notes')?.value.trim() || '';
     const details = [];
     document.querySelectorAll('#modal-modify .modal-service-cb:checked').forEach(cb => {
@@ -839,6 +901,12 @@ async function saveBookDetails() {
     } catch (err) {
         console.error('[API] 儲存失敗:', err);
         showToast('連線失敗', 'error');
+    }finally {
+        // 2. 不管成功失敗，最後都恢復按鈕
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '儲存需求設定';  // 改成你按鈕原本的文字
+        }
     }
 }
 

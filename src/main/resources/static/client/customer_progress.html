@@ -810,6 +810,246 @@
             padding-left: 40px;
             margin-top: 32px;
         }
+
+        /* 進度頁面專用 Alert MODAL */
+        .progress-alert-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 15, 10, 0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .progress-alert-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .progress-alert-modal {
+            background: #faf7f2;
+            width: 90%;
+            max-width: 380px;
+            padding: 52px 44px 44px;
+            text-align: center;
+            position: relative;
+            transform: translateY(24px) scale(0.97);
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .progress-alert-overlay.show .progress-alert-modal {
+            transform: translateY(0) scale(1);
+        }
+
+        /* 四角框線 */
+        .progress-alert-modal::before,
+        .progress-alert-modal::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: rgba(197, 160, 89, 0.5);
+            border-style: solid;
+        }
+
+        .progress-alert-modal::before {
+            top: -1px;
+            left: -1px;
+            border-width: 1px 0 0 1px;
+        }
+
+        .progress-alert-modal::after {
+            bottom: -1px;
+            right: -1px;
+            border-width: 0 1px 1px 0;
+        }
+
+        .progress-alert-modal .modal-corner-tr,
+        .progress-alert-modal .modal-corner-bl {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: rgba(197, 160, 89, 0.5);
+            border-style: solid;
+        }
+
+        .progress-alert-modal .modal-corner-tr {
+            top: -1px;
+            right: -1px;
+            border-width: 1px 1px 0 0;
+        }
+
+        .progress-alert-modal .modal-corner-bl {
+            bottom: -1px;
+            left: -1px;
+            border-width: 0 0 1px 1px;
+        }
+
+        /* 圓形圖示外框 */
+        .progress-alert-icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 1px solid rgba(197, 160, 89, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .progress-alert-icon-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(197, 160, 89, 0.12) 0%, transparent 80%);
+        }
+
+        /* 成功勾勾 */
+        .progress-alert-checkmark {
+            width: 28px;
+            height: 28px;
+            position: relative;
+            z-index: 1;
+            display: none;
+        }
+
+        .progress-alert-checkmark circle {
+            fill: none;
+            stroke: rgba(197, 160, 89, 0.25);
+            stroke-width: 1;
+        }
+
+        .progress-alert-checkmark path {
+            fill: none;
+            stroke: var(--accent-gold, #C5A059);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+        }
+
+        .progress-alert-overlay.show .progress-alert-checkmark path {
+            animation: draw-progress-check 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+        }
+
+        @keyframes draw-progress-check {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* 失敗驚嘆號 */
+        .progress-alert-error-icon {
+            font-size: 32px;
+            color: #dc3545;
+            line-height: 64px;
+            z-index: 1;
+            display: none;
+        }
+
+        /* 文字與裝飾線 */
+        .progress-alert-eyebrow {
+            font-size: 9px;
+            letter-spacing: 0.48em;
+            text-transform: uppercase;
+            color: var(--accent-gold, #C5A059);
+            margin-bottom: 10px;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .progress-alert-title {
+            font-family: var(--font-serif, serif);
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-main, #2D2520);
+            letter-spacing: 0.06em;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .progress-alert-sub {
+            font-size: 12px;
+            color: var(--text-muted, #7A6F66);
+            letter-spacing: 0.06em;
+            line-height: 1.9;
+            margin-bottom: 0;
+        }
+
+        .progress-alert-deco {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0 28px;
+        }
+
+        .progress-alert-deco-line {
+            width: 28px;
+            height: 1px;
+            background: rgba(197, 160, 89, 0.3);
+        }
+
+        .progress-alert-deco-diamond {
+            width: 4px;
+            height: 4px;
+            background: var(--accent-gold, #C5A059);
+            transform: rotate(45deg);
+            opacity: 0.5;
+            transition: background-color 0.3s;
+        }
+
+        /* 按鈕 */
+        .progress-alert-btn {
+            display: inline-block;
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(197, 160, 89, 0.45);
+            color: var(--text-main, #2D2520);
+            padding: 0.85rem;
+            font-size: 9.5px;
+            font-weight: 500;
+            letter-spacing: 0.44em;
+            text-transform: uppercase;
+            font-family: var(--font-sans, sans-serif);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: color 0.35s, border-color 0.35s;
+        }
+
+        .progress-alert-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-gold, #C5A059) 0%, #A68648 100%);
+            opacity: 0;
+            transition: opacity 0.35s;
+        }
+
+        .progress-alert-btn:hover {
+            color: #fff;
+            border-color: var(--accent-gold, #C5A059);
+        }
+
+        .progress-alert-btn:hover::before {
+            opacity: 1;
+        }
+
+        .progress-alert-btn span {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 
@@ -862,7 +1102,7 @@
             </a>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="關閉"></button>
         </div>
-        <div class="offcanvas-body pt-0">
+        <div class="offcanvas-body">
 
             <div id="mobileUserMenu"
                 style="padding-bottom:12px; margin-bottom:4px; border-bottom:1px solid rgba(197,160,89,0.15);">
@@ -1313,11 +1553,91 @@
         <span class="material-symbols-outlined">arrow_upward</span>
     </button>
 
+    <!-- 進度提示覆蓋層 -->
+    <div class="progress-alert-overlay" id="progressAlertOverlay">
+        <div class="progress-alert-modal">
+            <div class="modal-corner-tr"></div>
+            <div class="modal-corner-bl"></div>
+
+            <div class="progress-alert-icon-wrap" id="progressAlertIconWrap">
+                <svg class="progress-alert-checkmark" id="progressAlertCheckmark" viewBox="0 0 28 28" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="14" cy="14" r="13" />
+                    <path d="M8.5 14.5 L12.5 18.5 L19.5 10.5" />
+                </svg>
+                <span class="material-symbols-outlined progress-alert-error-icon"
+                    id="progressAlertErrorIcon">error</span>
+            </div>
+
+            <span class="progress-alert-eyebrow" id="progressAlertEyebrow"></span>
+            <h3 class="progress-alert-title" id="progressAlertTitle"></h3>
+
+            <div class="progress-alert-deco">
+                <div class="progress-alert-deco-line"></div>
+                <div class="progress-alert-deco-diamond" id="progressAlertDiamond"></div>
+                <div class="progress-alert-deco-line"></div>
+            </div>
+
+            <p class="progress-alert-sub" id="progressAlertMessage"></p>
+
+            <div style="margin-top:32px;">
+                <button class="progress-alert-btn" id="progressAlertBtn">
+                    <span id="progressAlertBtnText">確認</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 🌟 全域 Modal 控制器
+        function showProgressAlert(isError, eyebrow, title, message, onConfirmCallback) {
+            const overlay = document.getElementById('progressAlertOverlay');
+            const iconWrap = document.getElementById('progressAlertIconWrap');
+            const checkmark = document.getElementById('progressAlertCheckmark');
+            const errorIcon = document.getElementById('progressAlertErrorIcon');
+            const eyebrowEl = document.getElementById('progressAlertEyebrow');
+            const titleEl = document.getElementById('progressAlertTitle');
+            const messageEl = document.getElementById('progressAlertMessage');
+            const btn = document.getElementById('progressAlertBtn');
+            const btnText = document.getElementById('progressAlertBtnText');
+            const diamond = document.getElementById('progressAlertDiamond');
+
+            // 依據是否為錯誤改變樣式
+            if (isError) {
+                iconWrap.style.borderColor = '#dc3545';
+                diamond.style.background = '#dc3545';
+                eyebrowEl.style.color = '#dc3545';
+                checkmark.style.display = 'none';
+                errorIcon.style.display = 'inline-block';
+                btnText.innerText = '關閉';
+            } else {
+                iconWrap.style.borderColor = '';
+                diamond.style.background = '';
+                eyebrowEl.style.color = '';
+                checkmark.style.display = 'block';
+                errorIcon.style.display = 'none';
+                btnText.innerText = '確認';
+            }
+
+            eyebrowEl.innerText = eyebrow;
+            titleEl.innerText = title;
+            messageEl.innerHTML = message;
+
+            // 顯示 Modal
+            overlay.classList.add('show');
+
+            // 綁定按鈕點擊事件 (確保每次點擊只執行一次 callback)
+            btn.onclick = function () {
+                overlay.classList.remove('show');
+                if (typeof onConfirmCallback === 'function') {
+                    onConfirmCallback();
+                }
+            };
+        }
+
 
         // ─── Vue 3 綁定資料 ───
         const { createApp, reactive, onMounted, computed, ref, nextTick } = Vue;
-
         createApp({
             setup() {
                 const isSubmitting = ref(false);
@@ -1501,11 +1821,16 @@
                                 data.phases = []; // 清空進度階段
                                 data.payments = [];
                                 if (!document.getElementById('dvDisabledOverlay')) {
-                                    alert("目前尚無您的專案進度資料，您的專屬顧問正在為您建檔中，有任何問題請聯絡您的顧問！");
+                                    showProgressAlert(
+                                        true,                               // true 表示顯示紅色的驚嘆號與警告樣式
+                                        'NOTICE',                           // 上方金色小字 (Eyebrow)
+                                        '專屬顧問建檔中',                     // 標題
+                                        '目前尚無您的專案進度資料，<br>您的專屬顧問正在為您建檔中，<br>有任何問題請聯絡您的顧問！'  // 內文 (可以加 <br> 換行讓排版更好看)
+                                    );
                                 }
                             } else {
                                 console.error("無法載入進度:", error);
-                                alert("系統連線異常，請稍後再試或重新登入。");
+                                showProgressAlert(true, 'ERROR', '連線失敗', '發生錯誤，請稍後再試或聯絡客服。');
                             }
                         });
                 };
@@ -1539,7 +1864,12 @@
 
                     // 🌟 3. 如果剛剛有抓到過大的檔案，立刻跳出提示！
                     if (hasOversizeFile) {
-                        alert("部分檔案超過 10MB 限制，已被自動取消選取喔！請挑選較小的圖片或文件。");
+                        showProgressAlert(
+                            true,                 // 顯示驚嘆號警告樣式
+                            'FILE TOO LARGE',     // 金色 Eyebrow
+                            '檔案過大',            // 標題
+                            '部分檔案超過 10MB 限制，已被自動取消選取喔！<br>請挑選較小的圖片或文件。'
+                        );
                     }
 
                     // 徹底清空 input 記憶，確保下次還能選同一個檔案
@@ -1599,7 +1929,12 @@
                         })
                         .catch(error => {
                             console.error("留言發送失敗:", error);
-                            alert("留言發送失敗，請檢查網路連線或聯絡 DREAM VENUES 顧問！");
+                            showProgressAlert(
+                                true,
+                                'ERROR',
+                                '發送失敗',
+                                '留言發送失敗，請檢查網路連線，<br>或直接聯絡 DREAM VENUES 顧問！'
+                            );
                         })
                         .finally(() => {
                             isSubmitting.value = false; // 🌟 不管成功失敗，最後都解除鎖定
@@ -1615,6 +1950,11 @@
                 onMounted(() => {
                     // 🌟 強制將起點歸零，確保稍後 API 資料回來時，動畫 100% 都是順時鐘「生長」出來的！
                     data.progressPercent = 0;
+
+                    // 🌟 新增防護：如果尚未登入，直接中斷執行，不要去打 API！
+                    if (!localStorage.getItem('dv_username')) {
+                        return; 
+                    }
 
                     // 接著去向後端要資料
                     fetchProjectProgress();
@@ -1650,8 +1990,9 @@
 
         // ── 登入檢查：未登入直接踢回登入頁 ──
         if (!localStorage.getItem('dv_username')) {
-            alert('請先登入會員');
-            window.location.href = './client_login.html';
+            showProgressAlert(true, 'ACCESS DENIED', '存取被拒', '請先登入會員，才能查看您的專屬籌備進度喔！', function () {
+                window.location.href = './client_login.html';
+            });
         }
 
     </script>

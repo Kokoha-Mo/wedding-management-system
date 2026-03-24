@@ -36,6 +36,8 @@ public class BookService {
     private final ServiceRepository serviceRepository;
     private final ProjectRepository projectRepository;
     private final ProjectTaskRepository projectTaskRepository;
+    private final CustomerLoginService customerLoginService;
+    private final EmailService emailService;
 
 
     // ════════════════════════════════════════════════════════
@@ -65,23 +67,33 @@ public class BookService {
             }
         }
 
-        // 3. 都查無 → 建立新客戶，密碼預設為手機號碼
+        // 3. 都查無 → 建立新客戶（密碼先用隨機佔位，之後透過驗證信設定）
         log.info("查無客戶，建立新客戶");
         Customer c = new Customer();
         c.setName(ReName(dto.getName()));
         c.setTel(dto.getTel());
         c.setEmail(dto.getEmail());
         c.setLineId(dto.getLineId());
-        // 預設密碼為手機號碼（去除非數字字元）
+        // 密碼先以手機號碼佔位（僅為滿足 NOT NULL，客戶尚未能登入）
+        // TODO【上線前修改】將下方改為：passwordEncoder.encode(UUID.randomUUID().toString())
         String rawPassword = dto.getTel() != null
                 ? dto.getTel().replaceAll("[^0-9]", "")
                 : "12345678";
         c.setPassword(passwordEncoder.encode(rawPassword));
-        log.info("新客戶建立，預設密碼為手機號碼");
+        Customer saved = customerRepository.save(c);
 
-        // 2. 這裡打上「強制修改密碼」的暗號！
-        c.setResetToken("FORCE_RESET");
-        return customerRepository.save(c);
+        // 寄送帳號設定驗證信（僅在有 email 時才送）
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            try {
+                String token = customerLoginService.generateAndSaveResetToken(dto.getEmail());
+                emailService.sendResetPasswordEmail(dto.getEmail(), saved.getName(), token);
+                log.info("已寄送帳號設定驗證信給新客戶 email={}", dto.getEmail());
+            } catch (Exception e) {
+                log.warn("驗證信寄送失敗，email={}, 原因={}", dto.getEmail(), e.getMessage());
+            }
+        }
+
+        return saved;
     }
 
     private @NonNull String ReName(String raw) {
@@ -134,11 +146,21 @@ public class BookService {
             log.info("刪除客戶舊有預約，customer_id={}, 共{}筆", customer.getId(), existingBooks.size());
         }
 
-        // Step 3:🌟 修改：自動分配接案數最少的 "婚顧部 MANAGER"
-        Employee manager = employeeRepository.findManagerWithLeastBooks()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("目前沒有可分配的業務人員"));
+        // Step 3:🌟 分配 manager：自己建的or自動分配接案數最少的 "婚顧部 MANAGER"
+        Employee manager;
+        if (dto.getManagerId() != null) {
+            // 直接指定該婚顧
+            manager = employeeRepository.findById(dto.getManagerId())
+                    .orElseThrow(() -> new RuntimeException("找不到指定的業務人員"));
+            log.info("指定分配 manager_id={}", dto.getManagerId());
+        } else {
+            // 自動分配接案數最少的
+            manager = employeeRepository.findManagerWithLeastBooks()
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("目前沒有可分配的業務人員"));
+            log.info("自動分配 manager_id={}", manager.getId());
+        }
 
         // Step 4: 建立新 book
         Book book = new Book();
@@ -193,19 +215,9 @@ public class BookService {
     public Map<String, Long> statusCountsByManager(Integer managerId) {
         return Map.of(
                 "處理中", bookRepository.countByManager_IdAndStatus(managerId, "處理中"),
-                "已簽約", bookRepository.countByManager_IdAndStatus(managerId, "已簽約"),
-                "取消",   bookRepository.countByManager_IdAndStatus(managerId, "取消")
+                "已簽約", bookRepository.countByManager_IdAndStatus(managerId, "已簽約")
         );
     }
-
-//    @Transactional(readOnly = true)
-//    public Map<String, Long> statusCounts() {
-//        return Map.of(
-//                "處理中",  bookRepository.countByStatus("處理中"),
-//                "已簽約",  bookRepository.countByStatus("已簽約"),
-//                "取消預約", bookRepository.countByStatus("取消預約")
-//        );
-//    }
 
     @Transactional
     public BookResponseDTO updateBookInfo(Integer bookId, UpdateBookDetailsRequestDTO request) {
@@ -239,7 +251,7 @@ public class BookService {
      * 更新預約狀態
      */
     @Transactional
-    public BookResponseDTO updateStatus(Integer bookId, String newStatus) {
+    public BookResponseDTO updateStatus(Integer bookId, String newStatus, Integer managerId) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("找不到預約單，id=" + bookId));
         log.info("更新預約狀態 book_id={}: {} → {}", bookId, book.getStatus(), newStatus);
@@ -249,6 +261,14 @@ public class BookService {
             throw new IllegalStateException("請先填寫婚宴日期才能轉為簽約");
         }
         book.setStatus(newStatus);
+        if (managerId != null) {
+            // 🌟 先用 managerId 去資料庫把這個 Employee 實體撈出來
+            Employee employee = employeeRepository.findById(managerId)
+                    .orElseThrow(() -> new EntityNotFoundException("找不到此員工，id=" + managerId));
+
+            // 🌟 然後再把整個 Employee 物件塞給 Book
+            book.setManager(employee);
+        }
         Book saved = bookRepository.save(book);
 
         // ── 狀態改成已簽約時，自動建立 project ──

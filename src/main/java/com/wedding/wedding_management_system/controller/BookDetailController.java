@@ -64,18 +64,21 @@ public class BookDetailController {
             bookRepository.save(book);
         }
 
-        // 2. 確保清單裡有 service_id=1（A方案，永遠必選）
+        // 2. 確保清單裡有 service_id=1、2
+        List<Integer> requiredIds = List.of(1, 2);
         List<BookDetailRequestDTO> detailList = request.getDetails() != null
                 ? new ArrayList<>(request.getDetails())
                 : new ArrayList<>();
 
-        boolean hasServiceOne = detailList.stream()
-                .anyMatch(s -> s.getServiceId() != null && s.getServiceId() == 1);
-        if (!hasServiceOne) {
-            BookDetailRequestDTO aService = new BookDetailRequestDTO();
-            aService.setServiceId(1);
-            detailList.add(0, aService);
-        }
+        requiredIds.forEach(rid -> {
+            boolean hasIt = detailList.stream()
+                    .anyMatch(s -> s.getServiceId() != null && s.getServiceId().equals(rid));
+            if (!hasIt) {
+                BookDetailRequestDTO dto = new BookDetailRequestDTO();
+                dto.setServiceId(rid);
+                detailList.add(0, dto);
+            }
+        });
 
         // 3. 刪除舊細項，重新寫入（價格從 services 表取得）
         bookDetailRepository.deleteByBookId(bookId);

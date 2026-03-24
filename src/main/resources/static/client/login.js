@@ -58,19 +58,35 @@ async function checkAuthStatus() {
       const data = await res.json();
       localStorage.setItem('dv_username', data.name);
       localStorage.setItem('dv_customer_id', data.customerId);
-      syncNavbarUI(true, data.name);
+      localStorage.setItem('dv_has_project', data.hasProject); // 儲存專案狀態
+
+      syncNavbarUI(true, data.name, data.hasProject);
     } else if (res.status === 401 || res.status === 403) {
-      // 只有在明確知道 Token 過期或權限不足時，才清空登入狀態
+      // 嘗試讀取後端回傳的訊息
+      let errMsg = '';
+      try {
+        const errData = await res.json();
+        errMsg = errData?.message || '';
+      } catch (_) { /* 讀不到 body 就忽略 */ }
+
+      // 清空登入狀態
       localStorage.removeItem('dv_username');
       localStorage.removeItem('dv_customer_id');
       localStorage.removeItem('dv_login_time');
+      localStorage.removeItem('dv_has_project'); // 清除專案狀態
       syncNavbarUI(false);
 
-      // 如果目前在需要登入才能進入的頁面，直接跳轉回登入頁
+      // 如果目前在需要登入才能進入的頁面才需要跳轉
       const protectedPages = ['customer_progress.html', 'customer_system.html'];
       const currentPage = window.location.pathname.split('/').pop();
       if (protectedPages.includes(currentPage)) {
-        window.location.href = './client_login.html';
+        if (errMsg && errMsg.includes('停用')) {
+          // 帳號已停用 → 先顯示通知彈窗，再跳轉
+          showAccountDisabledModal(errMsg, './client_login.html');
+        } else {
+          // 一般 token 過期 → 直接跳轉
+          window.location.href = './client_login.html';
+        }
       }
     } else {
       // 其他錯誤 (如 500 後端報錯、404 找不到路徑等) 則忽略，不強制登出
@@ -82,8 +98,44 @@ async function checkAuthStatus() {
   }
 }
 
+/* 帳號停用通知彈窗（顯示後自動導回登入頁） */
+function showAccountDisabledModal(message, redirectUrl) {
+  if (document.getElementById('dvDisabledOverlay')) return;
+
+  const overlay = createSharedModal({
+    id: 'dvDisabledOverlay',
+    icon: 'lock_person',
+    iconColor: '#C5A059',
+    eyebrow: 'Account Status',
+    title: '帳號已停用',
+    message: message || '此帳號已被停用，如有疑問請聯繫客服。',
+    buttonText: '返回登入頁',
+    buttonId: 'dvdOkBtn',
+    countdownSecs: 5
+  });
+
+  // 倒數計時自動跳轉
+  let sec = 5;
+  const secEl = overlay.querySelector('.dv-modal-countdown strong');
+  const timer = setInterval(() => {
+    sec--;
+    if (secEl) secEl.textContent = sec;
+    if (sec <= 0) {
+      clearInterval(timer);
+      window.location.href = redirectUrl;
+    }
+  }, 1000);
+
+  // 手動點擊立即跳轉
+  overlay.querySelector('#dvdOkBtn').addEventListener('click', () => {
+    clearInterval(timer);
+    window.location.href = redirectUrl;
+  });
+}
+
 /* UI：同步更新電腦與手機的導覽列 */
-function syncNavbarUI(isLoggedIn, username = "") {
+// 新增 hasProject 參數，預設為 null
+function syncNavbarUI(isLoggedIn, username = "", hasProject = null) {
   const deskLogin = document.getElementById('loginLinkDesktop');
   const deskUserWrap = document.getElementById('userDropdownWrap');
   const deskUserBtn = document.getElementById('userDropdownBtn');
@@ -91,6 +143,15 @@ function syncNavbarUI(isLoggedIn, username = "") {
   const mobUserMenu = document.getElementById('mobileUserMenu');
   const mobWelcome = document.getElementById('mobileWelcome');
   const mobLogout = document.getElementById('logoutBtnMobile');
+
+  // 1. 抓取桌機版與手機版的兩個選單按鈕
+  const deskPlanLink = document.querySelector('#userDropdownWrap a[href="./customer_system.html"]');
+  const deskProgressLink = document.querySelector('#userDropdownWrap a[href="./customer_progress.html"]');
+  const mobPlanLink = document.querySelector('#mobileUserMenu a[href="./customer_system.html"]');
+  const mobProgressLink = document.querySelector('#mobileUserMenu a[href="./customer_progress.html"]');
+
+  // 2. 決定專案狀態：如果有傳入就用傳入的，沒有的話去 localStorage 抓 (確保重新整理不會錯亂)
+  const isProjectExists = hasProject !== null ? hasProject : (localStorage.getItem('dv_has_project') === 'true');
 
   if (isLoggedIn) {
     if (deskLogin) deskLogin.style.setProperty('display', 'none', 'important');
@@ -100,6 +161,23 @@ function syncNavbarUI(isLoggedIn, username = "") {
     if (mobUserMenu) mobUserMenu.style.display = 'block';
     if (mobWelcome) mobWelcome.textContent = `歡迎, ${username}`;
     if (mobLogout) mobLogout.style.display = 'block';
+
+    // 3. 核心邏輯：根據 isProjectExists 來控制顯示哪一個選單
+    if (isProjectExists) {
+      // 【已有專案】：顯示「我的籌備進度」，隱藏「我的婚禮規劃」
+      // 桌機版因為是 <li> 裡面包 <a>，所以我們隱藏外層的 <li> 避免留空隙 (.parentElement)
+      if (deskPlanLink) deskPlanLink.parentElement.style.display = 'none';
+      if (deskProgressLink) deskProgressLink.parentElement.style.display = 'block';
+      if (mobPlanLink) mobPlanLink.style.display = 'none';
+      if (mobProgressLink) mobProgressLink.style.display = 'block';
+    } else {
+      // 【尚無專案】：顯示「我的婚禮規劃」，隱藏「我的籌備進度」
+      if (deskPlanLink) deskPlanLink.parentElement.style.display = 'block';
+      if (deskProgressLink) deskProgressLink.parentElement.style.display = 'none';
+      if (mobPlanLink) mobPlanLink.style.display = 'block';
+      if (mobProgressLink) mobProgressLink.style.display = 'none';
+    }
+
   } else {
     if (deskLogin) deskLogin.style.display = 'block';
     if (mobLogin) mobLogin.style.display = 'block';
@@ -115,7 +193,7 @@ async function performLoginAction() {
   const pass = document.getElementById('passwordInput')?.value.trim();
   const rememberMe = document.getElementById('rememberMe')?.checked;
 
-  if (!email || !pass) return alert('請完整填寫電子郵件與密碼');
+  if (!email || !pass) return showStyledAlertModal('請完整填寫電子郵件與密碼');
 
   try {
     // 1. POST 請求給後端
@@ -133,28 +211,18 @@ async function performLoginAction() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      alert(errorData.message || '登入失敗，請檢查帳號密碼');
+      showStyledAlertModal(errorData.message || '登入失敗，請檢查帳號密碼');
       return;
     }
 
     const data = await response.json();
 
-    // 2. 判斷是否被後端標記為「首次登入強制修改密碼」
-    if (data.forcePasswordChange) {
-      sessionStorage.setItem('temp_force_name', data.name || data.email);
-      if (data.customerId) {
-        sessionStorage.setItem('temp_force_id', data.customerId);
-      }
-      window.location.href = './reset_password.html?mode=force';
-      return;
-    }
-
-    // 3. 正常老客戶登入
+    // 正常登入
     completeLoginProcess(data, email, rememberMe);
 
   } catch (error) {
     console.error('登入發生錯誤:', error);
-    alert('伺服器連線失敗，請稍後再試');
+    showStyledAlertModal('伺服器連線失敗，請稍後再試');
   }
 }
 
@@ -162,6 +230,9 @@ async function performLoginAction() {
 function completeLoginProcess(data, email, rememberMe) {
   localStorage.setItem('dv_username', data.name || data.email);
   localStorage.setItem('dv_login_time', Date.now());
+
+  // 登入成功時，立刻把專案狀態存起來
+  localStorage.setItem('dv_has_project', data.hasProject === true);
 
   if (data.customerId) {
     localStorage.setItem('dv_customer_id', data.customerId);
@@ -177,6 +248,30 @@ function completeLoginProcess(data, email, rememberMe) {
   setTimeout(() => {
     window.location.href = './index.html';
   }, 1800);
+}
+
+/* 顯示登入成功轉場彈窗 */
+function showSuccessModal(username) {
+  const overlay = createSharedModal({
+    id: 'dvSuccessTransOverlay',
+    icon: 'check',
+    iconColor: '#C5A059',
+    eyebrow: 'LOGIN SUCCESSFUL',
+    title: '歡迎回來',
+    message: `${username}，您已成功登入<br>正在為您跳轉至專屬頁面⋯`,
+    buttonText: '前往首頁探索',
+    buttonId: 'dvsGoBtn'
+  });
+
+  // 把按鈕改成不顯眼的外觀，並加上跳轉事件
+  const btn = overlay.querySelector('#dvsGoBtn');
+  btn.style.background = 'transparent';
+  btn.style.color = '#7A6F66';
+  btn.style.borderColor = 'rgba(197,160,89,0.3)';
+
+  btn.addEventListener('click', () => {
+    window.location.href = './index.html';
+  });
 }
 
 /* 登出處理 */
@@ -200,8 +295,86 @@ async function forceLogout() {
   localStorage.removeItem('dv_login_time');
   localStorage.removeItem('dv_customer_id');
   sessionStorage.clear();
-  alert('您已成功登出');
-  window.location.href = './index.html';
+  showStyledAlertModal('您已成功登出');
+  setTimeout(() => {
+    window.location.href = './index.html';
+  }, 1500);
+}
+
+/* 共用彈窗產生器 */
+function createSharedModal(options) {
+  const {
+    id,
+    icon = 'info',
+    iconColor = '#C5A059',
+    eyebrow = 'System Message',
+    title = '系統提示',
+    message = '',
+    buttonText = '確定',
+    buttonId = 'dvModalOkBtn',
+    countdownSecs = null
+  } = options;
+
+  const overlay = document.createElement('div');
+  overlay.id = id;
+  overlay.className = 'dv-modal-overlay';
+
+  let countdownHtml = '';
+  if (countdownSecs !== null) {
+    countdownHtml = `<p class="dv-modal-countdown">將於 <strong>${countdownSecs}</strong> 秒後自動跳轉</p>`;
+  }
+
+  overlay.innerHTML = /*HTML*/`
+    <div class="dv-modal-box">
+      <div class="dvd-corner-tr"></div>
+      <div class="dvd-corner-bl"></div>
+
+      <div class="dv-modal-icon-wrap">
+        <span class="material-symbols-outlined"
+          style="font-size:28px; color:${iconColor};
+                 font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 24;">
+          ${icon}
+        </span>
+      </div>
+
+      <span class="dv-modal-eyebrow">${eyebrow}</span>
+      <h2 class="dv-modal-title">${title}</h2>
+
+      <div class="dv-modal-divider"><div class="dv-modal-dot"></div></div>
+
+      <p class="dv-modal-msg">${message}</p>
+
+      <button class="dv-modal-btn" id="${buttonId}">
+        <span>${buttonText}</span>
+      </button>
+      ${countdownHtml}
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+/* 顯示可共用的樣式化警告彈窗 */
+function showStyledAlertModal(message) {
+  if (document.getElementById('dvAlertOverlay')) {
+    document.getElementById('dvAlertOverlay').remove();
+  }
+
+  const overlay = createSharedModal({
+    id: 'dvAlertOverlay',
+    icon: 'info',
+    iconColor: '#C5A059',
+    eyebrow: 'System Message',
+    title: '系統提示',
+    message: message,
+    buttonText: '確定',
+    buttonId: 'dvAlertOkBtn'
+  });
+
+  overlay.querySelector('#dvAlertOkBtn').addEventListener('click', () => {
+    overlay.remove();
+  });
 }
 
 /* 初始化：記住帳號、綁定按鈕與 Enter */

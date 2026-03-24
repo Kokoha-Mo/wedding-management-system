@@ -1387,7 +1387,10 @@
                 }
 
                 const book = await res.json();
-
+                if (book.status === '處理中') {
+                    document.querySelectorAll('a[href="./customer_system.html"]')
+                        .forEach(link => link.parentElement.style.display = 'none');
+                }
                 // 填入唯讀欄位（新人基本資料）
                 setFieldValue('input-name',   book.customerName);
                 setFieldValue('input-tel',    formatPhone(book.tel));

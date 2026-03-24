@@ -87,6 +87,7 @@ public class CustomerBookController {
         if (books.isEmpty())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "找不到預約資料"));
 
+
         Book book = books.get(0);
         if (dto.getWeddingDate() != null)
             book.setWeddingDate(dto.getWeddingDate());
@@ -101,6 +102,11 @@ public class CustomerBookController {
 
         bookRepository.save(book);
         log.info("客戶修改預約資料，customer_id={}, book_id={}", customer.getId(), book.getId());
+
+        if (!"處理中".equals(book.getStatus())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "此功能僅限處理中的預約使用"));
+        }
         return ResponseEntity.ok(BookResponseDTO.from(book, customer));
     }
 

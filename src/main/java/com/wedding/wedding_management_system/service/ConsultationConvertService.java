@@ -25,6 +25,8 @@ public class ConsultationConvertService {
     private final EmployeeRepository employeeRepository;
     private final BookRepository bookRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CustomerLoginService customerLoginService;
+    private final EmailService emailService;
 
     @Transactional
     public BookResponseDTO convertFromConsultation(Integer consultationId, String partnerName, String newEmail,
@@ -81,11 +83,22 @@ public class ConsultationConvertService {
         customer.setEmail(consultation.getEmail());
         customer.setTel(cleanedTel); // 確保進資料庫的是乾淨的 10 碼
         customer.setLineId(consultation.getLineId());
+        // 密碼先以手機號碼佔位（僅為滿足 NOT NULL，客戶尚未能登入）
+        // TODO【上線前修改】將下方改為：passwordEncoder.encode(UUID.randomUUID().toString())
         customer.setPassword(passwordEncoder.encode(cleanedTel));
-        // 🌟 確保從諮詢單轉過來的客戶，首次登入也會被引導去重設密碼
-        customer.setResetToken("FORCE_RESET");
 
         customer = customerRepository.save(customer);
+
+        // 寄送帳號設定驗證信
+        if (consultation.getEmail() != null && !consultation.getEmail().isBlank()) {
+            try {
+                String token = customerLoginService.generateAndSaveResetToken(customer.getEmail());
+                emailService.sendResetPasswordEmail(customer.getEmail(), customer.getName(), token);
+                log.info("已寄送帳號設定驗證信給新客戶 email={}", customer.getEmail());
+            } catch (Exception e) {
+                log.warn("驗證信寄送失敗，email={}, 原因={}", customer.getEmail(), e.getMessage());
+            }
+        }
 
         // 4. 自動分配接案數最少的婚顧部 MANAGER
         Employee manager = employeeRepository.findManagerWithLeastBooks()

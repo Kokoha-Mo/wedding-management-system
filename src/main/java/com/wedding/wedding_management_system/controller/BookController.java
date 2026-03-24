@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -23,7 +25,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/api/employee/books")
-@RequiredArgsConstructor // 🌟 讓 Spring 自動幫你注入 final 變數
+@RequiredArgsConstructor
 public class BookController {
 
     private final BookService bookService;
@@ -110,14 +112,15 @@ public class BookController {
     @PatchMapping("{id}/update") // 只更新一個欄位
     public ResponseEntity<BookResponseDTO> updateStatus(@PathVariable Integer id,
             @RequestBody Map<String, String> body) {
-        BookResponseDTO result = bookService.updateStatus(id, body.get("status"));
+        Integer managerId = (body.get("managerId") != null) ? Integer.valueOf(body.get("managerId")) : null;
+        BookResponseDTO result = bookService.updateStatus(id, body.get("status"),managerId);
         return ResponseEntity.ok(result);
     }
 
     @PatchMapping("/{id}/info")
     public ResponseEntity<BookResponseDTO> updateBookInfo(
             @PathVariable Integer id,
-            @RequestBody UpdateBookDetailsRequestDTO request) {
+            @Valid @RequestBody UpdateBookDetailsRequestDTO request) {
         BookResponseDTO result = bookService.updateBookInfo(id, request);
         return ResponseEntity.ok(result);
     }

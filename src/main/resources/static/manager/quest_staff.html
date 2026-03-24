@@ -413,8 +413,15 @@
                                     '未知類型').split('/')[1]?.toUpperCase() }}</span>
                             </div>
                         </div>
-                        <span
-                            class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">待審核</span>
+                        <div class="flex items-center space-x-2 flex-shrink-0">
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">待審核</span>
+                            <button @click.stop="deleteUploadedFile(doc)"
+                                class="w-6 h-6 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                                title="取消上傳並刪除檔案">
+                                <span class="material-icons text-base">close</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -447,11 +454,17 @@
             </div>
 
             <div class="flex space-x-3">
-                <button @click="showUpload = false"
-                    class="flex-1 py-2.5 text-gray-500 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors">取消</button>
-                <button @click="confirmUpload" :disabled="!selectedFile"
-                    class="flex-1 py-2.5 bg-primary text-white rounded-xl font-bold shadow-md shadow-primary/20 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:shadow-none">
-                    確認上傳
+                <button @click="showUpload = false" :disabled="uploadLoading"
+                    class="flex-1 py-2.5 text-gray-500 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors disabled:opacity-50">取消</button>
+                <button @click="confirmUpload" :disabled="!selectedFile || uploadLoading"
+                    class="flex-1 py-2.5 bg-primary text-white rounded-xl font-bold shadow-md shadow-primary/20 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:shadow-none flex items-center justify-center">
+                    <template v-if="uploadLoading">
+                        <span class="material-icons animate-spin text-sm mr-2">autorenew</span>
+                        上傳中...
+                    </template>
+                    <template v-else>
+                        確認上傳
+                    </template>
                 </button>
             </div>
         </div>
@@ -487,6 +500,7 @@
                 const selectedFile = ref(null);
                 const fileNameDisplay = ref('');
                 const imagePreview = ref('');
+                const uploadLoading = ref(false);
                 const unreadTasks = ref(new Set());
 
                 const currentPage = ref(1);
@@ -508,6 +522,40 @@
 
                 const prevPage = () => {
                     if (currentPage.value > 1) currentPage.value--;
+                };
+
+                const fetchTaskById = async (taskId) => {
+                    try {
+                        const response = await fetch(`/api/employee/task/${emp.id}`, { credentials: 'include' });
+                        if (response.ok) {
+                            const data = await response.json();
+                            return data.find(t => t.taskId === taskId);
+                        }
+                    } catch (e) { console.error('Error fetching task by id:', e); }
+                    return null;
+                };
+
+                const deleteUploadedFile = async (doc) => {
+                    if (!confirm(`確定要刪除待審核檔案「${doc.name}」嗎？`)) return;
+                    try {
+                        const response = await fetch(`/api/employee/task/document/${doc.id}`, {
+                            method: 'DELETE',
+                            credentials: 'include'
+                        });
+                        if (response.ok) {
+                            // 重新整理目前正在編輯的任務資料
+                            if (activeTask.value) {
+                                const updatedTask = await fetchTaskById(activeTask.value.taskId);
+                                if (updatedTask) activeTask.value = updatedTask;
+                            }
+                            fetchOngoingTasks();
+                        } else {
+                            alert('刪除失敗，請稍後再試');
+                        }
+                    } catch (e) {
+                        console.error('Delete failed:', e);
+                        alert('刪除失敗，請檢查網路連線');
+                    }
                 };
 
                 const fetchOngoingTasks = async () => {
@@ -660,6 +708,7 @@
                     fd.append('taskId', activeTask.value.taskId);
                     fd.append('empId', emp.id);
 
+                    uploadLoading.value = true;
                     try {
                         const response = await fetch('/api/employee/task/upload', {
                             method: 'POST',
@@ -670,6 +719,8 @@
                             alert(`檔案「${selectedFile.value.name}」已成功上傳並提交審核！`);
                             showUpload.value = false;
                             // 重新整理任務資料以顯示新上傳的檔案
+                            const updatedTask = await fetchTaskById(activeTask.value.taskId);
+                            if (updatedTask) activeTask.value = updatedTask;
                             fetchOngoingTasks();
                         } else {
                             const error = await response.json();
@@ -678,6 +729,8 @@
                     } catch (e) {
                         console.error('Upload failed:', e);
                         alert('上傳失敗，請檢查網路連線或檔案格式');
+                    } finally {
+                        uploadLoading.value = false;
                     }
                 };
 
@@ -753,9 +806,10 @@
 
                 return {
                     emp, ongoingTasks, historyTasks, showChat, showUpload, chatReadOnly,
-                    activeTask, chatMessages, chatInput, chatLoading, fileNameDisplay, imagePreview, selectedFile,
+                    activeTask, chatMessages, chatInput, chatLoading, fileNameDisplay, imagePreview, selectedFile, uploadLoading,
                     currentPage, itemsPerPage, paginatedHistoryTasks, totalPages, nextPage, prevPage, unreadTasks,
                     openChat, fetchOngoingTasks, fetchHistoryTasks, sendMessage, openUpload, handleFile, confirmUpload, submitAudit,
+                    deleteUploadedFile,
                     isUrgent, formatDate, formatFullTime, formatTime, getFileIcon
                 };
             }

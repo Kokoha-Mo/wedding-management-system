@@ -1391,7 +1391,19 @@
 
                 // ── 文件上傳 Modal
                 openDocUploadModal() { this.docUploadModal.files = []; this.docUploadModal.open = true; },
-                handleDocFiles(e) { this.docUploadModal.files = Array.from(e.target.files); },
+                handleDocFiles(e) {
+                    const MAX = 10 * 1024 * 1024;
+                    const files = Array.from(e.target.files);
+                    const invalidFiles = files.filter(f => f.size > MAX);
+
+                    if (invalidFiles.length > 0) {
+                        this.showAlert(`檔案大小不能超過 10MB！\n其中 ${invalidFiles.length} 個檔案超過限制。`);
+                        e.target.value = ''; 
+                        this.docUploadModal.files = [];
+                    } else {
+                        this.docUploadModal.files = files;
+                    }
+                },
                 async submitDocUpload() {
                     if (!this.docUploadModal.files.length) { this.showAlert('請先選擇檔案'); return; }
                     this.docUploadModal.uploading = true;

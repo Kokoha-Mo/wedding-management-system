@@ -11,4 +11,7 @@ public class CustomerLoginResponseDto {
     private boolean forcePasswordChange;
     private Integer projectId;
     private String message; // 錯誤訊息（登入失敗時使用）
+
+    // 🌟 新增：是否已建立專案
+    private boolean hasProject;
 }

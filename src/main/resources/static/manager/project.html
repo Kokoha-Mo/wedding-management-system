@@ -491,6 +491,24 @@
         </div>
     </div>
 
+    <!-- ==================== Alert Modal ==================== -->
+    <div v-show="alertModal.open"
+        class="fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
+            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 mb-4 mx-auto">
+                <span class="material-icons text-3xl">info</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">系統提示</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap">{{ alertModal.message }}</p>
+            <div class="w-full flex justify-center">
+                <button @click="closeAlertModal"
+                    class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    確定
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div><!-- #app -->
 
 <script>
@@ -525,6 +543,8 @@ createApp({
                 weddingDate: '', durationDays: 0, paymentStatus: '',
                 documents: [], taskHistories: []
             },
+            // Alert Modal
+            alertModal: { open: false, message: '', callback: null },
         };
     },
 
@@ -620,9 +640,10 @@ createApp({
                 const res = await fetch(url, { credentials: 'include' });
                 if (!res.ok) {
                     if (res.status === 401 || res.status === 403) {
-                        alert("帳號驗證已過期或尚未登入，請重新登入！");
-                        sessionStorage.clear();
-                        window.location.href = 'login.html';
+                        this.showAlert("帳號驗證已過期或尚未登入，請重新登入！", () => {
+                            sessionStorage.clear();
+                            window.location.href = 'login.html';
+                        });
                         return;
                     }
                     throw new Error(`API 錯誤 (${res.status})`);
@@ -694,20 +715,35 @@ createApp({
                 this.showRecordModal = true;
             } catch (err) {
                 console.error(err);
-                alert("無法載入紀錄，請稍後再試。");
+                this.showAlert("無法載入紀錄，請稍後再試。");
             }
         },
 
         closeRecordModal() {
             this.showRecordModal = false;
         },
+
+        showAlert(message, callback = null) {
+            this.alertModal.message = message;
+            this.alertModal.callback = callback;
+            this.alertModal.open = true;
+        },
+
+        closeAlertModal() {
+            this.alertModal.open = false;
+            if (this.alertModal.callback) {
+                this.alertModal.callback();
+                this.alertModal.callback = null;
+            }
+        },
     },
 
     mounted() {
         const managerId = sessionStorage.getItem('empId');
         if (!managerId) {
-            alert('請先登入！');
-            window.location.href = 'login.html';
+            this.showAlert('請先登入！', () => {
+                window.location.href = 'login.html';
+            });
             return;
         }
         this.managerId = managerId;

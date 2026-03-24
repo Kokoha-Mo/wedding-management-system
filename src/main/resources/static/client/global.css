@@ -392,3 +392,94 @@
      font-size: 24px;
      font-variation-settings: 'wght' 400;
  }
+
+ /* ─── 共用彈窗樣式 (Alert, Disabled, Success) ─── */
+ .dv-modal-overlay {
+     position: fixed; inset: 0; z-index: 99999;
+     background: rgba(20,15,10,0.60);
+     backdrop-filter: blur(6px);
+     -webkit-backdrop-filter: blur(6px);
+     display: flex; align-items: center; justify-content: center;
+     padding: 24px; box-sizing: border-box;
+     animation: dvdFadeIn 0.3s ease;
+ }
+ @keyframes dvdFadeIn { from{opacity:0} to{opacity:1} }
+
+ .dv-modal-box {
+     background: #faf7f2;
+     border-radius: 2px;
+     box-shadow: 0 8px 48px rgba(45,37,32,0.18), 0 2px 12px rgba(45,37,32,0.08);
+     width: 100%; max-width: 400px;
+     padding: 52px 44px 44px;
+     box-sizing: border-box;
+     text-align: center;
+     position: relative;
+     animation: dvdSlideUp 0.45s cubic-bezier(0.16,1,0.3,1) both;
+ }
+ @keyframes dvdSlideUp {
+     from { opacity:0; transform:translateY(28px) scale(0.97); }
+     to   { opacity:1; transform:translateY(0) scale(1); }
+ }
+
+ /* 四角框線 */
+ .dv-modal-box::before, .dv-modal-box::after {
+     content:''; position:absolute; width:18px; height:18px;
+     border-color:rgba(197,160,89,0.45); border-style:solid;
+ }
+ .dv-modal-box::before { top:-1px; left:-1px; border-width:1px 0 0 1px; }
+ .dv-modal-box::after  { bottom:-1px; right:-1px; border-width:0 1px 1px 0; }
+ .dv-modal-box .dvd-corner-tr { position:absolute; top:-1px; right:-1px; width:18px; height:18px; border-color:rgba(197,160,89,0.45); border-style:solid; border-width:1px 1px 0 0; }
+ .dv-modal-box .dvd-corner-bl { position:absolute; bottom:-1px; left:-1px;  width:18px; height:18px; border-color:rgba(197,160,89,0.45); border-style:solid; border-width:0 0 1px 1px; }
+
+ .dv-modal-icon-wrap {
+     width: 64px; height: 64px; border-radius: 50%;
+     border: 1px solid rgba(197,160,89,0.3);
+     display: flex; align-items: center; justify-content: center;
+     margin: 0 auto 24px;
+     background: radial-gradient(circle, rgba(197,160,89,0.08) 0%, transparent 80%);
+ }
+ .dv-modal-eyebrow {
+     display: block; font-size: 9px; letter-spacing: 0.5em;
+     text-transform: uppercase; color: rgba(197,160,89,0.85); margin-bottom: 10px;
+     font-family: var(--font-sans);
+ }
+ .dv-modal-title {
+     font-family: var(--font-serif);
+     font-size: 22px; font-weight: 400; color: #2D2520;
+     letter-spacing: 0.06em; margin-bottom: 16px; line-height: 1.3;
+ }
+ .dv-modal-divider {
+     display: flex; align-items: center; gap: 12px;
+     margin: 0 auto 18px; width: 80%;
+ }
+ .dv-modal-divider::before, .dv-modal-divider::after {
+     content:''; flex:1; height:1px; background:rgba(197,160,89,0.25);
+ }
+ .dv-modal-dot { width:4px; height:4px; background:rgba(197,160,89,0.5); transform:rotate(45deg); }
+ .dv-modal-msg {
+     font-size: 13px; color: #7A6F66; letter-spacing: 0.06em;
+     line-height: 1.9; margin-bottom: 28px;
+     font-family: var(--font-sans);
+ }
+ .dv-modal-btn {
+     display: inline-block; width: 100%;
+     background: transparent; border: 1px solid rgba(197,160,89,0.6);
+     color: #2D2520; padding: 0.9rem;
+     font-size: 12px; font-weight: 500; letter-spacing: 0.44em;
+     text-transform: uppercase;
+     font-family: var(--font-sans);
+     cursor: pointer; position: relative; overflow: hidden;
+     transition: color 0.35s, border-color 0.35s;
+ }
+ .dv-modal-btn::before {
+     content:''; position:absolute; inset:0;
+     background: linear-gradient(135deg,#C5A059 0%,#A68648 100%);
+     opacity:0; transition:opacity 0.35s;
+ }
+ .dv-modal-btn:hover { color:#fff; border-color:#C5A059; }
+ .dv-modal-btn:hover::before { opacity:1; }
+ .dv-modal-btn span { position:relative; z-index:1; }
+ .dv-modal-countdown {
+     font-size: 11px; color: #B0A49A; letter-spacing: 0.08em;
+     margin-top: 12px; font-family: var(--font-sans);
+ }

@@ -575,6 +575,236 @@
             display: block;
             border-top: 1px solid var(--border-grey);
         }
+
+        /* 聯絡我們專用 Alert MODAL */
+        .contact-alert-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 15, 10, 0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .contact-alert-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .contact-alert-modal {
+            background: #faf7f2;
+            width: 90%;
+            max-width: 380px;
+            padding: 52px 44px 44px;
+            text-align: center;
+            position: relative;
+            transform: translateY(24px) scale(0.97);
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .contact-alert-overlay.show .contact-alert-modal {
+            transform: translateY(0) scale(1);
+        }
+
+        /* 四角框線 */
+        .contact-alert-modal::before,
+        .contact-alert-modal::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: rgba(197, 160, 89, 0.5);
+            border-style: solid;
+        }
+
+        .contact-alert-modal::before {
+            top: -1px;
+            left: -1px;
+            border-width: 1px 0 0 1px;
+        }
+
+        .contact-alert-modal::after {
+            bottom: -1px;
+            right: -1px;
+            border-width: 0 1px 1px 0;
+        }
+
+        .contact-alert-modal .modal-corner-tr,
+        .contact-alert-modal .modal-corner-bl {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: rgba(197, 160, 89, 0.5);
+            border-style: solid;
+        }
+
+        .contact-alert-modal .modal-corner-tr {
+            top: -1px;
+            right: -1px;
+            border-width: 1px 1px 0 0;
+        }
+
+        .contact-alert-modal .modal-corner-bl {
+            bottom: -1px;
+            left: -1px;
+            border-width: 0 0 1px 1px;
+        }
+
+        /* 圓形圖示外框 */
+        .contact-alert-icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 1px solid rgba(197, 160, 89, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .contact-alert-icon-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(197, 160, 89, 0.12) 0%, transparent 80%);
+        }
+
+        /* 成功勾勾 */
+        .contact-alert-checkmark {
+            width: 28px;
+            height: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-alert-checkmark circle {
+            fill: none;
+            stroke: rgba(197, 160, 89, 0.25);
+            stroke-width: 1;
+        }
+
+        .contact-alert-checkmark path {
+            fill: none;
+            stroke: var(--accent-gold, #C5A059);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+        }
+
+        .contact-alert-overlay.show .contact-alert-checkmark path {
+            animation: draw-contact-check 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+        }
+
+        @keyframes draw-contact-check {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* 文字與裝飾線 */
+        .contact-alert-eyebrow {
+            font-size: 9px;
+            letter-spacing: 0.48em;
+            text-transform: uppercase;
+            color: var(--accent-gold, #C5A059);
+            margin-bottom: 10px;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .contact-alert-title {
+            font-family: var(--font-serif, serif);
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-main, #2D2520);
+            letter-spacing: 0.06em;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .contact-alert-sub {
+            font-size: 12px;
+            color: var(--text-muted, #7A6F66);
+            letter-spacing: 0.06em;
+            line-height: 1.9;
+            margin-bottom: 0;
+        }
+
+        .contact-alert-deco {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0 28px;
+        }
+
+        .contact-alert-deco-line {
+            width: 28px;
+            height: 1px;
+            background: rgba(197, 160, 89, 0.3);
+        }
+
+        .contact-alert-deco-diamond {
+            width: 4px;
+            height: 4px;
+            background: var(--accent-gold, #C5A059);
+            transform: rotate(45deg);
+            opacity: 0.5;
+            transition: background-color 0.3s;
+        }
+
+        /* 按鈕 */
+        .contact-alert-btn {
+            display: inline-block;
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(197, 160, 89, 0.45);
+            color: var(--text-main, #2D2520);
+            padding: 0.85rem;
+            font-size: 9.5px;
+            font-weight: 500;
+            letter-spacing: 0.44em;
+            text-transform: uppercase;
+            font-family: var(--font-sans, sans-serif);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: color 0.35s, border-color 0.35s;
+        }
+
+        .contact-alert-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-gold, #C5A059) 0%, #A68648 100%);
+            opacity: 0;
+            transition: opacity 0.35s;
+        }
+
+        .contact-alert-btn:hover {
+            color: #fff;
+            border-color: var(--accent-gold, #C5A059);
+        }
+
+        .contact-alert-btn:hover::before {
+            opacity: 1;
+        }
+
+        .contact-alert-btn span {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 
@@ -982,6 +1212,43 @@
             </div>
 
         </div><!-- /content-wrap -->
+
+        <!-- 聯絡我們專用 Alert MODAL -->
+        <div class="contact-alert-overlay" :class="{ 'show': showModal }">
+            <div class="contact-alert-modal">
+                <div class="modal-corner-tr"></div>
+                <div class="modal-corner-bl"></div>
+
+                <div class="contact-alert-icon-wrap" :style="modalData.isError ? 'border-color: #dc3545;' : ''">
+                    <svg v-if="!modalData.isError" class="contact-alert-checkmark" viewBox="0 0 28 28" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="14" cy="14" r="13" />
+                        <path d="M8.5 14.5 L12.5 18.5 L19.5 10.5" />
+                    </svg>
+                    <span v-else class="material-symbols-outlined"
+                        style="font-size: 32px; color: #dc3545; line-height: 64px; z-index: 1;">error</span>
+                </div>
+
+                <span class="contact-alert-eyebrow" :style="modalData.isError ? 'color: #dc3545;' : ''">{{
+                    modalData.eyebrow }}</span>
+                <h3 class="contact-alert-title">{{ modalData.title }}</h3>
+
+                <div class="contact-alert-deco">
+                    <div class="contact-alert-deco-line"></div>
+                    <div class="contact-alert-deco-diamond" :style="modalData.isError ? 'background: #dc3545;' : ''">
+                    </div>
+                    <div class="contact-alert-deco-line"></div>
+                </div>
+
+                <p class="contact-alert-sub" v-html="modalData.message"></p>
+
+                <div style="margin-top:32px;">
+                    <button @click="closeModal" class="contact-alert-btn">
+                        <span>{{ modalData.isError ? '重新檢查' : '確認' }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div><!-- /page-wrap#app -->
 
     <!-- ─── Footer ─── -->
@@ -1025,6 +1292,27 @@
 
                 // 🌟 新增：防止重複送出的 Loading 狀態
                 const isSubmitting = ref(false);
+
+                // 🌟 新增：Modal 狀態管理
+                const showModal = ref(false);
+                const modalData = reactive({
+                    isError: false,
+                    eyebrow: 'SUCCESS',
+                    title: '預約成功',
+                    message: ''
+                });
+
+                const closeModal = () => {
+                    showModal.value = false;
+                };
+
+                const triggerModal = (isError, eyebrow, title, message) => {
+                    modalData.isError = isError;
+                    modalData.eyebrow = eyebrow;
+                    modalData.title = title;
+                    modalData.message = message;
+                    showModal.value = true;
+                };
 
                 // 禁止選擇過去日期（含今天）
                 const today = new Date(Date.now() + 86400000).toISOString().split('T')[0];
@@ -1134,8 +1422,7 @@
                     axios.post('/api/consultations', payload)
                         .then(response => {
                             if (response.data.success) {
-                                alert("🎉 預約申請已成功送出！\n我們將有專人與您聯繫。");
-
+                                triggerModal(false, 'SUCCESS', '預約成功', '預約申請已成功送出！<br>我們將有專人與您聯繫。');
                                 // 清空表單
                                 Object.assign(form, {
                                     name: '', tel: '', line_id: '', email: '',
@@ -1147,7 +1434,7 @@
                         })
                         .catch(error => {
                             console.error("錯誤:", error);
-                            alert("⚠️ 傳送失敗，請檢查諮詢單內容及網路狀態，或聯絡 DREAM VENUES 客服專線。");
+                            triggerModal(true, 'ERROR', '傳送失敗', '請檢查諮詢單內容及網路狀態，<br>或聯絡 DREAM VENUES 客服專線。');
                         })
                         .finally(() => {
                             // 🌟 4. 無論成功或失敗，最後都要解除 Loading 狀態
@@ -1206,7 +1493,8 @@
                     activeTab, switchTab,
                     categories, activeCategory, filteredFaqs, toggleFaq,
                     today,
-                    errors, isSubmitting
+                    errors, isSubmitting,
+                    showModal, modalData, closeModal, triggerModal
                 };
             }
         }).mount('#app');

@@ -57,6 +57,13 @@
                 box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
             }
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
 
         .pulse-hint {
             position: absolute;
@@ -183,8 +190,15 @@
 
             <!-- Main -->
             <main
-                class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6">
-                <div class="w-full max-w-[1600px] mx-auto space-y-5">
+                class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6 flex flex-col">
+                
+                <!-- 全頁載入中畫面 -->
+                <div v-if="pageLoading" class="flex-1 flex flex-col items-center justify-center text-center py-20 text-indigo-500">
+                    <span class="material-icons animate-spin text-[48px] mb-4 block">autorenew</span>
+                    <p class="text-[16px] font-bold tracking-widest uppercase">載入專案資料中...</p>
+                </div>
+
+                <div v-else class="w-full max-w-[1600px] mx-auto space-y-5 fade-in">
 
                     <!-- 專案標題列 -->
                     <div
@@ -755,8 +769,14 @@
                             <p v-if="msg.content" class="m-0 whitespace-pre-wrap">{{ msg.content }}</p>
                             <div v-if="msg.documents && msg.documents.length" class="flex flex-wrap gap-2 mt-2">
                                 <template v-for="doc in msg.documents" :key="doc.filePath">
-                                    <img v-if="doc.fileType && doc.fileType.startsWith('image/')" :src="doc.filePath"
+                                    <img v-if="doc.fileType && doc.fileType.startsWith('image/') && !doc.imgError" 
+                                        :src="doc.filePath" 
+                                        @error="doc.imgError = true"
                                         class="max-w-[160px] max-h-[160px] rounded object-cover border border-gray-200 shadow-sm mt-2" />
+                                    <div v-else-if="doc.fileType && doc.fileType.startsWith('image/') && doc.imgError"
+                                        class="inline-flex items-center gap-1 p-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-gray-500 dark:text-gray-400 text-xs mt-2 w-fit">
+                                        <span class="material-icons text-[14px]">broken_image</span>圖片無法預覽
+                                    </div>
                                     <a v-else :href="doc.filePath" target="_blank"
                                         class="inline-flex items-center gap-1 p-2 bg-white/60 dark:bg-gray-800/60 border border-indigo-200 dark:border-indigo-800 rounded text-indigo-600 dark:text-indigo-400 text-xs mt-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors">
                                         <span class="material-icons text-[14px]">description</span>{{ doc.name }}
@@ -874,6 +894,46 @@
             </div>
         </div>
 
+        <!-- ── Alert Modal ── -->
+        <div v-show="alertModal.open"
+            class="fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 mb-4 mx-auto">
+                    <span class="material-icons text-3xl">info</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">系統提示</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap">{{ alertModal.message }}</p>
+                <div class="w-full flex justify-center">
+                    <button @click="closeAlertModal"
+                        class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        確定
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Confirm Modal ── -->
+        <div v-show="confirmModal.open"
+            class="fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-500 mb-4 mx-auto">
+                    <span class="material-icons text-3xl">help_outline</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">確認操作</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap">{{ confirmModal.message }}</p>
+                <div class="w-full flex justify-center space-x-3">
+                    <button @click="executeCancel"
+                        class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-bold shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
+                        取消
+                    </button>
+                    <button @click="executeConfirm"
+                        class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                        確定
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div><!-- /#app -->
 
     <script>
@@ -885,6 +945,7 @@
             // ══════════════════════════════════════════════════════
             data() {
                 return {
+                    pageLoading: true,
                     // 登入者
                     empId: '', empName: '載入中...', empPosition: '', empDeptId: '', empAvatarPath: './Img/smile.jpg',
                     projectId: null,
@@ -933,6 +994,12 @@
 
                     // 文件上傳 Modal
                     docUploadModal: { open: false, uploading: false, files: [] },
+
+                    // Alert Modal
+                    alertModal: { open: false, message: '', callback: null },
+
+                    // Confirm Modal
+                    confirmModal: { open: false, message: '', onConfirm: null, onCancel: null },
                 };
             },
 
@@ -1031,6 +1098,7 @@
             methods: {
                 // ── 初始化（取代 DOMContentLoaded）
                 async init() {
+                    this.pageLoading = true;
                     const id = sessionStorage.getItem('empId');
                     if (!id) { window.location.replace('login.html'); return; }
                     this.empId = id;
@@ -1043,10 +1111,18 @@
                     const p = new URLSearchParams(window.location.search);
                     this.projectId = p.get('id') || p.get('projectId') || 1;
 
-                    await Promise.all([this.fetchProjectInfo(), this.fetchTasks(), this.loadDocs()]);
-                    // 初始化各紅點
-                    await this.checkClientUnread();
+                    // 🌟 同步加载所有数据（任务、文件、未读状态）以实现同步显示
+                    await Promise.all([
+                        this.fetchProjectInfo(),
+                        this.fetchTasks(),
+                        this.loadDocs(),
+                        this.checkClientUnread()
+                    ]);
+                    
+                    // fetchTasks 必須先做完，this.tasks 才有資料，這時候才能檢查紅點
                     await this.checkAllTaskUnread();
+
+                    this.pageLoading = false;
                 },
 
                 // ── API：專案基本資訊
@@ -1071,23 +1147,23 @@
                     const info = this.paymentButtonInfo;
                     if (!info.nextStatus) return;
 
-                    if (!confirm(`確定要將帳務狀態更新為「${info.nextStatus}」嗎？\n此操作代表已確認收到款項 $${info.amount}。`)) return;
-
-                    try {
-                        const r = await fetch(`/api/manager/projects/${this.projectId}/payment-status`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ paymentStatus: info.nextStatus })
-                        });
-                        if (r.ok) {
-                            alert('帳務狀態更新成功！');
-                            await this.fetchProjectInfo(); // 重新拉取專案資訊以更新狀態
-                        } else {
-                            alert('更新失敗，請稍後再試。');
+                    this.showConfirm(`確定要將帳務狀態更新為「${info.nextStatus}」嗎？\n此操作代表已確認收到款項 $${info.amount}。`, async () => {
+                        try {
+                            const r = await fetch(`/api/manager/projects/${this.projectId}/payment-status`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ paymentStatus: info.nextStatus })
+                            });
+                            if (r.ok) {
+                                this.showAlert('帳務狀態更新成功！');
+                                await this.fetchProjectInfo(); // 重新拉取專案資訊以更新狀態
+                            } else {
+                                this.showAlert('更新失敗，請稍後再試。');
+                            }
+                        } catch (e) {
+                            this.showAlert('網路異常，請聯絡管理員。');
                         }
-                    } catch (e) {
-                        alert('網路異常，請聯絡管理員。');
-                    }
+                    });
                 },
 
                 // ── API：任務列表
@@ -1142,10 +1218,10 @@
                 },
 
                 async submitAssign() {
-                    if (!this.assignModal.selectedEmpIds.length) { alert('請至少選擇一位負責人！'); return; }
-                    if (!this.assignModal.deadline) { alert('請選擇要求完成期限！'); return; }
+                    if (!this.assignModal.selectedEmpIds.length) { this.showAlert('請至少選擇一位負責人！'); return; }
+                    if (!this.assignModal.deadline) { this.showAlert('請選擇要求完成期限！'); return; }
                     if (this.maxDeadlineDate && this.assignModal.deadline > this.maxDeadlineDate) {
-                        alert(`要求完成期限須在婚期（${this.project.weddingDate}）前，不得包含結婚當天。`);
+                        this.showAlert(`要求完成期限須在婚期（${this.project.weddingDate}）前，不得包含結婚當天。`);
                         return;
                     }
                     this.assignModal.submitting = true;
@@ -1154,9 +1230,9 @@
                             method: 'POST', headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ assignees: this.assignModal.selectedEmpIds, deadline: this.assignModal.deadline + 'T00:00:00', managerContent: this.assignModal.managerContent }),
                         });
-                        if (r.ok) { alert('已成功送出派工指令！'); this.assignModal.open = false; await this.fetchTasks(); }
+                        if (r.ok) { this.showAlert('已成功送出派工指令！'); this.assignModal.open = false; await this.fetchTasks(); }
                         else throw new Error();
-                    } catch (e) { alert('指派任務失敗，請稍後再試。'); } finally { this.assignModal.submitting = false; }
+                    } catch (e) { this.showAlert('指派任務失敗，請稍後再試。'); } finally { this.assignModal.submitting = false; }
                 },
 
                 // ── 成果 Modal
@@ -1181,15 +1257,16 @@
 
                 // ── 審核通過
                 async approveTask(taskId) {
-                    if (!confirm('確定要審核通過此任務並設為已完成嗎？')) return;
-                    await this.updateStatus(taskId, '已完成');
+                    this.showConfirm('確定要審核通過此任務並設為已完成嗎？', async () => {
+                        await this.updateStatus(taskId, '已完成');
+                    });
                 },
                 async updateStatus(taskId, newStatus) {
                     try {
                         const r = await fetch(`/api/manager/projects/tasks/${taskId}/status`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
-                        if (r.ok) { alert('狀態更新成功！'); await this.fetchTasks(); }
-                        else alert('狀態更新失敗！');
-                    } catch (e) { alert('網路錯誤，請稍後再試。'); }
+                        if (r.ok) { this.showAlert('狀態更新成功！'); await this.fetchTasks(); }
+                        else this.showAlert('狀態更新失敗！');
+                    } catch (e) { this.showAlert('網路錯誤，請稍後再試。'); }
                 },
 
                 // ── 駁回 Modal
@@ -1247,7 +1324,7 @@
                     try {
                         const r = await fetch('/api/employee/tc/mesg', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ taskId: this.chatModal.activeTaskId, createBy: parseInt(this.empId), content: text }) });
                         if (r.ok) { this.chatModal.inputText = ''; await this.openChatModal(this.chatModal.activeTaskId, this.chatModal.readOnly); }
-                        else alert('傳送失敗');
+                        else this.showAlert('傳送失敗');
                     } catch (e) { console.error(e); }
                 },
 
@@ -1293,7 +1370,7 @@
                 handleClientFiles(e) {
                     const MAX = 10 * 1024 * 1024;
                     Array.from(e.target.files).forEach(f => {
-                        if (f.size > MAX) { alert(`${f.name} 超過 10MB`); return; }
+                        if (f.size > MAX) { this.showAlert(`${f.name} 超過 10MB`); return; }
                         if (f.type.startsWith('image/')) {
                             const rd = new FileReader();
                             rd.onload = ev => this.clientChat.attachedFiles.push({ file: f, name: f.name, isImage: true, preview: ev.target.result });
@@ -1314,29 +1391,76 @@
                     try {
                         const r = await fetch(`/api/manager/projects/${this.projectId}/communication`, { method: 'POST', body: fd });
                         if (r.ok) { this.clientChat.inputText = ''; this.clientChat.attachedFiles = []; await this.loadClientChat(); }
-                        else alert('發送失敗！');
-                    } catch (e) { alert('系統異常，請聯絡管理員'); } finally { this.clientChat.sending = false; }
+                        else this.showAlert('發送失敗！');
+                    } catch (e) { this.showAlert('系統異常，請聯絡管理員'); } finally { this.clientChat.sending = false; }
                 },
 
                 // ── 文件上傳 Modal
                 openDocUploadModal() { this.docUploadModal.files = []; this.docUploadModal.open = true; },
-                handleDocFiles(e) { this.docUploadModal.files = Array.from(e.target.files); },
+                handleDocFiles(e) {
+                    const MAX = 10 * 1024 * 1024;
+                    const files = Array.from(e.target.files);
+                    const invalidFiles = files.filter(f => f.size > MAX);
+
+                    if (invalidFiles.length > 0) {
+                        this.showAlert(`檔案大小不能超過 10MB！\n其中 ${invalidFiles.length} 個檔案超過限制。`);
+                        e.target.value = ''; 
+                        this.docUploadModal.files = [];
+                    } else {
+                        this.docUploadModal.files = files;
+                    }
+                },
                 async submitDocUpload() {
-                    if (!this.docUploadModal.files.length) { alert('請先選擇檔案'); return; }
+                    if (!this.docUploadModal.files.length) { this.showAlert('請先選擇檔案'); return; }
                     this.docUploadModal.uploading = true;
                     const fd = new FormData();
                     fd.append('managerId', this.empId);
                     this.docUploadModal.files.forEach(f => fd.append('files', f));
                     try {
                         const r = await fetch(`/api/manager/projects/${this.projectId}/documents`, { method: 'POST', body: fd });
-                        if (r.ok) { alert('文件上傳成功！'); this.docUploadModal.open = false; await this.loadDocs(); }
-                        else alert('上傳失敗，請稍後再試。');
-                    } catch (e) { alert('上傳發生錯誤'); } finally { this.docUploadModal.uploading = false; }
+                        if (r.ok) { this.showAlert('文件上傳成功！'); this.docUploadModal.open = false; await this.loadDocs(); }
+                        else this.showAlert('上傳失敗，請稍後再試。');
+                    } catch (e) { this.showAlert('上傳發生錯誤'); } finally { this.docUploadModal.uploading = false; }
                 },
 
                 // ── 共用：Auth 錯誤處理
                 handleAuth(status) {
-                    if (status === 401 || status === 403) { alert('帳號驗證已過期或尚未登入，請重新登入！'); sessionStorage.clear(); window.location.href = 'login.html'; }
+                    if (status === 401 || status === 403) {
+                        this.showAlert('帳號驗證已過期或尚未登入，請重新登入！', () => {
+                            sessionStorage.clear();
+                            window.location.href = 'login.html';
+                        });
+                    }
+                },
+
+                // ── Alert Modal
+                showAlert(message, callback = null) {
+                    this.alertModal.message = message;
+                    this.alertModal.callback = callback;
+                    this.alertModal.open = true;
+                },
+                closeAlertModal() {
+                    this.alertModal.open = false;
+                    if (this.alertModal.callback) {
+                        this.alertModal.callback();
+                        this.alertModal.callback = null;
+                    }
+                },
+
+                // ── Confirm Modal
+                showConfirm(message, onConfirm, onCancel = null) {
+                    this.confirmModal.message = message;
+                    this.confirmModal.onConfirm = onConfirm;
+                    this.confirmModal.onCancel = onCancel;
+                    this.confirmModal.open = true;
+                },
+                executeConfirm() {
+                    this.confirmModal.open = false;
+                    if (this.confirmModal.onConfirm) this.confirmModal.onConfirm();
+                },
+                executeCancel() {
+                    this.confirmModal.open = false;
+                    if (this.confirmModal.onCancel) this.confirmModal.onCancel();
                 },
             },
 

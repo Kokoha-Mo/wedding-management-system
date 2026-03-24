@@ -36,7 +36,8 @@ public class BookResponseDTO {
         dto.content      = book.getContent();
         dto.status       = book.getStatus();
         dto.createAt     = book.getCreateAt();
-        dto.setUpdateAt(book.getUpdateAt() != null ? book.getUpdateAt().toString() : null);
+        dto.setUpdateAt(book.getUpdateAt() != null ? book.getUpdateAt().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                : null);
 
         if (customer != null) {
             dto.customerName = customer.getName();

@@ -263,7 +263,6 @@ public class BookService {
             throw new IllegalStateException("請先填寫婚宴日期才能轉為簽約");
         }
         book.setStatus(newStatus);
-        book.setUpdateAt(java.time.LocalDateTime.now(ZoneId.of("Asia/Taipei")));
         if (managerId != null) {
             // 🌟 先用 managerId 去資料庫把這個 Employee 實體撈出來
             Employee employee = employeeRepository.findById(managerId)

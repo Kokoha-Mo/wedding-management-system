@@ -308,7 +308,7 @@ async function loadBooks(status = '處理中') {
         if (!res.ok) {
             // 💡 加上這段：如果遇到 401 或 403，代表憑證過期或沒權限
             if (res.status === 401 || res.status === 403) {
-                ShowToast("您的登入已過期，請重新登入！");
+                alert("您的登入已過期，請重新登入！");
                 sessionStorage.clear(); // 清除使用者的暫存資料
                 window.location.replace("login.html"); // 自動踢回登入頁
                 return;
@@ -333,7 +333,6 @@ async function loadBooks(status = '處理中') {
 
         // --- 4. 檢查是否為陣列 (防護二) ---
         if (!Array.isArray(result)) {
-            //console.warn(`[資料格式警告] 後端回傳的不是陣列！目前格式為:`, typeof result);
 
             // 嘗試從常見的分頁/包裝格式中取出陣列
             if (result && Array.isArray(result.data)) {
@@ -946,7 +945,7 @@ function renderPendingCards(books) {
                         ${book.managerName || '未分配'}
                     </span>
                     <span class="text-[15px] text-gray-400 font-medium">
-                        ${book.createAt ? book.createAt.split('T')[0] : ''}
+                         ${book.updateAt ? book.updateAt.split(' ')[0]  : (book.createAt ? book.createAt.split('T')[0] : '')}
                     </span>
                 </div>
                 <h4 class="text-[18px] font-bold text-gray-900 dark:text-white mb-3 truncate">
@@ -1056,7 +1055,7 @@ function renderCancelledTable(books) {
         const row = document.createElement('div');
         row.className = 'grid grid-cols-[2fr_2.5fr_2.5fr_2.5fr_1.5fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center';
         row.innerHTML = `
-            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.updateAt ? book.updateAt.split('T')[0] : '-'}</span>
+            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.updateAt ? book.updateAt.split(' ')[0] : '-'}</span>
             <span class="text-[12px] font-medium text-gray-800 dark:text-gray-200">${book.customerName || '-'}</span>
             <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.email || '-'}</span>
             <span class="text-[12px] text-gray-500 dark:text-gray-400">${formatPhone(book.tel) || '-'}</span>

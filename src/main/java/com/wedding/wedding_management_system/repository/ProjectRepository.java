@@ -39,4 +39,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
     Optional<Project> findFirstByBook_Customer_EmailOrderByCreateAtDesc(String email);
 
     Optional<Project> findByBook_Id(Integer BookId);
+
+    // 🌟 透過 Book 尋找是否有對應 Customer ID 的專案
+    boolean existsByBook_Customer_Id(Integer customerId);
 }

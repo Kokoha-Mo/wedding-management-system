@@ -86,8 +86,7 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable()) // Disable CSRF for API usage
                                 .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/api/manager/**").hasAnyRole("MANAGER")
-                                                .requestMatchers("/api/staff/**").hasAnyRole("MANAGER", "STAFF")
+                                                .requestMatchers("/api/manager/**").hasRole("MANAGER")
                                                 .requestMatchers("/api/customer/forgot-password").permitAll() // 忘記密碼/重設密碼都用他
                                                 .requestMatchers("/api/customer/login").permitAll() // 開放客戶登入 API
                                                 .requestMatchers("/api/customer/verify-reset-token").permitAll()

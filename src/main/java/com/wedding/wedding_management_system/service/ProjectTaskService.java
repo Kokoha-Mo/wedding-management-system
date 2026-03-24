@@ -275,4 +275,29 @@ public class ProjectTaskService {
             return false;
         }
     }
+
+    @Transactional
+    public boolean deleteDocument(Integer docId) {
+        try {
+            Document doc = documentRepository.findById(docId)
+                    .orElseThrow(() -> new RuntimeException("Document not found"));
+
+            // 1. 刪除實體檔案
+            if (doc.getFilePath() != null) {
+                try {
+                    Path filePath = Paths.get(doc.getFilePath());
+                    Files.deleteIfExists(filePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // 2. 刪除 DB 記錄
+            documentRepository.delete(doc);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

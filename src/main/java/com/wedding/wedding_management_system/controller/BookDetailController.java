@@ -48,9 +48,9 @@ public class BookDetailController {
         ));
     }
 
-
+    @Transactional
     @PutMapping("/{bookId}/details")
-    public ResponseEntity<?> updateBookDetails(
+    public synchronized ResponseEntity<?> updateBookDetails(
             @PathVariable Integer bookId,
             @RequestBody UpdateBookDetailsRequestDTO request) {
 
@@ -79,9 +79,12 @@ public class BookDetailController {
                 detailList.add(0, dto);
             }
         });
+        // 鎖住這筆 book，防止並發
+        bookRepository.findById(bookId); // 或用 @Lock(LockModeType.PESSIMISTIC_WRITE)
 
         // 3. 刪除舊細項，重新寫入（價格從 services 表取得）
         bookDetailRepository.deleteByBookId(bookId);
+        bookDetailRepository.flush();
 
         List<BookDetail> details = detailList.stream()
                 .filter(s -> s.getServiceId() != null)
@@ -111,6 +114,7 @@ public class BookDetailController {
      * 顧客端送出服務細項（覆蓋舊的）
      * Body: [ { "service_id": 1, "unit_price": 43800 }, ... ]
      */
+    @Transactional
     @PostMapping("/{bookId}/details")
     public ResponseEntity<?> saveDetails(
             @PathVariable Integer bookId,
@@ -121,6 +125,7 @@ public class BookDetailController {
 
         // 覆蓋：先刪舊細項
         bookDetailRepository.deleteByBookId(bookId);
+        bookDetailRepository.flush();
 
         // 寫入新細項（透過 ServiceRepository 查出 Service entity）
         List<BookDetail> details = services.stream()

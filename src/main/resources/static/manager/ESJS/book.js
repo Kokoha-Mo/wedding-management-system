@@ -259,6 +259,40 @@ function toggleSubItems(mainCheckbox, subContainerId) {
 // API：載入預約列表 (已加入錯誤捕捉與陣列檢查)
 // ════════════════════════════════════════
 async function loadBooks(status = '處理中') {
+    // ── 顯示 loading ──
+    if (status === '處理中') {
+        document.getElementById('card-slider').innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
+                <svg style="width:36px;height:36px;animation:spin 0.8s linear infinite;margin-bottom:12px;"
+                     viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p class="text-sm font-medium">正在載入預約資料...</p>
+            </div>
+        `;
+    }
+    if (status === '已簽約') {
+        document.getElementById('signed-list').innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
+                <svg style="width:36px;height:36px;animation:spin 0.8s linear infinite;margin-bottom:12px;"
+                     viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p class="text-sm font-medium">正在載入資料...</p>
+            </div>
+        `;
+    }
+    if (status === '取消') {
+        document.getElementById('cancelled-list').innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
+                <svg style="width:36px;height:36px;animation:spin 0.8s linear infinite;margin-bottom:12px;"
+                     viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p class="text-sm font-medium">正在載入資料...</p>
+            </div>
+        `;
+    }
     try {
         const managerId = sessionStorage.getItem('empId');
 
@@ -299,7 +333,6 @@ async function loadBooks(status = '處理中') {
 
         // --- 4. 檢查是否為陣列 (防護二) ---
         if (!Array.isArray(result)) {
-            //console.warn(`[資料格式警告] 後端回傳的不是陣列！目前格式為:`, typeof result);
 
             // 嘗試從常見的分頁/包裝格式中取出陣列
             if (result && Array.isArray(result.data)) {
@@ -486,6 +519,7 @@ async function updateBookStatus(bookId, newStatus) {
 let currentEditBookId = null;
 
 function openEditModal(btn) {
+
     const card = btn.closest('.snap-start');
     if (!card) return;
 
@@ -508,6 +542,19 @@ function openEditModal(btn) {
 
 async function saveBookInfo() {
     if (!currentEditBookId) return;
+    const saveBtn = document.querySelector('#modal-edit-book button[onclick="saveBookInfo()"]');
+
+    // disabled + 轉圈
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `
+            <svg style="display:inline-block; width:16px; height:16px; vertical-align:middle; margin-right:8px; animation:spin 0.8s linear infinite;" 
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            </svg>
+            儲存中...
+        `;
+    }
 
     const selectedTheme = document.querySelector('input[name="edit-theme"]:checked');
     const email = document.getElementById('edit-email')?.value.trim() || '';
@@ -593,6 +640,13 @@ async function saveBookInfo() {
         console.error('[API] 修改資料失敗:', err);
         showToast('連線失敗', 'error');
     }
+    finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '儲存資料';
+        }
+    }
+
 }
 
 // ════════════════════════════════════════
@@ -786,13 +840,20 @@ function toggleCeremonyDate(checkbox, dateContainerId) {
 // API：儲存需求設定（PUT /books/{id}/details）
 // ════════════════════════════════════════
 async function saveBookDetails() {
-    console.log('saveBookDetails 被呼叫'); // ← 最頂端
-    console.log('currentViewBookId:', currentViewBookId); // ← 最頂端
+    if (!currentViewBookId) return;
 
-    if (!currentViewBookId) {
-        console.log('currentViewBookId 是 null，直接 return'); // ← 加這行
-        return;
+    const saveBtn = document.querySelector('#modal-modify button[onclick="saveBookDetails()"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `
+        <svg style="display:inline-block;width:14px;height:14px;vertical-align:middle;margin-right:6px;animation:spin 0.8s linear infinite;"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+        儲存中...
+    `;
     }
+
     const notes = document.getElementById('modify-notes')?.value.trim() || '';
     const details = [];
     document.querySelectorAll('#modal-modify .modal-service-cb:checked').forEach(cb => {
@@ -839,6 +900,12 @@ async function saveBookDetails() {
     } catch (err) {
         console.error('[API] 儲存失敗:', err);
         showToast('連線失敗', 'error');
+    }finally {
+        // 2. 不管成功失敗，最後都恢復按鈕
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '儲存需求設定';  // 改成你按鈕原本的文字
+        }
     }
 }
 
@@ -878,7 +945,7 @@ function renderPendingCards(books) {
                         ${book.managerName || '未分配'}
                     </span>
                     <span class="text-[15px] text-gray-400 font-medium">
-                        ${book.createAt ? book.createAt.split('T')[0] : ''}
+                         ${book.updateAt ? book.updateAt.split(' ')[0]  : (book.createAt ? book.createAt.split('T')[0] : '')}
                     </span>
                 </div>
                 <h4 class="text-[18px] font-bold text-gray-900 dark:text-white mb-3 truncate">
@@ -986,12 +1053,13 @@ function renderCancelledTable(books) {
 
     books.forEach(book => {
         const row = document.createElement('div');
-        row.className = 'grid grid-cols-[2fr_2fr_2.5fr_2fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center';
+        row.className = 'grid grid-cols-[2fr_2.5fr_2.5fr_2.5fr_1.5fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center';
         row.innerHTML = `
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 w-fit">已取消</span>
-            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.createAt ? book.createAt.split('T')[0] : '-'}</span>
+            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.updateAt ? book.updateAt.split(' ')[0] : '-'}</span>
             <span class="text-[12px] font-medium text-gray-800 dark:text-gray-200">${book.customerName || '-'}</span>
+            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.email || '-'}</span>
             <span class="text-[12px] text-gray-500 dark:text-gray-400">${formatPhone(book.tel) || '-'}</span>
+            <span class="px-2 py-0.5 rounded text-[12px] font-bold bg-blue-50 text-blue-600 w-fit">${book.managerName || '-'}</span>
             <button onclick="updateBookStatus(${book.bookId}, '處理中')"
                 class="text-[12px] font-bold text-primary hover:underline">
                 恢復預約

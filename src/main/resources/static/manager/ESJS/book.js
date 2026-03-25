@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8080/api/employee';
+const API_BASE = '/api/manager';
 
 // ════════════════════════════════════════
 // Alert / Confirm Modal 函式

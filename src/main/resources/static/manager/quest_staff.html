@@ -413,8 +413,15 @@
                                     '未知類型').split('/')[1]?.toUpperCase() }}</span>
                             </div>
                         </div>
-                        <span
-                            class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">待審核</span>
+                        <div class="flex items-center space-x-2 flex-shrink-0">
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">待審核</span>
+                            <button @click.stop="deleteUploadedFile(doc)"
+                                class="w-6 h-6 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                                title="取消上傳並刪除檔案">
+                                <span class="material-icons text-base">close</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -447,12 +454,46 @@
             </div>
 
             <div class="flex space-x-3">
-                <button @click="showUpload = false"
-                    class="flex-1 py-2.5 text-gray-500 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors">取消</button>
-                <button @click="confirmUpload" :disabled="!selectedFile"
-                    class="flex-1 py-2.5 bg-primary text-white rounded-xl font-bold shadow-md shadow-primary/20 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:shadow-none">
-                    確認上傳
+                <button @click="showUpload = false" :disabled="uploadLoading"
+                    class="flex-1 py-2.5 text-gray-500 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors disabled:opacity-50">取消</button>
+                <button @click="confirmUpload" :disabled="!selectedFile || uploadLoading"
+                    class="flex-1 py-2.5 bg-primary text-white rounded-xl font-bold shadow-md shadow-primary/20 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:shadow-none flex items-center justify-center">
+                    <template v-if="uploadLoading">
+                        <span class="material-icons animate-spin text-sm mr-2">autorenew</span>
+                        上傳中...
+                    </template>
+                    <template v-else>
+                        確認上傳
+                    </template>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert / Confirm Modal -->
+    <div v-if="alertConfig.show" class="fixed inset-0 z-[150] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-80 max-w-[90%] transform transition-all duration-300 border border-gray-100 dark:border-gray-700">
+            <div class="p-6 text-center">
+                <div v-if="alertConfig.type === 'success'" class="w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/40 text-green-500 mx-auto flex items-center justify-center mb-4">
+                    <span class="material-icons text-3xl">check_circle</span>
+                </div>
+                <div v-else-if="alertConfig.type === 'confirm'" class="w-14 h-14 rounded-full bg-amber-50 dark:bg-amber-900/40 text-amber-500 mx-auto flex items-center justify-center mb-4">
+                    <span class="material-icons text-3xl">help_outline</span>
+                </div>
+                <div v-else-if="alertConfig.type === 'error'" class="w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/40 text-red-500 mx-auto flex items-center justify-center mb-4">
+                    <span class="material-icons text-3xl">error_outline</span>
+                </div>
+                <div v-else class="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-500 mx-auto flex items-center justify-center mb-4">
+                    <span class="material-icons text-3xl">info</span>
+                </div>
+                
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ alertConfig.title }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ alertConfig.message }}</p>
+                
+                <div class="flex space-x-3">
+                    <button v-if="alertConfig.type === 'confirm'" @click="alertConfig.onCancel" class="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors">取消</button>
+                    <button @click="alertConfig.onConfirm" class="flex-1 py-2.5 px-4 bg-primary hover:bg-blue-600 text-white rounded-xl font-medium shadow-md shadow-primary/20 transition-colors">確定</button>
+                </div>
             </div>
         </div>
     </div>
@@ -487,7 +528,48 @@
                 const selectedFile = ref(null);
                 const fileNameDisplay = ref('');
                 const imagePreview = ref('');
+                const uploadLoading = ref(false);
                 const unreadTasks = ref(new Set());
+
+                // Modal Alert State
+                const alertConfig = reactive({
+                    show: false,
+                    title: '',
+                    message: '',
+                    type: 'info', // info, success, confirm
+                    onConfirm: () => {},
+                    onCancel: () => {}
+                });
+
+                const showAlert = (message, title = '系統提示', type = 'info') => {
+                    return new Promise((resolve) => {
+                        alertConfig.title = title;
+                        alertConfig.message = message;
+                        alertConfig.type = type;
+                        alertConfig.onConfirm = () => {
+                            alertConfig.show = false;
+                            resolve(true);
+                        };
+                        alertConfig.show = true;
+                    });
+                };
+
+                const showConfirm = (message, title = '確認操作') => {
+                    return new Promise((resolve) => {
+                        alertConfig.title = title;
+                        alertConfig.message = message;
+                        alertConfig.type = 'confirm';
+                        alertConfig.onConfirm = () => {
+                            alertConfig.show = false;
+                            resolve(true);
+                        };
+                        alertConfig.onCancel = () => {
+                            alertConfig.show = false;
+                            resolve(false);
+                        };
+                        alertConfig.show = true;
+                    });
+                };
 
                 const currentPage = ref(1);
                 const itemsPerPage = ref(5);
@@ -508,6 +590,40 @@
 
                 const prevPage = () => {
                     if (currentPage.value > 1) currentPage.value--;
+                };
+
+                const fetchTaskById = async (taskId) => {
+                    try {
+                        const response = await fetch(`/api/employee/task/${emp.id}`, { credentials: 'include' });
+                        if (response.ok) {
+                            const data = await response.json();
+                            return data.find(t => t.taskId === taskId);
+                        }
+                    } catch (e) { console.error('Error fetching task by id:', e); }
+                    return null;
+                };
+
+                const deleteUploadedFile = async (doc) => {
+                    if (!(await showConfirm(`確定要刪除待審核檔案「${doc.name}」嗎？`, '刪除檔案'))) return;
+                    try {
+                        const response = await fetch(`/api/employee/task/document/${doc.id}`, {
+                            method: 'DELETE',
+                            credentials: 'include'
+                        });
+                        if (response.ok) {
+                            // 重新整理目前正在編輯的任務資料
+                            if (activeTask.value) {
+                                const updatedTask = await fetchTaskById(activeTask.value.taskId);
+                                if (updatedTask) activeTask.value = updatedTask;
+                            }
+                            fetchOngoingTasks();
+                        } else {
+                            showAlert('刪除失敗，請稍後再試', '操作失敗', 'error');
+                        }
+                    } catch (e) {
+                        console.error('Delete failed:', e);
+                        showAlert('刪除失敗，請檢查網路連線', '網路錯誤', 'error');
+                    }
                 };
 
                 const fetchOngoingTasks = async () => {
@@ -632,7 +748,7 @@
                     if (file) {
                         const maxSize = 10 * 1024 * 1024; // 10MB
                         if (file.size > maxSize) {
-                            alert('檔案大小超過 10MB 限制，請重新選擇較小的檔案。');
+                            showAlert('檔案大小超過 10MB 限制，請重新選擇較小的檔案。', '檔案過大', 'info');
                             e.target.value = '';
                             selectedFile.value = null;
                             fileNameDisplay.value = '';
@@ -653,13 +769,14 @@
                 };
 
                 const confirmUpload = async () => {
-                    if (!selectedFile.value || !activeTask.value) return alert('請選擇檔案');
+                    if (!selectedFile.value || !activeTask.value) return showAlert('請選擇檔案');
 
                     const fd = new FormData();
                     fd.append('file', selectedFile.value);
                     fd.append('taskId', activeTask.value.taskId);
                     fd.append('empId', emp.id);
 
+                    uploadLoading.value = true;
                     try {
                         const response = await fetch('/api/employee/task/upload', {
                             method: 'POST',
@@ -667,22 +784,26 @@
                             body: fd
                         });
                         if (response.ok) {
-                            alert(`檔案「${selectedFile.value.name}」已成功上傳並提交審核！`);
+                            await showAlert(`檔案「${selectedFile.value.name}」已成功上傳並提交審核！`, '上傳成功', 'success');
                             showUpload.value = false;
                             // 重新整理任務資料以顯示新上傳的檔案
+                            const updatedTask = await fetchTaskById(activeTask.value.taskId);
+                            if (updatedTask) activeTask.value = updatedTask;
                             fetchOngoingTasks();
                         } else {
                             const error = await response.json();
-                            alert(`上傳失敗：${error.message || '未知錯誤'}`);
+                            showAlert(`上傳失敗：${error.message || '未知錯誤'}`, '系統提示', 'error');
                         }
                     } catch (e) {
                         console.error('Upload failed:', e);
-                        alert('上傳失敗，請檢查網路連線或檔案格式');
+                        showAlert('上傳失敗，請檢查網路連線或檔案格式', '網路錯誤', 'error');
+                    } finally {
+                        uploadLoading.value = false;
                     }
                 };
 
                 const submitAudit = async (task) => {
-                    if (!confirm("確定要將此任務成果提交給業務審核嗎？任務狀態將改為「待審核」。")) return;
+                    if (!(await showConfirm("確定要將此任務成果提交給業務審核嗎？任務狀態將改為「待審核」。", "提交任務成果"))) return;
                     try {
                         const response = await fetch('/api/employee/task/status', {
                             method: 'PUT',
@@ -691,7 +812,7 @@
                             body: JSON.stringify({ taskId: task.taskId, status: '待審核' })
                         });
                         if (response.ok) {
-                            alert("任務已成功提交審核！");
+                            await showAlert("任務已成功提交審核！", "提交成功", "success");
                             fetchOngoingTasks();
                             fetchHistoryTasks();
                         }
@@ -753,9 +874,11 @@
 
                 return {
                     emp, ongoingTasks, historyTasks, showChat, showUpload, chatReadOnly,
-                    activeTask, chatMessages, chatInput, chatLoading, fileNameDisplay, imagePreview, selectedFile,
+                    activeTask, chatMessages, chatInput, chatLoading, fileNameDisplay, imagePreview, selectedFile, uploadLoading,
                     currentPage, itemsPerPage, paginatedHistoryTasks, totalPages, nextPage, prevPage, unreadTasks,
+                    alertConfig, showAlert, showConfirm,
                     openChat, fetchOngoingTasks, fetchHistoryTasks, sendMessage, openUpload, handleFile, confirmUpload, submitAudit,
+                    deleteUploadedFile,
                     isUrgent, formatDate, formatFullTime, formatTime, getFileIcon
                 };
             }

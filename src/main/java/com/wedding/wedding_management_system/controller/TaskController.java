@@ -8,6 +8,7 @@ import com.wedding.wedding_management_system.service.TaskCommunicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -92,6 +93,17 @@ public class TaskController {
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("status", "error", "message", "檔案上傳失敗"));
+        }
+    }
+
+    @DeleteMapping("/task/document/{docId}")
+    public ResponseEntity<Map<String, String>> deleteDocument(@PathVariable("docId") Integer docId) {
+        boolean success = projectTaskService.deleteDocument(docId);
+        if (success) {
+            return ResponseEntity.ok(Map.of("status", "success", "message", "檔案已刪除"));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "檔案刪除失敗"));
         }
     }
 }

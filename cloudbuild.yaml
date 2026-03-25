@@ -1,0 +1,34 @@
+steps:
+  # 第一步：編譯 Java 專案並跳過測試
+  - name: 'gcr.io/cloud-builders/mvn'
+    args: ['clean', 'package', '-DskipTests']
+
+  # 第二步：建構 Docker 鏡像
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA', '.']
+
+  # 第三步：推送到 Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA']
+
+  # 第四步：部署到 Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'wedding-management-system'
+      - '--image'
+      - 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA'
+      - '--region'
+      - 'asia-east1'
+      - '--platform'
+      - 'managed'
+
+images:
+  - 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA'
+
+  # ...之前的內容保持不變...
+
+options:
+  logging: CLOUD_LOGGING_ONLY

@@ -29,6 +29,14 @@
             },
         };
     </script>
+    <style>
+        #card-slider::-webkit-scrollbar { display: none; }
+        #card-slider { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
 <body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
@@ -149,7 +157,6 @@
 
                     <!-- 操作按鈕 -->
                     <div class="flex items-center gap-2">
-
                         <!-- 篩選 -->
                         <div class="relative">
                             <button onclick="toggleFilterPanel()" id="btn-filter"
@@ -219,10 +226,7 @@
                             </div>
                         </div>
 
-                        <style>
-                            #card-slider::-webkit-scrollbar { display: none; }
-                            #card-slider { -ms-overflow-style: none; scrollbar-width: none; }
-                        </style>
+
 
                         <!-- 卡片由 JS 動態渲染 -->
                         <div id="card-slider" class="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 pt-1 px-1 -mx-1"></div>
@@ -243,9 +247,9 @@
                             <!-- Table Header -->
                             <div class="grid grid-cols-[1.5fr_2fr_1.5fr_2fr_1.5fr_1.5fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3 justify-items-center text-center">
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">簽約日期</span>
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">姓名</span>
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">婚期</span>
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">場地</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">新人姓名</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">婚禮日期</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">婚宴場地</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">視覺定調</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">負責人</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">方案內容</span>
@@ -268,11 +272,12 @@
                         </div>
                         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden ustify-items-center text-center">
                             <!-- Table Header -->
-                            <div class="grid grid-cols-[2fr_2fr_2.5fr_2fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3">
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">狀態</span>
-                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">預約日期</span>
+                            <div class="grid grid-cols-[2fr_2.5fr_2.5fr_2.5fr_1.5fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3 justify-items-center text-center">
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">取消日期</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">新人姓名</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">電子郵件</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">手機號碼</span>
+                                <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">原負責人</span>
                                 <span class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">更改狀態</span>
                             </div>
                             <!-- Table Rows（由 JS 動態渲染） -->
@@ -662,6 +667,41 @@
     </div>
 </div>
 <div class="hidden opacity-50 fixed inset-0 z-40 bg-black" id="modal-modify-backdrop"></div>
+<!-- ==================== Alert Modal ==================== -->
+<div id="modal-alert" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
+        <div class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 mb-4">
+            <span class="material-icons text-3xl" id="alert-icon">info</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">系統提示</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap" id="alert-message"></p>
+        <button onclick="closeAlert()"
+                class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors">
+            確定
+        </button>
+    </div>
+</div>
+
+<!-- ==================== Confirm Modal ==================== -->
+<div id="modal-confirm" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
+        <div class="flex items-center justify-center w-14 h-14 rounded-full mb-4" id="confirm-icon-wrap">
+            <span class="material-icons text-3xl" id="confirm-icon">help_outline</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">確認操作</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap" id="confirm-message"></p>
+        <div class="w-full flex gap-3">
+            <button onclick="resolveConfirm(false)"
+                    class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold transition-colors">
+                取消
+            </button>
+            <button id="confirm-ok-btn" onclick="resolveConfirm(true)"
+                    class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors">
+                確定
+            </button>
+        </div>
+    </div>
+</div>
 <!-- ═══════════════════════════════════════
      Modal: 已簽約詳細摘要（純文字）
 ═══════════════════════════════════════ -->

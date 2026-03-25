@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8080/api/employee';
+const API_BASE = '/api/employee';
 
 // ════════════════════════════════════════
 // Alert / Confirm Modal 函式
@@ -958,12 +958,6 @@ async function saveBookDetails() {
 // 渲染：處理中卡片
 // ════════════════════════════════════════
 function renderPendingCards(books) {
-    const kw = getSearchKeyword();
-    if (kw) books = books.filter(b =>
-        (b.customerName || '').toLowerCase().includes(kw) ||
-        (b.tel || '').includes(kw) ||
-        (b.email || '').toLowerCase().includes(kw)
-    );
     const slider = document.getElementById('card-slider');
     slider.innerHTML = '';
 
@@ -1074,12 +1068,6 @@ function getSearchKeyword() {
 // 渲染：已簽約 table
 // ════════════════════════════════════════
 function renderSignedTable(books) {
-    const kw = getSearchKeyword();
-    if (kw) books = books.filter(b =>
-        (b.customerName || '').toLowerCase().includes(kw) ||
-        (b.tel || '').includes(kw) ||
-        (b.email || '').toLowerCase().includes(kw)
-    );
     const container = document.getElementById('signed-list');
     container.innerHTML = '';
 
@@ -1111,12 +1099,6 @@ function renderSignedTable(books) {
 // 渲染：取消 table
 // ════════════════════════════════════════
 function renderCancelledTable(books) {
-    const kw = getSearchKeyword();
-    if (kw) books = books.filter(b =>
-        (b.customerName || '').toLowerCase().includes(kw) ||
-        (b.tel || '').includes(kw) ||
-        (b.email || '').toLowerCase().includes(kw)
-    );
     const container = document.getElementById('cancelled-list');
     container.innerHTML = '';
 

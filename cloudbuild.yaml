@@ -27,3 +27,8 @@ steps:
 
 images:
   - 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA'
+
+  # ...之前的內容保持不變...
+
+options:
+  logging: CLOUD_LOGGING_ONLY

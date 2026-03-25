@@ -100,12 +100,15 @@ public class BookController {
     @GetMapping
     public ResponseEntity<List<BookResponseDTO>> findByStatus(
             @RequestParam(defaultValue = "處理中") String status,
-            @RequestParam(required = false) Integer managerId) {
+            @RequestParam(required = false) Integer managerId,
+            @RequestParam(required = false)String keyword){
+        log.info("搜尋請求進來了！ 狀態: {}, 員工ID: {}, 關鍵字: {}", status, managerId, keyword);
 
-        List<BookResponseDTO> books = (managerId !=null)
-                ? bookService.findByManagerAndStatus(managerId,status)
-                : bookService.findByStatus(status);
+//        List<BookResponseDTO> books = (managerId !=null)
+//                ? bookService.findByManagerAndStatus(managerId,status)
+//                : bookService.findByStatus(status);
 
+        List<BookResponseDTO> books = bookService.findBooksByConditions(status, managerId, keyword);
         return ResponseEntity.ok(books);
     }
 

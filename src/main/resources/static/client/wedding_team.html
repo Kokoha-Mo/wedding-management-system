@@ -993,7 +993,7 @@
                 }
             },
             mounted() {
-                fetch('http://localhost:8080/api/team')
+                fetch(`/api/team`)
                     .then(res => res.json())
                     .then(rows => {
                         const result = {};

@@ -1,4 +1,43 @@
-const API_BASE = 'http://localhost:8080/api/employee';
+const API_BASE = '/api/manager';
+
+// ════════════════════════════════════════
+// Alert / Confirm Modal 函式
+// ════════════════════════════════════════
+function showAlert(message, icon = 'info') {
+    document.getElementById('alert-message').textContent = message;
+    document.getElementById('alert-icon').textContent = icon;
+    document.getElementById('modal-alert').classList.remove('hidden');
+}
+
+function closeAlert() {
+    document.getElementById('modal-alert').classList.add('hidden');
+    if (window._alertCallback) { window._alertCallback(); window._alertCallback = null; }
+}
+
+let _confirmResolve = null;
+
+function showConfirm(message, type = 'default') {
+    document.getElementById('confirm-message').textContent = message;
+    const iconWrap = document.getElementById('confirm-icon-wrap');
+    const icon     = document.getElementById('confirm-icon');
+    const okBtn    = document.getElementById('confirm-ok-btn');
+    if (type === 'danger') {
+        iconWrap.className = 'flex items-center justify-center w-14 h-14 rounded-full mb-4 bg-red-100 dark:bg-red-900/30 text-red-500';
+        icon.textContent   = 'warning';
+        okBtn.className    = 'flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold shadow-sm transition-colors';
+    } else {
+        iconWrap.className = 'flex items-center justify-center w-14 h-14 rounded-full mb-4 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500';
+        icon.textContent   = 'help_outline';
+        okBtn.className    = 'flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors';
+    }
+    document.getElementById('modal-confirm').classList.remove('hidden');
+    return new Promise(resolve => { _confirmResolve = resolve; });
+}
+
+function resolveConfirm(result) {
+    document.getElementById('modal-confirm').classList.add('hidden');
+    if (_confirmResolve) { _confirmResolve(result); _confirmResolve = null; }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. 取得「台灣當地時間」的今天日期，格式為 YYYY-MM-DD
@@ -259,6 +298,40 @@ function toggleSubItems(mainCheckbox, subContainerId) {
 // API：載入預約列表 (已加入錯誤捕捉與陣列檢查)
 // ════════════════════════════════════════
 async function loadBooks(status = '處理中') {
+    // ── 顯示 loading ──
+    if (status === '處理中') {
+        document.getElementById('card-slider').innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
+                <svg style="width:36px;height:36px;animation:spin 0.8s linear infinite;margin-bottom:12px;"
+                     viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p class="text-sm font-medium">正在載入預約資料...</p>
+            </div>
+        `;
+    }
+    if (status === '已簽約') {
+        document.getElementById('signed-list').innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
+                <svg style="width:36px;height:36px;animation:spin 0.8s linear infinite;margin-bottom:12px;"
+                     viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p class="text-sm font-medium">正在載入資料...</p>
+            </div>
+        `;
+    }
+    if (status === '取消') {
+        document.getElementById('cancelled-list').innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
+                <svg style="width:36px;height:36px;animation:spin 0.8s linear infinite;margin-bottom:12px;"
+                     viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <p class="text-sm font-medium">正在載入資料...</p>
+            </div>
+        `;
+    }
     try {
         const managerId = sessionStorage.getItem('empId');
 
@@ -294,12 +367,17 @@ async function loadBooks(status = '處理中') {
         //console.log("從後端拿到的第一筆資料時間是：", result[0].createAt);
 
         // ★★★ 關鍵：印出後端回傳的原始資料 ★★★
-        result.sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
-        //console.log(`[載入列表 - ${status}] 後端回傳的原始資料:`, result);
+        result.sort((a, b) => {
+            // 優先使用 updateAt，如果沒有才用 createAt，確保用來排序的時間跟畫面上顯示的一樣
+            const timeA = new Date(a.updateAt || a.createAt || 0).getTime();
+            const timeB = new Date(b.updateAt || b.createAt || 0).getTime();
+
+            // timeB - timeA 代表「降冪排列」，也就是最新/數字越大的排越前面
+            return timeB - timeA;
+        });
 
         // --- 4. 檢查是否為陣列 (防護二) ---
         if (!Array.isArray(result)) {
-            //console.warn(`[資料格式警告] 後端回傳的不是陣列！目前格式為:`, typeof result);
 
             // 嘗試從常見的分頁/包裝格式中取出陣列
             if (result && Array.isArray(result.data)) {
@@ -371,7 +449,7 @@ async function submitCreateBook() {
 
     // 有重複 → 提示確認
     if (checkResult.length > 0) {
-        const confirmed = window.confirm(
+        const confirmed = await showConfirm(
             `此客戶已有資料：${checkResult[0].name}\n` +
             `手機：${checkResult[0].tel}\n` +
             `Email：${checkResult[0].email || '-'}\n\n` +
@@ -439,7 +517,7 @@ async function updateBookStatus(bookId, newStatus) {
             }
         }
         const customerName = card?.dataset.name || '此客戶';
-        const confirmed = window.confirm(
+        const confirmed = await showConfirm(
             `確定要將「${customerName}」的預約轉為已簽約嗎？\n\n轉簽約後將自動建立專案與任務。`
         );
         if (!confirmed) return;
@@ -447,12 +525,12 @@ async function updateBookStatus(bookId, newStatus) {
     if (newStatus === '取消') {
         const card = document.querySelector(`div[data-book-id="${bookId}"]`);
         const customerName = card?.dataset.name || '此客戶';
-        const confirmed = window.confirm(`確定要取消「${customerName}」的預約嗎？`);
+        const confirmed = await showConfirm(`確定要取消「${customerName}」的預約嗎？`,'danger');
         if (!confirmed) return;
     }
 
     if (newStatus === '處理中') {
-        const confirmed = window.confirm('確定要恢復這筆預約嗎？\n恢復後，此案件將由您接手處理！');
+        const confirmed = await showConfirm('確定要恢復這筆預約嗎？\n恢復後，此案件將由您接手處理！');
         if (!confirmed) return;
     }
     const payload = { status: newStatus };
@@ -486,6 +564,7 @@ async function updateBookStatus(bookId, newStatus) {
 let currentEditBookId = null;
 
 function openEditModal(btn) {
+
     const card = btn.closest('.snap-start');
     if (!card) return;
 
@@ -508,6 +587,19 @@ function openEditModal(btn) {
 
 async function saveBookInfo() {
     if (!currentEditBookId) return;
+    const saveBtn = document.querySelector('#modal-edit-book button[onclick="saveBookInfo()"]');
+
+    // disabled + 轉圈
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `
+            <svg style="display:inline-block; width:16px; height:16px; vertical-align:middle; margin-right:8px; animation:spin 0.8s linear infinite;" 
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            </svg>
+            儲存中...
+        `;
+    }
 
     const selectedTheme = document.querySelector('input[name="edit-theme"]:checked');
     const email = document.getElementById('edit-email')?.value.trim() || '';
@@ -552,7 +644,7 @@ async function saveBookInfo() {
     }
 
     if (checkResult.length > 0) {
-        const confirmed = window.confirm(
+        const confirmed = showConfirm(
             `此 Email 或手機已有其他客戶資料：${checkResult[0].name}\n` +
             `手機：${checkResult[0].tel}\n` +
             `Email：${checkResult[0].email || '-'}\n\n` +
@@ -593,6 +685,13 @@ async function saveBookInfo() {
         console.error('[API] 修改資料失敗:', err);
         showToast('連線失敗', 'error');
     }
+    finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '儲存資料';
+        }
+    }
+
 }
 
 // ════════════════════════════════════════
@@ -786,13 +885,20 @@ function toggleCeremonyDate(checkbox, dateContainerId) {
 // API：儲存需求設定（PUT /books/{id}/details）
 // ════════════════════════════════════════
 async function saveBookDetails() {
-    console.log('saveBookDetails 被呼叫'); // ← 最頂端
-    console.log('currentViewBookId:', currentViewBookId); // ← 最頂端
+    if (!currentViewBookId) return;
 
-    if (!currentViewBookId) {
-        console.log('currentViewBookId 是 null，直接 return'); // ← 加這行
-        return;
+    const saveBtn = document.querySelector('#modal-modify button[onclick="saveBookDetails()"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `
+        <svg style="display:inline-block;width:14px;height:14px;vertical-align:middle;margin-right:6px;animation:spin 0.8s linear infinite;"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+        儲存中...
+    `;
     }
+
     const notes = document.getElementById('modify-notes')?.value.trim() || '';
     const details = [];
     document.querySelectorAll('#modal-modify .modal-service-cb:checked').forEach(cb => {
@@ -839,6 +945,12 @@ async function saveBookDetails() {
     } catch (err) {
         console.error('[API] 儲存失敗:', err);
         showToast('連線失敗', 'error');
+    }finally {
+        // 2. 不管成功失敗，最後都恢復按鈕
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '儲存需求設定';  // 改成你按鈕原本的文字
+        }
     }
 }
 
@@ -846,6 +958,12 @@ async function saveBookDetails() {
 // 渲染：處理中卡片
 // ════════════════════════════════════════
 function renderPendingCards(books) {
+    const kw = getSearchKeyword();
+    if (kw) books = books.filter(b =>
+        (b.customerName || '').toLowerCase().includes(kw) ||
+        (b.tel || '').includes(kw) ||
+        (b.email || '').toLowerCase().includes(kw)
+    );
     const slider = document.getElementById('card-slider');
     slider.innerHTML = '';
 
@@ -853,6 +971,14 @@ function renderPendingCards(books) {
         slider.innerHTML = `<p class="text-gray-400 text-sm py-4">目前沒有處理中的預約</p>`;
         return;
     }
+    // 統計每個婚期日期出現次數（2組以上標記衝突）
+    const dateCounts = {};
+    books.forEach(b => {
+        if (b.weddingDate) {
+            const d = String(b.weddingDate).split('T')[0];
+            dateCounts[d] = (dateCounts[d] || 0) + 1;
+        }
+    });
 
     books.forEach(book => {
         const bookId = book.bookId;  // ← 先抽出來避免 template literal 問題
@@ -878,7 +1004,7 @@ function renderPendingCards(books) {
                         ${book.managerName || '未分配'}
                     </span>
                     <span class="text-[15px] text-gray-400 font-medium">
-                        ${book.createAt ? book.createAt.split('T')[0] : ''}
+                         ${book.updateAt ? book.updateAt.split(' ')[0]  : (book.createAt ? book.createAt.split('T')[0] : '')}
                     </span>
                 </div>
                 <h4 class="text-[18px] font-bold text-gray-900 dark:text-white mb-3 truncate">
@@ -940,11 +1066,20 @@ function renderPendingCards(books) {
         slider.appendChild(card);
     });
 }
+function getSearchKeyword() {
+    return (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+}
 
 // ════════════════════════════════════════
 // 渲染：已簽約 table
 // ════════════════════════════════════════
 function renderSignedTable(books) {
+    const kw = getSearchKeyword();
+    if (kw) books = books.filter(b =>
+        (b.customerName || '').toLowerCase().includes(kw) ||
+        (b.tel || '').includes(kw) ||
+        (b.email || '').toLowerCase().includes(kw)
+    );
     const container = document.getElementById('signed-list');
     container.innerHTML = '';
 
@@ -976,6 +1111,12 @@ function renderSignedTable(books) {
 // 渲染：取消 table
 // ════════════════════════════════════════
 function renderCancelledTable(books) {
+    const kw = getSearchKeyword();
+    if (kw) books = books.filter(b =>
+        (b.customerName || '').toLowerCase().includes(kw) ||
+        (b.tel || '').includes(kw) ||
+        (b.email || '').toLowerCase().includes(kw)
+    );
     const container = document.getElementById('cancelled-list');
     container.innerHTML = '';
 
@@ -986,12 +1127,13 @@ function renderCancelledTable(books) {
 
     books.forEach(book => {
         const row = document.createElement('div');
-        row.className = 'grid grid-cols-[2fr_2fr_2.5fr_2fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center';
+        row.className = 'grid grid-cols-[2fr_2.5fr_2.5fr_2.5fr_1.5fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center';
         row.innerHTML = `
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 w-fit">已取消</span>
-            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.createAt ? book.createAt.split('T')[0] : '-'}</span>
+            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.updateAt ? book.updateAt.split(' ')[0] : '-'}</span>
             <span class="text-[12px] font-medium text-gray-800 dark:text-gray-200">${book.customerName || '-'}</span>
+            <span class="text-[12px] text-gray-600 dark:text-gray-300">${book.email || '-'}</span>
             <span class="text-[12px] text-gray-500 dark:text-gray-400">${formatPhone(book.tel) || '-'}</span>
+            <span class="px-2 py-0.5 rounded text-[12px] font-bold bg-blue-50 text-blue-600 w-fit">${book.managerName || '-'}</span>
             <button onclick="updateBookStatus(${book.bookId}, '處理中')"
                 class="text-[12px] font-bold text-primary hover:underline">
                 恢復預約

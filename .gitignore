@@ -67,4 +67,3 @@ uploads/
 
 # 排除所有上傳的實體檔案，只保留資料夾結構
 uploads/
-src/main/resources/application.properties

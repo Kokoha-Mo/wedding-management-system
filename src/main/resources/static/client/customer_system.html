@@ -550,6 +550,16 @@
             background: rgba(176, 168, 160, 0.1);
             color: #736E68;
         }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -755,6 +765,8 @@
                             <div style="grid-column: span 2;">
                                 <label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">婚宴備註
                                     Notes</label>
+                                <textarea id="input-notes" class="form-control-custom editable-field"
+                                    style="min-height: 80px;" placeholder="例如：絕對不想出現的花材..." readonly></textarea>
                                 <textarea id="input-notes" class="form-control-custom editable-field"
                                     style="min-height: 80px;" placeholder="例如：全素桌需求、絕對不想出現的花材..." readonly></textarea>
                             </div>
@@ -1542,6 +1554,19 @@
         // 步驟三：送出方案細節
         // ════════════════════════════════════════
         async function submitBookDetails() {
+
+            const submitBtn = document.querySelector('#phase-3 button[onclick="submitBookDetails()"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+            <svg style="display:inline-block; width:16px; height:16px; vertical-align:middle; margin-right:8px; animation:spin 0.8s linear infinite;"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            </svg>
+            送出中...
+        `;
+            }
+            // 收集所有勾選的服務項目
             // ★ 送出前先確認狀態，直接攔截，不讓 fetch 繼續
             const signed = await checkIfSigned();
             if (signed) {
@@ -1555,6 +1580,9 @@
                 const unitPrice = parseInt(cb.getAttribute('data-price') || 0);
                 if (serviceId) details.push({ service_id: serviceId, unit_price: unitPrice, ceremony_date: null });
             });
+
+            // 加入 A方案基底
+            details.unshift({ service_id: 1, unit_price: 43800, ceremony_date: null });
             details.unshift({ service_id: 1, unit_price: 43800, ceremony_date: null });
 
             try {
@@ -1575,6 +1603,12 @@
             } catch (err) {
                 console.error('送出失敗:', err);
                 alert('連線失敗，請確認後端服務');
+            } finally {
+                // 不管成功失敗都恢復（成功的話已進入 phase-4，但保險起見還是恢復）
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '確認無誤，送出提案';
+                }
             }
         }
 

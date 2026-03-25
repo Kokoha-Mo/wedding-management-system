@@ -64,19 +64,24 @@ document.addEventListener('DOMContentLoaded', () => {
     loadBooks('處理中');
     loadBooks('取消');
 
-});
+    // 🌟 核心修改：即時搜尋監聽
+    const searchInput = document.getElementById('searchQuery');
+    if (searchInput) {
+        let debounceTimer;
+        searchInput.addEventListener('input', () => {
+            // 1. 每打一個字就清除上一個計時器
+            clearTimeout(debounceTimer);
 
-async function loadAllServices() {
-    try {
-        const res  = await fetch(`${API_BASE}/books/services`, { credentials: 'include' });
-        if (!res.ok) return;
-        const list = await res.json();
-        window._serviceMap = {};
-        list.forEach(s => {
-            window._serviceMap[String(s.id)] = { name: s.name, price: s.price || 0 };
+            // 2. 設定一個新的計時器，等 400 毫秒後執行
+            debounceTimer = setTimeout(() => {
+                // 判斷當前在哪個 Tab，就重新載入哪個狀態的資料
+                const currentStatus = document.getElementById('btn-tab-pending').classList.contains('bg-primary') ? '處理中' :
+                    document.getElementById('btn-tab-signed').classList.contains('bg-primary') ? '已簽約' : '取消';
+                loadBooks(currentStatus);
+            }, 400);
         });
-    } catch (e) { /* 靜默失敗 */ }
-}
+    }
+});
 
 // ════════════════════════════════════════
 // 初始化 Sidebar 員工資訊
@@ -197,76 +202,6 @@ function toggleModal(modalID) {
     if (backdrop) backdrop.classList.toggle('hidden');
 }
 
-function openPlanModal(id) {
-    document.getElementById(id).classList.remove('hidden');
-    document.getElementById(id + '-backdrop').classList.remove('hidden');
-}
-
-function closePlanModal(id) {
-    document.getElementById(id).classList.add('hidden');
-    document.getElementById(id + '-backdrop').classList.add('hidden');
-}
-
-// ════════════════════════════════════════
-// 篩選功能
-// ════════════════════════════════════════
-function toggleFilterPanel() {
-    document.getElementById('filter-panel').classList.toggle('hidden');
-}
-
-document.addEventListener('click', function(e) {
-    const panel = document.getElementById('filter-panel');
-    const btn   = document.getElementById('btn-filter');
-    if (!panel || !btn) return;
-    if (!panel.contains(e.target) && !btn.contains(e.target)) {
-        panel.classList.add('hidden');
-    }
-});
-
-const activeFilters = { staff: new Set(), theme: new Set(), guests: new Set() };
-
-function toggleFilter(el, group) {
-    const val = el.dataset.value;
-    if (activeFilters[group].has(val)) {
-        activeFilters[group].delete(val);
-        el.classList.remove('bg-primary', 'text-white', 'border-primary');
-        el.classList.add('text-gray-500', 'border-gray-200');
-    } else {
-        activeFilters[group].add(val);
-        el.classList.add('bg-primary', 'text-white', 'border-primary');
-        el.classList.remove('text-gray-500', 'border-gray-200');
-    }
-    updateFilterDot();
-    applyFilters();
-}
-
-function clearFilters() {
-    ['staff', 'theme', 'guests'].forEach(g => activeFilters[g].clear());
-    document.querySelectorAll('.filter-chip').forEach(el => {
-        el.classList.remove('bg-primary', 'text-white', 'border-primary');
-        el.classList.add('text-gray-500', 'border-gray-200');
-    });
-    updateFilterDot();
-    applyFilters();
-}
-
-function updateFilterDot() {
-    const hasActive = ['staff', 'theme', 'guests'].some(g => activeFilters[g].size > 0);
-    document.getElementById('filter-active-dot').classList.toggle('hidden', !hasActive);
-}
-
-function applyFilters() {
-    document.querySelectorAll('#card-slider > div[data-staff]').forEach(card => {
-        const staff  = card.dataset.staff  || '';
-        const theme  = card.dataset.theme  || '';
-        const guests = parseInt(card.dataset.guests || '0');
-        const bucket = guests < 100 ? 'small' : guests <= 200 ? 'medium' : 'large';
-        const ok = (activeFilters.staff.size  === 0 || activeFilters.staff.has(staff))
-            && (activeFilters.theme.size  === 0 || activeFilters.theme.has(theme))
-            && (activeFilters.guests.size === 0 || activeFilters.guests.has(bucket));
-        card.style.display = ok ? '' : 'none';
-    });
-}
 
 // ════════════════════════════════════════
 // 卡片滑動
@@ -334,10 +269,16 @@ async function loadBooks(status = '處理中') {
     }
     try {
         const managerId = sessionStorage.getItem('empId');
+        const searchInput = document.getElementById('searchQuery');
+        const keyword = searchInput ? searchInput.value.trim() : '';
 
         let url = `${API_BASE}/books?status=${encodeURIComponent(status)}`;
         if (status !== '取消') {
             url += `&managerId=${managerId}`;
+        }
+
+        if (keyword) {
+            url += `&keyword=${encodeURIComponent(keyword)}`;
         }
 
         // --- 1. 發送請求 ---
@@ -958,12 +899,6 @@ async function saveBookDetails() {
 // 渲染：處理中卡片
 // ════════════════════════════════════════
 function renderPendingCards(books) {
-    const kw = getSearchKeyword();
-    if (kw) books = books.filter(b =>
-        (b.customerName || '').toLowerCase().includes(kw) ||
-        (b.tel || '').includes(kw) ||
-        (b.email || '').toLowerCase().includes(kw)
-    );
     const slider = document.getElementById('card-slider');
     slider.innerHTML = '';
 
@@ -1066,20 +1001,11 @@ function renderPendingCards(books) {
         slider.appendChild(card);
     });
 }
-function getSearchKeyword() {
-    return (document.getElementById('search-input')?.value || '').trim().toLowerCase();
-}
 
 // ════════════════════════════════════════
 // 渲染：已簽約 table
 // ════════════════════════════════════════
 function renderSignedTable(books) {
-    const kw = getSearchKeyword();
-    if (kw) books = books.filter(b =>
-        (b.customerName || '').toLowerCase().includes(kw) ||
-        (b.tel || '').includes(kw) ||
-        (b.email || '').toLowerCase().includes(kw)
-    );
     const container = document.getElementById('signed-list');
     container.innerHTML = '';
 
@@ -1111,12 +1037,6 @@ function renderSignedTable(books) {
 // 渲染：取消 table
 // ════════════════════════════════════════
 function renderCancelledTable(books) {
-    const kw = getSearchKeyword();
-    if (kw) books = books.filter(b =>
-        (b.customerName || '').toLowerCase().includes(kw) ||
-        (b.tel || '').includes(kw) ||
-        (b.email || '').toLowerCase().includes(kw)
-    );
     const container = document.getElementById('cancelled-list');
     container.innerHTML = '';
 

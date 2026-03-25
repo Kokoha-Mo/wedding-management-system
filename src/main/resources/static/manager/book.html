@@ -155,57 +155,25 @@
                         </button>
                     </div>
 
-                    <!-- 操作按鈕 -->
-                    <div class="flex items-center gap-2">
-                        <!-- 篩選 -->
-                        <div class="relative">
-                            <button onclick="toggleFilterPanel()" id="btn-filter"
-                                    class="flex items-center px-4 py-2 rounded-lg text-sm font-bold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-primary hover:text-primary transition-all shadow-sm gap-1.5">
-                                <span class="material-icons text-base">tune</span>
-                                篩選
-                                <span id="filter-active-dot" class="hidden w-2 h-2 rounded-full bg-primary ml-0.5"></span>
-                            </button>
+                    <!-- 搜尋 -->
+                    <div class="flex flex-wrap items-center gap-4">
 
-                            <!-- 篩選面板 -->
-                            <div id="filter-panel" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-30 p-4 space-y-4">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="text-xs font-bold text-gray-700 dark:text-gray-300 tracking-wider uppercase">篩選條件</span>
-                                    <button onclick="clearFilters()" class="text-[11px] text-primary hover:underline font-medium">清除全部</button>
-                                </div>
-
-                                <!-- 視覺定調 -->
-                                <div>
-                                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">視覺定調</p>
-                                    <div class="flex flex-wrap gap-1.5" id="filter-theme">
-                                        <button onclick="toggleFilter(this,'theme')" data-value="森林系" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-all">森林系</button>
-                                        <button onclick="toggleFilter(this,'theme')" data-value="美式復古" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-all">美式復古</button>
-                                        <button onclick="toggleFilter(this,'theme')" data-value="西式教堂" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-all">西式教堂</button>
-                                        <button onclick="toggleFilter(this,'theme')" data-value="異國風情" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-all">異國風情</button>
-                                        <button onclick="toggleFilter(this,'theme')" data-value="極簡美學" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-all">極簡美學</button>
-                                        <button onclick="toggleFilter(this,'theme')" data-value="浪漫花園" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-all">浪漫花園</button>
-                                    </div>
-                                </div>
-
-                                <!-- 賓客規模 -->
-                                <div>
-                                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">賓客規模</p>
-                                    <div class="flex flex-wrap gap-1.5" id="filter-guests">
-                                        <button onclick="toggleFilter(this,'guests')" data-value="small" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-all">100人以下</button>
-                                        <button onclick="toggleFilter(this,'guests')" data-value="medium" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-all">100–200人</button>
-                                        <button onclick="toggleFilter(this,'guests')" data-value="large" class="filter-chip px-2.5 py-1 rounded-full text-[11px] font-medium border border-gray-200 text-gray-500 hover:border-primary hover:text-primary transition-all">200人以上</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="relative w-full md:w-80">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <span class="material-icons text-sm">search</span>
+                                </span>
+                            <input id="searchQuery"
+                                   class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                   placeholder="搜尋新人姓名..." type="text" />
                         </div>
 
-                        <!-- 建立客戶資料 -->
                         <button onclick="toggleModal('modal-create-customer')"
-                                class="bg-primary hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-bold transition-all shadow-md flex items-center text-sm gap-1.5">
+                                class="bg-primary hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-bold transition-all shadow-md flex items-center text-sm gap-1.5 whitespace-nowrap">
                             <span class="material-icons text-base">person_add</span>
                             建立客戶資料
                         </button>
                     </div>
-                </div>
+                    </div>
 
                 <!-- ═══════════════════════════════════════
                      Tab: 預約處理中

@@ -89,4 +89,20 @@ public class JwtToken {
         }
     }
 
+    // 取得 Token 建立時的時間，用來處理重設密碼時60秒後才能再送
+    public static Date getIssuedAt(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key) // 這裡的 key 要對應你原本類別裡的 key
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getIssuedAt(); // 抓取當初產生 Token 的時間 (iat)
+        } catch (Exception e) {
+            // 萬一 Token 是壞的、過期的或被竄改過，解析會報錯
+            // 我們回傳「紀元時間 (1970年)」，讓頻率檢查失效，直接讓使用者可以重寄。
+            return new Date(0);
+        }
+    }
+
 }

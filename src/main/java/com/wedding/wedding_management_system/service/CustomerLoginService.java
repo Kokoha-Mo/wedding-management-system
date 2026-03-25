@@ -112,16 +112,32 @@ public class CustomerLoginService {
         customerRepository.save(customer);
     }
 
-    // ── 產生並儲存重設密碼 Token ──
+    // ── 產生並儲存重設密碼 Token（含 60 秒頻率限制） ──
     public String generateAndSaveResetToken(String email) {
         // 1. 確認這信箱是不是我們的客人
         Customer customer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("請完整填寫電子郵件與密碼"));
 
-        // 2. 產生一組專屬 Token
+        // 亮點：頻率限制檢查 (Rate Limiting)
+        // 取得資料庫中現有的 Token
+        String oldToken = customer.getResetToken();
+
+        // 如果舊 Token 存在且還有效，就檢查它的簽發時間
+        if (oldToken != null && JwtToken.isValid(oldToken)) {
+            // 解析 JWT 裡面的 iat (Issued At) 欄位
+            long issuedAt = JwtToken.getIssuedAt(oldToken).getTime();
+            long now = System.currentTimeMillis();
+
+            // 檢查是否小於 60 秒 (60,000 毫秒)
+            if (now - issuedAt < 60 * 1000) {
+                throw new RuntimeException("請求過於頻繁，請於 60 秒後再試");
+            }
+        }
+
+        // 2. 產生成新的專屬 Token
         String token = JwtToken.createResetToken(email);
 
-        // 3. 把 Token 存入該位客人的資料庫欄位中
+        // 3. 把新 Token 存入資料庫，這會覆蓋掉舊的
         customer.setResetToken(token);
         customerRepository.save(customer);
 

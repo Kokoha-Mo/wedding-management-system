@@ -93,6 +93,26 @@ public class EmployeeProfileService {
     }
 
     @Transactional
+    public void updateAvatarUrl(String email, String url) {
+        Employee employee = employeeRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        // 如果原本是本地檔案，則嘗試刪除
+        String oldPathStr = employee.getImgPath();
+        if (oldPathStr != null && !oldPathStr.isEmpty() && !oldPathStr.startsWith("http") && !oldPathStr.contains("smile.jpg")) {
+            try {
+                Path oldPath = Paths.get(oldPathStr);
+                Files.deleteIfExists(oldPath);
+            } catch (Exception e) {
+                System.err.println("刪除舊頭像失敗: " + e.getMessage());
+            }
+        }
+
+        employee.setImgPath(url);
+        employeeRepository.save(employee);
+    }
+
+    @Transactional
     public boolean changePassword(String email, String oldPassword, String newPassword) {
         Employee employee = employeeRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));

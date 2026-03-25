@@ -690,7 +690,7 @@
                         <div
                             style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
                             <div style="display: flex; align-items: center;">
-                                <h3 class="serif" style="margin: 0; font-size: 1.3rem;">新人基本資料</h3>
+                                <h3 class="serif" style="margin: 0; font-size: 24px;">新人基本資料</h3>
                             </div>
                             <span
                                 style="font-size: 10px; color: var(--rose-dark); background: #FDF8F8; padding: 4px 10px; border-radius: 4px; font-weight: bold; letter-spacing: 0.1em;">資料已建檔</span>
@@ -719,7 +719,7 @@
                         <div
                             style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
                             <div style="display: flex; align-items: center;">
-                                <h3 class="serif" style="margin: 0; font-size: 1.3rem;">婚宴資訊與喜好</h3>
+                                <h3 class="serif" style="margin: 0; font-size: 24px;">婚宴資訊與喜好</h3>
                             </div>
                             <div style="display: flex; gap: 8px;">
                                 <button type="button" id="cancelEditBtn" class="edit-info-btn cancel-btn"
@@ -748,7 +748,7 @@
                                     Theme Preference (單選)</label>
                                 <div class="theme-tag-wrap" id="themeTagsContainer">
                                     <label class="theme-tag"><input type="radio" name="weddingTheme"
-                                            class="hidden-chk editable-chk" checked disabled><span>森林系</span></label>
+                                            class="hidden-chk editable-chk" disabled><span>森林系</span></label>
                                     <label class="theme-tag"><input type="radio" name="weddingTheme"
                                             class="hidden-chk editable-chk" disabled><span>美式復古</span></label>
                                     <label class="theme-tag"><input type="radio" name="weddingTheme"
@@ -787,7 +787,7 @@
                                 style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
                                 <div style="flex: 1; min-width: 250px;">
                                     <span class="option-badge" style="background: var(--accent-gold);">必選項目</span>
-                                    <h3 class="serif" style="margin-bottom: 8px; font-size: 1.4rem;">A方案｜婚宴全時統籌</h3>
+                                    <h3 class="serif" style="margin-bottom: 8px; font-size: 1.4rem;">婚宴全時統籌</h3>
                                     <p
                                         style="font-size: 13px; color: var(--text-muted); margin-bottom: 0; line-height: 1.6;">
                                         包含婚禮統籌、期程規劃、宴會場勘執行與資源整合，並於婚禮當日配置專業助理1名，確保流程執行之高品質與高效率。</p>
@@ -809,8 +809,8 @@
                         <div class="interview-box">
                             <div
                                 style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px;">
-                                <h3 class="serif" style="margin: 0;">B方案｜專業婚禮團隊</h3>
-                                <span style="font-size: 11px; color: var(--text-muted);">自由加選</span>
+                                <h3 class="serif" style="margin: 0;">專業婚禮團隊</h3>
+                                <span style="font-size: 11px; color: var(--text-muted);">可自由加選</span>
                             </div>
                             <div class="check-grid">
 
@@ -925,8 +925,8 @@
                         <div class="interview-box">
                             <div
                                 style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px;">
-                                <h3 class="serif" style="margin: 0;">C方案｜儀式規劃執行</h3>
-                                <span style="font-size: 11px; color: var(--text-muted);">自由加選</span>
+                                <h3 class="serif" style="margin: 0;">儀式規劃執行</h3>
+                                <span style="font-size: 11px; color: var(--text-muted);">可自由加選</span>
                             </div>
                             <div class="check-grid">
                                 <label class="check-item"><input type="checkbox" data-service-id="16"
@@ -950,8 +950,8 @@
                         <div class="interview-box">
                             <div
                                 style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px;">
-                                <h3 class="serif" style="margin: 0;">D方案｜婚宴現場客製化布置</h3>
-                                <span style="font-size: 11px; color: var(--text-muted);">多維度自由加選</span>
+                                <h3 class="serif" style="margin: 0;">婚宴現場客製化布置</h3>
+                                <span style="font-size: 11px; color: var(--text-muted);">可自由加選</span>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
 
@@ -1147,13 +1147,14 @@
     </div>
 
     <script>
+        // const API_BASE = '/api/customer';
         const BASE_PRICE = 43800;
         const pageTitles = ['婚禮基本資訊', '方案與細節規劃', '確認並送出提案', '正式報價與簽約'];
 
         //  共用 helper：向後端確認是否已簽約
         async function checkIfSigned() {
             try {
-                const res = await fetch(`${API_BASE}/book`, { credentials: 'include' });
+                const res = await fetch(`/api/customer/book`, { credentials: 'include' });
                 if (!res.ok) return false;
                 const book = await res.json();
                 return book.status === '已簽約';
@@ -1442,14 +1443,14 @@
             window.location.href = './client_login.html';
         }
 
-        const API_BASE = '/api/customer';
+
 
         // ════════════════════════════════════════
         // 頁面載入：讀取預約資料填入步驟一
         // ════════════════════════════════════════
         async function loadMyBook() {
             try {
-                const res = await fetch(`${API_BASE}/book`, { credentials: 'include' });
+                const res = await fetch(`/api/customer/book`, { credentials: 'include' });
                 if (!res.ok) { console.warn('找不到預約資料'); return; }
 
                 const book = await res.json();
@@ -1510,7 +1511,7 @@
             };
 
             try {
-                const res = await fetch(`${API_BASE}/book`, {
+                const res = await fetch(`/api/customer/book`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -1533,7 +1534,7 @@
 
         async function loadMyBookDetails() {
             try {
-                const res = await fetch(`${API_BASE}/book/details`, { credentials: 'include' });
+                const res = await fetch(`/api/customer/book/details`, { credentials: 'include' });
                 if (!res.ok) return;
                 const details = await res.json();
                 details.forEach(detail => {
@@ -1584,7 +1585,7 @@
             details.unshift({ service_id: 1, unit_price: 43800, ceremony_date: null });
 
             try {
-                const res = await fetch(`${API_BASE}/book/details`, {
+                const res = await fetch(`/api/customer/book/details`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',

@@ -1430,6 +1430,9 @@
                                     wedding_date: '', guest_scale: '50人以下',
                                     services: [], styles: [], additional_notes: ''
                                 });
+                            } else {
+                                // 🌟 新增：後端檢查失敗（例如信箱網域不存在）
+                                triggerModal(true, 'WARNING', '資料有誤', response.data.message);
                             }
                         })
                         .catch(error => {

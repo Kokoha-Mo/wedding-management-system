@@ -5,7 +5,11 @@ import com.wedding.wedding_management_system.entity.Consultation;
 import com.wedding.wedding_management_system.entity.Employee;
 import com.wedding.wedding_management_system.repository.EmployeeRepository;
 import com.wedding.wedding_management_system.service.ConsultationService;
+import com.wedding.wedding_management_system.service.EmailValidationService;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,6 +29,10 @@ public class ConsultationController {
 
     // 🌟 新增：注入 EmployeeRepository 來查詢員工資料
     private final EmployeeRepository employeeRepository;
+
+    // 🌟 新增：注入 EmailValidationService 來驗證 Email 網域
+    @Autowired
+    private EmailValidationService emailValidationService;
 
     /**
      * 獲取所有諮詢單列表 (供 櫃台人員 諮詢單管理 使用)
@@ -85,6 +93,14 @@ public class ConsultationController {
 
         // 準備一個 Map 來包裝回傳給前端的 JSON 格式
         Map<String, Object> response = new HashMap<>();
+
+        // 🌟 攔截並檢查信箱 MX 紀錄
+        if (!emailValidationService.isDomainValid(requestDTO.getEmail())) {
+            response.put("success", false);
+            response.put("message", "您輸入的信箱有誤或無法收信，請檢查是否拼寫錯誤！（例如 @gamil.com）");
+            return ResponseEntity.ok(response); 
+            // 注意：這裡回傳 HTTP 200 (ok)，把錯誤交給前端的 if (response.data.success) 去判斷
+        }
 
         try {
             // 將前端傳來的 JSON (已轉成 DTO) 交給 Service 處理

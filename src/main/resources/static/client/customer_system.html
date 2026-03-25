@@ -280,7 +280,7 @@
             width: 22px;
             height: 22px;
             border: 2px solid var(--border-grey);
-            border-radius: 50%;
+            border-radius: 6px;
             margin-right: 12px;
             background-color: white;
             transition: all 0.3s;
@@ -1041,8 +1041,7 @@
                                 <h3 class="serif" style="margin: 0; font-size: 1.2rem;">預估專案總額</h3>
                                 <p
                                     style="font-size: 11px; color: var(--text-muted); margin-bottom: 0; margin-top: 5px;">
-                                    包含
-                                    婚宴全程統籌方案基底費用與您目前勾選的加值服務</p>
+                                    包含 婚宴全程統籌方案基底費用 與您目前勾選的加值服務</p>
                             </div>
                             <div style="text-align: right;">
                                 <div id="realtime-total-display"
@@ -1456,10 +1455,7 @@
 
         function submitProposal() { changeStep(1); }
 
-        if (!localStorage.getItem('dv_username')) {
-            alert('請先登入會員');
-            window.location.href = './client_login.html';
-        }
+
 
 
 
@@ -1600,7 +1596,7 @@
 
             // 加入 A方案基底
             details.unshift({ service_id: 1, unit_price: 43800, ceremony_date: null });
-            details.unshift({ service_id: 1, unit_price: 43800, ceremony_date: null });
+            details.unshift({ service_id: 2, unit_price: 0, ceremony_date: null });
 
             try {
                 const res = await fetch(`/api/customer/book/details`, {
@@ -1633,6 +1629,10 @@
         // 初始化
         // ════════════════════════════════════════
         document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('dv_username')) {
+                alert('請先登入會員');
+                window.location.href = './client_login.html';
+            }
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('input-wedding-date').min = today;
             loadMyBook();

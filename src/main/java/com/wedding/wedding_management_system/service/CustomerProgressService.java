@@ -227,6 +227,15 @@ public class CustomerProgressService {
         List<ProjectTask> allTasks = projectTaskRepository.findByProjectId(projectId);
         List<ProjectProgressDTO.PhaseDTO> phases = new java.util.ArrayList<>();
 
+        // 🌟 核心修改 1：取得專案建檔日 (簽約日)，用來當作預設任務的完成日期
+        String projectCreateDateStr = "";
+        if (project.getCreateAt() != null) {
+            projectCreateDateStr = project.getCreateAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        } else {
+            // 防呆：如果舊資料沒有 createAt，就用今天當作基準
+            projectCreateDateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        }
+
         // --- Phase 1: 初步規劃 (假設專案成立即完成) ---
         ProjectProgressDTO.PhaseDTO p1 = new ProjectProgressDTO.PhaseDTO();
         p1.setId(1);
@@ -234,13 +243,18 @@ public class CustomerProgressService {
         p1.setStatus("completed");
         List<ProjectProgressDTO.TaskItemDTO> p1Tasks = new java.util.ArrayList<>();
         ProjectProgressDTO.TaskItemDTO t1 = new ProjectProgressDTO.TaskItemDTO();
+
         t1.setId(101);
         t1.setName("婚宴資訊確認");
         t1.setDone(true);
+        t1.setCompletedDate(projectCreateDateStr); // 🌟 綁定簽約日
+
         ProjectProgressDTO.TaskItemDTO t2 = new ProjectProgressDTO.TaskItemDTO();
         t2.setId(102);
         t2.setName("專屬顧問指派");
         t2.setDone(true);
+        t2.setCompletedDate(projectCreateDateStr); // 🌟 綁定簽約日
+
         p1Tasks.add(t1);
         p1Tasks.add(t2);
         p1.setTasks(p1Tasks);
@@ -291,6 +305,12 @@ public class CustomerProgressService {
 
                 boolean isDone = "已完成".equals(pt.getStatus());
                 taskDto.setDone(isDone);
+
+                // 🌟 核心修改 2：如果任務已完成，抓取資料庫的最後更新時間 (updateAt) 作為完成日期
+                if (isDone && pt.getUpdateAt() != null) {
+                    taskDto.setCompletedDate(pt.getUpdateAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+                }
+
                 if (isDone)
                     completedTasks++;
 

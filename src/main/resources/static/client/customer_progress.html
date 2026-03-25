@@ -1185,29 +1185,36 @@
                             </div>
                         </div>
 
-                        <div style="background: rgba(197, 160, 89, 0.05); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; border: 1px solid rgba(197, 160, 89, 0.1);">
-                            <div style="font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+                        <div
+                            style="background: rgba(197, 160, 89, 0.05); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; border: 1px solid rgba(197, 160, 89, 0.1);">
+                            <div
+                                style="font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
                                 距離大囍之日
                             </div>
-                            
+
                             <template v-if="daysLeft !== '?' && daysLeft > 0">
                                 <div class="d-flex align-items-baseline justify-content-center gap-1">
-                                    <span style="font-family: var(--font-serif); font-size: 2.2rem; color: var(--text-main); line-height: 1;">{{ daysLeft }}</span>
+                                    <span
+                                        style="font-family: var(--font-serif); font-size: 2.2rem; color: var(--text-main); line-height: 1;">{{
+                                        daysLeft }}</span>
                                     <span style="font-size: 13px; color: var(--text-main); font-weight: 500;">天</span>
                                 </div>
-                                <div style="font-size: 12px; color: var(--accent-gold); margin-top: 8px; font-weight: 500; letter-spacing: 0.05em;">
+                                <div
+                                    style="font-size: 12px; color: var(--accent-gold); margin-top: 8px; font-weight: 500; letter-spacing: 0.05em;">
                                     {{ motivationText }}
                                 </div>
                             </template>
-                            
+
                             <template v-else-if="daysLeft === 0">
-                                <div style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--accent-gold); letter-spacing: 0.1em; margin-top: 8px;">
+                                <div
+                                    style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--accent-gold); letter-spacing: 0.1em; margin-top: 8px;">
                                     {{ motivationText }} 🎉
                                 </div>
                             </template>
 
                             <template v-else>
-                                <div style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--text-muted); letter-spacing: 0.1em; margin-top: 8px;">
+                                <div
+                                    style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--text-muted); letter-spacing: 0.1em; margin-top: 8px;">
                                     {{ motivationText }}
                                 </div>
                             </template>
@@ -1351,10 +1358,19 @@
                                             </div>
                                             <ul class="task-list">
                                                 <li v-for="task in data.phases[0].tasks" :key="task.id"
-                                                    :class="task.done ? 'task-done' : 'task-pending'">
-                                                    <span class="material-symbols-outlined">{{ task.done ?
-                                                        'check_circle' : 'radio_button_unchecked' }}</span>
-                                                    {{ task.name }}
+                                                    :class="task.done ? 'task-done' : 'task-pending'"
+                                                    style="justify-content: space-between;">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="material-symbols-outlined">{{ task.done ?
+                                                            'check_circle' : 'radio_button_unchecked' }}</span>
+                                                        <span>{{ task.name }}</span>
+                                                    </div>
+                                                    <span v-if="task.done && task.completedDate"
+                                                        style="color: #bbb; font-size: 11px; letter-spacing: 0.05em; font-family: var(--font-sans);">
+                                                        <span
+                                                            style="font-size: 12px; opacity: 0.8; margin-right: 6px; letter-spacing: 0.1em;">完成日期</span>{{
+                                                        task.completedDate }}
+                                                    </span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -1400,10 +1416,19 @@
                                             </div>
                                             <ul class="task-list">
                                                 <li v-for="task in cat.tasks" :key="task.id"
-                                                    :class="task.isDone ? 'task-done' : 'task-pending'">
-                                                    <span class="material-symbols-outlined">{{ task.isDone ?
-                                                        'check_circle' : 'radio_button_unchecked' }}</span>
-                                                    {{ task.name }}
+                                                    :class="task.isDone ? 'task-done' : 'task-pending'"
+                                                    style="justify-content: space-between;">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="material-symbols-outlined">{{ task.isDone ?
+                                                            'check_circle' : 'radio_button_unchecked' }}</span>
+                                                        <span>{{ task.name }}</span>
+                                                    </div>
+                                                    <span v-if="task.isDone && task.completedDate"
+                                                        style="color: #bbb; font-size: 11px; letter-spacing: 0.05em; font-family: var(--font-sans);">
+                                                        <span
+                                                            style="font-size: 12px; opacity: 0.8; margin-right: 6px; letter-spacing: 0.1em;">完成日期</span>{{
+                                                        task.completedDate }}
+                                                    </span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -1702,7 +1727,6 @@
                     if (days === 0) return '就是今天！祝你們新婚快樂！';
                     if (days <= 30) return '最後衝刺期，深呼吸，我們準備好了！';
                     if (days <= 90) return '籌備進入白熱化，繼續保持好進度！';
-                    return '好的開始是成功的一半，跟著顧問慢慢來！';
                 });
 
                 // 留言板陣列資料 (先清空，等 API 塞進來)

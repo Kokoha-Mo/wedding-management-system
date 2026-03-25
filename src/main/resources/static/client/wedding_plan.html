@@ -555,7 +555,7 @@
                         </div>
                         <div class="addon-card-bottom">
                             <p class="addon-price">NT$ 16,800 <span>起</span></p>
-                            <button type="button" class="addon-btn" data-price="16800">點擊加購</button>
+                            <button type="button" class="addon-btn" data-price="16800" data-name="專業婚禮團隊">點擊加購</button>
                         </div>
                     </div>
 
@@ -577,7 +577,7 @@
                         </div>
                         <div class="addon-card-bottom">
                             <p class="addon-price">NT$ 15,800 <span>起</span></p>
-                            <button type="button" class="addon-btn" data-price="15800">點擊加購</button>
+                            <button type="button" class="addon-btn" data-price="15800" data-name="儀式規劃執行">點擊加購</button>
                         </div>
                     </div>
 
@@ -599,7 +599,7 @@
                         </div>
                         <div class="addon-card-bottom">
                             <p class="addon-price">NT$ 15,000 <span>起</span></p>
-                            <button type="button" class="addon-btn" data-price="15000">點擊加購</button>
+                            <button type="button" class="addon-btn" data-price="15000" data-name="客製化視覺佈置">點擊加購</button>
                         </div>
                     </div>
 
@@ -729,6 +729,36 @@
                 });
             }
         });
+
+        // 🌟 處理「預約諮詢此方案」的跳轉邏輯
+            const bookPlanBtn = document.querySelector('.btn-reserve'); // 請替換成你實際的按鈕 class 或 id
+            if (bookPlanBtn) {
+                bookPlanBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // 先阻止預設的跳轉行為
+                    
+                    // 1. 收集所有有 .selected 的加購按鈕的 data-name
+                    const selectedServices = [];
+                    document.querySelectorAll('.addon-btn.selected').forEach(btn => {
+                        const serviceName = btn.dataset.name;
+                        if (serviceName) {
+                            selectedServices.push(serviceName);
+                        }
+                    });
+
+                    // 2. 準備要跳轉的基礎網址
+                    let targetUrl = './wedding_contact.html';
+
+                    // 3. 如果有選項目，就把陣列轉成字串並附在網址後面
+                    if (selectedServices.length > 0) {
+                        // 使用 encodeURIComponent 確保中文字被安全地轉換
+                        targetUrl += '?services=' + encodeURIComponent(selectedServices.join(','));
+                    }
+
+                    // 4. 正式跳轉！
+                    window.location.href = targetUrl;
+                });
+            }
+        
     </script>
 </body>
 

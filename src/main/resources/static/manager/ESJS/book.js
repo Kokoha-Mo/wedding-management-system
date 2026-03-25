@@ -958,6 +958,12 @@ async function saveBookDetails() {
 // 渲染：處理中卡片
 // ════════════════════════════════════════
 function renderPendingCards(books) {
+    const kw = getSearchKeyword();
+    if (kw) books = books.filter(b =>
+        (b.customerName || '').toLowerCase().includes(kw) ||
+        (b.tel || '').includes(kw) ||
+        (b.email || '').toLowerCase().includes(kw)
+    );
     const slider = document.getElementById('card-slider');
     slider.innerHTML = '';
 
@@ -965,6 +971,14 @@ function renderPendingCards(books) {
         slider.innerHTML = `<p class="text-gray-400 text-sm py-4">目前沒有處理中的預約</p>`;
         return;
     }
+    // 統計每個婚期日期出現次數（2組以上標記衝突）
+    const dateCounts = {};
+    books.forEach(b => {
+        if (b.weddingDate) {
+            const d = String(b.weddingDate).split('T')[0];
+            dateCounts[d] = (dateCounts[d] || 0) + 1;
+        }
+    });
 
     books.forEach(book => {
         const bookId = book.bookId;  // ← 先抽出來避免 template literal 問題
@@ -1052,11 +1066,20 @@ function renderPendingCards(books) {
         slider.appendChild(card);
     });
 }
+function getSearchKeyword() {
+    return (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+}
 
 // ════════════════════════════════════════
 // 渲染：已簽約 table
 // ════════════════════════════════════════
 function renderSignedTable(books) {
+    const kw = getSearchKeyword();
+    if (kw) books = books.filter(b =>
+        (b.customerName || '').toLowerCase().includes(kw) ||
+        (b.tel || '').includes(kw) ||
+        (b.email || '').toLowerCase().includes(kw)
+    );
     const container = document.getElementById('signed-list');
     container.innerHTML = '';
 
@@ -1088,6 +1111,12 @@ function renderSignedTable(books) {
 // 渲染：取消 table
 // ════════════════════════════════════════
 function renderCancelledTable(books) {
+    const kw = getSearchKeyword();
+    if (kw) books = books.filter(b =>
+        (b.customerName || '').toLowerCase().includes(kw) ||
+        (b.tel || '').includes(kw) ||
+        (b.email || '').toLowerCase().includes(kw)
+    );
     const container = document.getElementById('cancelled-list');
     container.innerHTML = '';
 

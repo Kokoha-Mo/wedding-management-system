@@ -31,6 +31,26 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--accent-gold);
             position: relative;
+
+            opacity: 0; /* 初始狀態隱藏 */
+            animation: boxFadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; /* 呼叫進場動畫 */
+            transition: transform 0.4s ease, box-shadow 0.4s ease; /* 讓懸停效果更平滑 */
+        }
+
+        .main-package-card:hover{
+            transform: translateY(-4px); /* 輕微往上浮動 */
+            box-shadow: 0 12px 35px rgba(194, 142, 142, 0.08); /* 陰影加深，帶入你的主題色 */
+        }
+
+        @keyframes boxFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .ribbon {

@@ -208,6 +208,25 @@
             margin-bottom: 30px;
             border: 1px solid var(--border-grey);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.02);
+
+            opacity: 0; /* 初始狀態隱藏 */
+            animation: boxFadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; /* 呼叫進場動畫 */
+            transition: transform 0.4s ease, box-shadow 0.4s ease; /* 讓懸停效果更平滑 */
+        }
+        .interview-box:hover {
+            transform: translateY(-4px); /* 輕微往上浮動 */
+            box-shadow: 0 12px 35px rgba(194, 142, 142, 0.08); /* 陰影加深，帶入你的主題色 */
+        }
+
+        @keyframes boxFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .check-grid {

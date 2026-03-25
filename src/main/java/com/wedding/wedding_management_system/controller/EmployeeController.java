@@ -54,6 +54,23 @@ public class EmployeeController {
         }
     }
 
+    @PutMapping("/profile/avatar-url")
+    public ResponseEntity<Map<String, String>> updateAvatarByUrl(Principal principal,
+            @RequestBody Map<String, String> payload) {
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        String url = payload.get("path");
+        if (url == null || url.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "無效的網址"));
+        }
+        try {
+            employeeProfileService.updateAvatarUrl(principal.getName(), url);
+            return ResponseEntity.ok(Map.of("message", "頭像連結已更新"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "更新失敗"));
+        }
+    }
+
     @PutMapping("/profile/password")
     public ResponseEntity<Map<String, String>> changePassword(Principal principal,
             @RequestBody Map<String, String> passwords) {

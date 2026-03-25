@@ -1,4 +1,4 @@
-const API_BASE = '/api/manager';
+const API_BASE = '/api/employee';
 
 // ════════════════════════════════════════
 // Alert / Confirm Modal 函式

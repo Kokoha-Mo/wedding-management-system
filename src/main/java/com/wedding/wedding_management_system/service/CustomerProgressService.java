@@ -320,36 +320,28 @@ public class CustomerProgressService {
         dto.setPhases(phases);
 
         // ==========================================
-        // 🌟 修改區塊：計算圓環進度條百分比 (依據婚期時間倒數)
+        // 🌟 修改區塊：計算圓環進度條百分比 (依據任務完成度計算)
         // ==========================================
         int calculatedProgress = 0;
 
-        // 確保有 Book (包含婚期) 以及專案的建立時間
-        if (book != null && book.getWeddingDate() != null && project.getCreateAt() != null) {
-            LocalDate startDate = project.getCreateAt().toLocalDate(); // 起點：專案成立日
-            LocalDate weddingDate = book.getWeddingDate(); // 終點：大囍之日
-            LocalDate today = LocalDate.now(); // 現在：今天
+        int totalTasksCount = projectTaskRepository.countByProjectId(projectId);
+        int completedTasksCount = projectTaskRepository.countByProjectIdAndStatus(projectId, "已完成");
 
-            // 1. 如果今天已經超過或剛好是婚期，進度直接圓滿 100%
-            if (today.isAfter(weddingDate) || today.isEqual(weddingDate)) {
-                calculatedProgress = 100;
-            }
-            // 2. 邏輯防呆：如果今天比成立日還早 (通常不可能發生)，進度 0%
-            else if (today.isBefore(startDate)) {
-                calculatedProgress = 0;
-            }
-            // 3. 正常計算比例
-            else {
-                long totalDays = ChronoUnit.DAYS.between(startDate, weddingDate); // 總共要籌備幾天
-                long passedDays = ChronoUnit.DAYS.between(startDate, today); // 已經過了幾天
+        // 🌟 將 Phase 1 預設完成的 2 個任務納入計算基礎
+        int defaultTasks = 2;
 
-                if (totalDays > 0) {
-                    calculatedProgress = (int) (((double) passedDays / totalDays) * 100);
-                }
-            }
+        if (totalTasksCount > 0) {
+            // 分母：實際總任務數 = DB撈出的任務 + 預設的2個任務
+            int realTotalTasks = totalTasksCount + defaultTasks;
+            // 分子：實際完成數 = DB完成的任務 + 預設的2個任務
+            int realCompletedTasks = completedTasksCount + defaultTasks;
+
+            // 計算真實比例
+            calculatedProgress = (int) (((double) realCompletedTasks / realTotalTasks) * 100);
         } else {
-            // 如果缺乏完整的日期資料，給個預設值 5% 讓畫面不至於空空的
-            calculatedProgress = 5;
+            // 如果專案剛成立，DB 裡還沒有 PM 建立的籌備任務，給定一個「基礎起始進度」(10%)。
+            // 這在 UX 體驗上代表：「初步規劃已完成，專案已啟動，正在等待顧問排程」
+            calculatedProgress = 10;
         }
 
         // 🌟 防呆：確保算出來的數字絕對落在 0 ~ 100 之間，以免前端 SVG 圓環爆掉

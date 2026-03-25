@@ -1166,30 +1166,51 @@
                                     stroke="#C5A059" stroke-width="8" stroke-dasharray="753.6"
                                     :stroke-dashoffset="dashOffset" stroke-linecap="round"></circle>
                             </svg>
-                            <div class="position-absolute top-50 start-50 translate-middle w-100">
-
-                                <template v-if="data.countdownDays > 0">
-                                    <div class="countdown-number">{{ data.countdownDays }}</div>
-                                    <div style="font-size: 14px; letter-spacing: 0.15em; color: var(--text-muted);">
-                                        DAYS TO GO
-                                    </div>
-                                </template>
-
-                                <template v-else-if="data.countdownDays === 0">
-                                    <div
-                                        style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-gold); letter-spacing: 0.1em; font-weight: 400; line-height: 1.2;">
-                                        載入中
-                                    </div>
-                                </template>
-
-                                <template v-else>
-                                    <div
-                                        style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-gold); letter-spacing: 0.1em; font-weight: 400; line-height: 1.2;">
-                                        圓滿完成
-                                    </div>
-                                </template>
-
+                            <div
+                                class="position-absolute top-50 start-50 translate-middle w-100 d-flex flex-column align-items-center">
+                                <div style="position: relative; display: inline-block; line-height: 1;">
+                                    <span
+                                        style="font-family: var(--font-serif); font-size: 3.2rem; color: var(--accent-gold); font-weight: 300;">
+                                        {{ data.progressPercent }}
+                                    </span>
+                                    <span
+                                        style="position: absolute; bottom: 8px; right: -20px; font-size: 1.1rem; color: var(--accent-gold); font-weight: 400;">
+                                        %
+                                    </span>
+                                </div>
+                                <div
+                                    style="font-size: 11px; letter-spacing: 0.15em; color: var(--text-muted); margin-top: 8px;">
+                                    籌備達成度
+                                </div>
                             </div>
+                        </div>
+
+                        <div style="background: rgba(197, 160, 89, 0.05); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; border: 1px solid rgba(197, 160, 89, 0.1);">
+                            <div style="font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+                                距離大囍之日
+                            </div>
+                            
+                            <template v-if="daysLeft !== '?' && daysLeft > 0">
+                                <div class="d-flex align-items-baseline justify-content-center gap-1">
+                                    <span style="font-family: var(--font-serif); font-size: 2.2rem; color: var(--text-main); line-height: 1;">{{ daysLeft }}</span>
+                                    <span style="font-size: 13px; color: var(--text-main); font-weight: 500;">天</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--accent-gold); margin-top: 8px; font-weight: 500; letter-spacing: 0.05em;">
+                                    {{ motivationText }}
+                                </div>
+                            </template>
+                            
+                            <template v-else-if="daysLeft === 0">
+                                <div style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--accent-gold); letter-spacing: 0.1em; margin-top: 8px;">
+                                    {{ motivationText }} 🎉
+                                </div>
+                            </template>
+
+                            <template v-else>
+                                <div style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--text-muted); letter-spacing: 0.1em; margin-top: 8px;">
+                                    {{ motivationText }}
+                                </div>
+                            </template>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -1241,6 +1262,7 @@
                                 <span style="font-weight: 500;">繳款期限說明</span>
                             </div>
                             <div style="padding-left: 18px; line-height: 1.6; letter-spacing: 0.05em;">
+                                訂金：簽約時完成付款<br>
                                 期中款：婚期前 3 個月<br>
                                 尾款：婚期前 14 天
                             </div>
@@ -1642,7 +1664,7 @@
             setup() {
                 const isSubmitting = ref(false);
 
-                // 完整保留 UI 假資料框架
+                // 核心資料物件，包含專案進度、付款狀態、文件列表等，初始值先放空或預設文字，等 API 回來再更新
                 const data = reactive({
                     countdownDays: 0,
                     weddingDate: '載入中...',
@@ -1652,6 +1674,35 @@
                     payments: [],
                     documents: [],
                     phases: []
+                });
+
+                // ── 放在 setup() 內 ──
+
+                // 計算距離婚期還有幾天
+                const daysLeft = computed(() => {
+                    // 防呆：如果 API 還沒回來，或是專案剛成立尚未安排婚期
+                    if (!data.weddingDate || data.weddingDate === '載入中...' || data.weddingDate === '籌備準備中') {
+                        return '?';
+                    }
+
+                    const today = new Date();
+                    // 替換小細節：將 YYYY.MM.DD 轉回 YYYY/MM/DD 以確保跨瀏覽器相容性
+                    const wDate = new Date(data.weddingDate.replace(/\./g, '/'));
+
+                    const diffTime = wDate.getTime() - today.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    return diffDays > 0 ? diffDays : 0;
+                });
+
+                // 動態產生激勵文案
+                const motivationText = computed(() => {
+                    const days = daysLeft.value;
+                    if (days === '?') return '排程確認中...';
+                    if (days === 0) return '就是今天！祝你們新婚快樂！';
+                    if (days <= 30) return '最後衝刺期，深呼吸，我們準備好了！';
+                    if (days <= 90) return '籌備進入白熱化，繼續保持好進度！';
+                    return '好的開始是成功的一半，跟著顧問慢慢來！';
                 });
 
                 // 留言板陣列資料 (先清空，等 API 塞進來)
@@ -1755,12 +1806,6 @@
                             if (realData.weddingDate) {
                                 // 把 "2026-10-24" 換成 "2026.10.24" 符合版面美學
                                 data.weddingDate = realData.weddingDate.replace(/-/g, '.');
-
-                                // 計算倒數天數 (順便幫你加了防呆：如果婚期已經過了，就顯示 0)
-                                const today = new Date();
-                                const wedding = new Date(realData.weddingDate);
-                                const diffTime = wedding.getTime() - today.getTime();
-                                data.countdownDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                             }
 
                             // 2. 更新留言板
@@ -1953,7 +1998,7 @@
 
                     // 🌟 新增防護：如果尚未登入，直接中斷執行，不要去打 API！
                     if (!localStorage.getItem('dv_username')) {
-                        return; 
+                        return;
                     }
 
                     // 接著去向後端要資料
@@ -1977,7 +2022,9 @@
                     handleFileUpload, removeSelectedFile,
                     isPhaseCompleted, isSubmitting,
                     latestDocument, otherDocuments,
-                    previewImageUrl, openImagePreview, closeImagePreview
+                    previewImageUrl, openImagePreview, closeImagePreview,
+                    daysLeft,
+                    motivationText
                 }
             }
         }).mount('#app');

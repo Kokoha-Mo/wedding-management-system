@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>DREAM VENUES - 精選合作夥伴</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="./global.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400;500&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <script src="./global.js"></script>
+    <script src="./login.js"></script>
+
+    <style>
+        .content-wrap {
+            max-width: 1520px;
+            margin: 0 auto;
+            display: flex;
+            align-items: flex-start;
+            padding: 0 40px 120px;
+        }
+
+        @media (max-width: 991.98px) {
+            .content-wrap {
+                flex-direction: column;
+                padding: 0 20px 80px;
+            }
+        }
+
+        .sidebar {
+            width: 180px;
+            flex-shrink: 0;
+            padding-top: 35px;
+            position: sticky;
+            top: 96px;
+            max-height: calc(100vh - 96px);
+            overflow-y: auto;
+        }
+
+        @media (max-width: 991.98px) {
+            .sidebar {
+                display: none;
+            }
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: #C5A059;
+            font-weight: 500;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-grey);
+            margin-bottom: 8px;
+        }
+
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 14px 0;
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(240, 240, 240, 0.6);
+            cursor: pointer;
+            transition: color 0.25s;
+            text-align: left;
+        }
+
+        .filter-btn:hover {
+            color: var(--text-main);
+        }
+
+        .filter-btn.active {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .filter-btn.active .filter-dot {
+            background: var(--accent-gold);
+        }
+
+        .filter-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: transparent;
+            transition: background 0.25s;
+            flex-shrink: 0;
+        }
+
+        .mobile-filter-bar {
+            display: none;
+        }
+
+        @media (max-width: 991.98px) {
+            .mobile-filter-bar {
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 6px;
+                padding: 16px 12px;
+                background: faf7f2;
+                width: 100%;
+                box-sizing: border-box;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .mobile-filter-bar::-webkit-scrollbar {
+                display: none;
+            }
+
+            .mobile-filter-bar .mobile-filter-chip {
+                flex: 1;
+                text-align: center;
+                padding: 8px 4px;
+            }
+        }
+
+        .mobile-filter-chip {
+            flex-shrink: 0;
+            border: 1px solid var(--border-grey);
+            background: white;
+            padding: 8px 20px;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+
+        .mobile-filter-chip.active {
+            border-color: var(--accent-gold);
+            color: var(--text-main);
+            background: rgba(197, 160, 89, 0.06);
+        }
+
+        .grid-area {
+            flex: 1;
+            padding-left: 56px;
+            padding-top: 35px;
+        }
+
+        @media (max-width: 991.98px) {
+            .grid-area {
+                padding-left: 0;
+                padding-top: 24px;
+            }
+        }
+
+        .category-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            position: relative;
+        }
+
+        /* 底部漸層線 */
+        .category-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, rgba(197, 160, 89, 0.6) 0%, rgba(197, 160, 89, 0.15) 40%, transparent 100%);
+        }
+
+        /* 左側豎線 */
+        .category-header-left {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .category-accent-bar {
+            width: 3px;
+            height: 48px;
+            background: linear-gradient(to bottom, var(--accent-gold), rgba(197, 160, 89, 0.2));
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .category-label {
+            font-size: 9px;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .category-title {
+            font-family: var(--font-serif);
+            font-size: 28px;
+            font-weight: 300;
+        }
+
+        .result-count {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .category-divider {
+            border: none;
+            border-top: 1px solid var(--border-grey);
+            margin: 72px 0;
+        }
+
+        .partner-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+        }
+
+        @media (max-width: 1199.98px) {
+            .partner-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .partner-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .partner-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .partner-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .partner-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-img-wrap {
+            position: relative;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            background: var(--border-grey);
+        }
+
+        .card-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: saturate(0.92) contrast(0.97);
+        }
+
+        .partner-card:hover .card-img-wrap img {
+            transform: scale(1.06);
+        }
+
+        /* ── 遮罩調淡：opacity 降低，漸層範圍縮小 ── */
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.32) 0%, transparent 48%);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 0 16px 16px;
+            transition: background 0.5s;
+        }
+
+        .partner-card:hover .card-overlay {
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.46) 0%, transparent 56%);
+        }
+
+        .card-overlay-name {
+            font-family: var(--font-serif);
+            font-size: 15px;
+            color: white;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            line-height: 1.3;
+        }
+
+        .overlay-btn {
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(6px);
+            color: white;
+            font-size: 9px;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            padding: 10px 18px;
+            transition: background 0.3s, opacity 0.3s;
+            white-space: nowrap;
+            opacity: 0;
+            flex-shrink: 0;
+        }
+
+        .partner-card:hover .overlay-btn {
+            opacity: 1;
+        }
+
+        .overlay-btn:hover {
+            background: white;
+            color: var(--text-main);
+        }
+
+        .card-body {
+            padding: 20px 4px 0;
+        }
+
+        .card-tag {
+            font-size: 9px;
+            letter-spacing: 0.3em;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .card-name {
+            font-family: var(--font-serif);
+            font-size: 17px;
+            font-weight: 400;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 12px;
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-meta-item .material-symbols-outlined {
+            font-size: 13px;
+        }
+
+        .card-line {
+            height: 1px;
+            width: 20px;
+            background: var(--border-grey);
+            margin-top: 14px;
+            transition: width 0.6s, background 0.6s;
+        }
+
+        .partner-card:hover .card-line {
+            width: 48px;
+            background: var(--accent-gold);
+        }
+
+        .category-section {
+            display: none;
+        }
+
+        .category-section.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ─── 導覽列 ─── -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid" style="max-width:1600px; margin:0 auto;">
+            <a class="navbar-brand" href="./index.html">
+                <span class="brand-name">DREAM VENUES</span>
+                <span class="brand-sub">High-End Wedding Journal</span>
+            </a>
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#navMenu"
+                aria-controls="navMenu" aria-label="開啟選單">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenuDesktop">
+                <ul class="navbar-nav ms-lg-4 gap-lg-1">
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">婚禮團隊</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
+                </ul>
+                <div class="navbar-tools d-none d-lg-flex align-items-center gap-3 ms-auto">
+
+                    <div class="nav-item dropdown" id="userDropdownWrap" style="display:none;">
+                        <a class="nav-link nav-link-item" href="#" id="userDropdownBtn" data-bs-toggle="dropdown">歡迎</a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="./customer_system.html">我的婚禮規劃</a></li>
+                            <li><a class="dropdown-item" href="./customer_progress.html">我的籌備進度</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
+                        </ul>
+                    </div>
+                    <a class="nav-link nav-link-item" href="client_login.html" id="loginLinkDesktop">會員登入</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ─── 手機版 Offcanvas ─── -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="navMenu">
+        <div class="offcanvas-header">
+            <a class="navbar-brand" href="./index.html">
+                <span class="brand-name" style="font-size:14px;">DREAM VENUES</span>
+                <span class="brand-sub">High-End Wedding Journal</span>
+            </a>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="關閉"></button>
+        </div>
+        <div class="offcanvas-body">
+
+            <div id="mobileUserMenu"
+                style="padding-bottom:12px; margin-bottom:4px; border-bottom:1px solid rgba(197,160,89,0.15);">
+                <p id="mobileWelcome"
+                    style="font-size:15px; letter-spacing:0.12em; color:var(--accent-gold); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                </p>
+                <a href="./customer_system.html" class="nav-link nav-link-item"
+                    style="padding:10px 0; display:block;">我的婚禮規劃</a>
+                <a href="./customer_progress.html" class="nav-link nav-link-item"
+                    style="padding:10px 0; display:block;">我的籌備進度</a>
+            </div>
+
+            <ul class="navbar-nav gap-0">
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">專業團隊</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
+            </ul>
+
+            <a href="./client_login.html" class="offcanvas-login" id="loginLinkMobile">
+                <span class="material-symbols-outlined"
+                    style="font-size:16px; vertical-align:middle; margin-right:6px;">person</span>
+                會員登入
+            </a>
+
+            <a href="#" id="logoutBtnMobile" class="nav-link nav-link-item"
+                style="padding:14px 0; display:none; letter-spacing:0.08em;">
+                <span class="material-symbols-outlined"
+                    style="font-size:16px; vertical-align:middle; margin-right:6px;">logout</span>
+                登出
+            </a>
+        </div>
+    </div>
+
+    <div class="page-wrap">
+        <div class="page-hero has-bg">
+            <p class="page-hero-eyebrow">Elite Partners</p>
+            <h1 class="page-hero-title">精選合作夥伴</h1>
+            <div class="page-hero-line"></div>
+            <p class="page-hero-sub">嚴選最具美學影響力的合作夥伴，共同定義高品質的婚禮標竿。</p>
+        </div>
+
+        <div class="mobile-filter-bar" id="mobileFilterBar"></div>
+
+        <div class="content-wrap">
+            <aside class="sidebar">
+                <p class="sidebar-title">類別篩選</p>
+                <div id="sidebarFilters"></div>
+            </aside>
+            <div class="grid-area" id="gridArea"></div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
+    </footer>
+
+    <div id="loginModal"
+        style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:10000;">
+        <div style="background:white;padding:2rem;max-width:360px;width:90%;box-shadow:0 0 20px rgba(0,0,0,0.3);">
+            <h3 style="margin-top:0;font-family:var(--font-serif);">會員登入</h3>
+            <input id="loginName" type="text" placeholder="輸入名稱 (e.g. Joy)"
+                style="width:100%;padding:0.6rem;margin-bottom:1rem;border:1px solid #eee;font-size:14px;" />
+            <div style="text-align:right;">
+                <button id="loginSubmit"
+                    style="padding:0.6rem 1.2rem;background:var(--accent-gold);color:white;border:none;cursor:pointer;letter-spacing:0.1em;font-size:12px;">登入</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="backToTop" class="back-to-top">
+        <span class="material-symbols-outlined">arrow_upward</span>
+    </button>
+
+    <script>
+        const CATEGORIES = [
+            { id: 'venues', label: '婚禮場地', eyebrow: 'Wedding Venue · Exclusive' },
+            { id: 'gown', label: '新娘婚紗', eyebrow: 'Bridal Gown · Couture' },
+            { id: 'suit', label: '新郎西服', eyebrow: "Gentleman's Tailoring" },
+            { id: 'cake', label: '喜餅禮盒', eyebrow: 'Wedding Cake · Gift Box' },
+            { id: 'gift', label: '婚禮小物', eyebrow: 'Wedding Favors · Details' },
+        ];
+
+        const PARTNERS = {
+            venues: [
+                {
+                    name: 'Château Lumière',
+                    url: '#',
+                    img: 'https://template.canva.com/EAFcr-KmyFQ/2/0/1600w-iDIkGPp5FJo.jpg',
+                    tag: 'Wedding Venue',
+                    meta: [{ icon: 'workspace_premium', text: '五星飯店' }, { icon: 'location_on', text: '台北大同' }],
+                },
+                {
+                    name: 'Verdure Estate',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGv9X_Aa9g/1/0/1600w-oshdANmiHmk.jpg',
+                    tag: 'Garden Venue',
+                    meta: [{ icon: 'nature_people', text: '森林秘境' }, { icon: 'location_on', text: '台中新社' }],
+                },
+                {
+                    name: 'Soleil Glasshouse',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGrJbaZVU4/1/0/1600w-IgfrLbcs0o0.jpg',
+                    tag: 'Glasshouse Venue',
+                    meta: [{ icon: 'wb_incandescent', text: '玻璃溫室' }, { icon: 'location_on', text: '台北信義' }],
+                },
+                {
+                    name: 'Azure Cove',
+                    url: '#',
+                    img: 'https://template.canva.com/EAF5mL0GhEk/2/0/1600w-8LI8rgA6dKk.jpg',
+                    tag: 'Seaside Venue',
+                    meta: [{ icon: 'waves', text: '海景渡假' }, { icon: 'location_on', text: '屏東墾丁' }],
+                },
+                {
+                    name: 'Ashford Manor',
+                    url: '#',
+                    img: 'https://template.canva.com/EAFWyOgNGeA/1/0/1600w-aY81QyOw8hQ.jpg',
+                    tag: 'Manor Venue',
+                    meta: [{ icon: 'account_balance', text: '歐式莊園' }, { icon: 'location_on', text: '南投' }],
+                },
+                {
+                    name: 'The White Gallery',
+                    url: '#',
+                    img: 'https://template.canva.com/EAFG-OE67WE/1/0/1600w-MxEbnLH5vmQ.jpg',
+                    tag: 'Art Space Venue',
+                    meta: [{ icon: 'museum', text: '藝術空間' }, { icon: 'location_on', text: '台北中山' }],
+                },
+            ],
+            gown: [
+                {
+                    name: 'Maison Blanche',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGhgubtQZA/7/0/1600w--RY8L3AZyUk.jpg',
+                    tag: 'Bridal Couture',
+                    meta: [{ icon: 'workspace_premium', text: '高訂系列' }, { icon: 'location_on', text: '台北大安' }],
+                },
+                {
+                    name: 'Plume Bridal',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGhhkc-nTc/1/0/1600w-1GazXRbJKOY.jpg',
+                    tag: 'Light Bridal',
+                    meta: [{ icon: 'styler', text: '輕婚紗' }, { icon: 'location_on', text: '台中西屯' }],
+                },
+                {
+                    name: 'Dentelle & Co.',
+                    url: '#',
+                    img: 'https://template.canva.com/EAE1cUuY26E/2/1/1600w-tyUrx0odhpI.jpg',
+                    tag: 'Vintage Bridal',
+                    meta: [{ icon: 'dry_cleaning', text: '法式古董' }, { icon: 'location_on', text: '台北中山' }],
+                },
+                {
+                    name: 'Ligne Pure',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGPZjiH9Mk/1/0/1600w-w5bnWMRfX6g.jpg',
+                    tag: 'Minimal Bridal',
+                    meta: [{ icon: 'auto_awesome', text: '極簡俐落' }, { icon: 'location_on', text: '高雄鼓山' }],
+                },
+                {
+                    name: 'The Vow Atelier',
+                    url: '#',
+                    img: 'https://template.canva.com/EAFMGznsS_U/3/0/1600w-kCRpIPeR7gs.jpg',
+                    tag: 'Bridal House',
+                    meta: [{ icon: 'checkroom', text: '歐美代理' }, { icon: 'location_on', text: '新竹' }],
+                },
+            ],
+            suit: [
+                {
+                    name: 'Bespoke & Sons',
+                    url: '#',
+                    img: 'https://template.canva.com/EAG8cJt_G-E/1/0/1600w-Xtfo4STILEs.jpg',
+                    tag: 'Bespoke Tailor',
+                    meta: [{ icon: 'content_cut', text: 'Bespoke' }, { icon: 'location_on', text: '台北信義' }],
+                },
+                {
+                    name: 'Savile & Grey',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGT7E-WatA/1/0/1600w-bcE23LJrh-E.jpg',
+                    tag: 'British Tailor',
+                    meta: [{ icon: 'checkroom', text: '英式挺拔' }, { icon: 'location_on', text: '台中西區' }],
+                },
+                {
+                    name: 'Sarto Milano',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGLyUJc5H4/1/0/1600w-2nyBc7l0Jno.jpg',
+                    tag: 'Italian Tailor',
+                    meta: [{ icon: 'styler', text: '義式軟襯' }, { icon: 'location_on', text: '台北大安' }],
+                },
+                {
+                    name: 'Hudson & Clark',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGTSR0Ee2M/3/0/1600w-8-QmXl7zT2w.jpg',
+                    tag: 'American Tailor',
+                    meta: [{ icon: 'auto_fix_high', text: '美式休閒' }, { icon: 'location_on', text: '高雄前鎮' }],
+                },
+                {
+                    name: 'Formal House',
+                    url: '#',
+                    img: 'https://template.canva.com/EAEtp5W_CyY/1/0/1600w-cwgo3WI-GeM.jpg',
+                    tag: 'Formal Tailor',
+                    meta: [{ icon: 'straighten', text: '商務婚服' }, { icon: 'location_on', text: '桃園' }],
+                },
+            ],
+            cake: [
+                {
+                    name: 'Dorée Pâtisserie',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGOfHef_gI/1/0/1600w-rIBMFUlEJuU.jpg',
+                    tag: 'French Patisserie',
+                    meta: [{ icon: 'cake', text: '法式甜點' }, { icon: 'location_on', text: '台北松山' }],
+                },
+                {
+                    name: 'Noir Chocolat',
+                    url: '#',
+                    img: 'https://template.canva.com/EAG9W39UyQI/1/0/1600w-YMB60P3Dncs.jpg',
+                    tag: 'Chocolatier',
+                    meta: [{ icon: 'redeem', text: '頂級黑可可' }, { icon: 'location_on', text: '台北大安' }],
+                },
+                {
+                    name: 'Feuilletine',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGZiSwIeuA/1/0/1600w-LgQK4ov4kL8.jpg',
+                    tag: 'Artisan Bakery',
+                    meta: [{ icon: 'bakery_dining', text: '千層酥盒' }, { icon: 'location_on', text: '台中南屯' }],
+                },
+                {
+                    name: 'Ruban & Box',
+                    url: '#',
+                    img: 'https://template.canva.com/EAEffFvayWk/2/0/1600w-WSoy1fXxu7w.jpg',
+                    tag: 'Gift Box Studio',
+                    meta: [{ icon: 'inventory_2', text: '木盒緞帶' }, { icon: 'location_on', text: '高雄新興' }],
+                },
+                {
+                    name: 'Botanica Sweets',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGtk7Qzz-0/1/0/1600w-eXru8YFTK2k.jpg',
+                    tag: 'Vegan Bakery',
+                    meta: [{ icon: 'eco', text: '純素無麩質' }, { icon: 'location_on', text: '台南' }],
+                },
+            ],
+            gift: [
+                {
+                    name: 'Lumière Douce',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGGgm7vhqs/1/0/1600w-GEoIfPdojXY.jpg',
+                    tag: 'Scented Candle',
+                    meta: [{ icon: 'soap', text: '香氛蠟燭' }, { icon: 'location_on', text: '台北' }],
+                },
+                {
+                    name: 'Ever & Bloom',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGsiPAov4g/1/0/1280w-E_xXeCKPBz0.jpg',
+                    tag: 'Preserved Florals',
+                    meta: [{ icon: 'local_florist', text: '永生花束' }, { icon: 'location_on', text: '台中' }],
+                },
+                {
+                    name: 'Engrave & Co.',
+                    url: '#',
+                    img: 'https://template.canva.com/EAE94_gxFDQ/1/0/1600w-xJpOsExYs6I.jpg',
+                    tag: 'Brass Engraving',
+                    meta: [{ icon: 'edit', text: '黃銅刻印' }, { icon: 'location_on', text: '高雄' }],
+                },
+                {
+                    name: 'Feuille de Thé',
+                    url: '#',
+                    img: 'https://template.canva.com/EAGLupy4DbQ/1/0/1600w-CTZOPZ4Un_U.jpg',
+                    tag: 'Tea Gift',
+                    meta: [{ icon: 'emoji_food_beverage', text: '百年茶莊' }, { icon: 'location_on', text: '南投' }],
+                },
+                {
+                    name: 'Cristal & Verre',
+                    url: '#',
+                    img: 'https://template.canva.com/EAExlsxLhCI/1/0/1600w-m9t1d2IazRk.jpg',
+                    tag: 'Crystal Gift',
+                    meta: [{ icon: 'wine_bar', text: '水晶對杯' }, { icon: 'location_on', text: '新竹' }],
+                },
+            ],
+        };
+
+        function renderCard(partner) {
+            const metaHTML = partner.meta.map(m => /*html*/`
+            <span class="card-meta-item">
+                <span class="material-symbols-outlined">${m.icon}</span>${m.text}
+            </span>`).join('');
+
+            return /*html*/`
+        <a class="partner-card" href="${partner.url}" target="_blank">
+            <div class="card-img-wrap">
+                <img src="${partner.img}" alt="${partner.name}" loading="lazy">
+                <div class="card-overlay">
+                    <span class="card-overlay-name">${partner.name}</span>
+                    <span class="overlay-btn">前往官網</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <span class="card-tag">${partner.tag}</span>
+                <p class="card-name">${partner.name}</p>
+                <div class="card-meta">${metaHTML}</div>
+                <div class="card-line"></div>
+            </div>
+        </a>`;
+        }
+
+        function renderAll() {
+            const gridArea = document.getElementById('gridArea');
+            const sidebarFilters = document.getElementById('sidebarFilters');
+            const mobileFilterBar = document.getElementById('mobileFilterBar');
+
+            sidebarFilters.innerHTML = CATEGORIES.map(cat => /*html*/`
+            <button class="filter-btn" data-cat="${cat.id}">
+                ${cat.label}
+                <span class="filter-dot"></span>
+            </button>`).join('');
+
+            mobileFilterBar.innerHTML = CATEGORIES.map(cat => /*html*/`
+            <button class="mobile-filter-chip" data-cat="${cat.id}">${cat.label}</button>`).join('');
+
+            gridArea.innerHTML = CATEGORIES.map((cat, idx) => {
+                const partners = PARTNERS[cat.id] || [];
+                const cardsHTML = partners.map(renderCard).join('');
+                const divider = idx < CATEGORIES.length - 1 ? '<hr class="category-divider">' : '';
+
+                return /*html*/`
+            <div class="category-section active" data-section="${cat.id}">
+                <div class="category-header">
+                    <div class="category-header-left">
+                    <div class="category-accent-bar"></div>
+                <div>
+                    <span class="category-label">${cat.eyebrow}</span>
+                    <h2 class="category-title">${cat.label}</h2>
+                    </div>
+                </div>
+                <span class="result-count">${partners.length} 位夥伴</span>
+            </div>
+            <div class="partner-grid">${cardsHTML}</div>
+            </div>
+            
+            ${divider}`;
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+
+            const gridArea = document.getElementById('gridArea');
+
+            function getSections() { return document.querySelectorAll('.category-section'); }
+            function getDividers() { return document.querySelectorAll('.category-divider'); }
+            function getSidebarBtns() { return document.querySelectorAll('#sidebarFilters .filter-btn'); }
+            function getMobileBtns() { return document.querySelectorAll('.mobile-filter-chip'); }
+
+            function applyFilter(cat) {
+                getSections().forEach(s => {
+                    s.style.display = (cat === 'all' || s.dataset.section === cat) ? 'block' : 'none';
+                });
+                getDividers().forEach(d => {
+                    d.style.display = cat === 'all' ? 'block' : 'none';
+                });
+                document.querySelectorAll('.partner-card').forEach(c => c.classList.remove('visible'));
+                setTimeout(triggerVisible, 50);
+            }
+
+            function setActive(cat) {
+                getSidebarBtns().forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+                getMobileBtns().forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+            }
+
+            function bindFilterBtns() {
+                getSidebarBtns().forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        setActive(btn.dataset.cat);
+                        applyFilter(btn.dataset.cat);
+                        const navHeight = document.querySelector('.navbar').offsetHeight;
+                        const targetPos = gridArea.getBoundingClientRect().top + window.pageYOffset - navHeight - 20;
+                        window.scrollTo({ top: targetPos, behavior: 'smooth' });
+                    });
+                });
+
+                getMobileBtns().forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        setActive(btn.dataset.cat);
+                        applyFilter(btn.dataset.cat);
+                        gridArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                });
+            }
+
+            function triggerVisible() {
+                const cards = document.querySelectorAll('.partner-card:not(.visible)');
+                const obs = new IntersectionObserver((entries) => {
+                    entries.forEach((e, i) => {
+                        if (e.isIntersecting) {
+                            setTimeout(() => e.target.classList.add('visible'), i * 80);
+                            obs.unobserve(e.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                cards.forEach(c => obs.observe(c));
+            }
+
+            bindFilterBtns();
+
+            // ── 修改這裡：預設載入與網址參數判斷 ──
+            const urlParams = new URLSearchParams(window.location.search);
+            const catFromUrl = urlParams.get('cat');
+
+            // 如果網址有參數就吃參數，沒有的話預設為 'venues' (婚禮場地)
+            const initialCat = catFromUrl ? catFromUrl : 'venues';
+
+            // 立刻套用初始類別的 Active 樣式與篩選
+            setActive(initialCat);
+            applyFilter(initialCat);
+        });
+    </script>
+</body>
+
+</html>

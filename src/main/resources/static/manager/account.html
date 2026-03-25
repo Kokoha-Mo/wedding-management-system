@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ES Admin - 主頁儀表板</title>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="./ESCss/es_new_ver.css">
+    <script src="./ESJS/es_new_ver.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#1F2937",
+                        "sidebar-bg": "#21252D",
+                        "sidebar-hover": "#2C313C",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    }
+                },
+            },
+        };
+    </script>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden">
+
+    <div id="sidebar-overlay"
+        class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity hidden cursor-pointer">
+    </div>
+    <aside id="sidebar"
+        class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative -translate-x-full lg:translate-x-0">
+        <div class="h-16 flex items-center justify-center">
+            <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
+            <div class="text-white font-bold text-lg tracking-wide menu-category p-0 m-0">Admin</div>
+        </div>
+
+        <div class="px-4 py-4 mt-2 sidebar-user">
+            <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
+                <img id="sidebar-avatar" alt="Avatar"
+                    class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
+                <div class="menu-category p-0 m-0">
+                    <div id="sidebar-emp-name" class="text-white font-medium">載入中...</div>
+                    <div id="sidebar-position" class="text-xs text-gray-400 mt-1">...</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
+            <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
+                GENERAL</div>
+            <a id="nav-consultation"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="consultation.html">
+                <span
+                    class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
+            </a>
+            <a id="nav-book"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="book.html">
+                <span
+                    class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
+            </a>
+            <a id="nav-project"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="project.html">
+                <span
+                    class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
+            </a>
+            <a id="nav-task"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="quest_staff.html">
+                <span
+                    class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">任務管理</div>
+            </a>
+
+            <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
+                系統設定</div>
+
+            <a id="nav-account"
+                class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
+                href="account.html">
+                <span
+                    class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap text-white">個人資訊</div>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-full overflow-hidden relative">
+
+        <header
+            class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
+            <div class="flex items-center flex-1">
+                <button id="sidebar-hamburger"
+                    class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
+                    <span class="material-icons">menu</span>
+                </button>
+                <h1 class="text-xl font-bold tracking-wider text-gray-100 hidden sm:block">個人資訊</h1>
+            </div>
+
+            <div class="flex items-center space-x-4">
+
+                <div class="relative">
+                    <div id="user-menu-button"
+                        class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
+                        <img id="header-avatar" alt="Avatar"
+                            class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
+                            src="./Img/smile.jpg" />
+                        <span id="header-emp-name" class="text-sm font-medium mr-1 text-gray-200">User</span>
+                        <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
+                    </div>
+
+                    <div id="user-dropdown"
+                        class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">
+                        <a href="account.html"
+                            class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span> Profile
+                        </a>
+                        <hr class="my-1 border-gray-100">
+                        <a href="login.html"
+                            class="flex items-center px-4 py-2.5 text-sm text-danger hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-danger">logout</span> Log Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-background-light dark:bg-background-dark p-6">
+            <div class="w-full max-w-[1400px] mx-auto space-y-6">
+                <div
+                    class="bg-white dark:bg-gray-800 rounded shadow-sm p-6 flex flex-col md:flex-row items-center md:items-start justify-between">
+                    <div
+                        class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                        <div class="relative">
+                            <img id="profile-avatar" alt="Profile Avatar"
+                                class="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-sm"
+                                src="./Img/smile.jpg" />
+                            <input type="file" id="avatar-input" class="hidden" accept="image/*">
+                            <button onclick="document.getElementById('avatar-input').click()"
+                                class="absolute bottom-0 right-0 bg-gray-200 dark:bg-gray-600 rounded-full p-1.5 shadow-sm text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+                                <span class="material-icons text-sm">camera_alt</span>
+                            </button>
+                        </div>
+                        <div class="text-center md:text-left">
+                            <h1 id="top-name"
+                                class="text-2xl font-bold text-gray-900 dark:text-white flex items-center justify-center md:justify-start">
+                                載入中...
+                            </h1>
+                            <p id="top-role" class="text-primary font-medium mt-1">...</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 md:mt-0">
+                        <button id="change-password-btn"
+                            class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center transition-colors shadow-sm">
+                            <span class="material-icons text-sm mr-2">lock</span>
+                            更改密碼
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-gray-800 rounded shadow-sm overflow-hidden flex flex-col border border-transparent transition-colors"
+                        id="basic-container">
+                        <div
+                            class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+                            <h2 class="text-lg font-medium text-gray-800 dark:text-gray-200 flex items-center">
+                                <span class="material-icons text-primary mr-2 text-xl">account_circle</span>
+                                基本資料
+                            </h2>
+                            <button id="basic-edit-btn" type="button"
+                                class="text-sm border border-blue-200 text-primary hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-900/30 px-3 py-1 rounded flex items-center transition-colors">
+                                <span class="material-icons text-xs mr-1">edit</span> 修改資料
+                            </button>
+                            <div id="basic-action-btns" class="hidden flex space-x-2">
+                                <button id="basic-cancel-btn" type="button"
+                                    class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded transition-colors font-medium">取消</button>
+                                <button form="basic-form" type="submit"
+                                    class="text-sm bg-primary hover:bg-blue-700 text-white px-4 py-1.5 rounded flex items-center transition-colors font-medium shadow-sm">
+                                    <span class="material-icons text-[16px] mr-1">save</span> 儲存
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6 flex-1 relative">
+                            <div id="basic-view" class="grid grid-cols-2 gap-y-6 gap-x-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">姓名</p>
+                                    <p id="view-name" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">員工編號 (ID)</p>
+                                    <p id="view-empId" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">手機號碼</p>
+                                    <p id="view-phone" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">電子郵件</p>
+                                    <p id="view-email" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
+                                </div>
+                            </div>
+                            <form id="basic-form" class="hidden grid grid-cols-2 gap-y-5 gap-x-4">
+                                <div>
+                                    <label class="text-xs text-gray-500 mb-1 block">姓名 (不可修改)</label>
+                                    <input type="text" id="edit-name" disabled
+                                        class="w-full rounded-md border-gray-200 bg-gray-100 text-gray-500 text-sm py-1.5 px-3 cursor-not-allowed">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 mb-1 block">員工編號 (ID)</label>
+                                    <input type="text" id="edit-empId" disabled
+                                        class="w-full rounded-md border-gray-200 bg-gray-100 text-gray-500 text-sm py-1.5 px-3 cursor-not-allowed">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 mb-1 block">手機號碼</label>
+                                    <input type="text" id="edit-phone"
+                                        class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3 transition-colors">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 mb-1 block">電子郵件</label>
+                                    <input type="email" id="edit-email"
+                                        class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm py-1.5 px-3">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded shadow-sm overflow-hidden flex flex-col">
+                        <div
+                            class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
+                            <h2 class="text-lg font-medium text-gray-800 dark:text-gray-200 flex items-center">
+                                <span class="material-icons text-gray-400 mr-2 text-xl">work_outline</span>
+                                職務資料
+                            </h2>
+                            <span class="material-icons text-gray-400 text-sm" title="不可修改">lock</span>
+                        </div>
+                        <div class="p-6 flex-1">
+                            <div class="grid grid-cols-2 gap-y-6 gap-x-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">權限角色</p>
+                                    <p id="view-role" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">所屬部門</p>
+                                    <p id="view-dept" class="text-sm font-medium text-gray-900 dark:text-gray-100">...
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="clockModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-80 max-w-[90%] transform transition-all duration-300 scale-95 opacity-0 border border-gray-100 dark:border-gray-700"
+            id="clockModalContent">
+            <div class="p-6 text-center relative">
+                <button id="closeModalCross"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="material-icons text-sm">close</span>
+                </button>
+                <div
+                    class="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-500 mx-auto flex items-center justify-center mb-4 mt-2">
+                    <span class="material-icons text-3xl">update</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">系統確認</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">目前紀錄時間</p>
+
+                <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg py-3 mb-4">
+                    <div class="text-3xl font-mono font-bold text-gray-800 dark:text-gray-100" id="clockConfirmTime">
+                        00:00:00</div>
+                </div>
+
+                <p class="text-gray-700 dark:text-gray-300 font-medium mb-6" id="clockConfirmText">確定要進行打卡嗎？</p>
+
+                <div class="flex space-x-3">
+                    <button id="cancelSubmitBtn"
+                        class="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors">取消</button>
+                    <button id="confirmSubmitBtn"
+                        class="flex-1 py-2.5 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium shadow-md shadow-blue-500/30 transition-colors">確定送出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 right-6 z-[100] flex flex-col space-y-3 pointer-events-none" id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. 初始化驗證
+            const empId = sessionStorage.getItem('empId');
+            if (!empId) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            // 2. 獲取個人資料
+            async function loadProfile() {
+                try {
+                    const response = await fetch('/api/employee/profile', { credentials: 'include' });
+                    if (response.ok) {
+                        const data = await response.json();
+                        renderProfile(data);
+                    } else {
+                        console.error('無法載入個人資料');
+                    }
+                } catch (error) {
+                    console.error('載入資料發生錯誤:', error);
+                }
+            }
+
+            function renderProfile(data) {
+                // 頂部與側邊欄
+                document.getElementById('sidebar-emp-name').textContent = data.name;
+                document.getElementById('header-emp-name').textContent = data.name;
+                document.getElementById('top-name').textContent = data.name;
+                document.getElementById('top-role').textContent = data.role;
+                document.getElementById('sidebar-position').textContent = data.role === 'MANAGER' ? '業務管理' : '員工';
+
+                if (data.imgPath) {
+                    const path = data.imgPath.startsWith('http') ? data.imgPath : '/' + data.imgPath;
+                    if (document.getElementById('sidebar-avatar')) document.getElementById('sidebar-avatar').src = path;
+                    if (document.getElementById('header-avatar')) document.getElementById('header-avatar').src = path;
+                    if (document.getElementById('profile-avatar')) document.getElementById('profile-avatar').src = path;
+                    sessionStorage.setItem('imgPath', data.imgPath);
+                }
+
+                // 基本資料
+                document.getElementById('view-name').textContent = data.name;
+                document.getElementById('view-empId').textContent = data.empId;
+                document.getElementById('view-phone').textContent = data.tel || '未設定';
+                document.getElementById('view-email').textContent = data.email;
+
+                // 編輯表單
+                document.getElementById('edit-name').value = data.name;
+                document.getElementById('edit-empId').value = data.empId;
+                document.getElementById('edit-phone').value = data.tel || '';
+                document.getElementById('edit-email').value = data.email;
+
+                // 職務資料
+                document.getElementById('view-role').textContent = data.role === 'MANAGER' ? '管理者 (MANAGER)' : '一般員工 (STAFF)';
+                document.getElementById('view-dept').textContent = data.departmentName;
+
+                // 側邊欄權限
+                const deptId = sessionStorage.getItem('deptId');
+                const position = sessionStorage.getItem('position');
+                handleSidebarPermissions(deptId, position);
+            }
+
+            function handleSidebarPermissions(deptId, position) {
+                const navIds = ['nav-consultation', 'nav-book', 'nav-project', 'nav-task'];
+                navIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = 'none';
+                });
+
+                if (deptId === '1') {
+                    if (position === 'MANAGER') {
+                        ['nav-book', 'nav-project'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.style.display = 'flex';
+                        });
+                    } else {
+                        const el = document.getElementById('nav-task');
+                        if (el) el.style.display = 'flex';
+                    }
+                } else if (deptId === '7') {
+                    const el = document.getElementById('nav-consultation');
+                    if (el) el.style.display = 'flex';
+                } else {
+                    const el = document.getElementById('nav-task');
+                    if (el) el.style.display = 'flex';
+                }
+            }
+
+            await loadProfile();
+
+            // === 3. 基本資料切換邏輯 ===
+            const basicContainer = document.getElementById('basic-container');
+            const basicView = document.getElementById('basic-view');
+            const basicForm = document.getElementById('basic-form');
+            const basicEditBtn = document.getElementById('basic-edit-btn');
+            const basicActionBtns = document.getElementById('basic-action-btns');
+            const basicCancelBtn = document.getElementById('basic-cancel-btn');
+
+            function toggleBasicMode(isEdit) {
+                basicView.classList.toggle('hidden', isEdit);
+                basicForm.classList.toggle('hidden', !isEdit);
+                basicEditBtn.classList.toggle('hidden', isEdit);
+                basicActionBtns.classList.toggle('hidden', !isEdit);
+                isEdit ? basicContainer.classList.add('border-blue-200', 'ring-1', 'ring-blue-100') : basicContainer.classList.remove('border-blue-200', 'ring-1', 'ring-blue-100');
+            }
+
+            basicEditBtn.addEventListener('click', () => toggleBasicMode(true));
+            basicCancelBtn.addEventListener('click', () => toggleBasicMode(false));
+
+            basicForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const dto = {
+                    tel: document.getElementById('edit-phone').value,
+                    email: document.getElementById('edit-email').value
+                };
+
+                try {
+                    const response = await fetch('/api/employee/profile', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(dto)
+                    });
+
+                    if (response.ok) {
+                        alert('基本資料更新成功');
+                        await loadProfile(); // 重新載入
+                        toggleBasicMode(false);
+                    } else {
+                        alert('更新失敗，請重試');
+                    }
+                } catch (error) {
+                    console.error('更新資料失敗:', error);
+                }
+            });
+
+            // === 4. 頭像上傳 ===
+            const avatarInput = document.getElementById('avatar-input');
+            const profileAvatar = document.getElementById('profile-avatar');
+            const headerAvatar = document.getElementById('header-avatar');
+            const sidebarAvatar = document.getElementById('sidebar-avatar');
+
+            avatarInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // 立即預覽 (讀取本地檔案)
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const localSrc = event.target.result;
+                    if (profileAvatar) profileAvatar.src = localSrc;
+                };
+                reader.readAsDataURL(file);
+
+                // 執行上傳
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch('/api/employee/profile/avatar', {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        // 上傳成功後，強制更新所有頭像位置 (使用後端回傳的路徑)
+                        const path = result.path.startsWith('http') ? result.path : '/' + result.path;
+                        // 加上時間戳防止快取
+                        const finalPath = `${path}?t=${new Date().getTime()}`;
+                        
+                        if (profileAvatar) profileAvatar.src = finalPath;
+                        if (headerAvatar) headerAvatar.src = finalPath;
+                        if (sidebarAvatar) sidebarAvatar.src = finalPath;
+                        
+                        sessionStorage.setItem('imgPath', result.path);
+                        alert('頭像上傳成功！');
+                    } else {
+                        alert('頭像上傳失敗，請檢查檔案格式或大小');
+                    }
+                } catch (error) {
+                    console.error('上傳頭像失敗:', error);
+                    alert('系統錯誤，無法上傳圖片');
+                }
+            });
+
+            // === 5. 密碼修改 ===
+            const changePasswordBtn = document.getElementById('change-password-btn');
+            if (changePasswordBtn) {
+                changePasswordBtn.onclick = async () => {
+                    const oldPassword = prompt('請輸入舊密碼:');
+                    if (!oldPassword) return;
+                    const newPassword = prompt('請輸入新密碼:');
+                    if (!newPassword) return;
+                    if (newPassword.length < 6) {
+                        alert('新密碼長度至少需要 6 個字元');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/employee/profile/password', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ oldPassword, newPassword })
+                        });
+
+                        if (response.ok) {
+                            alert('密碼修改成功！下次請使用新密碼登入。');
+                        } else {
+                            const err = await response.json();
+                            alert('修改失敗: ' + (err.message || '舊密碼錯誤'));
+                        }
+                    } catch (error) {
+                        console.error('密碼修改網路錯誤:', error);
+                    }
+                };
+            }
+        });
+    </script>
+</body>
+
+</html>

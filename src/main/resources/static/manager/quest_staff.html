@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ES Admin - 主頁儀表板</title>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="./ESCss/es_new_ver.css">
+    <script src="./ESJS/es_new_ver.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#1F2937",
+                        "sidebar-bg": "#21252D",
+                        "sidebar-hover": "#2C313C",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    }
+                },
+            },
+        };
+    </script>
+</head>
+
+<body id="app"
+    class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden"
+    v-cloak>
+
+    <div id="sidebar-overlay"
+        class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm transition-opacity hidden cursor-pointer">
+    </div>
+    <aside id="sidebar"
+        class="w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative -translate-x-full lg:translate-x-0">
+        <div class="h-16 flex items-center justify-center">
+            <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
+            <div class="text-white font-bold text-lg tracking-wide menu-category p-0 m-0">Admin</div>
+        </div>
+
+        <div class="px-4 py-4 mt-2 sidebar-user">
+            <div class="bg-sidebar-hover rounded-xl p-4 flex items-center shadow-sm">
+                <img id="sidebar-avatar" alt="Joy Avatar"
+                    class="w-12 h-12 rounded-full border-2 border-sidebar-bg mr-3 object-cover" src="./Img/smile.jpg" />
+                <div class="menu-category p-0 m-0">
+                    <div class="text-white font-medium">{{ emp.name || '未知員工' }}</div>
+                    <div class="text-xs text-gray-400 mt-1">{{ emp.position === 'MANAGER' ? '業務管理' : '員工' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
+            <div class="menu-category px-6 pt-2 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
+                GENERAL</div>
+            <a v-if="emp.deptId === '7'" id="nav-consultation"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="consultation.html">
+                <span
+                    class="material-icons text-[#C5A059] mr-3 group-hover:scale-110 transition-transform">support_agent</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">諮詢單管理</div>
+            </a>
+            <a v-if="emp.deptId === '1' && emp.position === 'MANAGER'" id="nav-book"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="book.html">
+                <span
+                    class="material-icons text-orange-400 mr-3 group-hover:scale-110 transition-transform">calendar_month</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">預約管理</div>
+            </a>
+            <a v-if="emp.deptId === '1' && emp.position === 'MANAGER'" id="nav-project"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="project.html">
+                <span
+                    class="material-icons text-indigo-400 mr-3 group-hover:scale-110 transition-transform">account_tree</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">專案管理</div>
+            </a>
+            <a v-if="(emp.deptId === '1' && emp.position !== 'MANAGER') || (emp.deptId !== '1' && emp.deptId !== '7')"
+                id="nav-task"
+                class="flex items-center px-6 py-3.5 bg-sidebar-hover text-white transition-colors group border-r-4 border-[#1ABB9C]"
+                href="quest_staff.html">
+                <span
+                    class="material-icons text-green-400 mr-3 group-hover:scale-110 transition-transform">assignment</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap text-white">任務管理</div>
+            </a>
+
+            <div class="menu-category px-6 pt-5 pb-1 text-[11px] font-semibold text-gray-500 tracking-wider uppercase">
+                系統設定</div>
+
+            <a id="nav-account"
+                class="flex items-center px-6 py-3.5 text-gray-400 hover:bg-sidebar-hover hover:text-white transition-colors group border-r-4 border-transparent hover:border-[#1ABB9C]"
+                href="account.html">
+                <span
+                    class="material-icons text-teal-400 mr-3 group-hover:scale-110 transition-transform">settings</span>
+                <div class="menu-category p-0 m-0 text-sm whitespace-nowrap">個人資訊</div>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-full overflow-hidden relative">
+
+        <header
+            class="h-16 bg-[#2B303B] flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm text-white">
+            <div class="flex items-center flex-1">
+                <button id="sidebar-hamburger"
+                    class="mr-4 text-gray-400 hover:text-white focus:outline-none p-1 rounded-md hover:bg-gray-700 transition-colors">
+                    <span class="material-icons">menu</span>
+                </button>
+                <h1 class="text-xl font-bold tracking-wider text-gray-100 hidden sm:block">任務管理</h1>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <div id="user-menu-button"
+                        class="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
+                        <img id="header-avatar" alt="Joy Avatar"
+                            class="w-8 h-8 rounded-full border border-gray-500 mr-2 object-cover"
+                            src="./Img/smile.jpg" />
+                        <span class="text-sm font-medium mr-1 text-gray-200">{{ emp.name || 'User' }}</span>
+                        <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
+                    </div>
+
+                    <div id="user-dropdown"
+                        class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 hidden z-50 border border-gray-100">
+                        <a href="account.html"
+                            class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span> Profile
+                        </a>
+                        <hr class="my-1 border-gray-100">
+                        <a href="login.html"
+                            class="flex items-center px-4 py-2.5 text-sm text-danger hover:bg-gray-50 transition-colors">
+                            <span class="material-icons text-[18px] mr-3 text-danger">logout</span> Log Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main
+            class="flex-1 overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800">
+            <!-- Dashboard Content -->
+            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+                <!-- Page Header -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold tracking-tight" id="welcome-title">任務看板</h2>
+                        <p class="text-slate-500 text-sm mt-1" id="welcome-subtitle">追蹤所有進行中及已完成的任務</p>
+                    </div>
+                </div>
+                <!-- Ongoing Projects Section -->
+                <section>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold">進行中任務 (<span>{{ ongoingTasks.length }}</span>)</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div v-if="ongoingTasks.length === 0"
+                            class="col-span-full py-10 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
+                            目前沒有進行中的任務
+                        </div>
+                        <!-- Task Card -->
+                        <div v-for="task in ongoingTasks" :key="task.taskId"
+                            class="bg-white dark:bg-slate-900 border-2 rounded-xl p-5 shadow-sm flex flex-col h-full transition-all hover:shadow-md"
+                            :class="isUrgent(task.deadline) ? 'border-red-500 ring-2 ring-red-500 ring-opacity-20' : 'border-slate-200 dark:border-slate-800'">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-base font-bold">{{ task.serviceName || '未命名任務' }}</h4>
+                                <span v-if="isUrgent(task.deadline)"
+                                    class="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded">即將過期</span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-4">
+                                <div class="flex items-center gap-1">
+                                    <span
+                                        class="material-symbols-outlined text-sm text-blue-500">supervisor_account</span>
+                                    <span class="font-medium text-slate-700 dark:text-slate-300">{{ task.managerName ||
+                                        '未指定業務' }}</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">person</span> {{ task.customerName
+                                    || '未知客戶' }}
+                                </div>
+                                <div class="flex items-center gap-1"
+                                    :class="{'text-red-600 font-semibold': isUrgent(task.deadline)}">
+                                    <span class="material-symbols-outlined text-sm">{{ isUrgent(task.deadline) ?
+                                        'calendar_clock' : 'event' }}</span> 截止：{{ formatDate(task.deadline) }}
+                                </div>
+                            </div>
+                            <div class="flex-1 mb-6">
+                                <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                    任務詳情</h5>
+                                <p class="text-xs text-slate-500 leading-relaxed">{{ task.managerContent || '無詳細內容' }}
+                                </p>
+                            </div>
+                            <div class="flex flex-col space-y-2 mt-4">
+                                <button @click="openChat(task)"
+                                    class="w-full flex items-center justify-center py-2 px-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors relative">
+                                    <span class="material-icons text-sm mr-2">forum</span>
+                                    聯繫業務 / 留言紀錄
+                                    <!-- 紅點提示 -->
+                                    <span v-if="unreadTasks.has(task.taskId)"
+                                        class="absolute top-2 right-2 flex h-2 w-2">
+                                        <span
+                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                    </span>
+                                </button>
+
+                                <div class="flex space-x-2">
+                                    <button @click="openUpload(task)"
+                                        class="flex-1 flex items-center justify-center py-2 px-4 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                        <span class="material-icons text-sm mr-2">upload_file</span>
+                                        上傳成果
+                                    </button>
+                                    <button @click="submitAudit(task)"
+                                        class="flex-1 py-2 px-4 bg-primary text-white rounded-xl hover:bg-blue-600 shadow-md transition-colors font-bold">
+                                        提交審核
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- 任務提交紀錄 -->
+                <section>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold">任務提交紀錄</h3>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                        <table class="w-full text-left">
+                            <thead
+                                class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 text-xs font-bold uppercase tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-4">婚禮名稱</th>
+                                    <th class="px-6 py-4">客戶名稱</th>
+                                    <th class="px-6 py-4">日期</th>
+                                    <th class="px-6 py-4">狀態</th>
+                                    <th class="px-6 py-4">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                                <tr v-if="historyTasks.length === 0">
+                                    <td colspan="5" class="px-6 py-10 text-center text-slate-400">目前尚無歷史任務紀錄</td>
+                                </tr>
+                                <tr v-for="task in paginatedHistoryTasks" :key="task.taskId"
+                                    class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="px-6 py-4 font-semibold">{{ task.serviceName || '---' }}</td>
+                                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400">{{ task.customerName ||
+                                        '---' }}</td>
+                                    <td class="px-6 py-4 text-slate-500 dark:text-slate-50">{{ formatDate(task.updateAt)
+                                        }}</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 text-[10px] font-bold rounded"
+                                            :class="task.status === '已完成' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                                            {{ task.status || '---' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <button @click="openChat(task, true)"
+                                            class="text-blue-600 hover:text-blue-800 inline-flex items-center gap-1 font-medium">
+                                            <span class="material-icons text-sm">forum</span>
+                                            查看留言紀錄
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div
+                            class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                            <p class="text-xs text-slate-500">
+                                顯示 {{ historyTasks.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }} 至 {{
+                                Math.min(currentPage * itemsPerPage, historyTasks.length) }} 筆，共 {{ historyTasks.length
+                                }} 筆紀錄
+                            </p>
+                            <div class="flex gap-2">
+                                <button @click="prevPage"
+                                    class="p-1 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 text-slate-400 hover:text-primary disabled:opacity-50 transition-colors"
+                                    :disabled="currentPage === 1">
+                                    <span class="material-symbols-outlined text-base leading-none">chevron_left</span>
+                                </button>
+                                <span class="text-xs flex items-center px-2 text-slate-500">頁次 {{ currentPage }} / {{
+                                    totalPages || 1 }}</span>
+                                <button @click="nextPage"
+                                    class="p-1 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 text-slate-400 hover:text-primary disabled:opacity-50 transition-colors"
+                                    :disabled="currentPage >= totalPages">
+                                    <span class="material-symbols-outlined text-base leading-none">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="clockModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-80 max-w-[90%] transform transition-all duration-300 scale-95 opacity-0 border border-gray-100 dark:border-gray-700"
+            id="clockModalContent">
+            <div class="p-6 text-center relative">
+                <button id="closeModalCross"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="material-icons text-sm">close</span>
+                </button>
+                <div
+                    class="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-500 mx-auto flex items-center justify-center mb-4 mt-2">
+                    <span class="material-icons text-3xl">update</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">系統確認</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">目前紀錄時間</p>
+
+                <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg py-3 mb-4">
+                    <div class="text-3xl font-mono font-bold text-gray-800 dark:text-gray-100" id="clockConfirmTime">
+                        00:00:00</div>
+                </div>
+
+                <p class="text-gray-700 dark:text-gray-300 font-medium mb-6" id="clockConfirmText">確定要進行打卡嗎？</p>
+
+                <div class="flex space-x-3">
+                    <button id="cancelSubmitBtn"
+                        class="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors">取消</button>
+                    <button id="confirmSubmitBtn"
+                        class="flex-1 py-2.5 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium shadow-md shadow-blue-500/30 transition-colors">確定送出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 right-6 z-[100] flex flex-col space-y-3 pointer-events-none" id="toastContainer"></div>
+
+
+    <!-- 任務協調留言板 Modal -->
+    <div v-if="showChat" class="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[450px] max-w-[95%] flex flex-col h-[500px]">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ chatReadOnly ? '任務協調對話紀錄' : '任務協調留言板' }}
+                </h3>
+                <button @click="showChat = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div id="chat-content" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
+                <div v-if="chatLoading" class="text-center text-slate-400 py-10">讀取中...</div>
+                <div v-else-if="chatMessages.length === 0" class="text-center text-slate-400 py-10 text-xs">尚無留言紀錄</div>
+                <div v-for="msg in chatMessages" :key="msg.id" class="flex flex-col"
+                    :class="String(msg.creatorId) === String(emp.id) ? 'items-end' : 'items-start'">
+                    <span class="text-[10px] text-gray-500 mb-1 font-medium">
+                        {{ String(msg.creatorId) === String(emp.id) ? '本人' : (msg.creatorPosition === 'MANAGER' ? `業務 -
+                        ${msg.creatorName}` : msg.creatorName) }}
+                        {{ formatFullTime(msg.createAt) }}
+                    </span>
+                    <div class="p-3 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed"
+                        :class="String(msg.creatorId) === String(emp.id) ? 'bg-primary text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-tl-none'">
+                        {{ msg.content }}
+                    </div>
+                </div>
+            </div>
+            <div v-if="!chatReadOnly" class="p-4 border-t border-gray-100 dark:border-gray-700">
+                <div class="flex items-center space-x-2">
+                    <input type="text" v-model="chatInput" @keyup.enter="sendMessage" placeholder="輸入訊息..."
+                        class="flex-1 border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-xl text-sm focus:ring-primary dark:text-white">
+                    <button @click="sendMessage" class="p-2 bg-primary text-white rounded-xl hover:bg-blue-600">
+                        <span class="material-icons">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上傳任務成果 Modal -->
+    <div v-if="showUpload"
+        class="fixed inset-0 z-[110] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[450px] shadow-2xl border border-gray-100 dark:border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold dark:text-white">上傳任務成果</h3>
+                <button @click="showUpload = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            <p class="text-sm text-gray-500 mb-6 font-medium">檔案上傳後將由業務進行審核，確認無誤後任務才會結案。</p>
+
+            <!-- 待審核檔案列表 -->
+            <div v-if="activeTask && activeTask.documents && activeTask.documents.filter(d => d.status === '待審核').length > 0"
+                class="mb-6">
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">已上傳待審核檔案</h4>
+                <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
+                    <div v-for="doc in activeTask.documents.filter(d => d.status === '待審核')" :key="doc.id"
+                        class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-primary/30 transition-colors">
+                        <div class="flex items-center space-x-3 overflow-hidden">
+                            <!-- 圖檔預覽或圖示 -->
+                            <div v-if="doc.fileType && doc.fileType.startsWith('image/')"
+                                class="w-8 h-8 rounded flex-shrink-0 overflow-hidden bg-gray-200">
+                                <img :src="'/' + doc.filePath" class="w-full h-full object-cover">
+                            </div>
+                            <div v-else
+                                class="w-8 h-8 rounded flex-shrink-0 flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-500">
+                                <span class="material-icons text-xl">{{ getFileIcon(doc.fileType) }}</span>
+                            </div>
+                            <div class="flex flex-col overflow-hidden">
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">{{ doc.name
+                                    }}</span>
+                                <span class="text-[9px] text-gray-400">{{ (doc.fileType ||
+                                    '未知類型').split('/')[1]?.toUpperCase() }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 flex-shrink-0">
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">待審核</span>
+                            <button @click.stop="deleteUploadedFile(doc)"
+                                class="w-6 h-6 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                                title="取消上傳並刪除檔案">
+                                <span class="material-icons text-base">close</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-6 text-center hover:border-primary transition-colors cursor-pointer mb-6 relative group bg-gray-50/50 dark:bg-gray-900/30">
+                <!-- 修改 accept 以支援圖檔 -->
+                <input type="file" id="file-input" @change="handleFile" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip"
+                    class="absolute inset-0 opacity-0 cursor-pointer">
+
+                <div v-if="!selectedFile" class="pointer-events-none transition-transform group-hover:scale-105">
+                    <span
+                        class="material-icons text-4xl text-gray-300 group-hover:text-primary transition-colors mb-2">cloud_upload</span>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">點擊或拖拽檔案至此</p>
+                    <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tight">支援：圖檔、PDF、Office 文件 (10MB內)</p>
+                </div>
+
+                <div v-else class="pointer-events-none flex flex-col items-center">
+                    <div v-if="imagePreview"
+                        class="w-20 h-20 rounded-lg overflow-hidden border-2 border-primary/20 mb-2 shadow-sm">
+                        <img :src="imagePreview" class="w-full h-full object-cover">
+                    </div>
+                    <span v-else class="material-icons text-4xl text-primary mb-2">{{ getFileIcon(selectedFile.type)
+                        }}</span>
+                    <p
+                        class="text-xs text-primary font-bold bg-blue-50 dark:bg-blue-900/40 py-1.5 px-3 rounded-xl border border-blue-100 dark:border-blue-800/50">
+                        {{ fileNameDisplay }} ({{ (selectedFile.size / 1024 / 1024).toFixed(2) }}MB)
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex space-x-3">
+                <button @click="showUpload = false" :disabled="uploadLoading"
+                    class="flex-1 py-2.5 text-gray-500 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors disabled:opacity-50">取消</button>
+                <button @click="confirmUpload" :disabled="!selectedFile || uploadLoading"
+                    class="flex-1 py-2.5 bg-primary text-white rounded-xl font-bold shadow-md shadow-primary/20 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:shadow-none flex items-center justify-center">
+                    <template v-if="uploadLoading">
+                        <span class="material-icons animate-spin text-sm mr-2">autorenew</span>
+                        上傳中...
+                    </template>
+                    <template v-else>
+                        確認上傳
+                    </template>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert / Confirm Modal -->
+    <div v-if="alertConfig.show" class="fixed inset-0 z-[150] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-80 max-w-[90%] transform transition-all duration-300 border border-gray-100 dark:border-gray-700">
+            <div class="p-6 text-center">
+                <div v-if="alertConfig.type === 'success'" class="w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/40 text-green-500 mx-auto flex items-center justify-center mb-4">
+                    <span class="material-icons text-3xl">check_circle</span>
+                </div>
+                <div v-else-if="alertConfig.type === 'confirm'" class="w-14 h-14 rounded-full bg-amber-50 dark:bg-amber-900/40 text-amber-500 mx-auto flex items-center justify-center mb-4">
+                    <span class="material-icons text-3xl">help_outline</span>
+                </div>
+                <div v-else-if="alertConfig.type === 'error'" class="w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/40 text-red-500 mx-auto flex items-center justify-center mb-4">
+                    <span class="material-icons text-3xl">error_outline</span>
+                </div>
+                <div v-else class="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-500 mx-auto flex items-center justify-center mb-4">
+                    <span class="material-icons text-3xl">info</span>
+                </div>
+                
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ alertConfig.title }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ alertConfig.message }}</p>
+                
+                <div class="flex space-x-3">
+                    <button v-if="alertConfig.type === 'confirm'" @click="alertConfig.onCancel" class="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors">取消</button>
+                    <button @click="alertConfig.onConfirm" class="flex-1 py-2.5 px-4 bg-primary hover:bg-blue-600 text-white rounded-xl font-medium shadow-md shadow-primary/20 transition-colors">確定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, onMounted, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const emp = reactive({
+                    id: sessionStorage.getItem('empId'),
+                    name: sessionStorage.getItem('empName'),
+                    position: sessionStorage.getItem('position'),
+                    deptId: sessionStorage.getItem('deptId'),
+                    imgPath: sessionStorage.getItem('imgPath')
+                });
+
+                if (!emp.id) {
+                    window.location.replace('login.html');
+                    return {};
+                }
+
+                const ongoingTasks = ref([]);
+                const historyTasks = ref([]);
+                const showChat = ref(false);
+                const showUpload = ref(false);
+                const chatReadOnly = ref(false);
+                const activeTask = ref(null);
+                const chatMessages = ref([]);
+                const chatInput = ref('');
+                const chatLoading = ref(false);
+                const selectedFile = ref(null);
+                const fileNameDisplay = ref('');
+                const imagePreview = ref('');
+                const uploadLoading = ref(false);
+                const unreadTasks = ref(new Set());
+
+                // Modal Alert State
+                const alertConfig = reactive({
+                    show: false,
+                    title: '',
+                    message: '',
+                    type: 'info', // info, success, confirm
+                    onConfirm: () => {},
+                    onCancel: () => {}
+                });
+
+                const showAlert = (message, title = '系統提示', type = 'info') => {
+                    return new Promise((resolve) => {
+                        alertConfig.title = title;
+                        alertConfig.message = message;
+                        alertConfig.type = type;
+                        alertConfig.onConfirm = () => {
+                            alertConfig.show = false;
+                            resolve(true);
+                        };
+                        alertConfig.show = true;
+                    });
+                };
+
+                const showConfirm = (message, title = '確認操作') => {
+                    return new Promise((resolve) => {
+                        alertConfig.title = title;
+                        alertConfig.message = message;
+                        alertConfig.type = 'confirm';
+                        alertConfig.onConfirm = () => {
+                            alertConfig.show = false;
+                            resolve(true);
+                        };
+                        alertConfig.onCancel = () => {
+                            alertConfig.show = false;
+                            resolve(false);
+                        };
+                        alertConfig.show = true;
+                    });
+                };
+
+                const currentPage = ref(1);
+                const itemsPerPage = ref(5);
+
+                const paginatedHistoryTasks = Vue.computed(() => {
+                    const start = (currentPage.value - 1) * itemsPerPage.value;
+                    const end = start + itemsPerPage.value;
+                    return historyTasks.value.slice(start, end);
+                });
+
+                const totalPages = Vue.computed(() => {
+                    return Math.ceil(historyTasks.value.length / itemsPerPage.value);
+                });
+
+                const nextPage = () => {
+                    if (currentPage.value < totalPages.value) currentPage.value++;
+                };
+
+                const prevPage = () => {
+                    if (currentPage.value > 1) currentPage.value--;
+                };
+
+                const fetchTaskById = async (taskId) => {
+                    try {
+                        const response = await fetch(`/api/employee/task/${emp.id}`, { credentials: 'include' });
+                        if (response.ok) {
+                            const data = await response.json();
+                            return data.find(t => t.taskId === taskId);
+                        }
+                    } catch (e) { console.error('Error fetching task by id:', e); }
+                    return null;
+                };
+
+                const deleteUploadedFile = async (doc) => {
+                    if (!(await showConfirm(`確定要刪除待審核檔案「${doc.name}」嗎？`, '刪除檔案'))) return;
+                    try {
+                        const response = await fetch(`/api/employee/task/document/${doc.id}`, {
+                            method: 'DELETE',
+                            credentials: 'include'
+                        });
+                        if (response.ok) {
+                            // 重新整理目前正在編輯的任務資料
+                            if (activeTask.value) {
+                                const updatedTask = await fetchTaskById(activeTask.value.taskId);
+                                if (updatedTask) activeTask.value = updatedTask;
+                            }
+                            fetchOngoingTasks();
+                        } else {
+                            showAlert('刪除失敗，請稍後再試', '操作失敗', 'error');
+                        }
+                    } catch (e) {
+                        console.error('Delete failed:', e);
+                        showAlert('刪除失敗，請檢查網路連線', '網路錯誤', 'error');
+                    }
+                };
+
+                const fetchOngoingTasks = async () => {
+                    try {
+                        const response = await fetch(`/api/employee/task/${emp.id}`, { credentials: 'include' });
+                        if (response.ok) {
+                            const data = await response.json();
+                            // 排序：截止期限 (deadline) 由近到遠
+                            ongoingTasks.value = data.sort((a, b) => {
+                                const dateA = a.deadline ? new Date(a.deadline) : new Date(8640000000000000);
+                                const dateB = b.deadline ? new Date(b.deadline) : new Date(8640000000000000);
+                                return dateA - dateB;
+                            });
+
+                            // 檢查每個任務的最新留言
+                            ongoingTasks.value.forEach(async (task) => {
+                                try {
+                                    const chatRes = await fetch(`/api/employee/tc/${task.taskId}`, { credentials: 'include' });
+                                    if (chatRes.ok) {
+                                        const messages = await chatRes.json();
+                                        if (messages.length > 0) {
+                                            const lastMsg = messages[messages.length - 1];
+                                            // 如果最新留言的發送者不是目前員工，則標記為有新訊息（紅點）
+                                            // 注意：後端回傳的是 creatorId
+                                            if (String(lastMsg.creatorId) !== String(emp.id)) {
+                                                unreadTasks.value.add(task.taskId);
+                                            } else {
+                                                unreadTasks.value.delete(task.taskId);
+                                            }
+                                        } else {
+                                            unreadTasks.value.delete(task.taskId);
+                                        }
+                                    }
+                                } catch (e) { console.error('Check unread error:', e); }
+                            });
+                        }
+                    } catch (e) { console.error('Error fetching ongoing tasks:', e); }
+                };
+
+                const fetchHistoryTasks = async () => {
+                    try {
+                        const response = await fetch(`/api/employee/task/history/${emp.id}`, { credentials: 'include' });
+                        if (response.ok) {
+                            const data = await response.json();
+                            // 排序：依據更新日期 (updateAt) 由新到舊
+                            historyTasks.value = data.sort((a, b) => {
+                                const dateA = a.updateAt ? new Date(a.updateAt) : new Date(0);
+                                const dateB = b.updateAt ? new Date(b.updateAt) : new Date(0);
+                                return dateB - dateA;
+                            });
+                        }
+                    } catch (e) { console.error('Error fetching history tasks:', e); }
+                };
+
+                const openChat = async (task, readOnly = false) => {
+                    activeTask.value = task;
+                    chatReadOnly.value = readOnly;
+                    showChat.value = true;
+
+                    // 點開後清除紅點
+                    unreadTasks.value.delete(task.taskId);
+
+                    await fetchChatMessages(task.taskId);
+                };
+
+                const fetchChatMessages = async (taskId) => {
+                    chatLoading.value = true;
+                    try {
+                        const response = await fetch(`/api/employee/tc/${taskId}`, { credentials: 'include' });
+                        if (response.ok) {
+                            chatMessages.value = await response.json();
+                            nextTick(() => {
+                                const container = document.getElementById('chat-content');
+                                if (container) container.scrollTop = container.scrollHeight;
+                            });
+                        }
+                    } catch (e) { console.error('Error fetching chat:', e); }
+                    finally { chatLoading.value = false; }
+                };
+
+                const sendMessage = async () => {
+                    if (!chatInput.value.trim() || !activeTask.value) return;
+                    try {
+                        const response = await fetch('/api/employee/tc/mesg', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({
+                                taskId: activeTask.value.taskId,
+                                createBy: emp.id,
+                                content: chatInput.value.trim()
+                            })
+                        });
+                        if (response.ok) {
+                            chatInput.value = '';
+                            await fetchChatMessages(activeTask.value.taskId);
+                        }
+                    } catch (e) { console.error('Error sending message:', e); }
+                };
+
+                const openUpload = (task) => {
+                    activeTask.value = task;
+                    showUpload.value = true;
+                    selectedFile.value = null;
+                    fileNameDisplay.value = '';
+                    imagePreview.value = '';
+                };
+
+                const getFileIcon = (fileType) => {
+                    if (!fileType) return 'insert_drive_file';
+                    if (fileType.includes('pdf')) return 'picture_as_pdf';
+                    if (fileType.includes('doc')) return 'description';
+                    if (fileType.includes('xls') || fileType.includes('sheet')) return 'table_view';
+                    if (fileType.includes('image')) return 'image';
+                    if (fileType.includes('zip') || fileType.includes('compressed')) return 'inventory_2';
+                    return 'insert_drive_file';
+                };
+
+                const handleFile = (e) => {
+                    const file = e.target.files[0];
+                    imagePreview.value = '';
+                    if (file) {
+                        const maxSize = 10 * 1024 * 1024; // 10MB
+                        if (file.size > maxSize) {
+                            showAlert('檔案大小超過 10MB 限制，請重新選擇較小的檔案。', '檔案過大', 'info');
+                            e.target.value = '';
+                            selectedFile.value = null;
+                            fileNameDisplay.value = '';
+                            return;
+                        }
+                        selectedFile.value = file;
+                        fileNameDisplay.value = file.name;
+
+                        // 如果是圖檔，建立預覽
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                imagePreview.value = event.target.result;
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                };
+
+                const confirmUpload = async () => {
+                    if (!selectedFile.value || !activeTask.value) return showAlert('請選擇檔案');
+
+                    const fd = new FormData();
+                    fd.append('file', selectedFile.value);
+                    fd.append('taskId', activeTask.value.taskId);
+                    fd.append('empId', emp.id);
+
+                    uploadLoading.value = true;
+                    try {
+                        const response = await fetch('/api/employee/task/upload', {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: fd
+                        });
+                        if (response.ok) {
+                            await showAlert(`檔案「${selectedFile.value.name}」已成功上傳並提交審核！`, '上傳成功', 'success');
+                            showUpload.value = false;
+                            // 重新整理任務資料以顯示新上傳的檔案
+                            const updatedTask = await fetchTaskById(activeTask.value.taskId);
+                            if (updatedTask) activeTask.value = updatedTask;
+                            fetchOngoingTasks();
+                        } else {
+                            const error = await response.json();
+                            showAlert(`上傳失敗：${error.message || '未知錯誤'}`, '系統提示', 'error');
+                        }
+                    } catch (e) {
+                        console.error('Upload failed:', e);
+                        showAlert('上傳失敗，請檢查網路連線或檔案格式', '網路錯誤', 'error');
+                    } finally {
+                        uploadLoading.value = false;
+                    }
+                };
+
+                const submitAudit = async (task) => {
+                    if (!(await showConfirm("確定要將此任務成果提交給業務審核嗎？任務狀態將改為「待審核」。", "提交任務成果"))) return;
+                    try {
+                        const response = await fetch('/api/employee/task/status', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ taskId: task.taskId, status: '待審核' })
+                        });
+                        if (response.ok) {
+                            await showAlert("任務已成功提交審核！", "提交成功", "success");
+                            fetchOngoingTasks();
+                            fetchHistoryTasks();
+                        }
+                    } catch (e) { console.error('Status update failed:', e); }
+                };
+
+                const isUrgent = (deadline) => {
+                    if (!deadline) return false;
+                    return (new Date(deadline) - new Date() < 86400000 * 3);
+                };
+
+                const formatDate = (date) => {
+                    if (!date) return '未設定';
+                    const d = new Date(date);
+                    return `${d.getFullYear()}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')}`;
+                };
+
+                // 專門為留言板設計：顯示 年/月/日 時:分:秒，並修正 8 小時時區差問題
+                const formatFullTime = (dateStr) => {
+                    if (!dateStr) return '';
+
+                    let d;
+                    if (typeof dateStr === 'string' && dateStr.includes('T') && !dateStr.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(dateStr)) {
+                        d = new Date(dateStr.replace('T', ' '));
+                    } else {
+                        d = new Date(dateStr);
+                    }
+
+                    if (isNaN(d.getTime())) return dateStr;
+
+                    // 修正 8 小時時區差問題：
+                    // 使用者反應資料庫存 7:36，實際是 15:36 送出，代表差了 8 小時
+                    // d.setHours(d.getHours() + 8);
+
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const y = d.getFullYear();
+                    const mo = pad(d.getMonth() + 1);
+                    const da = pad(d.getDate());
+                    const h = pad(d.getHours());
+                    const mi = pad(d.getMinutes());
+                    const s = pad(d.getSeconds());
+
+                    return `${y}/${mo}/${da} ${h}:${mi}:${s}`;
+                };
+
+                const formatTime = (date) => date ? new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+                onMounted(() => {
+                    fetchOngoingTasks();
+                    fetchHistoryTasks();
+
+                    // Apply avatar to sidebar/header from session
+                    const fullPath = emp.imgPath ? (emp.imgPath.startsWith('http') ? emp.imgPath : '/' + emp.imgPath) : './Img/smile.jpg';
+                    const sbAv = document.getElementById('sidebar-avatar');
+                    const hrAv = document.getElementById('header-avatar');
+                    if (sbAv) sbAv.src = fullPath;
+                    if (hrAv) hrAv.src = fullPath;
+                });
+
+                return {
+                    emp, ongoingTasks, historyTasks, showChat, showUpload, chatReadOnly,
+                    activeTask, chatMessages, chatInput, chatLoading, fileNameDisplay, imagePreview, selectedFile, uploadLoading,
+                    currentPage, itemsPerPage, paginatedHistoryTasks, totalPages, nextPage, prevPage, unreadTasks,
+                    alertConfig, showAlert, showConfirm,
+                    openChat, fetchOngoingTasks, fetchHistoryTasks, sendMessage, openUpload, handleFile, confirmUpload, submitAudit,
+                    deleteUploadedFile,
+                    isUrgent, formatDate, formatFullTime, formatTime, getFileIcon
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

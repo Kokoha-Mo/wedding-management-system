@@ -1,0 +1,735 @@
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>DREAM VENUES - 婚禮方案</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="./global.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400;500&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <script src="./global.js"></script>
+    <script src="./login.js"></script>
+
+    <style>
+        /* ═══ 方案卡片主體 (A區塊) 美化 ═══ */
+        .main-package-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 50px 60px;
+            /* 增加內部留白空間 */
+            /* ▼ 將底部的 margin 從 80px 縮小到 40px，讓下方的加購區塊往上提 ▼ */
+            margin: 60px auto 40px auto;
+            max-width: 100vh;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--accent-gold);
+            position: relative;
+        }
+
+        .ribbon {
+            position: absolute;
+            top: 0;
+            right: 50px;
+            background: #9DAA97;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 0 0 8px 8px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+        }
+
+        /* 標題與價格區塊美化 */
+        .card-header {
+            margin-top: 20px;
+            margin-bottom: 60px;
+            padding-bottom: 50px;
+            border-bottom: 1px solid var(--border-grey);
+            /* 加入底部分隔線 */
+            text-align: center;
+        }
+
+        .card-header h3 {
+            font-family: var(--font-serif);
+            font-size: 32px;
+            letter-spacing: 0.1em;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .card-header p {
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+        }
+
+        .card-header .price {
+            font-size: 32px;
+            font-weight: 300;
+            color: #9DAA97;
+        }
+
+        .card-header .price span {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* 兩欄內容排版美化 */
+        .sub-services {
+            display: flex;
+            gap: 0;
+            /* 移除原本的 gap，改用 padding 控管間距 */
+        }
+
+        .service-col {
+            flex: 1;
+            padding: 0 40px;
+        }
+
+        .service-col h4 {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            color: var(--accent-gold);
+            margin-bottom: 30px;
+            /* text-align: center; */
+            letter-spacing: 0.15em;
+        }
+
+        .service-col ul {
+            list-style: none;
+            padding: 0;
+            column-count: 1;
+            /* 取消雙欄顯示，讓文字垂直排列更有高級感 */
+        }
+
+        .service-col li {
+            font-size: 13px;
+            color: #7A7571;
+            padding: 10px 0 10px 24px;
+            /* 增加上下間距 */
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .service-col li:last-child {
+            border-bottom: none;
+        }
+
+        .service-col li::before {
+            content: '✔';
+            position: absolute;
+            left: 0;
+            color: var(--accent-gold);
+            font-size: 12px;
+            /* 稍微放大一點點讓打勾更好看 */
+            top: 11px;
+            /* 微調垂直位置置中 */
+        }
+
+        /* 在兩欄中間加入垂直線 */
+        .service-col:first-child {
+            border-right: 1px solid var(--border-grey);
+            padding-right: 40px;
+        }
+
+        .service-col:last-child {
+            padding-left: 40px;
+        }
+
+
+        /* ═══ 可加購方案區塊 (B, C, D) 美化 ═══ */
+        .section-title {
+            text-align: center;
+            font-family: var(--font-serif);
+            font-size: 28px;
+            letter-spacing: 0.1em;
+            margin-bottom: 40px;
+            color: var(--text-main);
+        }
+
+        .addon-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto 120px auto;
+        }
+
+        .addon-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 40px 30px;
+            flex: 1;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-grey);
+            display: flex;
+            flex-direction: column;
+            /* 讓內容可彈性分配高度 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .addon-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+            border-color: #C5ACA7;
+            /* hover時邊框變色 */
+        }
+
+        /* 字母浮水印設計 */
+        .addon-letter {
+            font-family: var(--font-serif);
+            color: #F6F4F0;
+            /* 極淡的燕麥色 */
+            font-size: 68px;
+            line-height: 1;
+            text-align: center;
+            margin-bottom: -10px;
+            /* 讓字母與標題稍微重疊產生設計感 */
+            user-select: none;
+        }
+
+        .addon-name {
+            font-family: var(--font-serif);
+            font-size: 20px;
+            color: var(--text-main);
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 0.1em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .addon-desc {
+            font-size: 13px;
+            color: #7A7571;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* 注意事項區塊 */
+        .addon-notes {
+            margin-top: 15px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border-grey);
+        }
+
+        .addon-notes strong {
+            display: block;
+            font-size: 12px;
+            color: #C5ACA7;
+            margin-bottom: 10px;
+            letter-spacing: 0.1em;
+        }
+
+        .addon-notes ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .addon-notes li {
+            font-size: 12px;
+            color: var(--text-muted);
+            padding-left: 14px;
+            position: relative;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .addon-notes li::before {
+            content: '*';
+            position: absolute;
+            left: 0;
+            color: #C5ACA7;
+        }
+
+        /* 底部價格與按鈕區域 (自動推到底部對齊) */
+        .addon-card-bottom {
+            margin-top: auto;
+            text-align: center;
+            padding-top: 30px;
+        }
+
+        .addon-price {
+            color: #C5ACA7;
+            font-family: var(--font-serif);
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .addon-price span {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 400;
+            font-family: var(--font-sans);
+        }
+
+        .price-suffix {
+            font-size: 0.5em;
+            margin-left: 5px;
+            vertical-align: baseline;
+        }
+
+
+        /* ═══ 底部結算欄與按鈕 ═══ */
+        .sticky-checkout {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border-top: 1px solid var(--border-grey);
+            padding: 15px 0;
+            z-index: 1000;
+        }
+
+        .checkout-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .price-summary .amount {
+            font-size: 28px;
+            font-weight: bold;
+            color: #BCAE9B;
+        }
+
+        .btn-reserve {
+            background: #BCAE9B !important;
+            color: #FFFFFF !important;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-reserve:hover {
+            background: #A69683 !important;
+        }
+
+        .btn-reset {
+            background: #F9F8F5 !important;
+            border: 1px solid #EBE7E0 !important;
+            color: #3A3836 !important;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .addon-btn {
+            background: transparent !important;
+            border: 1px solid #EBE7E0 !important;
+            color: #C5ACA7 !important;
+            padding: 10px 0;
+            /* 改為上下 padding */
+            width: 100%;
+            /* 按鈕佔滿卡片寬度，視覺更大氣 */
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .addon-btn:hover {
+            border-color: #C5ACA7 !important;
+        }
+
+        .addon-btn.selected {
+            background: #C5ACA7 !important;
+            color: #FFFFFF !important;
+            border-color: #C5ACA7 !important;
+        }
+
+        /* 手機版排版切換 */
+        @media(max-width: 991.98px) {
+            .main-package-card {
+                padding: 40px 24px;
+                margin: 60px 16px 40px 16px;
+                max-width: calc(100% - 32px);
+            }
+
+            .sub-services {
+                flex-direction: column;
+            }
+
+            .service-col:first-child {
+                border-right: none;
+                padding-right: 0;
+                border-bottom: 1px solid var(--border-grey);
+                margin-bottom: 40px;
+                padding-bottom: 40px;
+            }
+
+            .service-col:last-child {
+                padding-left: 0;
+            }
+
+            .addon-container {
+                flex-direction: column;
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ─── 導覽列 ─── -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid" style="max-width:1600px; margin:0 auto;">
+            <a class="navbar-brand" href="./index.html">
+                <span class="brand-name">DREAM VENUES</span>
+                <span class="brand-sub">High-End Wedding Journal</span>
+            </a>
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#navMenu"
+                aria-controls="navMenu" aria-label="開啟選單">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenuDesktop">
+                <ul class="navbar-nav ms-lg-4 gap-lg-1">
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">婚禮團隊</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
+                </ul>
+                <div class="navbar-tools d-none d-lg-flex align-items-center gap-3 ms-auto">
+
+                    <div class="nav-item dropdown" id="userDropdownWrap" style="display:none;">
+                        <a class="nav-link nav-link-item" href="#" id="userDropdownBtn" data-bs-toggle="dropdown">歡迎</a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="./customer_system.html">我的婚禮規劃</a></li>
+                            <li><a class="dropdown-item" href="./customer_progress.html">我的籌備進度</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
+                        </ul>
+                    </div>
+                    <a class="nav-link nav-link-item" href="client_login.html" id="loginLinkDesktop">會員登入</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ─── 手機版 Offcanvas ─── -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="navMenu">
+        <div class="offcanvas-header">
+            <a class="navbar-brand" href="./index.html">
+                <span class="brand-name" style="font-size:14px;">DREAM VENUES</span>
+                <span class="brand-sub">High-End Wedding Journal</span>
+            </a>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="關閉"></button>
+        </div>
+        <div class="offcanvas-body">
+
+            <div id="mobileUserMenu"
+                style="padding-bottom:12px; margin-bottom:4px; border-bottom:1px solid rgba(197,160,89,0.15);">
+                <p id="mobileWelcome"
+                    style="font-size:15px; letter-spacing:0.12em; color:var(--accent-gold); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                </p>
+                <a href="./customer_system.html" class="nav-link nav-link-item"
+                    style="padding:10px 0; display:block;">我的婚禮規劃</a>
+                <a href="./customer_progress.html" class="nav-link nav-link-item"
+                    style="padding:10px 0; display:block;">我的籌備進度</a>
+            </div>
+
+            <ul class="navbar-nav gap-0">
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">專業團隊</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
+            </ul>
+
+            <a href="./client_login.html" class="offcanvas-login" id="loginLinkMobile">
+                <span class="material-symbols-outlined"
+                    style="font-size:16px; vertical-align:middle; margin-right:6px;">person</span>
+                會員登入
+            </a>
+
+            <a href="#" id="logoutBtnMobile" class="nav-link nav-link-item"
+                style="padding:14px 0; display:none; letter-spacing:0.08em;">
+                <span class="material-symbols-outlined"
+                    style="font-size:16px; vertical-align:middle; margin-right:6px;">logout</span>
+                登出
+            </a>
+        </div>
+    </div>
+
+
+    <div class="page-wrap">
+        <div class="page-hero has-bg">
+            <p class="page-hero-eyebrow">Wedding Package</p>
+            <h1 class="page-hero-title">婚禮方案</h1>
+            <div class="page-hero-line"></div>
+            <p class="page-hero-sub">量身訂製婚禮提案，完美實踐您的夢想藍圖</p>
+        </div>
+
+        <main class="container">
+            <div class="main-package-card">
+                <div class="ribbon">核心方案</div>
+                <div class="card-header">
+                    <h3>A. 婚宴全程統籌</h3>
+                    <p>本方案為獨立訂購核心，不可取消</p>
+                    <div class="price">NT$ 43,800 <span>起</span></div>
+                    <input type="radio" name="main_package" value="43800" checked style="display:none">
+                </div>
+
+                <div class="sub-services">
+                    <div class="service-col">
+                        <h4>婚禮顧問統籌</h4>
+                        <ul>
+                            <li>婚禮整體籌備協助</li>
+                            <li>婚禮籌備期程規劃建議</li>
+                            <li>婚禮細節安排</li>
+                            <li>相關廠商媒合推薦</li>
+                            <li>周邊廠商整合統籌</li>
+                            <li>親友工作人員職掌建議</li>
+                            <li>婚宴場地場勘</li>
+                            <li>空間動線規劃建議</li>
+                            <li>確認婚禮細節會議</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-col">
+                        <h4>宴會企劃執行</h4>
+                        <ul>
+                            <li>宴會訂製流程規劃</li>
+                            <li>各團隊工作協調</li>
+                            <li>宴會時程掌控</li>
+                            <li>婚顧主場控指揮統籌</li>
+                            <li>婚禮助理1名</li>
+                            <li>專業影音場控1名</li>
+                            <li>流程音樂曲目建議</li>
+                            <li>宴客備品代購</li>
+                            <li>婚禮當日彩排引導</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <section class="addon-section">
+                <h3 class="section-title">可加購方案</h3>
+
+                <div class="addon-container">
+
+                    <div class="addon-card">
+                        <div class="addon-content">
+                            <div class="addon-letter">B</div>
+                            <h4 class="addon-name">專業婚禮團隊</h4>
+                            <div class="addon-desc">
+                                <p>嚴選業界頂尖職人，為您建構無懈可擊的婚禮陣容</p>
+                            </div>
+                            <div class="addon-notes">
+                                <strong>團隊職人項目 (依需求報價)</strong>
+                                <ul>
+                                    <li>新娘秘書 / 專屬造型師</li>
+                                    <li>專業婚禮主持人</li>
+                                    <li>婚禮平面攝影 / 動態錄影</li>
+                                    <li>專業影音與燈光場控</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="addon-card-bottom">
+                            <p class="addon-price">NT$ 16,800 <span>起</span></p>
+                            <button type="button" class="addon-btn" data-price="16800">點擊加購</button>
+                        </div>
+                    </div>
+
+                    <div class="addon-card">
+                        <div class="addon-content">
+                            <div class="addon-letter">C</div>
+                            <h4 class="addon-name">儀式規劃執行</h4>
+                            <div class="addon-desc">
+                                <p>提供全方位流程規劃與現場引導，成就您的經典時刻。</p>
+                            </div>
+                            <div class="addon-notes">
+                                <strong>注意事項</strong>
+                                <ul>
+                                    <li>適用於文定/迎娶/證婚儀式</li>
+                                    <li>不包含儀式所需之實體道具</li>
+                                    <li>若超時執行將酌收超時費用</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="addon-card-bottom">
+                            <p class="addon-price">NT$ 15,800 <span>起</span></p>
+                            <button type="button" class="addon-btn" data-price="15800">點擊加購</button>
+                        </div>
+                    </div>
+
+                    <div class="addon-card">
+                        <div class="addon-content">
+                            <div class="addon-letter">D</div>
+                            <h4 class="addon-name">客製化視覺佈置</h4>
+                            <div class="addon-desc">
+                                <p>將您的非凡品味化為具象，打造令人屏息的唯美空間。</p>
+                            </div>
+                            <div class="addon-notes">
+                                <strong>注意事項</strong>
+                                <ul>
+                                    <li>實際報價依最終設計圖為準</li>
+                                    <li>特殊節慶檔期花材需另計價</li>
+                                    <li>佈置道具及硬體設備若有人為損壞或遺失，需照價賠償</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="addon-card-bottom">
+                            <p class="addon-price">NT$ 15,000 <span>起</span></p>
+                            <button type="button" class="addon-btn" data-price="15000">點擊加購</button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="container mb-5"
+                style="border-top: 1px solid var(--border-grey); padding-top: 60px; padding-bottom: 120px; margin-top: -40px;">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="d-flex align-items-center mb-4">
+                            <span
+                                style="width: 30px; height: 1px; background: var(--accent-gold); display: inline-block; margin-right: 15px;"></span>
+                            <h4
+                                style="font-family: var(--font-serif); letter-spacing: 0.1em; margin: 0; color: var(--accent-gold); font-size: 20px;">
+                                Service Terms / 注意事項</h4>
+                        </div>
+
+                        <div class="row g-4" style="font-size: 13px; color: var(--text-muted); line-height: 1.8;">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-4">
+                                        <strong
+                                            style="color: var(--text-main); display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">01.
+                                            預約與訂金</strong>
+                                        確認方案後需支付總金額 20% 作為預訂金，方可保留當日服務檔期。
+                                    </li>
+                                    <li class="mb-4">
+                                        <strong
+                                            style="color: var(--text-main); display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">02.
+                                            服務時段及車馬費用說明</strong>
+                                        <span style="display: block; margin-bottom: 4px;">▪ 單儀式加午宴服務以 8 小時為限，超時費為 NT$
+                                            2,000/hr。</span>
+                                        <span style="display: block; color: #A69683;">▪ 台中市免車馬費，外縣市需另付。</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-4">
+                                        <strong
+                                            style="color: var(--text-main); display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">03.
+                                            方案訂購說明</strong>
+                                        A方案可單獨訂購。
+                                    </li>
+                                    <li class="mb-4">
+                                        <strong
+                                            style="color: var(--text-main); display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">04.
+                                            變更與取消</strong>
+                                        如遇不可抗力之因素（如政府公告停班停課），可無條件改期乙次。<br> 個人因素取消則按合約比例退回訂金。
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 p-3 rounded">
+                            <p class="m-0" style="font-size: 12px; color: var(--accent-gold); letter-spacing: 0.05em;">
+                                * 以上價格均為未稅價。DREAM VENUES 保有方案最終解釋權與內容調整之權利。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="sticky-checkout">
+        <div class="checkout-content">
+            <div class="price-summary">
+                <span class="label">預估總額</span>
+                <span class="amount" id="totalPriceDisplay">43,800</span>
+            </div>
+            <div class="action-btns">
+                <button class="btn-reset">重置選項</button>
+                <a href="./wedding_contact.html" class="btn-reserve"
+                    style="text-decoration: none; display: inline-block;">預約諮詢此方案</a>
+            </div>
+        </div>
+    </footer>
+
+    <button id="backToTop" class="back-to-top">
+        <span class="material-symbols-outlined">arrow_upward</span>
+    </button>
+    <script>
+        /**
+         * 1. 方案金額計算邏輯 (頁面專屬)
+         */
+        function calculateTotal() {
+            let total = 0;
+            const mainPackage = document.querySelector('input[name="main_package"]:checked');
+            if (mainPackage) total += parseInt(mainPackage.value, 10) || 0;
+
+            // 加總所有選中的加購按鈕金額
+            document.querySelectorAll('.addon-btn.selected').forEach(btn => {
+                const p = parseInt(btn.dataset.price, 10) || 0;
+                total += p;
+            });
+
+            let formattedTotal = total.toLocaleString();
+
+            document.getElementById('totalPriceDisplay').innerHTML =
+                ` NT$ ${formattedTotal} <span class="price-suffix">起</span>`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化計算金額
+            calculateTotal();
+
+            // 處理加購按鈕點擊事件
+            document.querySelectorAll('.addon-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.classList.toggle('selected');
+                    btn.innerText = btn.classList.contains('selected') ? '已選取' : (btn.dataset.price === "0" ? '已選取' : '點擊加購');
+                    calculateTotal();
+                });
+            });
+
+            //重置按鈕邏輯
+            const resetBtn = document.querySelector('.btn-reset');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    document.querySelectorAll('.addon-btn.selected').forEach(b => {
+                        b.classList.remove('selected');
+                        b.innerText = b.dataset.price === "0" ? '點擊加購' : '點擊加購';
+                    });
+                    calculateTotal();
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

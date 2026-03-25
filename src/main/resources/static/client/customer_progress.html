@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>DREAM VENUES - 我的籌備進度</title>
+
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="./global.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <script src="./js/bootstrap.bundle.js"></script>
+    <script src="./global.js"></script>
+    <script src="./login.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+        /* 籌備進度版面 */
+        .dashboard-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 24px 80px;
+        }
+
+        /* ─── 卡片精品化設計 ─── */
+        .lux-card {
+            background: #ffffff;
+            border: 1px solid rgba(197, 160, 89, 0.15);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            height: 100%;
+        }
+
+        .lux-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(197, 160, 89, 0.06);
+        }
+
+        .card-eyebrow {
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* Overall Progress */
+        /* ─── 進度圓環動畫 ─── */
+        .progress-ring-circle {
+            transition: stroke-dashoffset 1s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* ─── 倒數計時區 ─── */
+        .countdown-number {
+            font-family: var(--font-serif);
+            font-size: 4rem;
+            /* 為了配合圓環稍微縮小為4rem */
+            font-weight: 200;
+            color: var(--accent-gold);
+            line-height: 1;
+        }
+
+        .countdown-divider {
+            width: 40px;
+            height: 1px;
+            background: rgba(197, 160, 89, 0.3);
+            margin: 24px auto;
+        }
+
+        /* ─── Hover 展開式聯絡按鈕 ─── */
+        .btn-contact-pm {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            /* 🌟 改為置中對齊 */
+            height: 28px;
+            width: 28px;
+            border-radius: 20px;
+            background: rgba(197, 160, 89, 0.1);
+            color: var(--accent-gold);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 0;
+        }
+
+        .btn-contact-pm .material-symbols-outlined {
+            font-size: 16px;
+            flex-shrink: 0;
+            /* 移除了固定寬度，讓它自然居中 */
+        }
+
+        .btn-contact-pm .hint-text {
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            max-width: 0;
+            /* 🌟 預設寬度為 0，縮起時才不會把 icon 往左邊擠 */
+            overflow: hidden;
+            /* 🌟 確保文字不會溢出 */
+            margin-left: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-contact-pm:hover {
+            background: var(--accent-gold);
+            color: white;
+            width: 100px;
+        }
+
+        .btn-contact-pm:hover .hint-text {
+            opacity: 1;
+            max-width: 80px;
+            /* 🌟 展開時給予足夠的寬度顯示文字 */
+            margin-left: 4px;
+            /* 讓文字跟圖示之間保留舒適的距離 */
+        }
+
+        /* ─── 新訊息呼吸燈提示 ─── */
+        .pulse-hint {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-gold);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.7);
+            animation: pulse-alert 2s infinite cubic-bezier(0.66, 0, 0, 1);
+            z-index: 10;
+            pointer-events: none;
+            /* 避免擋住下方的按鈕點擊 */
+        }
+
+        @keyframes pulse-alert {
+            to {
+                box-shadow: 0 0 0 8px rgba(197, 160, 89, 0);
+            }
+        }
+
+        /* ─── 專屬討論區 Modal ─── */
+        #chatModal .modal-content {
+            border-radius: 28px;
+            /* 🌟 從原本的 16px 加大到 28px，視覺更圓滑高級 */
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.12);
+            /* 🌟 配合大圓角，稍微擴大且柔化陰影，讓懸浮感更真實 */
+            background: #faf7f2;
+            overflow: hidden;
+            /* 🌟 關鍵：確保內部的 Header/Body 底色不會蓋過圓角的邊緣 */
+        }
+
+        #chatModal .modal-header {
+            border-bottom: 1px dashed rgba(197, 160, 89, 0.2);
+            padding: 24px 32px;
+            background: transparent;
+        }
+
+        #chatModal .modal-body {
+            padding: 28px 32px 32px;
+            background: #faf7f2;
+        }
+
+        #chatModal .chat-modal-close {
+            opacity: 0.4;
+            transition: opacity 0.3s;
+        }
+
+        #chatModal .chat-modal-close:hover {
+            opacity: 1;
+        }
+
+        /* ─── 留言板附加檔案功能樣式 ─── */
+        .btn-attach {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            width: 36px;
+            border-radius: 20px;
+            /* 🌟 關鍵：改用 20px，這樣展開時才會是漂亮的「膠囊狀」而不是橢圓形 */
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+            margin: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 0;
+        }
+
+        .btn-attach .material-symbols-outlined {
+            font-size: 20px;
+            flex-shrink: 0;
+            /* 🌟 關鍵：確保圖示在展開過程中不會被文字擠壓變形 */
+        }
+
+        .btn-attach .hint-text {
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            max-width: 0;
+            overflow: hidden;
+            margin-left: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-attach:hover {
+            background: rgba(197, 160, 89, 0.1);
+            color: var(--accent-gold);
+            width: 105px;
+            /* 給予足夠的寬度顯示文字 */
+        }
+
+        .btn-attach:hover .hint-text {
+            opacity: 1;
+            max-width: 80px;
+            margin-left: 6px;
+            /* 展開後，文字與迴紋針之間保持優雅的間距 */
+        }
+
+        /* ─── 留言板專屬樣式 (對話氣泡版) ─── */
+        .message-board-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .msg-wrapper {
+            display: flex;
+            gap: 16px;
+            max-width: 85%;
+            /* 避免文字太長佔滿整行 */
+        }
+
+        /* 顧問在左邊 */
+        .msg-wrapper.is-pm {
+            align-self: flex-start;
+        }
+
+        /* 客戶在右邊 */
+        .msg-wrapper.is-client {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+            /* 讓頭像和氣泡反向排列 */
+        }
+
+        .msg-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-serif);
+            font-size: 16px;
+            font-weight: 500;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .msg-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .msg-wrapper.is-client .msg-content {
+            align-items: flex-end;
+            /* 客戶端的文字靠右對齊 */
+        }
+
+        .msg-meta {
+            font-size: 11px;
+            color: #aaa;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* 氣泡內的文字 */
+        .msg-bubble {
+            position: relative;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        /* 顧問的氣泡樣式 (帶有一點小尾巴的設計感) */
+        .msg-wrapper.is-pm .msg-bubble {
+            background: rgba(197, 160, 89, 0.08);
+            border: 1px solid rgba(197, 160, 89, 0.15);
+            border-top-left-radius: 4px;
+            /* 左上角做直角，像對話尾巴 */
+        }
+
+        /* 客戶的氣泡樣式 */
+        .msg-wrapper.is-client .msg-bubble {
+            background: #ffffff;
+            border: 1px solid #eaeaea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border-top-right-radius: 4px;
+            /* 右上角做直角，像對話尾巴 */
+        }
+
+        /* 留言輸入框 */
+        .board-textarea {
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 12px;
+            font-size: 14px;
+            padding: 16px;
+            resize: none;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
+            transition: all 0.3s;
+            background-color: #ffffff;
+        }
+
+        .board-textarea:focus {
+            border-color: var(--accent-gold);
+            background-color: #ffffff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+        }
+
+        /* 🌟 新增：用來把預覽區塊推到右邊的容器 */
+        /* 🌟 修改：讓多個預覽圖可以並排顯示 */
+        .upload-preview-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            /* 如果選太多張會自動換行 */
+            gap: 12px;
+            /* 圖片之間的間隔 */
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .upload-preview-box {
+            position: relative;
+            display: inline-block;
+        }
+
+        .upload-preview-box img {
+            max-height: 80px;
+            border-radius: 8px;
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .upload-preview-box .file-name-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            font-size: 12px;
+            color: var(--accent-gold);
+            max-width: 120px;
+        }
+
+        .upload-preview-box .file-name-box span.text-truncate {
+            display: inline-block;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-remove-file {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            color: #ff4d4f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            border: 1px solid #eee;
+            padding: 0;
+            transition: transform 0.2s;
+        }
+
+        .btn-remove-file:hover {
+            transform: scale(1.1);
+        }
+
+        /* 氣泡內顯示的圖片或檔案 */
+        .msg-bubble img {
+            border-radius: 8px;
+            max-width: 200px;
+            display: block;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .msg-file-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--accent-gold);
+            font-size: 12px;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            transition: all 0.2s;
+        }
+
+        .msg-file-link:hover {
+            background: var(--accent-gold);
+            color: white;
+        }
+
+        /* 🌟 新增：氣泡內顯示多張圖片的樣式 */
+        .msg-img-attachment {
+            border-radius: 12px;
+            /* 變得更圓潤 */
+            max-width: 160px;
+            max-height: 160px;
+            object-fit: cover;
+            /* 讓長寬不同的圖片自動裁切成完美比例，不會變形 */
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #faf7f2;
+            /* 載入前的底色 */
+        }
+
+        .msg-img-attachment:hover {
+            transform: translateY(-2px);
+            /* 滑鼠移過去會有輕微上浮感 */
+            box-shadow: 0 8px 24px rgba(197, 160, 89, 0.15);
+        }
+
+        /* ─── 圖片放大燈箱 (Lightbox) ─── */
+        .image-lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            /* 帶有質感的半透明黑底 */
+            z-index: 9999;
+            /* 確保層級最高，能蓋過原本的 Chat Modal */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .image-lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            transform: scale(0.95);
+            animation: zoomIn 0.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* 加點微彈性的動態感 */
+            cursor: default;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        /* 將原本圖片的 hover 游標改成指標 */
+        .msg-img-attachment {
+            cursor: pointer !important;
+        }
+
+        /* Documents */
+        /* ─── 文件列表 ─── */
+        .doc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed var(--border-grey);
+            color: var(--text-main);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .doc-item:last-child {
+            border-bottom: none;
+        }
+
+        .doc-item:hover {
+            color: var(--accent-gold);
+        }
+
+        .doc-item .material-symbols-outlined {
+            font-size: 18px;
+            margin-right: 12px;
+            color: rgba(197, 160, 89, 0.6);
+            font-variation-settings: 'wght' 300;
+        }
+
+        /* ─── 文件區塊優化 ─── */
+        /* 1. 最新檔案的高級卡片 */
+        .latest-doc-card {
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.08), rgba(197, 160, 89, 0.02));
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .latest-doc-card:hover {
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.15), rgba(197, 160, 89, 0.05));
+            border-color: rgba(197, 160, 89, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.1);
+        }
+
+        .doc-icon-box {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gold);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(197, 160, 89, 0.2);
+        }
+
+        /* 2. 歷史檔案的隱藏式質感捲軸 */
+        .doc-list-wrapper {
+            max-height: 180px;
+            /* 大約顯示 4 筆的高度，超過就捲動 */
+            overflow-y: auto;
+            padding-right: 8px;
+            /* 留一點空間給捲軸 */
+            margin-right: -8px;
+        }
+
+        /* 自訂極細捲軸樣式 */
+        .doc-list-wrapper::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .doc-list-wrapper::-webkit-scrollbar-track {
+            background: rgba(197, 160, 89, 0.05);
+            border-radius: 4px;
+        }
+
+        .doc-list-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(197, 160, 89, 0.3);
+            border-radius: 4px;
+        }
+
+        .doc-list-wrapper::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-gold);
+        }
+
+        /* 籌備進度追蹤 */
+        /* ─── 手風琴時間軸 (Timeline Accordion) ─── */
+        .timeline-container {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        /* 展示流程的漸層細金線 */
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            bottom: 28px;
+            left: 28px;
+            width: 1px;
+            background: linear-gradient(to bottom, rgba(197, 160, 89, 0.4) 80%, transparent 100%);
+            z-index: 1;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 16px;
+            background: transparent;
+            border: none;
+        }
+
+        /* 狀態圓點 */
+        .timeline-marker {
+            position: absolute;
+            left: 0;
+            top: 18px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #faf7f2;
+            border: 2px solid #ddd;
+            z-index: 2;
+            transition: all 0.4s ease;
+        }
+
+        /* 已完成狀態 */
+        .timeline-item.completed .timeline-marker {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+        }
+
+        /* 進行中狀態 */
+        .timeline-item.active .timeline-marker {
+            background: #ffffff;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.15);
+        }
+
+        /* Bootstrap Accordion 覆寫 */
+        .accordion-button {
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 16px 0;
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--text-main) !important;
+            letter-spacing: 0.05em;
+        }
+
+        .accordion-button:not(.collapsed) {
+            color: var(--accent-gold) !important;
+        }
+
+        .accordion-button::after {
+            background-size: 1rem;
+            transition: transform 0.4s ease;
+        }
+
+        .accordion-body {
+            padding: 0 0 24px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            line-height: 1.8;
+        }
+
+        /* 進度標籤 */
+        .status-badge {
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-left: 12px;
+            font-weight: 500;
+            font-family: var(--font-sans);
+        }
+
+        .badge-completed {
+            background: rgba(197, 160, 89, 0.1);
+            color: var(--accent-gold);
+        }
+
+        .badge-active {
+            background: var(--accent-gold);
+            color: #ffffff;
+        }
+
+        .badge-pending {
+            border: 1px solid var(--border-grey);
+            color: #aaa;
+        }
+
+        /* 顧問更新留言框 */
+        .pm-update-box {
+            background: #ffffff;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .pm-update-box .material-symbols-outlined {
+            color: var(--accent-gold);
+            font-size: 20px;
+        }
+
+        /* 內部任務清單 */
+        .task-list {
+            list-style: none;
+            padding-left: 4px;
+        }
+
+        /* 內部任務清單 */
+        .task-list li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .task-list .material-symbols-outlined {
+            font-size: 16px;
+        }
+
+        .task-done {
+            color: var(--text-main);
+        }
+
+        .task-done .material-symbols-outlined {
+            color: var(--accent-gold);
+            font-variation-settings: 'FILL' 1;
+        }
+
+        .task-pending {
+            color: #aaa;
+        }
+
+        .task-pending .material-symbols-outlined {
+            color: #ddd;
+        }
+
+
+        /* ─── 婚禮籌備分類標題 ─── */
+        .category-block {
+            background: #faf7f2;
+            border-left: 3px solid rgba(197, 160, 89, 0.35);
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px 8px;
+            margin-bottom: 20px;
+        }
+
+        .category-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .category-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-serif);
+            font-size: 16px;
+            letter-spacing: 0.25em;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed rgba(197, 160, 89, 0.2);
+            width: 100%;
+        }
+
+        .category-label .material-symbols-outlined {
+            font-size: 16px;
+            font-variation-settings: 'wght' 300;
+        }
+
+        .category-progress {
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            color: #bbb;
+            margin-left: auto;
+            font-family: var(--font-sans);
+        }
+
+        /* ─── Happy Ending 結尾區塊 ─── */
+        .happy-ending {
+            position: relative;
+            padding-left: 40px;
+            margin-top: 32px;
+        }
+
+        /* 進度頁面專用 Alert MODAL */
+        .progress-alert-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 15, 10, 0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .progress-alert-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .progress-alert-modal {
+            background: #faf7f2;
+            width: 90%;
+            max-width: 380px;
+            padding: 52px 44px 44px;
+            text-align: center;
+            position: relative;
+            transform: translateY(24px) scale(0.97);
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .progress-alert-overlay.show .progress-alert-modal {
+            transform: translateY(0) scale(1);
+        }
+
+        /* 四角框線 */
+        .progress-alert-modal::before,
+        .progress-alert-modal::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: rgba(197, 160, 89, 0.5);
+            border-style: solid;
+        }
+
+        .progress-alert-modal::before {
+            top: -1px;
+            left: -1px;
+            border-width: 1px 0 0 1px;
+        }
+
+        .progress-alert-modal::after {
+            bottom: -1px;
+            right: -1px;
+            border-width: 0 1px 1px 0;
+        }
+
+        .progress-alert-modal .modal-corner-tr,
+        .progress-alert-modal .modal-corner-bl {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: rgba(197, 160, 89, 0.5);
+            border-style: solid;
+        }
+
+        .progress-alert-modal .modal-corner-tr {
+            top: -1px;
+            right: -1px;
+            border-width: 1px 1px 0 0;
+        }
+
+        .progress-alert-modal .modal-corner-bl {
+            bottom: -1px;
+            left: -1px;
+            border-width: 0 0 1px 1px;
+        }
+
+        /* 圓形圖示外框 */
+        .progress-alert-icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 1px solid rgba(197, 160, 89, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .progress-alert-icon-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(197, 160, 89, 0.12) 0%, transparent 80%);
+        }
+
+        /* 成功勾勾 */
+        .progress-alert-checkmark {
+            width: 28px;
+            height: 28px;
+            position: relative;
+            z-index: 1;
+            display: none;
+        }
+
+        .progress-alert-checkmark circle {
+            fill: none;
+            stroke: rgba(197, 160, 89, 0.25);
+            stroke-width: 1;
+        }
+
+        .progress-alert-checkmark path {
+            fill: none;
+            stroke: var(--accent-gold, #C5A059);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+        }
+
+        .progress-alert-overlay.show .progress-alert-checkmark path {
+            animation: draw-progress-check 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+        }
+
+        @keyframes draw-progress-check {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* 失敗驚嘆號 */
+        .progress-alert-error-icon {
+            font-size: 32px;
+            color: #dc3545;
+            line-height: 64px;
+            z-index: 1;
+            display: none;
+        }
+
+        /* 文字與裝飾線 */
+        .progress-alert-eyebrow {
+            font-size: 9px;
+            letter-spacing: 0.48em;
+            text-transform: uppercase;
+            color: var(--accent-gold, #C5A059);
+            margin-bottom: 10px;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .progress-alert-title {
+            font-family: var(--font-serif, serif);
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-main, #2D2520);
+            letter-spacing: 0.06em;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .progress-alert-sub {
+            font-size: 12px;
+            color: var(--text-muted, #7A6F66);
+            letter-spacing: 0.06em;
+            line-height: 1.9;
+            margin-bottom: 0;
+        }
+
+        .progress-alert-deco {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0 28px;
+        }
+
+        .progress-alert-deco-line {
+            width: 28px;
+            height: 1px;
+            background: rgba(197, 160, 89, 0.3);
+        }
+
+        .progress-alert-deco-diamond {
+            width: 4px;
+            height: 4px;
+            background: var(--accent-gold, #C5A059);
+            transform: rotate(45deg);
+            opacity: 0.5;
+            transition: background-color 0.3s;
+        }
+
+        /* 按鈕 */
+        .progress-alert-btn {
+            display: inline-block;
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(197, 160, 89, 0.45);
+            color: var(--text-main, #2D2520);
+            padding: 0.85rem;
+            font-size: 9.5px;
+            font-weight: 500;
+            letter-spacing: 0.44em;
+            text-transform: uppercase;
+            font-family: var(--font-sans, sans-serif);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: color 0.35s, border-color 0.35s;
+        }
+
+        .progress-alert-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-gold, #C5A059) 0%, #A68648 100%);
+            opacity: 0;
+            transition: opacity 0.35s;
+        }
+
+        .progress-alert-btn:hover {
+            color: #fff;
+            border-color: var(--accent-gold, #C5A059);
+        }
+
+        .progress-alert-btn:hover::before {
+            opacity: 1;
+        }
+
+        .progress-alert-btn span {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ─── 導覽列 ─── -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid" style="max-width:1600px; margin:0 auto;">
+            <a class="navbar-brand" href="./index.html">
+                <span class="brand-name">DREAM VENUES</span>
+                <span class="brand-sub">High-End Wedding Journal</span>
+            </a>
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#navMenu"
+                aria-controls="navMenu" aria-label="開啟選單">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenuDesktop">
+                <ul class="navbar-nav ms-lg-4 gap-lg-1">
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">婚禮團隊</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
+                </ul>
+                <div class="navbar-tools d-none d-lg-flex align-items-center gap-3 ms-auto">
+
+                    <div class="nav-item dropdown" id="userDropdownWrap" style="display:none;">
+                        <a class="nav-link nav-link-item" href="#" id="userDropdownBtn" data-bs-toggle="dropdown">歡迎</a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="./customer_system.html">我的婚禮規劃</a></li>
+                            <li><a class="dropdown-item" href="./customer_progress.html">我的籌備進度</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
+                        </ul>
+                    </div>
+                    <a class="nav-link nav-link-item" href="client_login.html" id="loginLinkDesktop">會員登入</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ─── 手機版 Offcanvas ─── -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="navMenu">
+        <div class="offcanvas-header">
+            <a class="navbar-brand" href="./index.html">
+                <span class="brand-name" style="font-size:14px;">DREAM VENUES</span>
+                <span class="brand-sub">High-End Wedding Journal</span>
+            </a>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="關閉"></button>
+        </div>
+        <div class="offcanvas-body">
+
+            <div id="mobileUserMenu"
+                style="padding-bottom:12px; margin-bottom:4px; border-bottom:1px solid rgba(197,160,89,0.15);">
+                <p id="mobileWelcome"
+                    style="font-size:15px; letter-spacing:0.12em; color:var(--accent-gold); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                </p>
+                <a href="./customer_system.html" class="nav-link nav-link-item"
+                    style="padding:10px 0; display:block;">我的婚禮規劃</a>
+                <a href="./customer_progress.html" class="nav-link nav-link-item"
+                    style="padding:10px 0; display:block;">我的籌備進度</a>
+            </div>
+
+            <ul class="navbar-nav gap-0">
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">專業團隊</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
+            </ul>
+
+            <a href="./client_login.html" class="offcanvas-login" id="loginLinkMobile">
+                <span class="material-symbols-outlined"
+                    style="font-size:16px; vertical-align:middle; margin-right:6px;">person</span>
+                會員登入
+            </a>
+
+            <a href="#" id="logoutBtnMobile" class="nav-link nav-link-item"
+                style="padding:14px 0; display:none; letter-spacing:0.08em;">
+                <span class="material-symbols-outlined"
+                    style="font-size:16px; vertical-align:middle; margin-right:6px;">logout</span>
+                登出
+            </a>
+        </div>
+    </div>
+
+
+    <main id="app" class="dashboard-wrap">
+
+        <div>
+            <div class="page-hero has-bg" style="padding-top: 0px; padding-bottom: 40px;">
+                <p class="page-hero-eyebrow">My Wedding Journey</p>
+                <h1 class="page-hero-title">我的籌備進度</h1>
+                <div class="page-hero-line"></div>
+                <p class="page-hero-sub">隨時掌握婚禮籌備進度，讓每一步都安心、每一天都期待<br>專屬顧問陪伴您，打造屬於自己的幸福時刻</p>
+            </div>
+        </div>
+
+        <div class="row g-4 lg-g-5">
+            <div class="col-lg-4">
+                <div class="d-flex flex-column gap-4">
+
+                    <!-- 婚禮整體進度 -->
+                    <div class="lux-card text-center position-relative">
+                        <span class="card-eyebrow">Overall Progress</span>
+
+                        <div class="position-relative mx-auto my-4" style="width: 160px; height: 160px;">
+                            <svg class="w-100 h-100" viewBox="0 0 256 256">
+                                <circle cx="128" cy="128" r="120" fill="transparent" stroke="#f0f0f0" stroke-width="8">
+                                </circle>
+                                <circle class="progress-ring-circle" cx="128" cy="128" r="120" fill="transparent"
+                                    stroke="#C5A059" stroke-width="8" stroke-dasharray="753.6"
+                                    :stroke-dashoffset="dashOffset" stroke-linecap="round"></circle>
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle w-100">
+
+                                <template v-if="data.countdownDays > 0">
+                                    <div class="countdown-number">{{ data.countdownDays }}</div>
+                                    <div style="font-size: 14px; letter-spacing: 0.15em; color: var(--text-muted);">
+                                        DAYS TO GO
+                                    </div>
+                                </template>
+
+                                <template v-else-if="data.countdownDays === 0">
+                                    <div
+                                        style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-gold); letter-spacing: 0.1em; font-weight: 400; line-height: 1.2;">
+                                        載入中
+                                    </div>
+                                </template>
+
+                                <template v-else>
+                                    <div
+                                        style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-gold); letter-spacing: 0.1em; font-weight: 400; line-height: 1.2;">
+                                        圓滿完成
+                                    </div>
+                                </template>
+
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span style="font-size: 12px; color: var(--text-muted);">大囍之日</span>
+                            <span style="font-size: 13px; font-weight: 500;">{{ data.weddingDate }}</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span style="font-size: 12px; color: var(--text-muted);">專屬顧問</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="font-size: 13px; font-weight: 500;">{{ data.pmName }}</span>
+                                <div class="position-relative d-inline-block">
+                                    <a href="#" class="btn-contact-pm" data-bs-toggle="modal"
+                                        data-bs-target="#chatModal" @click="clearUnread">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">chat</span>
+                                        <span class="hint-text">留言討論</span>
+                                    </a>
+                                    <span v-if="hasUnread" class="pulse-hint"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 付款狀態 -->
+                    <div class="lux-card text-center">
+                        <span class="card-eyebrow mb-4">Payment Status</span>
+                        <ul class="doc-list">
+                            <li v-for="pay in data.payments" :key="pay.title" class="doc-item">
+                                <span style="font-size: 13px; color: var(--text-main);">{{ pay.title }}</span>
+
+                                <span v-if="pay.status === 'PAID'"
+                                    style="font-size: 12px; color: var(--accent-gold);">已結清</span>
+
+                                <span v-else-if="pay.status === 'PENDING'" style="font-size: 11px; color: #888;">期限: {{
+                                    pay.dueDate }}</span>
+
+                                <span v-else-if="pay.status === 'OVERDUE'" class="text-danger fw-bold"
+                                    style="font-size: 11px;">{{ pay.dueDate }}</span>
+
+                                <span v-else style="font-size: 11px; color: #ccc;">未開始</span>
+                            </li>
+                        </ul>
+
+                        <div
+                            style="font-size: 11px; color: var(--text-muted); margin-top: 24px; text-align: left; background: rgba(197, 160, 89, 0.05); padding: 12px 16px; border-radius: 8px; border: 1px dashed rgba(197, 160, 89, 0.2);">
+                            <div class="d-flex align-items-center gap-1 mb-1" style="color: var(--accent-gold);">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
+                                <span style="font-weight: 500;">繳款期限說明</span>
+                            </div>
+                            <div style="padding-left: 18px; line-height: 1.6; letter-spacing: 0.05em;">
+                                期中款：婚期前 3 個月<br>
+                                尾款：婚期前 14 天
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 文件 -->
+                    <div class="lux-card text-center">
+                        <span class="card-eyebrow mb-4">Documents</span>
+
+                        <a v-if="latestDocument" :href="latestDocument.url" target="_blank"
+                            class="latest-doc-card mb-3 text-start">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="doc-icon-box flex-shrink-0">
+                                    <span class="material-symbols-outlined" style="color: white; font-size: 20px;">{{
+                                        latestDocument.icon }}</span>
+                                </div>
+                                <div style="flex: 1; overflow: hidden;">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span
+                                            style="font-size: 11px; color: var(--accent-gold); font-weight: 500; letter-spacing: 0.05em;">顧問最新上傳</span>
+                                    </div>
+                                    <div class="text-truncate fw-bold"
+                                        style="font-size: 13px; color: var(--text-main);">
+                                        {{ latestDocument.name }}
+                                    </div>
+                                </div>
+                                <span class="material-symbols-outlined flex-shrink-0"
+                                    style="color: var(--accent-gold);">download</span>
+                            </div>
+                        </a>
+
+                        <div class="doc-list-wrapper" v-if="otherDocuments.length > 0">
+                            <ul class="doc-list text-start">
+                                <a v-for="doc in otherDocuments" :key="doc.name" :href="doc.url" target="_blank"
+                                    class="doc-item">
+                                    <div class="d-flex align-items-center"
+                                        style="overflow: hidden; white-space: nowrap;">
+                                        <span class="material-symbols-outlined flex-shrink-0">{{ doc.icon }}</span>
+                                        <span
+                                            style="font-size: 13px; text-overflow: ellipsis; overflow: hidden; margin-right: 8px;">
+                                            {{ doc.name }}
+                                        </span>
+                                    </div>
+                                    <span class="material-symbols-outlined flex-shrink-0"
+                                        style="font-size: 16px; color: #ccc;">download</span>
+                                </a>
+                            </ul>
+                        </div>
+
+                        <div v-if="!latestDocument" style="font-size: 12px; color: #aaa; margin-top: 16px;">
+                            尚無正式文件
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 籌備進度追蹤 -->
+            <div class="col-lg-8">
+                <div class="lux-card mb-4" style="padding: 40px 48px;">
+                    <div class="d-flex align-items-center gap-2 mb-5">
+                        <span class="material-symbols-outlined"
+                            style="color: var(--accent-gold); font-weight: 300;">hourglass_top</span>
+                        <h4 class="font-serif m-0" style="font-size: 1.3rem;">籌備進度追蹤</h4>
+                    </div>
+
+                    <div class="timeline-container">
+                        <div class="accordion" id="progressAccordion" v-if="data.phases && data.phases.length > 1">
+                            <div class="accordion-item timeline-item" :class="data.phases[0].status.toLowerCase()">
+                                <div class="timeline-marker"></div>
+                                <h2 class="accordion-header" id="heading0">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse0">
+                                        {{ data.phases[0].title }}
+                                        <span class="status-badge badge-completed">已完成</span>
+                                    </button>
+                                </h2>
+                                <div id="collapse0" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+
+                                        <div class="category-block mt-2">
+                                            <div class="category-label">
+                                                <span class="material-symbols-outlined">verified</span>
+                                                前置作業
+                                                <span class="category-progress">2 / 2</span>
+                                            </div>
+                                            <ul class="task-list">
+                                                <li v-for="task in data.phases[0].tasks" :key="task.id"
+                                                    :class="task.done ? 'task-done' : 'task-pending'">
+                                                    <span class="material-symbols-outlined">{{ task.done ?
+                                                        'check_circle' : 'radio_button_unchecked' }}</span>
+                                                    {{ task.name }}
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item timeline-item" :class="data.phases[1].status.toLowerCase()">
+                                <div class="timeline-marker"></div>
+                                <h2 class="accordion-header" id="heading1">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse1">
+                                        {{ data.phases[1].title }}
+                                        <span v-if="isPhaseCompleted(data.phases[1])"
+                                            class="status-badge badge-completed">已完成</span>
+                                        <span v-else class="status-badge badge-active">進行中</span>
+                                    </button>
+                                </h2>
+                                <div id="collapse1" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div v-if="data.phases[1].pmMessage" class="pm-update-box">
+                                            <span class="material-symbols-outlined">campaign</span>
+                                            <div>
+                                                <div
+                                                    style="font-size: 14px; color: var(--accent-gold); margin-bottom: 4px;">
+                                                    顧問更新於 {{ data.phases[1].pmUpdateTime }}
+                                                </div>
+                                                <div
+                                                    style="color: var(--text-main); font-size: 14px; line-height: 1.6;">
+                                                    {{ data.phases[1].pmMessage }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-for="(cat, catIdx) in data.phases[1].categories" :key="cat.name"
+                                            class="category-block">
+                                            <div class="category-label">
+                                                <span class="material-symbols-outlined">{{ getCatIcon(cat.name)
+                                                    }}</span>
+                                                {{ cat.name }}
+                                                <span class="category-progress">{{ cat.tasks.filter(t=>t.isDone).length
+                                                    }} / {{ cat.tasks.length }}</span>
+                                            </div>
+                                            <ul class="task-list">
+                                                <li v-for="task in cat.tasks" :key="task.id"
+                                                    :class="task.isDone ? 'task-done' : 'task-pending'">
+                                                    <span class="material-symbols-outlined">{{ task.isDone ?
+                                                        'check_circle' : 'radio_button_unchecked' }}</span>
+                                                    {{ task.name }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="text-center py-5" style="color: var(--accent-gold);">
+                            <div class="spinner-border" role="status"
+                                style="width: 2rem; height: 2rem; border-width: 0.2em;"></div>
+                            <div class="mt-3" style="font-size: 13px; letter-spacing: 0.15em;">婚禮進度載入中...</div>
+                        </div>
+
+                        <div class="happy-ending">
+                            <span class="material-symbols-outlined"
+                                style="color: var(--accent-gold); font-variation-settings: 'FILL' 1; font-size: 24px; position: absolute; left: 8px; top: 18px; transform: translateX(-50%); z-index: 2;">favorite</span>
+                            <div class="happy-ending-inner">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="font-serif"
+                                        style="font-size: 1.1rem; color: var(--accent-gold); letter-spacing: 0.08em;">Happy
+                                        Ending</span>
+                                    <span
+                                        style="font-size: 9px; letter-spacing: 0.2em; color: #ccc; font-family: var(--font-sans); margin-top: 2px;">YOUR
+                                        PERFECT DAY</span>
+                                </div>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.8;">感謝您讓
+                                    DREAM VENUES 參與您人生最重要的時刻。<br>我們期待與您共同創造永難忘懷的幸福回憶。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── 專屬討論區 Modal ─── -->
+        <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+
+                    <div class="modal-header position-relative">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined"
+                                style="color: var(--accent-gold); font-weight: 300;">forum</span>
+                            <h5 class="modal-title font-serif" id="chatModalLabel"
+                                style="font-size: 1.5rem; font-weight: 400; letter-spacing: 0.05em;">專屬討論區</h5>
+                            <span
+                                style="font-size: 11px; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; margin-left: 8px;">MESSAGE
+                                BOARD</span>
+                        </div>
+                        <button type="button" class="btn-close chat-modal-close" data-bs-dismiss="modal" aria-label="關閉"
+                            style="position: absolute; top: 50%; right: 24px; transform: translateY(-50%);"></button>
+                    </div>
+
+                    <div class="modal-body" id="boardContainer" style="padding: 24px 32px 0;">
+                        <div class="message-board-list mb-4">
+
+                            <div v-for="msg in messages" :key="msg.id" class="msg-wrapper"
+                                :class="msg.sender === 'client' ? 'is-client' : 'is-pm'">
+                                <div class="msg-avatar"
+                                    :style="msg.sender === 'client' ? 'background: #f0f0f0; color: var(--text-muted);' : 'background: var(--accent-gold); color: white;'">
+                                    {{ (msg.senderName || '無').charAt(0) }}
+                                </div>
+                                <div class="msg-content">
+                                    <div class="msg-meta"
+                                        :style="msg.sender === 'client' ? 'flex-direction: row-reverse;' : ''">
+                                        <span class="fw-bold" style="color: var(--text-main);">{{ msg.senderName
+                                            }}</span>
+                                        <span>{{ msg.time }}</span>
+                                    </div>
+                                    <div class="msg-bubble"
+                                        :style="msg.sender === 'client' ? 'background: #ffffff; border: 1px solid #e8e8e8; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-top-right-radius: 4px;' : 'background: rgba(197,160,89,0.06); border: 1px solid rgba(197,160,89,0.2); border-top-left-radius: 4px;'">
+                                        <p v-if="msg.text" style="margin: 0; white-space: pre-wrap;">{{ msg.text }}</p>
+                                        <div v-if="msg.attachments && msg.attachments.length > 0"
+                                            class="d-flex flex-wrap gap-2" :class="{'mt-2': msg.text}">
+                                            <template v-for="(att, idx) in msg.attachments" :key="idx">
+
+                                                <img v-if="att.type.startsWith('image/') && !att.loadError"
+                                                    :src="att.url" class="msg-img-attachment" alt="附圖"
+                                                    @error="att.loadError = true" @click="openImagePreview(att.url)">
+
+                                                <span v-if="att.type.startsWith('image/') && att.loadError"
+                                                    class="msg-file-link"
+                                                    style="cursor: default; pointer-events: none; opacity: 0.5;">
+                                                    <span class="material-symbols-outlined"
+                                                        style="font-size: 16px;">broken_image</span>
+                                                    圖片無法預覽
+                                                </span>
+
+                                                <a v-if="!att.type.startsWith('image/')" :href="att.url" target="_blank"
+                                                    class="msg-file-link">
+                                                    <span class="material-symbols-outlined"
+                                                        style="font-size: 16px;">description</span>
+                                                    {{ att.name }}
+                                                </a>
+
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer"
+                        style="background: #faf7f2; border-top: 1px dashed rgba(197, 160, 89, 0.2); padding: 20px 32px 28px; display: block; border-bottom-left-radius: 28px; border-bottom-right-radius: 28px;">
+
+                        <div class="upload-preview-wrapper" v-if="selectedFiles.length > 0">
+                            <div class="upload-preview-box" v-for="(file, index) in selectedFiles" :key="index">
+                                <img v-if="file.type.startsWith('image/')" :src="file.previewUrl" alt="preview">
+                                <div v-else class="file-name-box">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">description</span>
+                                    <span class="text-truncate">{{ file.name }}</span>
+                                </div>
+                                <button type="button" class="btn-remove-file" @click="removeSelectedFile(index)">
+                                    <span class="material-symbols-outlined" style="font-size: 14px;">close</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <textarea class="form-control board-textarea mb-2" rows="3"
+                            placeholder="有什麼想法或圖片想傳給顧問嗎？請在這裡留言..." v-model="newMessage"></textarea>
+
+                        <div
+                            style="font-size: 11px; color: #bbb; margin-bottom: 12px; margin-right: 4px; text-align: right;">
+                            * 支援圖片或 PDF/Word 文件，單一檔案上限 10MB
+                        </div>
+
+                        <div class="d-flex justify-content-end align-items-center">
+                            <span style="font-size: 13px; color: #aaa; margin-right: 16px;" class="d-none d-md-inline">
+                                <i class="bi bi-info-circle me-1"></i>顧問將於營業時間內回覆
+                            </span>
+                            <div class="d-flex align-items-center" style="margin-right: 16px;">
+                                <input type="file" id="fileUploadInput" style="display: none;"
+                                    @change="handleFileUpload" accept="image/*,.pdf,.doc,.docx" multiple>
+                                <label for="fileUploadInput" class="btn-attach" title="上傳圖片或檔案 (上限10MB)">
+                                    <span class="material-symbols-outlined">attach_file</span>
+                                    <span class="hint-text d-none d-sm-inline">附加檔案</span>
+                                </label>
+                            </div>
+                            <button type="button" class="btn" @click="postMessage" :disabled="isSubmitting"
+                                style="background: var(--accent-gold); color: white; border-radius: 30px; font-size: 13px; letter-spacing: 0.15em; padding: 10px 28px; transition: all 0.3s;">
+                                {{ isSubmitting ? '傳送中...' : '送出留言' }}
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 圖片放大預覽 -->
+        <div v-if="previewImageUrl" class="image-lightbox" @click="closeImagePreview">
+            <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-4" aria-label="關閉"
+                style="z-index: 2;"></button>
+            <img :src="previewImageUrl" alt="放大預覽" @click.stop>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-bottom"
+            style="width: fit-content; margin: 0 auto; border-top: 1px solid var(--border-grey); padding-top: 16px; text-align: center; font-size: 9px; letter-spacing: 0.3em; color: var(--text-muted); text-transform: uppercase;">
+            © 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+
+    <button id="backToTop" class="back-to-top">
+        <span class="material-symbols-outlined">arrow_upward</span>
+    </button>
+
+    <!-- 進度提示覆蓋層 -->
+    <div class="progress-alert-overlay" id="progressAlertOverlay">
+        <div class="progress-alert-modal">
+            <div class="modal-corner-tr"></div>
+            <div class="modal-corner-bl"></div>
+
+            <div class="progress-alert-icon-wrap" id="progressAlertIconWrap">
+                <svg class="progress-alert-checkmark" id="progressAlertCheckmark" viewBox="0 0 28 28" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="14" cy="14" r="13" />
+                    <path d="M8.5 14.5 L12.5 18.5 L19.5 10.5" />
+                </svg>
+                <span class="material-symbols-outlined progress-alert-error-icon"
+                    id="progressAlertErrorIcon">error</span>
+            </div>
+
+            <span class="progress-alert-eyebrow" id="progressAlertEyebrow"></span>
+            <h3 class="progress-alert-title" id="progressAlertTitle"></h3>
+
+            <div class="progress-alert-deco">
+                <div class="progress-alert-deco-line"></div>
+                <div class="progress-alert-deco-diamond" id="progressAlertDiamond"></div>
+                <div class="progress-alert-deco-line"></div>
+            </div>
+
+            <p class="progress-alert-sub" id="progressAlertMessage"></p>
+
+            <div style="margin-top:32px;">
+                <button class="progress-alert-btn" id="progressAlertBtn">
+                    <span id="progressAlertBtnText">確認</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🌟 全域 Modal 控制器
+        function showProgressAlert(isError, eyebrow, title, message, onConfirmCallback) {
+            const overlay = document.getElementById('progressAlertOverlay');
+            const iconWrap = document.getElementById('progressAlertIconWrap');
+            const checkmark = document.getElementById('progressAlertCheckmark');
+            const errorIcon = document.getElementById('progressAlertErrorIcon');
+            const eyebrowEl = document.getElementById('progressAlertEyebrow');
+            const titleEl = document.getElementById('progressAlertTitle');
+            const messageEl = document.getElementById('progressAlertMessage');
+            const btn = document.getElementById('progressAlertBtn');
+            const btnText = document.getElementById('progressAlertBtnText');
+            const diamond = document.getElementById('progressAlertDiamond');
+
+            // 依據是否為錯誤改變樣式
+            if (isError) {
+                iconWrap.style.borderColor = '#dc3545';
+                diamond.style.background = '#dc3545';
+                eyebrowEl.style.color = '#dc3545';
+                checkmark.style.display = 'none';
+                errorIcon.style.display = 'inline-block';
+                btnText.innerText = '關閉';
+            } else {
+                iconWrap.style.borderColor = '';
+                diamond.style.background = '';
+                eyebrowEl.style.color = '';
+                checkmark.style.display = 'block';
+                errorIcon.style.display = 'none';
+                btnText.innerText = '確認';
+            }
+
+            eyebrowEl.innerText = eyebrow;
+            titleEl.innerText = title;
+            messageEl.innerHTML = message;
+
+            // 顯示 Modal
+            overlay.classList.add('show');
+
+            // 綁定按鈕點擊事件 (確保每次點擊只執行一次 callback)
+            btn.onclick = function () {
+                overlay.classList.remove('show');
+                if (typeof onConfirmCallback === 'function') {
+                    onConfirmCallback();
+                }
+            };
+        }
+
+
+        // ─── Vue 3 綁定資料 ───
+        const { createApp, reactive, onMounted, computed, ref, nextTick } = Vue;
+        createApp({
+            setup() {
+                const isSubmitting = ref(false);
+
+                // 完整保留 UI 假資料框架
+                const data = reactive({
+                    countdownDays: 0,
+                    weddingDate: '載入中...',
+                    pmName: '載入中...',
+                    customerName: '客戶',
+                    progressPercent: 100,
+                    payments: [],
+                    documents: [],
+                    phases: []
+                });
+
+                // 留言板陣列資料 (先清空，等 API 塞進來)
+                const messages = reactive([]);
+                const newMessage = ref('');
+                const hasUnread = ref(false);
+                const selectedFiles = ref([]);
+
+                // 🌟 新增：用來控制圖片放大的變數與函式
+                const previewImageUrl = ref(null);
+                const openImagePreview = (url) => {
+                    previewImageUrl.value = url;
+                };
+                const closeImagePreview = () => {
+                    previewImageUrl.value = null;
+                };
+
+                const clearUnread = () => { hasUnread.value = false; };
+
+                // 🌟 新增：檢查特定階段的所有任務是否已全部完成
+                const isPhaseCompleted = (phase) => {
+                    // 如果後端直接傳回狀態是 completed，或者進度已經 100%，就當作完成
+                    if (phase.status === 'completed' || phase.status === 'COMPLETED') return true;
+
+                    // 檢查第一階段那種單純的 task 陣列
+                    if (phase.tasks && phase.tasks.length > 0) {
+                        return phase.tasks.every(t => t.isDone || t.done);
+                    }
+
+                    // 檢查第二階段那種包在 categories 裡面的 task 陣列
+                    if (phase.categories && phase.categories.length > 0) {
+                        let totalTasks = 0;
+                        let completedTasks = 0;
+                        phase.categories.forEach(cat => {
+                            if (cat.tasks) {
+                                totalTasks += cat.tasks.length;
+                                completedTasks += cat.tasks.filter(t => t.isDone || t.done).length;
+                            }
+                        });
+                        return totalTasks > 0 && totalTasks === completedTasks;
+                    }
+
+                    return false;
+                };
+
+                // 🌟 新增：抓出最新的一筆檔案 (假設陣列最後一筆是最新的)
+                const latestDocument = computed(() => {
+                    if (!data.documents || data.documents.length === 0) return null;
+                    return data.documents[data.documents.length - 1];
+                    // 如果你的後端是把最新的放第一筆，請改成 return data.documents[0];
+                });
+
+                // 🌟 新增：過濾出除了最新檔案以外的「歷史檔案」，並反轉排序讓較新的在上方
+                const otherDocuments = computed(() => {
+                    if (!data.documents || data.documents.length <= 1) return [];
+                    return data.documents.slice(0, -1).reverse();
+                    // 如果你的後端是最新的放第一筆，請改成 return data.documents.slice(1);
+                });
+
+                // 🚀 核心：向後端撈取專案進度與留言紀錄
+                const fetchProjectProgress = () => {
+                    axios.get(`/api/customer/my-project/progress`, { withCredentials: true }).then(response => {
+                        // 【修改重點 1】：直接把 response.data 當作 realData，不需要再解開 apiData.data
+                        const realData = response.data;
+
+                        // 【修改重點 2】：移除 if (apiData.success) 判斷，直接綁定資料
+                        if (realData) {
+                            // 1. 更新基本資料
+                            if (realData.pmName) data.pmName = realData.pmName;
+                            if (realData.customerName) data.customerName = realData.customerName;
+                            if (realData.payments) data.payments = realData.payments;
+                            if (realData.phases) data.phases = realData.phases;
+                            if (realData.progressPercent !== undefined) {
+                                // 加一點點延遲，讓圓環有從 0 跑上去的帥氣動畫
+                                setTimeout(() => { data.progressPercent = realData.progressPercent; }, 300);
+                            }
+
+                            // 🌟 新增：處理正式文件，並動態指派 Icon 與補全網址
+                            if (realData.documents) {
+                                data.documents = realData.documents.map(doc => {
+                                    let fileUrl = doc.filePath || '#';
+                                    if (fileUrl.startsWith('/uploads')) {
+                                        fileUrl = window.location.origin + fileUrl;
+                                    }
+
+                                    // 判斷 Icon：如果是圖片給 image 圖示，PDF 給 pdf 圖示，其他預設為 description
+                                    let iconType = 'description';
+                                    if (doc.fileType) {
+                                        if (doc.fileType.startsWith('image/')) iconType = 'image';
+                                        else if (doc.fileType.includes('pdf')) iconType = 'picture_as_pdf';
+                                    }
+
+                                    return {
+                                        name: doc.name,
+                                        icon: iconType,
+                                        url: fileUrl,
+                                    };
+                                });
+                            }
+
+                            if (realData.weddingDate) {
+                                // 把 "2026-10-24" 換成 "2026.10.24" 符合版面美學
+                                data.weddingDate = realData.weddingDate.replace(/-/g, '.');
+
+                                // 計算倒數天數 (順便幫你加了防呆：如果婚期已經過了，就顯示 0)
+                                const today = new Date();
+                                const wedding = new Date(realData.weddingDate);
+                                const diffTime = wedding.getTime() - today.getTime();
+                                data.countdownDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            }
+
+                            // 2. 更新留言板
+                            if (realData.timeline && realData.timeline.length > 0) {
+                                messages.splice(0, messages.length);
+                                realData.timeline.reverse().forEach(comm => {
+                                    // 🌟 只要留言者不是「專屬顧問」，我們就一律當作是「客戶」！
+                                    const isClient = comm.createBy !== realData.pmName;
+                                    let mappedAttachments = [];
+                                    if (comm.documents && comm.documents.length > 0) {
+                                        mappedAttachments = comm.documents.map(doc => {
+                                            let fileUrl = doc.filePath || '#';
+                                            // 🌟 如果路徑是 /uploads 開頭，就強制幫它補上後端的網址與 Port！
+                                            if (fileUrl.startsWith('/uploads')) {
+                                                fileUrl = window.location.origin + fileUrl;
+                                            }
+                                            return {
+                                                name: doc.name,
+                                                type: doc.fileType || 'application/pdf',
+                                                url: fileUrl
+                                            };
+                                        });
+                                    }
+                                    // 🌟 2. 然後把 messages.push 改成這樣：
+                                    messages.push({
+                                        id: comm.id,
+                                        sender: isClient ? 'client' : 'pm',
+                                        senderName: comm.createBy || (isClient ? realData.customerName : realData.pmName),
+                                        text: comm.content,
+                                        time: comm.createAt ? comm.createAt.replace('T', ' ').substring(0, 16) : '',
+                                        attachments: mappedAttachments
+                                    });
+                                });
+
+                                // 🌟 新增：判斷最後一則留言是否為顧問發送，決定是否亮起紅點
+                                if (messages.length > 0) {
+                                    const lastMsg = messages[messages.length - 1];
+                                    // 如果最後一則是 pm (顧問) 發的，就亮紅點
+                                    hasUnread.value = (lastMsg.sender === 'pm');
+                                }
+
+                                nextTick(() => {
+                                    const container = document.getElementById('boardContainer');
+                                    if (container) container.scrollTop = container.scrollHeight;
+                                });
+                            }
+                        }
+                    })
+                        .catch(error => {
+                            // 🌟 加入這段：判斷如果是 404 (找不到專案資料)
+                            if (error.response && error.response.status === 404) {
+                                console.log("提示：", error.response.data);
+                                // 把進度條歸零，顯示友善訊息
+                                data.progressPercent = 0;
+                                data.countdownDays = 0;
+                                data.weddingDate = '籌備準備中';
+                                data.pmName = '專屬顧問安排中';
+                                data.phases = []; // 清空進度階段
+                                data.payments = [];
+                                if (!document.getElementById('dvDisabledOverlay')) {
+                                    showProgressAlert(
+                                        true,                               // true 表示顯示紅色的驚嘆號與警告樣式
+                                        'NOTICE',                           // 上方金色小字 (Eyebrow)
+                                        '專屬顧問建檔中',                     // 標題
+                                        '目前尚無您的專案進度資料，<br>您的專屬顧問正在為您建檔中，<br>有任何問題請聯絡您的顧問！'  // 內文 (可以加 <br> 換行讓排版更好看)
+                                    );
+                                }
+                            } else {
+                                console.error("無法載入進度:", error);
+                                showProgressAlert(true, 'ERROR', '連線失敗', '發生錯誤，請稍後再試或聯絡客服。');
+                            }
+                        });
+                };
+
+                // 處理檔案上傳預覽 (含 10MB 即時攔截)
+                const handleFileUpload = (event) => {
+                    const files = Array.from(event.target.files);
+                    if (files.length === 0) return;
+
+                    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB 的位元組大小
+                    let hasOversizeFile = false; // 用來記錄這次有沒有抓到違規檔案
+
+                    files.forEach(file => {
+                        // 🌟 1. 守門員檢查：如果單一檔案大於 10MB，標記起來並直接跳過！
+                        if (file.size > MAX_FILE_SIZE) {
+                            hasOversizeFile = true;
+                            return; // 提早結束這個檔案的處理，不放進 selectedFiles
+                        }
+
+                        // 🌟 2. 正常檔案的處理邏輯 (維持不變)
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                selectedFiles.value.push({ file: file, name: file.name, type: file.type, previewUrl: e.target.result });
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            selectedFiles.value.push({ file: file, name: file.name, type: file.type, previewUrl: null });
+                        }
+                    });
+
+                    // 🌟 3. 如果剛剛有抓到過大的檔案，立刻跳出提示！
+                    if (hasOversizeFile) {
+                        showProgressAlert(
+                            true,                 // 顯示驚嘆號警告樣式
+                            'FILE TOO LARGE',     // 金色 Eyebrow
+                            '檔案過大',            // 標題
+                            '部分檔案超過 10MB 限制，已被自動取消選取喔！<br>請挑選較小的圖片或文件。'
+                        );
+                    }
+
+                    // 徹底清空 input 記憶，確保下次還能選同一個檔案
+                    event.target.value = '';
+                };
+
+                const removeSelectedFile = (index) => {
+                    selectedFiles.value.splice(index, 1);
+                };
+
+                const postMessage = () => {
+                    // 🌟 邏輯鎖：如果已經在傳送中了，直接擋掉後續的點擊！(專治連點狂魔)
+                    if (isSubmitting.value) return;
+
+                    // 防呆：如果沒打字也沒選檔案，就不執行
+                    if (!newMessage.value.trim() && selectedFiles.value.length === 0) return;
+
+                    isSubmitting.value = true; // 🌟 開始傳送 (把鎖上了！)
+
+                    // 🌟 1. 建立 FormData 物件 (用來打包文字與實體檔案)
+                    const formData = new FormData();
+
+                    // 🌟 2. 將身分與文字塞入包裹
+                    formData.append('createBy', '客戶'); // 直接告訴後端是客戶發言
+                    if (newMessage.value.trim()) {
+                        formData.append('content', newMessage.value.trim());
+                    }
+
+                    // 🌟 3. 將選擇的實體檔案一一塞入包裹 (對應後端的 @RequestParam("files"))
+                    let attachmentsData = [];
+                    if (selectedFiles.value.length > 0) {
+                        selectedFiles.value.forEach(item => {
+                            formData.append('files', item.file);
+                        });
+                    }
+
+                    // 🌟 4. 透過 Axios 發送 POST 請求
+                    axios.post(`/api/customer/my-project/communication`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        },
+                        withCredentials: true // 🌟 關鍵：這會讓瀏覽器自動帶上 HttpOnly Cookie
+                    })
+                        .then(response => {
+                            if (response.data.success) {
+                                // 清空輸入框與附件預覽
+                                newMessage.value = '';
+                                selectedFiles.value = [];
+
+                                // 🌟 新增：徹底清空隱藏的 file input，避免無法重複選取同一個檔案
+                                const fileInput = document.getElementById('fileUploadInput');
+                                if (fileInput) fileInput.value = '';
+
+                                // 重新撈取最新進度，讓畫面立刻更新出剛剛送出的氣泡與圖檔！
+                                fetchProjectProgress();
+                            }
+                        })
+                        .catch(error => {
+                            console.error("留言發送失敗:", error);
+                            showProgressAlert(
+                                true,
+                                'ERROR',
+                                '發送失敗',
+                                '留言發送失敗，請檢查網路連線，<br>或直接聯絡 DREAM VENUES 顧問！'
+                            );
+                        })
+                        .finally(() => {
+                            isSubmitting.value = false; // 🌟 不管成功失敗，最後都解除鎖定
+                        });
+                };
+
+                // 🌟 圓環動畫計算加回來了
+                const dashOffset = computed(() => {
+                    const circumference = 753.6;
+                    return circumference - (data.progressPercent / 100) * circumference;
+                });
+
+                onMounted(() => {
+                    // 🌟 強制將起點歸零，確保稍後 API 資料回來時，動畫 100% 都是順時鐘「生長」出來的！
+                    data.progressPercent = 0;
+
+                    // 🌟 新增防護：如果尚未登入，直接中斷執行，不要去打 API！
+                    if (!localStorage.getItem('dv_username')) {
+                        return; 
+                    }
+
+                    // 接著去向後端要資料
+                    fetchProjectProgress();
+                });
+
+                // 🌟 取得圖示的函式加回來了
+                function getCatIcon(name) {
+                    const map = {
+                        '婚禮團隊協調': 'groups',
+                        '場地佈置': 'chair',
+                        '顧問統籌': 'manage_accounts',
+                        '宴會企劃執行': 'event_note'
+                    };
+                    return map[name] || 'label';
+                }
+
+                return {
+                    data, dashOffset, getCatIcon, hasUnread, clearUnread,
+                    messages, newMessage, postMessage, selectedFiles,
+                    handleFileUpload, removeSelectedFile,
+                    isPhaseCompleted, isSubmitting,
+                    latestDocument, otherDocuments,
+                    previewImageUrl, openImagePreview, closeImagePreview
+                }
+            }
+        }).mount('#app');
+
+        document.getElementById('chatModal').addEventListener('shown.bs.modal', () => {
+            const container = document.getElementById('boardContainer');
+            if (container) container.scrollTop = container.scrollHeight;
+        });
+
+
+        // ── 登入檢查：未登入直接踢回登入頁 ──
+        if (!localStorage.getItem('dv_username')) {
+            showProgressAlert(true, 'ACCESS DENIED', '存取被拒', '請先登入會員，才能查看您的專屬籌備進度喔！', function () {
+                window.location.href = './client_login.html';
+            });
+        }
+
+    </script>
+</body>
+
+</html>

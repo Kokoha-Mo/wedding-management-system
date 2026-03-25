@@ -1,0 +1,17 @@
+package com.wedding.wedding_management_system.dto;
+
+import lombok.Data;
+
+@Data
+public class CustomerLoginResponseDto {
+    private String token; // 讓 Controller 拿來設定 Cookie 用，不會直接回傳給前端
+    private String email;
+    private String name;
+    private Integer customerId;
+    private boolean forcePasswordChange;
+    private Integer projectId;
+    private String message; // 錯誤訊息（登入失敗時使用）
+
+    // 🌟 新增：是否已建立專案
+    private boolean hasProject;
+}

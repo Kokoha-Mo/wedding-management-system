@@ -1412,7 +1412,7 @@
                                         <div v-for="cat in data.phases[1]?.categories" :key="cat.name"
                                             class="category-block">
                                             <div class="category-label">
-                                                <span class="material-symbols-outlined">{{ getCatIcon(cat.name)
+                                                <span class="material-symbols-outlined">{{ getCatIcon(cat)
                                                     }}</span>
                                                 {{ cat.name }}
                                                 <span class="category-progress">{{ cat.tasks?.filter(t=>t.isDone).length
@@ -1733,6 +1733,7 @@
                     if (days === 0) return '就是今天！祝你們新婚快樂！';
                     if (days <= 30) return '最後衝刺期，深呼吸，我們準備好了！';
                     if (days <= 90) return '籌備進入白熱化，繼續保持好進度！';
+                    return '';
                 });
 
                 // 留言板陣列資料 (先清空，等 API 塞進來)

@@ -1052,7 +1052,7 @@
 
                 if (!name || !tel) { showToast('請填寫姓名與手機號碼', 'error'); return; }
                 if (!/^\d{10}$/.test(tel)) { showToast('手機號碼錯誤，必須為 10 位數字！', 'error'); return; }
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Email 格式不正確', 'error'); return; }
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Email 格式不正確', 'error'); return; }
 
                 let checkResult = [];
                 if (email) {

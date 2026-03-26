@@ -767,6 +767,7 @@
             const savingDetails = ref(false);
 
             // ── 服務價格（從資料庫載入，key = serviceId）──
+            const basePrice = ref(43800);
             const prices       = reactive({});
             const pricesLoaded = ref(false);
 
@@ -783,27 +784,27 @@
 
                     const data = await res.json();
 
-                    // 🔍 [重要除錯] 按下 F12 看 Console，確認這裡印出的 Key 長怎樣
-                    console.log("從後端抓到的原始價格資料:", data);
-
                     if (Array.isArray(data)) {
                         data.forEach(item => {
-                            // ✨ 同時支援 serviceId(小駝峰) 和 service_id(底線)
-                            const id = item.serviceId || item.service_id;
-                            // ✨ 同時支援 unitPrice 和 unit_price
-                            const price = (item.unitPrice !== undefined) ? item.unitPrice : item.unit_price;
+
+                            const id = item.service_id;
+                            const p  = item.price;
 
                             if (id !== undefined) {
-                                prices[id] = price;
+
+                                prices[id] = p;
                             }
                         });
-                    } else {
-                        // 如果後端傳的是 Map 格式 { "3": 18000 }
-                        Object.entries(data).forEach(([k, v]) => { prices[Number(k)] = v; });
+
+                        if (prices[1] !== undefined) {
+                            basePrice.value = prices[1];
+                        }
                     }
                 } catch (err) {
+                    // 這裡會抓到 "basePrice is not defined" 的錯誤並印出來
                     console.error('[API] 載入服務價格失敗:', err);
-                    // 如果 API 真的掛了，至少讓預設值填進去
+
+                    // 備援機制：如果 API 失敗，填入預設價格防止畫面空白
                     const defaults = {
                         3:18000, 4:5000, 5:2000, 6:18000, 7:2000,
                         9:18000, 10:15000, 11:12000, 12:5000, 13:6000,
@@ -811,6 +812,11 @@
                         19:35000, 20:20000, 21:25000, 22:15000
                     };
                     Object.assign(prices, defaults);
+
+                    //
+                    if (typeof basePrice !== 'undefined') {
+                        basePrice.value = 43800;
+                    }
                 } finally {
                     pricesLoaded.value = true;
                 }

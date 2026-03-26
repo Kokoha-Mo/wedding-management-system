@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -108,10 +106,6 @@ public class BookController {
             @RequestParam(required = false) Integer managerId,
             @RequestParam(required = false)String keyword){
         log.info("搜尋請求進來了！ 狀態: {}, 員工ID: {}, 關鍵字: {}", status, managerId, keyword);
-
-//        List<BookResponseDTO> books = (managerId !=null)
-//                ? bookService.findByManagerAndStatus(managerId,status)
-//                : bookService.findByStatus(status);
 
         List<BookResponseDTO> books = bookService.findBooksByConditions(status, managerId, keyword);
         return ResponseEntity.ok(books);

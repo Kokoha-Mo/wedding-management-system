@@ -31,6 +31,26 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--accent-gold);
             position: relative;
+
+            opacity: 0; /* 初始狀態隱藏 */
+            animation: boxFadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; /* 呼叫進場動畫 */
+            transition: transform 0.4s ease, box-shadow 0.4s ease; /* 讓懸停效果更平滑 */
+        }
+
+        .main-package-card:hover{
+            transform: translateY(-4px); /* 輕微往上浮動 */
+            box-shadow: 0 12px 35px rgba(194, 142, 142, 0.08); /* 陰影加深，帶入你的主題色 */
+        }
+
+        @keyframes boxFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .ribbon {
@@ -57,7 +77,7 @@
         }
 
         .card-header h3 {
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 32px;
             letter-spacing: 0.1em;
             color: var(--text-main);
@@ -93,22 +113,26 @@
         .service-col {
             flex: 1;
             padding: 0 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .service-col h4 {
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 18px;
             color: var(--accent-gold);
-            margin-bottom: 30px;
-            /* text-align: center; */
-            letter-spacing: 0.15em;
+            width: 210px;
+            margin: 0 auto 30px auto;
+            text-align: left !important;
+
         }
 
         .service-col ul {
             list-style: none;
             padding: 0;
-            column-count: 1;
-            /* 取消雙欄顯示，讓文字垂直排列更有高級感 */
+            width: 210px;
+            margin: 0 auto;
         }
 
         .service-col li {
@@ -149,7 +173,7 @@
         /* ═══ 可加購方案區塊 (B, C, D) 美化 ═══ */
         .section-title {
             text-align: center;
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 28px;
             letter-spacing: 0.1em;
             margin-bottom: 40px;
@@ -188,7 +212,7 @@
 
         /* 字母浮水印設計 */
         .addon-letter {
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             color: #F6F4F0;
             /* 極淡的燕麥色 */
             font-size: 68px;
@@ -200,7 +224,7 @@
         }
 
         .addon-name {
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 20px;
             color: var(--text-main);
             text-align: center;
@@ -264,7 +288,7 @@
 
         .addon-price {
             color: #C5ACA7;
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 24px;
             font-weight: 500;
             margin-bottom: 20px;
@@ -274,7 +298,7 @@
             font-size: 14px;
             color: var(--text-muted);
             font-weight: 400;
-            font-family: var(--font-sans);
+            font-family: var(--font-sans), sans-serif;
         }
 
         .price-suffix {
@@ -374,16 +398,29 @@
                 flex-direction: column;
             }
 
+            .service-col {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            /* 👇 替換原本的 :first-child 設定 */
             .service-col:first-child {
                 border-right: none;
-                padding-right: 0;
                 border-bottom: 1px solid var(--border-grey);
                 margin-bottom: 40px;
                 padding-bottom: 40px;
             }
 
-            .service-col:last-child {
-                padding-left: 0;
+            .service-col h4 {
+                width: 100% !important;
+                text-align: center !important;
+                margin: 0 0 20px 0;
+            }
+
+            .service-col ul {
+                width: max-content !important;
+                max-width: 90% !important;
+                margin: 0 auto !important;
             }
 
             .addon-container {
@@ -434,7 +471,7 @@
         </div>
     </nav>
 
-    <!-- ─── 手機版 Offcanvas ─── -->
+    <!-- ─── 手機版 offcanvas ─── -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="navMenu">
         <div class="offcanvas-header">
             <a class="navbar-brand" href="./index.html">
@@ -492,7 +529,7 @@
             <div class="main-package-card">
                 <div class="ribbon">核心方案</div>
                 <div class="card-header">
-                    <h3>A. 婚宴全程統籌</h3>
+                    <h3>婚宴全程統籌</h3>
                     <p>本方案為獨立訂購核心，不可取消</p>
                     <div class="price">NT$ 43,800 <span>起</span></div>
                     <input type="radio" name="main_package" value="43800" checked style="display:none">
@@ -522,7 +559,7 @@
                             <li>宴會時程掌控</li>
                             <li>婚顧主場控指揮統籌</li>
                             <li>婚禮助理1名</li>
-                            <li>專業影音場控1名</li>
+                            <li>婚禮社群即時動態</li>
                             <li>流程音樂曲目建議</li>
                             <li>宴客備品代購</li>
                             <li>婚禮當日彩排引導</li>
@@ -532,13 +569,12 @@
             </div>
 
             <section class="addon-section">
-                <h3 class="section-title">可加購方案</h3>
+                <h3 class="section-title">可加購項目</h3>
 
                 <div class="addon-container">
 
                     <div class="addon-card">
                         <div class="addon-content">
-                            <div class="addon-letter">B</div>
                             <h4 class="addon-name">專業婚禮團隊</h4>
                             <div class="addon-desc">
                                 <p>嚴選業界頂尖職人，為您建構無懈可擊的婚禮陣容</p>
@@ -561,7 +597,6 @@
 
                     <div class="addon-card">
                         <div class="addon-content">
-                            <div class="addon-letter">C</div>
                             <h4 class="addon-name">儀式規劃執行</h4>
                             <div class="addon-desc">
                                 <p>提供全方位流程規劃與現場引導，成就您的經典時刻。</p>
@@ -583,7 +618,6 @@
 
                     <div class="addon-card">
                         <div class="addon-content">
-                            <div class="addon-letter">D</div>
                             <h4 class="addon-name">客製化視覺佈置</h4>
                             <div class="addon-desc">
                                 <p>將您的非凡品味化為具象，打造令人屏息的唯美空間。</p>
@@ -614,7 +648,7 @@
                             <span
                                 style="width: 30px; height: 1px; background: var(--accent-gold); display: inline-block; margin-right: 15px;"></span>
                             <h4
-                                style="font-family: var(--font-serif); letter-spacing: 0.1em; margin: 0; color: var(--accent-gold); font-size: 20px;">
+                                style="font-family: var(--font-serif), sans-serif; letter-spacing: 0.1em; margin: 0; color: var(--accent-gold); font-size: 20px;">
                                 Service Terms / 注意事項</h4>
                         </div>
 
@@ -643,7 +677,7 @@
                                         <strong
                                             style="color: var(--text-main); display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">03.
                                             方案訂購說明</strong>
-                                        A方案可單獨訂購。
+                                        婚宴全程統籌方案可單獨訂購。
                                     </li>
                                     <li class="mb-4">
                                         <strong

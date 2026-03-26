@@ -1731,10 +1731,10 @@
                 const motivationText = computed(() => {
                     const days = daysLeft.value;
                     if (days === '?') return '排程確認中...';
-                    if (typeof days === 'number' && days < 0) return '婚期已過，祝福你們永浴愛河！';
-                    if (days === 0) return '就是今天！祝你們新婚快樂！';
-                    if (days <= 30) return '最後衝刺期，深呼吸，我們準備好了！';
-                    if (days <= 90) return '籌備進入白熱化，繼續保持好進度！';
+                    if (typeof days === 'number' && days < 0) return '祝福你們永浴愛河！';
+                    if (days === 0) return '就是今天！新婚快樂';
+                    if (days <= 30) return '最後衝刺期，深呼吸！';
+                    if (days <= 90) return '籌備進入白熱化，繼續保持好心情！';
                     return '';
                 });
 

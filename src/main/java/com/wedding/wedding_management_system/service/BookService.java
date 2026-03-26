@@ -322,4 +322,17 @@ public class BookService {
         Customer customer = saved.getCustomer();
         return BookResponseDTO.from(saved, customer);
     }
+
+    // ════════════════════════════════════════════════════════
+    // 取得所有服務與價目表 (給前端 Vue 動態渲染用)
+    // ════════════════════════════════════════════════════════
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getAllServicesPricing() {
+        return serviceRepository.findAll().stream()
+                .map(service -> Map.<String, Object>of(
+                        "service_id", service.getId(),
+                        "price", service.getPrice() != null ? service.getPrice() : 0
+                ))
+                .collect(Collectors.toList());
+    }
 }

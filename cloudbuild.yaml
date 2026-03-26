@@ -5,7 +5,7 @@ steps:
     args:
       - '-c'
       - |
-        gsutil cp gs://[你的快取Bucket名稱]/maven-cache.tar.gz maven-cache.tar.gz || exit 0
+        gsutil cp gs://wedding-build-cache/maven-cache.tar.gz maven-cache.tar.gz || exit 0
         tar -xzf maven-cache.tar.gz || exit 0
 
   # 【步驟 B】執行 Maven 編譯並存入專案目錄下的 .m2
@@ -20,7 +20,7 @@ steps:
       - '-c'
       - |
         tar -czf maven-cache.tar.gz ./.m2/repository
-        gsutil cp maven-cache.tar.gz gs://[你的快取Bucket名稱]/maven-cache.tar.gz
+        gsutil cp maven-cache.tar.gz gs://wedding-build-cache/maven-cache.tar.gz
 
   # 【步驟 D】建構 Docker 鏡像 (對應你原本的第二步)
   - name: 'gcr.io/cloud-builders/docker'

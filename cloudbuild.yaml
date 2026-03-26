@@ -1,17 +1,36 @@
 steps:
-  # 第一步：編譯 Java 專案並跳過測試
-  - name: 'gcr.io/cloud-builders/mvn'
-    args: ['clean', 'package', '-DskipTests']
+  # 【步驟 A】從 GCS 抓取之前的 Maven 快取 (如果有的話)
+  - name: 'gcr.io/cloud-builders/gsutil'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gsutil cp gs://wedding-build-cache/maven-cache.tar.gz maven-cache.tar.gz || exit 0
+        tar -xzf maven-cache.tar.gz || exit 0
 
-  # 第二步：建構 Docker 鏡像
+  # 【步驟 B】執行 Maven 編譯並存入專案目錄下的 .m2
+  # 這裡取代了你原本的第一步，改用 install 並指定本地倉庫路徑
+  - name: 'gcr.io/cloud-builders/mvn'
+    args: ['install', '-Dmaven.repo.local=./.m2/repository', '-DskipTests']
+
+  # 【步驟 C】將本次下載的新依賴打包並傳回 GCS 供下次使用
+  - name: 'gcr.io/cloud-builders/gsutil'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        tar -czf maven-cache.tar.gz ./.m2/repository
+        gsutil cp maven-cache.tar.gz gs://wedding-build-cache/maven-cache.tar.gz
+
+  # 【步驟 D】建構 Docker 鏡像 (對應你原本的第二步)
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA', '.']
 
-  # 第三步：推送到 Artifact Registry
+  # 【步驟 E】推送到 Artifact Registry (對應你原本的第三步)
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA']
 
-  # 第四步：部署到 Cloud Run
+  # 【步驟 F】部署到 Cloud Run (對應你原本的第四步)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -25,10 +44,12 @@ steps:
       - '--platform'
       - 'managed'
 
+# 這裡保留你原本的鏡像清單
 images:
   - 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA'
 
-  # ...之前的內容保持不變...
+# 調整超時時間，因為第一次壓縮並上傳快取會花比較多時間
+timeout: '1200s'
 
 options:
   logging: CLOUD_LOGGING_ONLY

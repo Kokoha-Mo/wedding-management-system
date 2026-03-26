@@ -957,6 +957,13 @@
                 toast.timer   = setTimeout(() => { toast.show = false; }, 3000);
             }
 
+            function showAlert(message, icon = 'info', callback = null) {
+                alert.message = message;
+                alert.icon = icon;
+                alert.show = true;
+                alert.callback = callback;
+            }
+
             function showConfirm(message, type = 'default') {
                 confirm.message = message;
                 confirm.type    = type;
@@ -1013,7 +1020,7 @@
 
                     if (!res.ok) {
                         if (res.status === 401 || res.status === 403) {
-                            alert('您的登入已過期，請重新登入！');
+                            showAlert('您的登入已過期，請重新登入！');
                             sessionStorage.clear();
                             window.location.replace('login.html');
                             return;
@@ -1219,7 +1226,7 @@
                         modals.modify = false;
                         await loadBooks(activeTab.value === 'tab-pending' ? '處理中' : '已簽約');
                     } else {
-                        showToast('儲存失敗，請稍後再試', 'error');
+                        showAlert('儲存失敗，請稍後再試', 'error');
                     }
                 } catch (err) { showToast('連線失敗', 'error'); }
                 finally { savingDetails.value = false; }
@@ -1307,7 +1314,7 @@
                 serviceGroups, ceremonyItems, decorItems, visibleNavItems,
                 // 表單 & Modal
                 createForm, editForm, modals, modify, modifyTotalPrice, detail,
-                alert, confirm, toast,
+                alert,showAlert, confirm, toast,
                 // 方法
                 fmtPrice, showConfirm, resolveConfirm, showToast,
                 submitCreateBook, updateBookStatus,

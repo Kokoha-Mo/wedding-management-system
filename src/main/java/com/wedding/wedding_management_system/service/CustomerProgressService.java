@@ -344,8 +344,9 @@ public class CustomerProgressService {
         // ==========================================
         int calculatedProgress = 0;
 
-        int totalTasksCount = projectTaskRepository.countByProjectId(projectId);
-        int completedTasksCount = projectTaskRepository.countByProjectIdAndStatus(projectId, "已完成");
+        // 已在上方透過 allTasks 及迴圈計算出 totalTasks / completedTasks，這裡直接重用以避免多一次 DB 查詢
+        int totalTasksCount = totalTasks;
+        int completedTasksCount = completedTasks;
 
         // 🌟 將 Phase 1 預設完成的 2 個任務納入計算基礎
         int defaultTasks = 2;

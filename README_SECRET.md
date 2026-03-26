@@ -15,7 +15,7 @@
 ### Mac
 在 `~/.zshrc` 加入以下內容，完成後執行 `source ~/.zshrc`，重新開啟 IDE。
 ```bash
-export JWT_SECRET=組長提供的值
-export SMTP_USERNAME=組長提供的值
-export SMTP_PASSWORD=組長提供的值
+export JWT_SECRET=在雲端資料夾
+export SMTP_USERNAME=在雲端資料夾
+export SMTP_PASSWORD=在雲端資料夾
 ```

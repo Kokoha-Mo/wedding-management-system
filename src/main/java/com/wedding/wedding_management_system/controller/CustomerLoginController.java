@@ -48,7 +48,7 @@ public class CustomerLoginController {
 
             ResponseCookie jwtCookie = ResponseCookie.from("customerToken", result.getToken())
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .path("/")
                     .maxAge(60 * 60) // an hour
                     .sameSite("Lax")

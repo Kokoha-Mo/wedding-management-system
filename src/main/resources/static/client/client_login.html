@@ -895,6 +895,31 @@
         <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
     </footer>
 
+    <!-- 註冊說明 MODAL (直接彈出版) -->
+    <div class="dv-modal-overlay" id="registerInfoOverlay" style="display: none;">
+        <div class="dv-modal-box">
+            <div class="dvd-corner-tr"></div>
+            <div class="dvd-corner-bl"></div>
+            <div class="dv-modal-icon-wrap">
+                <span class="material-symbols-outlined" style="font-size: 32px; color: var(--accent-gold);">info</span>
+            </div>
+            <span class="dv-modal-eyebrow">Notice</span>
+            <h3 class="dv-modal-title">會員登入說明</h3>
+            <div class="dv-modal-divider">
+                <div class="dv-modal-dot"></div>
+            </div>
+            <div class="dv-modal-msg">
+                歡迎來到 Dream Venues！<br>
+                若您還沒有專屬帳號，煩請先透過<a href="./wedding_contact.html"
+                    style="color: var(--accent-gold); text-decoration: underline;">預約諮詢</a>與我們聯絡喔！<br><br>
+                <span style="font-size: 11px; opacity: 0.8;">※ 已經有帳號的您，請直接點擊「確定」即可登入。</span>
+            </div>
+            <button type="button" class="dv-modal-btn" onclick="closeRegisterInfoModal()">
+                <span>確定</span>
+            </button>
+        </div>
+    </div>
+
     <div class="success-overlay" id="successOverlay">
         <div class="success-modal">
             <div class="modal-corner-tr"></div>
@@ -922,6 +947,21 @@
     </div>
 
     <script>
+        function openRegisterInfoModal() {
+            document.getElementById('registerInfoOverlay').style.display = 'flex';
+        }
+
+        function closeRegisterInfoModal() {
+            document.getElementById('registerInfoOverlay').style.display = 'none';
+            sessionStorage.setItem('hasSeenRegisterInfo', 'true');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!sessionStorage.getItem('hasSeenRegisterInfo')) {
+                openRegisterInfoModal();
+            }
+        });
+
         // ── 給 login.js 的 performLoginAction 呼叫 ──
         function showSuccessModal(userName) {
             if (userName) {

@@ -116,7 +116,7 @@ public class CustomerLoginService {
     public String generateAndSaveResetToken(String email) {
         // 1. 確認這信箱是不是我們的客人
         Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("請完整填寫電子郵件與密碼"));
+                .orElseThrow(() -> new RuntimeException("查無此電子郵件"));
 
         // 亮點：頻率限制檢查 (Rate Limiting)
         // 取得資料庫中現有的 Token

@@ -27,4 +27,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
            "GROUP BY e " +
            "ORDER BY COUNT(b) ASC")
     List<Employee> findManagerWithLeastBooks();
+
+    // 🌟 新增：取得所有婚顧部的 MANAGER 名單，供轉預約的下拉選單使用
+    @Query("SELECT e FROM Employee e WHERE e.department.id = 1 AND e.role = 'MANAGER' ORDER BY e.name ASC")
+    List<Employee> findAllWeddingPlanners();
 }

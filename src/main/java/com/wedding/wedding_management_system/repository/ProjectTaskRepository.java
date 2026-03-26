@@ -26,4 +26,10 @@ public interface ProjectTaskRepository extends JpaRepository<ProjectTask, Intege
 
     // 🌟 新增：找出該專案的所有籌備任務
     List<ProjectTask> findByProjectId(Integer projectId);
+
+    // 1. 算出該專案「總共有幾個任務」
+    int countByProjectId(Integer projectId);
+
+    // 2. 算出該專案「已經完成的任務數量」 (到時候我們傳入 "已完成")
+    int countByProjectIdAndStatus(Integer projectId, String status);
 }

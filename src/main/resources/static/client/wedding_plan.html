@@ -113,22 +113,26 @@
         .service-col {
             flex: 1;
             padding: 0 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .service-col h4 {
             font-family: var(--font-serif), sans-serif;
             font-size: 18px;
             color: var(--accent-gold);
-            margin-bottom: 30px;
-            /* text-align: center; */
-            letter-spacing: 0.15em;
+            width: 210px;
+            margin: 0 auto 30px auto;
+            text-align: left !important;
+
         }
 
         .service-col ul {
             list-style: none;
             padding: 0;
-            column-count: 1;
-            /* 取消雙欄顯示，讓文字垂直排列更有高級感 */
+            width: 210px;
+            margin: 0 auto;
         }
 
         .service-col li {
@@ -394,16 +398,29 @@
                 flex-direction: column;
             }
 
+            .service-col {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            /* 👇 替換原本的 :first-child 設定 */
             .service-col:first-child {
                 border-right: none;
-                padding-right: 0;
                 border-bottom: 1px solid var(--border-grey);
                 margin-bottom: 40px;
                 padding-bottom: 40px;
             }
 
-            .service-col:last-child {
-                padding-left: 0;
+            .service-col h4 {
+                width: 100% !important;
+                text-align: center !important;
+                margin: 0 0 20px 0;
+            }
+
+            .service-col ul {
+                width: max-content !important;
+                max-width: 90% !important;
+                margin: 0 auto !important;
             }
 
             .addon-container {

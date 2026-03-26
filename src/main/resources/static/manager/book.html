@@ -483,7 +483,7 @@
                                     <span class="material-icons text-amber-500 text-xl">workspace_premium</span>
                                     <div>
                                         <div class="flex items-center gap-2 mb-1">
-                                            <span class="text-sm font-bold text-gray-800 dark:text-gray-200">A方案｜婚宴全時統籌</span>
+                                            <span class="text-sm font-bold text-gray-800 dark:text-gray-200">婚宴全時統籌</span>
                                             <span class="text-xs font-bold bg-amber-400 text-white px-2 py-0.5 rounded-full">必選</span>
                                         </div>
                                         <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">包含婚禮統籌、期程規劃、場勘與資源整合，並於婚禮當日配置專業助理一名，確保流程執行之高品質與高效率。</p>
@@ -516,7 +516,7 @@
                         <!-- B方案：婚禮團隊 -->
                         <div>
                             <h4 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                                <span class="material-icons text-primary mr-2 text-xl">groups</span> B方案｜婚禮團隊
+                                <span class="material-icons text-primary mr-2 text-xl">groups</span>專業婚禮團隊
                             </h4>
                             <div class="space-y-3">
                                 <div v-for="group in serviceGroups" :key="group.mainId"
@@ -553,7 +553,7 @@
                         <!-- C方案：儀式規劃 -->
                         <div>
                             <h4 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                                <span class="material-icons text-primary mr-2 text-xl">favorite</span> C方案｜儀式規劃執行
+                                <span class="material-icons text-primary mr-2 text-xl">favorite</span>儀式規劃執行
                             </h4>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div v-for="item in ceremonyItems" :key="item.id"
@@ -578,7 +578,7 @@
                         <!-- D方案：布置 -->
                         <div>
                             <h4 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                                <span class="material-icons text-primary mr-2 text-xl">auto_awesome</span> D方案｜婚宴現場客製化布置
+                                <span class="material-icons text-primary mr-2 text-xl">auto_awesome</span>客製化視覺佈置
                             </h4>
                             <div class="space-y-3">
                                 <label v-for="item in decorItems" :key="item.id"
@@ -1215,8 +1215,9 @@
                     });
                     if (res.ok) {
                         showToast('需求設定已儲存！');
-                        //modals.modify =false;
-                        await viewBookDetails(currentViewBookId.value);
+                        //await viewBookDetails(currentViewBookId.value);
+                        modals.modify = false;
+                        await loadBooks(activeTab.value === 'tab-pending' ? '處理中' : '已簽約');
                     } else {
                         showToast('儲存失敗，請稍後再試', 'error');
                     }

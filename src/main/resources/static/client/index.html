@@ -12,7 +12,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400;500&display=swap"
         rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
         rel="stylesheet" />
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -226,6 +227,7 @@
             cursor: pointer;
             animation: hsBouce 2s ease-in-out infinite;
             line-height: 1;
+            will-change: transform;
         }
 
         .hs-scroll-hint .material-symbols-outlined {
@@ -237,6 +239,10 @@
 
         .hs-scroll-hint:hover .material-symbols-outlined {
             color: var(--accent-gold);
+        }
+
+        .material-symbols-outlined {
+            font-display: block;
         }
 
         @keyframes hsBouce {
@@ -260,6 +266,14 @@
             background-position: center 40%;
             background-attachment: fixed;
             filter: saturate(0.8) brightness(1.05);
+        }
+
+        @media (max-width: 767px) {
+            .parallax-divider {
+                background-attachment: scroll;
+                /* 手機改成 scroll */
+                background-position: center center;
+            }
         }
 
         .parallax-bg {

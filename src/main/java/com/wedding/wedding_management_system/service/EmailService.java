@@ -14,9 +14,10 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    // 前端重設密碼頁面的網址
-    @Value("${app.reset-password-url:http://localhost:8080/client/reset_password.html}")
-    private String resetPasswordUrl;
+    // 前端重設密碼頁面
+    // 未抓到網域就使用預設8080
+    @Value("${app.base.url}")
+    private String baseUrl;
 
     public void sendResetPasswordEmail(String toEmail, String customerName, String token) {
         try {
@@ -26,7 +27,7 @@ public class EmailService {
             helper.setTo(toEmail);
             helper.setSubject("【DREAM VENUES】帳號密碼設定通知");
 
-            String resetLink = resetPasswordUrl + "?token=" + token;
+            String resetLink = baseUrl + "/client/reset_password.html?token=" + token;
 
             // 信件內容（HTML 格式）
             String htmlContent = """

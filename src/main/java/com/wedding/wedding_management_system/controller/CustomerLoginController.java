@@ -48,9 +48,10 @@ public class CustomerLoginController {
 
             ResponseCookie jwtCookie = ResponseCookie.from("customerToken", result.getToken())
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .path("/")
                     .maxAge(60 * 60) // an hour
+                    .sameSite("None")
                     .build();
 
             result.setToken(null);
@@ -92,7 +93,7 @@ public class CustomerLoginController {
 
         // 🌟 查詢是否有專案
         boolean hasProject = projectRepository.existsByBook_Customer_Id(customer.getId());
-        
+
         return ResponseEntity.ok(Map.of(
                 "name", customer.getName(),
                 "customerId", customer.getId(),

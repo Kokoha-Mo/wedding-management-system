@@ -12,10 +12,22 @@ import io.jsonwebtoken.security.Keys;
 public class JwtToken {
     private static final long EXP_TIME = 60 * 60 * 1000; // 過期時間跟cookie和前端期限一樣
     private static final long RESET_EXP_TIME = 10 * 60 * 1000; // 重設密碼專用 token（10分鐘有效）
-    // 直接抓環境變數 JWT_SECRET，如果沒有就用後面的預設字串
-    private static final String SECRET = (System.getenv("JWT_SECRET") != null)
-            ? System.getenv("JWT_SECRET")
-            : "your_default_key_for_local_dev_12345678";
+    private static final String SECRET_RAW = System.getenv("JWT_SECRET");
+
+    static {
+        // 這段會在類別載入時執行，並印在 Cloud Run Logs 裡
+        if (SECRET_RAW == null || SECRET_RAW.trim().isEmpty()) {
+            System.err.println("⚠️ [JWT 診斷] 警告：找不到環境變數 JWT_SECRET！目前使用 null 或空值。");
+        } else {
+            // 為了安全，我們只印出前 3 個字和長度，不要印出完整的密鑰
+            System.out.println("✅ [JWT 診斷] 成功偵測到 JWT_SECRET。長度: " + SECRET_RAW.length() + "，開頭為: "
+                    + SECRET_RAW.substring(0, Math.min(3, SECRET_RAW.length())) + "...");
+        }
+    }
+
+    // 修正後的 SECRET 賦值（去掉 ${}）
+    private static final String SECRET = (SECRET_RAW != null) ? SECRET_RAW
+            : "your_default_key_12345678901234567890123456789012";
     private static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     public static String createToken(String subject) {

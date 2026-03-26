@@ -1,5 +1,5 @@
 steps:
-  # 【步驟 A】從 GCS 抓取之前的 Maven 快取 (如果有的話)
+  # 【步驟 A】從 GCS 抓取 Maven 快取
   - name: 'gcr.io/cloud-builders/gsutil'
     entrypoint: 'bash'
     args:
@@ -8,12 +8,11 @@ steps:
         gsutil cp gs://wedding-build-cache/maven-cache.tar.gz maven-cache.tar.gz || exit 0
         tar -xzf maven-cache.tar.gz || exit 0
 
-  # 【步驟 B】執行 Maven 編譯並存入專案目錄下的 .m2
-  # 這裡取代了你原本的第一步，改用 install 並指定本地倉庫路徑
+  # 【步驟 B】Maven 編譯 (保持 clean 以免舊程式碼殘留)
   - name: 'gcr.io/cloud-builders/mvn'
-    args: ['install', '-Dmaven.repo.local=./.m2/repository', '-DskipTests']
+    args: ['clean', 'install', '-Dmaven.repo.local=./.m2/repository', '-DskipTests']
 
-  # 【步驟 C】將本次下載的新依賴打包並傳回 GCS 供下次使用
+  # 【步驟 C】非同步上傳快取 (不阻塞後續步驟)
   - name: 'gcr.io/cloud-builders/gsutil'
     entrypoint: 'bash'
     args:
@@ -22,15 +21,24 @@ steps:
         tar -czf maven-cache.tar.gz ./.m2/repository
         gsutil cp maven-cache.tar.gz gs://wedding-build-cache/maven-cache.tar.gz
 
-  # 【步驟 D】建構 Docker 鏡像 (對應你原本的第二步)
+  # 【步驟 D】Docker Build (加入快取機制)
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA', '.']
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # 先拉取上一次的 latest image 作為快取基準
+        docker pull asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:latest || exit 0
+        docker build \
+          --cache-from asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:latest \
+          -t asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA \
+          -t asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:latest .
 
-  # 【步驟 E】推送到 Artifact Registry (對應你原本的第三步)
+  # 【步驟 E】推送鏡像 (一次推兩個 tag)
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA']
+    args: ['push', 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system', '--all-tags']
 
-  # 【步驟 F】部署到 Cloud Run (對應你原本的第四步)
+  # 【步驟 F】部署到 Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -41,15 +49,11 @@ steps:
       - 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA'
       - '--region'
       - 'asia-east1'
-      - '--platform'
-      - 'managed'
 
-# 這裡保留你原本的鏡像清單
+# 設定更高規格的機器，大幅縮短整體時間
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
 images:
   - 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA'
-
-# 調整超時時間，因為第一次壓縮並上傳快取會花比較多時間
-timeout: '1200s'
-
-options:
-  logging: CLOUD_LOGGING_ONLY

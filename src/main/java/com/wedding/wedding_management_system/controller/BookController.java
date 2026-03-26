@@ -49,13 +49,18 @@ public class BookController {
             @RequestBody Map<String, String> payload) { // 🌟 接收前端傳來的 JSON
 
         try {
-            // 🌟 取出前端填寫的伴侶姓名，以及可能被櫃檯人員修改的信箱與電話
             String partnerName = payload.get("partnerName");
             String email = payload.get("email");
             String tel = payload.get("tel");
+            
+            // 🌟 取出 managerId (記得防呆，如果前端傳空字串就設為 null)
+            String managerIdStr = payload.get("managerId");
+            Integer managerId = (managerIdStr != null && !managerIdStr.trim().isEmpty()) 
+                                ? Integer.valueOf(managerIdStr) 
+                                : null;
 
-            // 將所有資料一併傳給 Service 處理
-            BookResponseDTO result = convertService.convertFromConsultation(consultationId, partnerName, email, tel);
+            // 將 managerId 一併傳給 Service 處理
+            BookResponseDTO result = convertService.convertFromConsultation(consultationId, partnerName, email, tel, managerId);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
 

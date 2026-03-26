@@ -1262,7 +1262,7 @@
     </button>
 
     <script>
-        const { createApp, reactive, ref, computed, nextTick } = Vue;
+        const { createApp, reactive, ref, computed, nextTick, onMounted } = Vue;
 
         createApp({
             setup() {
@@ -1489,6 +1489,28 @@
                         else faq.isOpen = false;
                     });
                 };
+
+                // 🌟 新增：畫面一載入就去抓網址列的加購項目
+                onMounted(() => {
+                    // 🌟 1. 讀取網址列的參數
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const servicesParam = urlParams.get('services');
+
+                    // 🌟 2. 如果網址裡面有 services 參數
+                    if (servicesParam) {
+                        // 把 "儀式規劃執行,專業婚禮團隊" 切割成陣列
+                        const incomingServices = servicesParam.split(',');
+                        
+                        // 將這些項目推入 Vue 表單的 services 陣列中
+                        // Vue 的雙向綁定會讓對應的 checkbox 自動亮起來 (打勾)！
+                        incomingServices.forEach(service => {
+                            // 為了保險，確認這個服務原本不在陣列裡再加進去
+                            if (!form.services.includes(service)) {
+                                form.services.push(service);
+                            }
+                        });
+                    }
+                });
 
                 return {
                     form, availableStyles, availableServices,

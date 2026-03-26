@@ -889,7 +889,11 @@
                     此處上傳的文件 (如規格書、報價單) 將歸檔於此專案，並同步供客戶在進度頁面查看。
                 </p>
                 <div @click="$refs.archiveFileInput.click()"
-                    class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer mb-6 group">
+                    @dragover.prevent="isDragging = true"
+                    @dragleave.prevent="isDragging = false"
+                    @drop.prevent="handleDrop"
+                    :class="isDragging ? 'border-indigo-500 !bg-indigo-50 dark:!bg-indigo-900/20' : 'border-gray-200 dark:border-gray-600'"
+                    class="border-2 border-dashed rounded-2xl p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer mb-6 group">
                     <input ref="archiveFileInput" type="file" class="hidden" multiple @change="handleDocFiles" />
                     <span
                         class="material-icons text-4xl text-gray-300 group-hover:text-indigo-400 mb-2 transition-colors">cloud_upload</span>
@@ -1020,6 +1024,7 @@
                     rejectModal: { open: false, pendingTaskId: null },
 
                     // 文件上傳 Modal
+                    isDragging: false,
                     docUploadModal: { open: false, uploading: false, files: [] },
 
                     // Alert Modal
@@ -1437,6 +1442,18 @@
                         this.docUploadModal.files = files;
                     }
                 },
+                handleDrop(event) {
+                    this.isDragging = false;
+                    const MAX = 10 * 1024 * 1024;
+                    const files = Array.from(event.dataTransfer.files);
+                    if (!files.length) return;
+                    const invalid = files.filter(f => f.size > MAX);
+                    if (invalid.length > 0) {
+                        this.showAlert(`檔案大小不能超過 10MB！\n其中 ${invalid.length} 個檔案超過限制。`);
+                    } else {
+                        this.docUploadModal.files = files;
+                    }
+                },
                 async submitDocUpload() {
                     if (!this.docUploadModal.files.length) { this.showAlert('請先選擇檔案'); return; }
                     this.docUploadModal.uploading = true;
@@ -1496,6 +1513,9 @@
             // ══════════════════════════════════════════════════════
             mounted() {
                 this.init();
+                // 全域攔截：防止拖曳到框外時瀏覽器直接開新分頁
+                document.addEventListener('dragover', e => e.preventDefault());
+                document.addEventListener('drop', e => e.preventDefault());
                 document.addEventListener('click', e => {
                     if (this.userDropdownOpen && !e.target.closest('.relative')) this.userDropdownOpen = false;
                 });

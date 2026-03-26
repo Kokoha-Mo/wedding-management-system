@@ -1145,24 +1145,6 @@
         <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
     </footer>
 
-    <div class="modal fade" id="saveSuccessModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content"
-                style="border:none; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-                <div class="modal-body text-center" style="padding: 40px 20px;">
-                    <i class="fa-regular fa-circle-check"
-                        style="font-size: 55px; color: var(--rose-dark); margin-bottom: 15px;"></i>
-                    <h4 class="serif" style="margin-bottom: 10px; color: var(--text-main); font-size: 1.2rem;">資料已儲存
-                    </h4>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 25px;">您的婚宴資訊已成功更新！</p>
-                    <button type="button" class="consult-btn"
-                        style="background: var(--rose-dark); color: white; border: none; padding: 8px 30px;"
-                        data-bs-dismiss="modal">確認</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // const API_BASE = '/api/customer';
         const BASE_PRICE = 43800;
@@ -1213,6 +1195,35 @@
                 clearInterval(timer);
                 window.location.href = './customer_progress.html';
             });
+        }
+        function showSystemAlert(isError, eyebrow, title, message, onConfirmCallback) {
+            // 避免重複生成，先移除舊的
+            const existingModal = document.getElementById('dvDynamicAlertOverlay');
+            if (existingModal) existingModal.remove();
+
+            // 呼叫你在 global.js 寫好的共用模組
+            const overlay = createSharedModal({
+                id: 'dvDynamicAlertOverlay',
+                icon: isError ? 'error' : 'check_circle',
+                iconColor: isError ? '#dc3545' : '#C5A059',
+                eyebrow: eyebrow,
+                title: title,
+                message: message,
+                buttonText: isError ? '關閉' : '確認',
+                buttonId: 'dvDynamicAlertBtn'
+            });
+
+            // 綁定確認按鈕事件
+            const btn = overlay.querySelector('#dvDynamicAlertBtn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    overlay.remove();
+                    document.body.style.overflow = ''; // 恢復卷軸
+                    if (typeof onConfirmCallback === 'function') {
+                        onConfirmCallback();
+                    }
+                });
+            }
         }
 
         // 計算總金額
@@ -1533,16 +1544,15 @@
                 });
 
                 if (res.ok) {
-                    const saveModal = new bootstrap.Modal(document.getElementById('saveSuccessModal'));
-                    saveModal.show();
+                    showSystemAlert(false, 'SUCCESS', '資料已儲存', '您的婚宴資訊已成功更新！');
                 } else if (res.status === 403) {
                     showSignedBlocker();
                 } else {
-                    alert('儲存失敗，請稍後再試');
+                    showSystemAlert(true, 'ERROR', '儲存失敗', '無法儲存您的婚宴資訊，請稍後再試！');
                 }
             } catch (err) {
                 console.error('儲存失敗:', err);
-                alert('連線失敗，請確認後端服務');
+                showSystemAlert(true, 'NETWORK ERROR', '連線異常', '無法連接到伺服器，請確認您的網路狀態。');
             }
         }
 
@@ -1611,11 +1621,11 @@
                 } else {
                     const errBody = await res.json();
                     console.error('後端錯誤:', errBody);
-                    alert('送出失敗：' + (errBody.message || '請稍後再試'));
+                    showSystemAlert(true, 'ERROR', '送出失敗', errBody.message || '發生未知的錯誤，請稍後再試');
                 }
             } catch (err) {
                 console.error('送出失敗:', err);
-                alert('連線失敗，請確認後端服務');
+                showSystemAlert(true, 'NETWORK ERROR', '連線異常', '無法連接到伺服器，請確認您的網路狀態。');
             } finally {
                 // 不管成功失敗都恢復（成功的話已進入 phase-4，但保險起見還是恢復）
                 if (submitBtn) {
@@ -1630,8 +1640,10 @@
         // ════════════════════════════════════════
         document.addEventListener('DOMContentLoaded', () => {
             if (!localStorage.getItem('dv_username')) {
-                alert('請先登入會員');
-                window.location.href = './client_login.html';
+                showSystemAlert(true, 'ACCESS DENIED', '存取被拒', '請先登入會員，才能擬定專屬方案喔！', function () {
+                    window.location.href = './client_login.html';
+                });
+                return;
             }
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('input-wedding-date').min = today;

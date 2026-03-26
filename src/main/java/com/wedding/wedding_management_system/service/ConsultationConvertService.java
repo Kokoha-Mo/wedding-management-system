@@ -30,7 +30,7 @@ public class ConsultationConvertService {
 
     @Transactional
     public BookResponseDTO convertFromConsultation(Integer consultationId, String partnerName, String newEmail,
-            String newTel) {
+            String newTel, Integer managerId) {
 
         Consultation consultation = consultationRepository.findById(consultationId)
                 .orElseThrow(() -> new RuntimeException("找不到此諮詢單 ID: " + consultationId));
@@ -100,11 +100,21 @@ public class ConsultationConvertService {
             }
         }
 
-        // 4. 自動分配接案數最少的婚顧部 MANAGER
-        Employee manager = employeeRepository.findManagerWithLeastBooks()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("目前沒有可分配的婚顧部業務人員"));
+        // ==========================================
+        // 🌟 4. 指派婚顧人員 (判斷是否有指定)
+        // ==========================================
+        Employee manager;
+        if (managerId != null) {
+            // 前端有指定婚顧，直接查出來
+            manager = employeeRepository.findById(managerId)
+                    .orElseThrow(() -> new RuntimeException("找不到指定的婚顧人員！"));
+        } else {
+            // 前端未選擇，使用原本的自動分配 (接案數最少)
+            manager = employeeRepository.findManagerWithLeastBooks()
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("目前沒有可分配的婚顧部業務人員"));
+        }
 
         // 5. 建立新預約單 (Book)
         Book book = new Book();

@@ -21,6 +21,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
     <style>
         /* 籌備進度版面 */
         .dashboard-wrap {
@@ -1744,6 +1747,74 @@
                 const hasUnread = ref(false);
                 const selectedFiles = ref([]);
 
+                // 🌟 新增：用來存放 WebSocket 客戶端實體
+                let stompClient = null;
+
+                // 🌟 新增：建立 WebSocket 連線的方法
+                const connectWebSocket = (projectId) => {
+                    // 對應我們在 WebSocketConfig 開放的端點
+                    const socket = new SockJS('/ws-dream-venues');
+                    stompClient = Stomp.over(socket);
+
+                    // 關閉 STOMP 的 debug 訊息（上線時畫面會比較乾淨，開發時可註解掉這行）
+                    // stompClient.debug = null; 
+
+                    stompClient.connect({}, (frame) => {
+                        console.log('✅ WebSocket 連線成功！');
+
+                        // 訂閱專屬於這個專案的頻道
+                        stompClient.subscribe('/topic/project/' + projectId, (message) => {
+                            // 收到後端推播的訊息了！把它轉成 JSON
+                            const receivedMsg = JSON.parse(message.body);
+
+                            // 🌟 【修改重點 1】：將後端傳來的資料，轉換成 Vue 畫面需要的格式！
+                            const isClient = receivedMsg.createBy !== data.pmName;
+
+                            let mappedAttachments = [];
+                            if (receivedMsg.documents && receivedMsg.documents.length > 0) {
+                                mappedAttachments = receivedMsg.documents.map(doc => {
+                                    let fileUrl = doc.filePath || '#';
+                                    if (fileUrl.startsWith('/uploads')) {
+                                        fileUrl = window.location.origin + fileUrl;
+                                    }
+                                    return {
+                                        name: doc.name,
+                                        type: doc.fileType || 'application/pdf',
+                                        url: fileUrl
+                                    };
+                                });
+                            }
+
+                            const formattedMsg = {
+                                id: receivedMsg.id,
+                                sender: isClient ? 'client' : 'pm',
+                                senderName: receivedMsg.createBy,
+                                text: receivedMsg.content,
+                                time: receivedMsg.createAt ? receivedMsg.createAt.replace('T', ' ').substring(0, 16) : '',
+                                attachments: mappedAttachments
+                            };
+
+                            // 1. 把「格式化後」的新訊息塞進目前的聊天陣列中，畫面瞬間更新！
+                            messages.push(formattedMsg); // 🌟 刪除 .value 直接 push 即可！
+
+                            // 2. 判斷是否需要亮起紅點 (如果聊天視窗沒有打開的話)
+                            const chatModalEl = document.getElementById('chatModal');
+                            if (chatModalEl && !chatModalEl.classList.contains('show')) {
+                                hasUnread.value = true;
+                            }
+
+                            // 3. 確保滾動條保持在最下方
+                            setTimeout(() => {
+                                const container = document.getElementById('boardContainer');
+                                if (container) container.scrollTop = container.scrollHeight;
+                            }, 100);
+                        });
+                    }, (error) => {
+                        console.error('❌ WebSocket 連線失敗: ', error);
+                        // 可以考慮在這裡寫個 setTimeout 進行斷線重連機制
+                    });
+                };
+
                 // 🌟 新增：用來控制圖片放大的變數與函式
                 const previewImageUrl = ref(null);
                 const openImagePreview = (url) => {
@@ -1806,6 +1877,12 @@
 
                         // 【修改重點 2】：移除 if (apiData.success) 判斷，直接綁定資料
                         if (realData) {
+                            // 🌟 在這裡呼叫 WebSocket 連線！
+                            // 加上 stompClient === null 的判斷，避免每次重新整理都重複連線
+                            if (realData.projectId && stompClient === null) {
+                                connectWebSocket(realData.projectId);
+                            }
+
                             // 1. 更新基本資料
                             if (realData.pmName) data.pmName = realData.pmName;
                             if (realData.customerName) data.customerName = realData.customerName;
@@ -2018,9 +2095,6 @@
                                 // 🌟 新增：徹底清空隱藏的 file input，避免無法重複選取同一個檔案
                                 const fileInput = document.getElementById('fileUploadInput');
                                 if (fileInput) fileInput.value = '';
-
-                                // 重新撈取最新進度，讓畫面立刻更新出剛剛送出的氣泡與圖檔！
-                                fetchProjectProgress();
                             }
                         })
                         .catch(error => {

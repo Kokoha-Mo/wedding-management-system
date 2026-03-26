@@ -12,7 +12,11 @@ import io.jsonwebtoken.security.Keys;
 public class JwtToken {
     private static final long EXP_TIME = 60 * 60 * 1000; // 過期時間跟cookie和前端期限一樣
     private static final long RESET_EXP_TIME = 10 * 60 * 1000; // 重設密碼專用 token（10分鐘有效）
-    private static final String SECRET = System.getenv("${JWT_SECRET}");
+    // 讀取環境變數 JWT_SECRET
+    private static final String SECRET_ENV = System.getenv("JWT_SECRET");
+    // 如果環境變數是 null (本地沒設)，就用一串預設的字串，否則就用環境變數
+    private static final String SECRET = (SECRET_ENV != null) ? SECRET_ENV
+            : "default_secret_key_for_local_dev_only_1234567890";
     private static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     public static String createToken(String subject) {

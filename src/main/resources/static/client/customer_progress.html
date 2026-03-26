@@ -1723,13 +1723,15 @@
                     const diffTime = wDate.getTime() - today.getTime();
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                    return diffDays > 0 ? diffDays : 0;
+                    // 保留正負號：>0 表示未來、0 表示今天、<0 表示婚期已過
+                    return diffDays;
                 });
 
                 // 動態產生激勵文案
                 const motivationText = computed(() => {
                     const days = daysLeft.value;
                     if (days === '?') return '排程確認中...';
+                    if (typeof days === 'number' && days < 0) return '婚期已過，祝福你們永浴愛河！';
                     if (days === 0) return '就是今天！祝你們新婚快樂！';
                     if (days <= 30) return '最後衝刺期，深呼吸，我們準備好了！';
                     if (days <= 90) return '籌備進入白熱化，繼續保持好進度！';

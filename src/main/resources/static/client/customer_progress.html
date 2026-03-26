@@ -1166,30 +1166,58 @@
                                     stroke="#C5A059" stroke-width="8" stroke-dasharray="753.6"
                                     :stroke-dashoffset="dashOffset" stroke-linecap="round"></circle>
                             </svg>
-                            <div class="position-absolute top-50 start-50 translate-middle w-100">
-
-                                <template v-if="data.countdownDays > 0">
-                                    <div class="countdown-number">{{ data.countdownDays }}</div>
-                                    <div style="font-size: 14px; letter-spacing: 0.15em; color: var(--text-muted);">
-                                        DAYS TO GO
-                                    </div>
-                                </template>
-
-                                <template v-else-if="data.countdownDays === 0">
-                                    <div
-                                        style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-gold); letter-spacing: 0.1em; font-weight: 400; line-height: 1.2;">
-                                        載入中
-                                    </div>
-                                </template>
-
-                                <template v-else>
-                                    <div
-                                        style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--accent-gold); letter-spacing: 0.1em; font-weight: 400; line-height: 1.2;">
-                                        圓滿完成
-                                    </div>
-                                </template>
-
+                            <div
+                                class="position-absolute top-50 start-50 translate-middle w-100 d-flex flex-column align-items-center">
+                                <div style="position: relative; display: inline-block; line-height: 1;">
+                                    <span
+                                        style="font-family: var(--font-serif); font-size: 3.2rem; color: var(--accent-gold); font-weight: 300;">
+                                        {{ data.progressPercent }}
+                                    </span>
+                                    <span
+                                        style="position: absolute; bottom: 8px; right: -20px; font-size: 1.1rem; color: var(--accent-gold); font-weight: 400;">
+                                        %
+                                    </span>
+                                </div>
+                                <div
+                                    style="font-size: 11px; letter-spacing: 0.15em; color: var(--text-muted); margin-top: 8px;">
+                                    籌備達成度
+                                </div>
                             </div>
+                        </div>
+
+                        <div
+                            style="background: rgba(197, 160, 89, 0.05); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; border: 1px solid rgba(197, 160, 89, 0.1);">
+                            <div
+                                style="font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+                                距離大囍之日
+                            </div>
+
+                            <template v-if="daysLeft !== '?' && daysLeft > 0">
+                                <div class="d-flex align-items-baseline justify-content-center gap-1">
+                                    <span
+                                        style="font-family: var(--font-serif); font-size: 2.2rem; color: var(--text-main); line-height: 1;">{{
+                                        daysLeft }}</span>
+                                    <span style="font-size: 13px; color: var(--text-main); font-weight: 500;">天</span>
+                                </div>
+                                <div
+                                    style="font-size: 12px; color: var(--accent-gold); margin-top: 8px; font-weight: 500; letter-spacing: 0.05em;">
+                                    {{ motivationText }}
+                                </div>
+                            </template>
+
+                            <template v-else-if="daysLeft === 0">
+                                <div
+                                    style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--accent-gold); letter-spacing: 0.1em; margin-top: 8px;">
+                                    {{ motivationText }} 🎉
+                                </div>
+                            </template>
+
+                            <template v-else>
+                                <div
+                                    style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--text-muted); letter-spacing: 0.1em; margin-top: 8px;">
+                                    {{ motivationText }}
+                                </div>
+                            </template>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -1241,6 +1269,7 @@
                                 <span style="font-weight: 500;">繳款期限說明</span>
                             </div>
                             <div style="padding-left: 18px; line-height: 1.6; letter-spacing: 0.05em;">
+                                訂金：簽約時完成付款<br>
                                 期中款：婚期前 3 個月<br>
                                 尾款：婚期前 14 天
                             </div>
@@ -1309,12 +1338,13 @@
 
                     <div class="timeline-container">
                         <div class="accordion" id="progressAccordion" v-if="data.phases && data.phases.length > 1">
-                            <div class="accordion-item timeline-item" :class="data.phases[0].status.toLowerCase()">
+                            <div class="accordion-item timeline-item"
+                                :class="data.phases[0]?.status?.toLowerCase() || ''">
                                 <div class="timeline-marker"></div>
                                 <h2 class="accordion-header" id="heading0">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#collapse0">
-                                        {{ data.phases[0].title }}
+                                        {{ data.phases[0]?.title }}
                                         <span class="status-badge badge-completed">已完成</span>
                                     </button>
                                 </h2>
@@ -1328,11 +1358,21 @@
                                                 <span class="category-progress">2 / 2</span>
                                             </div>
                                             <ul class="task-list">
-                                                <li v-for="task in data.phases[0].tasks" :key="task.id"
-                                                    :class="task.done ? 'task-done' : 'task-pending'">
-                                                    <span class="material-symbols-outlined">{{ task.done ?
-                                                        'check_circle' : 'radio_button_unchecked' }}</span>
-                                                    {{ task.name }}
+                                                <li v-for="task in data.phases[0]?.tasks" :key="task.id"
+                                                    :class="task.done ? 'task-done' : 'task-pending'"
+                                                    style="justify-content: space-between;">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="material-symbols-outlined">{{ task.done ?
+                                                            'check_circle' : 'radio_button_unchecked' }}</span>
+                                                        <span>{{ task.name }}</span>
+                                                    </div>
+
+                                                    <span v-if="task.done && task.completedDate"
+                                                        style="color: #bbb; font-size: 11px; letter-spacing: 0.05em; font-family: var(--font-sans);">
+                                                        <span
+                                                            style="font-size: 9px; opacity: 0.7; margin-right: 6px; letter-spacing: 0.1em;">完成日期</span>{{
+                                                        task.completedDate }}
+                                                    </span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -1341,12 +1381,13 @@
                                 </div>
                             </div>
 
-                            <div class="accordion-item timeline-item" :class="data.phases[1].status.toLowerCase()">
+                            <div class="accordion-item timeline-item"
+                                :class="data.phases[1]?.status?.toLowerCase() || ''">
                                 <div class="timeline-marker"></div>
                                 <h2 class="accordion-header" id="heading1">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#collapse1">
-                                        {{ data.phases[1].title }}
+                                        {{ data.phases[1]?.title }}
                                         <span v-if="isPhaseCompleted(data.phases[1])"
                                             class="status-badge badge-completed">已完成</span>
                                         <span v-else class="status-badge badge-active">進行中</span>
@@ -1354,37 +1395,49 @@
                                 </h2>
                                 <div id="collapse1" class="accordion-collapse collapse show">
                                     <div class="accordion-body">
-                                        <div v-if="data.phases[1].pmMessage" class="pm-update-box">
+                                        <div v-if="data.phases[1]?.pmMessage" class="pm-update-box">
                                             <span class="material-symbols-outlined">campaign</span>
                                             <div>
                                                 <div
                                                     style="font-size: 14px; color: var(--accent-gold); margin-bottom: 4px;">
-                                                    顧問更新於 {{ data.phases[1].pmUpdateTime }}
+                                                    顧問更新於 {{ data.phases[1]?.pmUpdateTime }}
                                                 </div>
                                                 <div
                                                     style="color: var(--text-main); font-size: 14px; line-height: 1.6;">
-                                                    {{ data.phases[1].pmMessage }}
+                                                    {{ data.phases[1]?.pmMessage }}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div v-for="(cat, catIdx) in data.phases[1].categories" :key="cat.name"
+
+                                        <div v-for="cat in data.phases[1]?.categories" :key="cat.name"
                                             class="category-block">
                                             <div class="category-label">
-                                                <span class="material-symbols-outlined">{{ getCatIcon(cat.name)
+                                                <span class="material-symbols-outlined">{{ getCatIcon(cat)
                                                     }}</span>
                                                 {{ cat.name }}
-                                                <span class="category-progress">{{ cat.tasks.filter(t=>t.isDone).length
-                                                    }} / {{ cat.tasks.length }}</span>
+                                                <span class="category-progress">{{ cat.tasks?.filter(t=>t.isDone).length
+                                                    || 0 }} / {{ cat.tasks?.length || 0 }}</span>
                                             </div>
                                             <ul class="task-list">
                                                 <li v-for="task in cat.tasks" :key="task.id"
-                                                    :class="task.isDone ? 'task-done' : 'task-pending'">
-                                                    <span class="material-symbols-outlined">{{ task.isDone ?
-                                                        'check_circle' : 'radio_button_unchecked' }}</span>
-                                                    {{ task.name }}
+                                                    :class="task.isDone ? 'task-done' : 'task-pending'"
+                                                    style="justify-content: space-between;">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="material-symbols-outlined">{{ task.isDone ?
+                                                            'check_circle' : 'radio_button_unchecked' }}</span>
+                                                        <span>{{ task.name }}</span>
+                                                    </div>
+
+                                                    <span v-if="task.isDone && task.completedDate"
+                                                        style="color: #bbb; font-size: 11px; letter-spacing: 0.05em; font-family: var(--font-sans);">
+                                                        <span
+                                                            style="font-size: 12px; opacity: 0.8; margin-right: 6px; letter-spacing: 0.1em;">完成日期</span>{{
+                                                        task.completedDate }}
+                                                    </span>
                                                 </li>
                                             </ul>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -1642,7 +1695,7 @@
             setup() {
                 const isSubmitting = ref(false);
 
-                // 完整保留 UI 假資料框架
+                // 核心資料物件，包含專案進度、付款狀態、文件列表等，初始值先放空或預設文字，等 API 回來再更新
                 const data = reactive({
                     countdownDays: 0,
                     weddingDate: '載入中...',
@@ -1652,6 +1705,37 @@
                     payments: [],
                     documents: [],
                     phases: []
+                });
+
+                // ── 放在 setup() 內 ──
+
+                // 計算距離婚期還有幾天
+                const daysLeft = computed(() => {
+                    // 防呆：如果 API 還沒回來，或是專案剛成立尚未安排婚期
+                    if (!data.weddingDate || data.weddingDate === '載入中...' || data.weddingDate === '籌備準備中') {
+                        return '?';
+                    }
+
+                    const today = new Date();
+                    // 替換小細節：將 YYYY.MM.DD 轉回 YYYY/MM/DD 以確保跨瀏覽器相容性
+                    const wDate = new Date(data.weddingDate.replace(/\./g, '/'));
+
+                    const diffTime = wDate.getTime() - today.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    // 保留正負號：>0 表示未來、0 表示今天、<0 表示婚期已過
+                    return diffDays;
+                });
+
+                // 動態產生激勵文案
+                const motivationText = computed(() => {
+                    const days = daysLeft.value;
+                    if (days === '?') return '排程確認中...';
+                    if (typeof days === 'number' && days < 0) return '祝福你們永浴愛河！';
+                    if (days === 0) return '就是今天！新婚快樂';
+                    if (days <= 30) return '最後衝刺期，深呼吸！';
+                    if (days <= 90) return '籌備進入白熱化，繼續保持好心情！';
+                    return '';
                 });
 
                 // 留言板陣列資料 (先清空，等 API 塞進來)
@@ -1673,6 +1757,9 @@
 
                 // 🌟 新增：檢查特定階段的所有任務是否已全部完成
                 const isPhaseCompleted = (phase) => {
+                    // 🌟 防呆：如果 phase 還沒載入，直接 return false
+                    if (!phase) return false;
+
                     // 如果後端直接傳回狀態是 completed，或者進度已經 100%，就當作完成
                     if (phase.status === 'completed' || phase.status === 'COMPLETED') return true;
 
@@ -1723,8 +1810,23 @@
                             if (realData.pmName) data.pmName = realData.pmName;
                             if (realData.customerName) data.customerName = realData.customerName;
                             if (realData.payments) data.payments = realData.payments;
-                            if (realData.phases) data.phases = realData.phases;
-                            if (realData.progressPercent !== undefined) {
+                            // 🌟 自動置頂排序邏輯
+                            if (realData.phases) {
+                                // 針對 Phase 1 排序
+                                if (realData.phases[0] && realData.phases[0].tasks) {
+                                    realData.phases[0].tasks.sort((a, b) => (a.done === b.done) ? 0 : a.done ? 1 : -1);
+                                }
+                                // 針對 Phase 2 每個部門分類排序
+                                if (realData.phases[1] && realData.phases[1].categories) {
+                                    realData.phases[1].categories.forEach(cat => {
+                                        if (cat.tasks) {
+                                            // isDone 為 false 的排前面，true 的排後面
+                                            cat.tasks.sort((a, b) => (a.isDone === b.isDone) ? 0 : a.isDone ? 1 : -1);
+                                        }
+                                    });
+                                }
+                                data.phases = realData.phases;
+                            } if (realData.progressPercent !== undefined) {
                                 // 加一點點延遲，讓圓環有從 0 跑上去的帥氣動畫
                                 setTimeout(() => { data.progressPercent = realData.progressPercent; }, 300);
                             }
@@ -1755,12 +1857,6 @@
                             if (realData.weddingDate) {
                                 // 把 "2026-10-24" 換成 "2026.10.24" 符合版面美學
                                 data.weddingDate = realData.weddingDate.replace(/-/g, '.');
-
-                                // 計算倒數天數 (順便幫你加了防呆：如果婚期已經過了，就顯示 0)
-                                const today = new Date();
-                                const wedding = new Date(realData.weddingDate);
-                                const diffTime = wedding.getTime() - today.getTime();
-                                data.countdownDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                             }
 
                             // 2. 更新留言板
@@ -1953,22 +2049,32 @@
 
                     // 🌟 新增防護：如果尚未登入，直接中斷執行，不要去打 API！
                     if (!localStorage.getItem('dv_username')) {
-                        return; 
+                        return;
                     }
 
                     // 接著去向後端要資料
                     fetchProjectProgress();
                 });
 
-                // 🌟 取得圖示的函式加回來了
-                function getCatIcon(name) {
+                // 🌟 新增：檢查單一部門分類是否 100% 完成
+                const isCategoryCompleted = (cat) => {
+                    if (!cat || !cat.tasks || cat.tasks.length === 0) return false;
+                    return cat.tasks.every(t => t.isDone);
+                };
+
+                // 🌟 修改：取得圖示的函式 (支援 100% 完成變更 Icon)
+                function getCatIcon(cat) {
+                    // 如果整個部門都完成了，顯示 verified (打勾)
+                    if (isCategoryCompleted(cat)) return 'verified';
+
+                    // 否則顯示原本的部門圖示
                     const map = {
                         '婚禮團隊協調': 'groups',
                         '場地佈置': 'chair',
                         '顧問統籌': 'manage_accounts',
                         '宴會企劃執行': 'event_note'
                     };
-                    return map[name] || 'label';
+                    return map[cat.name] || 'label';
                 }
 
                 return {
@@ -1977,7 +2083,10 @@
                     handleFileUpload, removeSelectedFile,
                     isPhaseCompleted, isSubmitting,
                     latestDocument, otherDocuments,
-                    previewImageUrl, openImagePreview, closeImagePreview
+                    previewImageUrl, openImagePreview, closeImagePreview,
+                    daysLeft,
+                    motivationText,
+                    isCategoryCompleted
                 }
             }
         }).mount('#app');

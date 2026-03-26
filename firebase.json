@@ -1,0 +1,15 @@
+{
+  "hosting": {
+    "site": "wedding-management-system-tw",
+    "public": "public",
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "wedding-management-system",
+          "region": "asia-east1"
+        }
+      }
+    ]
+  }
+}

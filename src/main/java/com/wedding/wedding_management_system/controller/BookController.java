@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -51,13 +49,18 @@ public class BookController {
             @RequestBody Map<String, String> payload) { // 🌟 接收前端傳來的 JSON
 
         try {
-            // 🌟 取出前端填寫的伴侶姓名，以及可能被櫃檯人員修改的信箱與電話
             String partnerName = payload.get("partnerName");
             String email = payload.get("email");
             String tel = payload.get("tel");
+            
+            // 🌟 取出 managerId (記得防呆，如果前端傳空字串就設為 null)
+            String managerIdStr = payload.get("managerId");
+            Integer managerId = (managerIdStr != null && !managerIdStr.trim().isEmpty()) 
+                                ? Integer.valueOf(managerIdStr) 
+                                : null;
 
-            // 將所有資料一併傳給 Service 處理
-            BookResponseDTO result = convertService.convertFromConsultation(consultationId, partnerName, email, tel);
+            // 將 managerId 一併傳給 Service 處理
+            BookResponseDTO result = convertService.convertFromConsultation(consultationId, partnerName, email, tel, managerId);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
@@ -103,10 +106,6 @@ public class BookController {
             @RequestParam(required = false) Integer managerId,
             @RequestParam(required = false)String keyword){
         log.info("搜尋請求進來了！ 狀態: {}, 員工ID: {}, 關鍵字: {}", status, managerId, keyword);
-
-//        List<BookResponseDTO> books = (managerId !=null)
-//                ? bookService.findByManagerAndStatus(managerId,status)
-//                : bookService.findByStatus(status);
 
         List<BookResponseDTO> books = bookService.findBooksByConditions(status, managerId, keyword);
         return ResponseEntity.ok(books);

@@ -12,8 +12,23 @@ import io.jsonwebtoken.security.Keys;
 public class JwtToken {
     private static final long EXP_TIME = 60 * 60 * 1000; // 過期時間跟cookie和前端期限一樣
     private static final long RESET_EXP_TIME = 10 * 60 * 1000; // 重設密碼專用 token（10分鐘有效）
-    private static final String SECURT = "JoyChu1223334444555556666667777777"; // 正式部屬時要移動她
-    private static final Key key = Keys.hmacShaKeyFor(SECURT.getBytes());
+    private static final String SECRET_RAW = System.getenv("JWT_SECRET");
+
+    static {
+        // 這段會在類別載入時執行，並印在 Cloud Run Logs 裡
+        if (SECRET_RAW == null || SECRET_RAW.trim().isEmpty()) {
+            System.err.println("⚠️ [JWT 診斷] 警告：找不到環境變數 JWT_SECRET！目前使用 null 或空值。");
+        } else {
+            // 為了安全，我們只印出前 3 個字和長度，不要印出完整的密鑰
+            System.out.println("✅ [JWT 診斷] 成功偵測到 JWT_SECRET。長度: " + SECRET_RAW.length() + "，開頭為: "
+                    + SECRET_RAW.substring(0, Math.min(3, SECRET_RAW.length())) + "...");
+        }
+    }
+
+    // 修正後的 SECRET 賦值（去掉 ${}）
+    private static final String SECRET = (SECRET_RAW != null) ? SECRET_RAW
+            : "your_default_key_12345678901234567890123456789012";
+    private static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     public static String createToken(String subject) {
         String token = Jwts.builder()
@@ -86,6 +101,22 @@ public class JwtToken {
             return "reset_password".equals(claims.get("purpose", String.class));
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    // 取得 Token 建立時的時間，用來處理重設密碼時60秒後才能再送
+    public static Date getIssuedAt(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key) // 這裡的 key 要對應你原本類別裡的 key
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getIssuedAt(); // 抓取當初產生 Token 的時間 (iat)
+        } catch (Exception e) {
+            // 萬一 Token 是壞的、過期的或被竄改過，解析會報錯
+            // 我們回傳「紀元時間 (1970年)」，讓頻率檢查失效，直接讓使用者可以重寄。
+            return new Date(0);
         }
     }
 

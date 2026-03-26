@@ -227,6 +227,15 @@ public class CustomerProgressService {
         List<ProjectTask> allTasks = projectTaskRepository.findByProjectId(projectId);
         List<ProjectProgressDTO.PhaseDTO> phases = new java.util.ArrayList<>();
 
+        // 🌟 核心修改 1：取得專案建檔日 (簽約日)，用來當作預設任務的完成日期
+        String projectCreateDateStr = "";
+        if (project.getCreateAt() != null) {
+            projectCreateDateStr = project.getCreateAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        } else {
+            // 防呆：如果舊資料沒有 createAt，就用今天當作基準
+            projectCreateDateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        }
+
         // --- Phase 1: 初步規劃 (假設專案成立即完成) ---
         ProjectProgressDTO.PhaseDTO p1 = new ProjectProgressDTO.PhaseDTO();
         p1.setId(1);
@@ -234,13 +243,18 @@ public class CustomerProgressService {
         p1.setStatus("completed");
         List<ProjectProgressDTO.TaskItemDTO> p1Tasks = new java.util.ArrayList<>();
         ProjectProgressDTO.TaskItemDTO t1 = new ProjectProgressDTO.TaskItemDTO();
+
         t1.setId(101);
         t1.setName("婚宴資訊確認");
         t1.setDone(true);
+        t1.setCompletedDate(projectCreateDateStr); // 🌟 綁定簽約日
+
         ProjectProgressDTO.TaskItemDTO t2 = new ProjectProgressDTO.TaskItemDTO();
         t2.setId(102);
         t2.setName("專屬顧問指派");
         t2.setDone(true);
+        t2.setCompletedDate(projectCreateDateStr); // 🌟 綁定簽約日
+
         p1Tasks.add(t1);
         p1Tasks.add(t2);
         p1.setTasks(p1Tasks);
@@ -291,6 +305,12 @@ public class CustomerProgressService {
 
                 boolean isDone = "已完成".equals(pt.getStatus());
                 taskDto.setDone(isDone);
+
+                // 🌟 核心修改 2：如果任務已完成，抓取資料庫的最後更新時間 (updateAt) 作為完成日期
+                if (isDone && pt.getUpdateAt() != null) {
+                    taskDto.setCompletedDate(pt.getUpdateAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+                }
+
                 if (isDone)
                     completedTasks++;
 
@@ -320,36 +340,29 @@ public class CustomerProgressService {
         dto.setPhases(phases);
 
         // ==========================================
-        // 🌟 修改區塊：計算圓環進度條百分比 (依據婚期時間倒數)
+        // 🌟 修改區塊：計算圓環進度條百分比 (依據任務完成度計算)
         // ==========================================
         int calculatedProgress = 0;
 
-        // 確保有 Book (包含婚期) 以及專案的建立時間
-        if (book != null && book.getWeddingDate() != null && project.getCreateAt() != null) {
-            LocalDate startDate = project.getCreateAt().toLocalDate(); // 起點：專案成立日
-            LocalDate weddingDate = book.getWeddingDate(); // 終點：大囍之日
-            LocalDate today = LocalDate.now(); // 現在：今天
+        // 已在上方透過 allTasks 及迴圈計算出 totalTasks / completedTasks，這裡直接重用以避免多一次 DB 查詢
+        int totalTasksCount = totalTasks;
+        int completedTasksCount = completedTasks;
 
-            // 1. 如果今天已經超過或剛好是婚期，進度直接圓滿 100%
-            if (today.isAfter(weddingDate) || today.isEqual(weddingDate)) {
-                calculatedProgress = 100;
-            }
-            // 2. 邏輯防呆：如果今天比成立日還早 (通常不可能發生)，進度 0%
-            else if (today.isBefore(startDate)) {
-                calculatedProgress = 0;
-            }
-            // 3. 正常計算比例
-            else {
-                long totalDays = ChronoUnit.DAYS.between(startDate, weddingDate); // 總共要籌備幾天
-                long passedDays = ChronoUnit.DAYS.between(startDate, today); // 已經過了幾天
+        // 🌟 將 Phase 1 預設完成的 2 個任務納入計算基礎
+        int defaultTasks = 2;
 
-                if (totalDays > 0) {
-                    calculatedProgress = (int) (((double) passedDays / totalDays) * 100);
-                }
-            }
+        if (totalTasksCount > 0) {
+            // 分母：實際總任務數 = DB撈出的任務 + 預設的2個任務
+            int realTotalTasks = totalTasksCount + defaultTasks;
+            // 分子：實際完成數 = DB完成的任務 + 預設的2個任務
+            int realCompletedTasks = completedTasksCount + defaultTasks;
+
+            // 計算真實比例
+            calculatedProgress = (int) (((double) realCompletedTasks / realTotalTasks) * 100);
         } else {
-            // 如果缺乏完整的日期資料，給個預設值 5% 讓畫面不至於空空的
-            calculatedProgress = 5;
+            // 如果專案剛成立，DB 裡還沒有 PM 建立的籌備任務，給定一個「基礎起始進度」(10%)。
+            // 這在 UX 體驗上代表：「初步規劃已完成，專案已啟動，正在等待顧問排程」
+            calculatedProgress = 10;
         }
 
         // 🌟 防呆：確保算出來的數字絕對落在 0 ~ 100 之間，以免前端 SVG 圓環爆掉

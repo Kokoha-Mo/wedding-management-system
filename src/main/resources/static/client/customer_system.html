@@ -10,13 +10,15 @@
     <script src="./js/bootstrap.bundle.js"></script>
     <script src="./global.js"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400;500&display=swap"
-        rel="stylesheet" />
+            href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400;500&display=swap"
+            rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
+          rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="global.css">
     <script src="./login.js"></script>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <style>
         :root {
@@ -26,7 +28,12 @@
         }
 
         .serif {
-            font-family: var(--font-serif);
+            font-family: var(--font-serif),sans-serif;
+        }
+
+        /* 🌟 防止 Vue 載入前畫面閃爍 */
+        [v-cloak] {
+            display: none !important;
         }
 
         .page-wrap {
@@ -164,18 +171,13 @@
             left: 0;
             height: 100%;
             background: var(--rose-dark);
-            width: 0%;
+            width: 0;
             transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 2px;
         }
 
         .content-section {
-            display: none;
             animation: fadeIn 0.6s ease;
-        }
-
-        .content-section.active {
-            display: block;
         }
 
         @keyframes fadeIn {
@@ -208,6 +210,24 @@
             margin-bottom: 30px;
             border: 1px solid var(--border-grey);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.02);
+
+            animation: boxFadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .interview-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(194, 142, 142, 0.08);
+        }
+
+        @keyframes boxFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .check-grid {
@@ -261,7 +281,7 @@
             width: 22px;
             height: 22px;
             border: 2px solid var(--border-grey);
-            border-radius: 50%;
+            border-radius: 6px;
             margin-right: 12px;
             background-color: white;
             transition: all 0.3s;
@@ -293,17 +313,15 @@
         .price-tag {
             font-size: 11px;
             color: var(--accent-gold);
-            font-family: var(--font-sans);
+            font-family: var(--font-sans), sans-serif;
             font-weight: 600;
             margin-left: auto;
-            padding-left: 10px;
             background: #FCFAF5;
             padding: 4px 8px;
             border-radius: 6px;
         }
 
         .sub-addon-box {
-            display: none;
             grid-column: 1 / -1;
             background: #FDF8F8;
             border: 1px dashed var(--rose-dark);
@@ -359,7 +377,7 @@
             font-size: 11px;
             color: var(--text-muted);
             margin-left: 8px;
-            font-family: var(--font-sans);
+            font-family: var(--font-sans), sans-serif;
             letter-spacing: 1px;
         }
 
@@ -373,7 +391,7 @@
             color: var(--text-main);
             transition: 0.3s;
             margin-top: 8px;
-            font-family: var(--font-sans);
+            font-family: var(--font-sans), sans-serif;
         }
 
         .form-control-custom:focus {
@@ -552,253 +570,210 @@
         }
 
         @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- ─── 導覽列 ─── -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container-fluid" style="max-width:1600px; margin:0 auto;">
-            <a class="navbar-brand" href="./index.html">
-                <span class="brand-name">DREAM VENUES</span>
-                <span class="brand-sub">High-End Wedding Journal</span>
-            </a>
-            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#navMenu"
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container-fluid" style="max-width:1600px; margin:0 auto;">
+        <a class="navbar-brand" href="./index.html">
+            <span class="brand-name">DREAM VENUES</span>
+            <span class="brand-sub">High-End Wedding Journal</span>
+        </a>
+        <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#navMenu"
                 aria-controls="navMenu" aria-label="開啟選單">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navMenuDesktop">
-                <ul class="navbar-nav ms-lg-4 gap-lg-1">
-                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">婚禮團隊</a></li>
-                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
-                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
-                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
-                    <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
-                </ul>
-                <div class="navbar-tools d-none d-lg-flex align-items-center gap-3 ms-auto">
-                    <div class="nav-item dropdown" id="userDropdownWrap" style="display:none;">
-                        <a class="nav-link nav-link-item" href="#" id="userDropdownBtn" data-bs-toggle="dropdown">歡迎</a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="./customer_system.html">我的婚禮規劃</a></li>
-                            <li><a class="dropdown-item" href="./customer_progress.html">我的籌備進度</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
-                        </ul>
-                    </div>
-                    <a class="nav-link nav-link-item" href="client_login.html" id="loginLinkDesktop">會員登入</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- ─── 手機版 Offcanvas ─── -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="navMenu">
-        <div class="offcanvas-header">
-            <a class="navbar-brand" href="./index.html">
-                <span class="brand-name" style="font-size:14px;">DREAM VENUES</span>
-                <span class="brand-sub">High-End Wedding Journal</span>
-            </a>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="關閉"></button>
-        </div>
-        <div class="offcanvas-body">
-            <div id="mobileUserMenu"
-                style="padding-bottom:12px; margin-bottom:4px; border-bottom:1px solid rgba(197,160,89,0.15);">
-                <p id="mobileWelcome"
-                    style="font-size:15px; letter-spacing:0.12em; color:var(--accent-gold); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
-                </p>
-                <a href="./customer_system.html" class="nav-link nav-link-item"
-                    style="padding:10px 0; display:block;">我的婚禮規劃</a>
-                <a href="./customer_progress.html" class="nav-link nav-link-item"
-                    style="padding:10px 0; display:block;">我的籌備進度</a>
-            </div>
-            <ul class="navbar-nav gap-0">
-                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">專業團隊</a></li>
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenuDesktop">
+            <ul class="navbar-nav ms-lg-4 gap-lg-1">
+                <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">婚禮團隊</a></li>
                 <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
                 <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
                 <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
                 <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
             </ul>
-            <a href="./client_login.html" class="offcanvas-login" id="loginLinkMobile">
-                <span class="material-symbols-outlined"
-                    style="font-size:16px; vertical-align:middle; margin-right:6px;">person</span>
-                會員登入
-            </a>
-            <a href="#" id="logoutBtnMobile" class="nav-link nav-link-item"
-                style="padding:14px 0; display:none; letter-spacing:0.08em;">
-                <span class="material-symbols-outlined"
-                    style="font-size:16px; vertical-align:middle; margin-right:6px;">logout</span>
-                登出
-            </a>
+            <div class="navbar-tools d-none d-lg-flex align-items-center gap-3 ms-auto">
+                <div class="nav-item dropdown" id="userDropdownWrap" style="display:none;">
+                    <a class="nav-link nav-link-item" href="#" id="userDropdownBtn" data-bs-toggle="dropdown">歡迎</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="./customer_system.html">我的婚禮規劃</a></li>
+                        <li><a class="dropdown-item" href="./customer_progress.html">我的籌備進度</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="logoutBtn">登出</a></li>
+                    </ul>
+                </div>
+                <a class="nav-link nav-link-item" href="client_login.html" id="loginLinkDesktop">會員登入</a>
+            </div>
         </div>
     </div>
+</nav>
 
+<div class="offcanvas offcanvas-end" tabindex="-1" id="navMenu">
+    <div class="offcanvas-header">
+        <a class="navbar-brand" href="./index.html">
+            <span class="brand-name" style="font-size:14px;">DREAM VENUES</span>
+            <span class="brand-sub">High-End Wedding Journal</span>
+        </a>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="關閉"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="mobileUserMenu"
+             style="padding-bottom:12px; margin-bottom:4px; border-bottom:1px solid rgba(197,160,89,0.15);">
+            <p id="mobileWelcome"
+               style="font-size:15px; letter-spacing:0.12em; color:var(--accent-gold); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+            </p>
+            <a href="./customer_system.html" class="nav-link nav-link-item"
+               style="padding:10px 0; display:block;">我的婚禮規劃</a>
+            <a href="./customer_progress.html" class="nav-link nav-link-item"
+               style="padding:10px 0; display:block;">我的籌備進度</a>
+        </div>
+        <ul class="navbar-nav gap-0">
+            <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_team.html">專業團隊</a></li>
+            <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_plan.html">婚禮方案</a></li>
+            <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_theme.html">婚禮主題</a></li>
+            <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_factory.html">精選合作夥伴</a></li>
+            <li class="nav-item"><a class="nav-link nav-link-item" href="./wedding_contact.html">聯絡我們</a></li>
+        </ul>
+        <a href="./client_login.html" class="offcanvas-login" id="loginLinkMobile">
+                <span class="material-symbols-outlined"
+                      style="font-size:16px; vertical-align:middle; margin-right:6px;">person</span>會員登入
+        </a>
+        <a href="#" id="logoutBtnMobile" class="nav-link nav-link-item"
+           style="padding:14px 0; display:none; letter-spacing:0.08em;">
+                <span class="material-symbols-outlined"
+                      style="font-size:16px; vertical-align:middle; margin-right:6px;">logout</span>登出
+        </a>
+    </div>
+</div>
+
+
+<div id="app" v-cloak>
     <main class="page-wrap">
         <div class="consult-wrap">
 
-            <!-- ─── 動態標題區塊（隨步驟更新）─── -->
-            <div class="project-header " id="page-dynamic-header">
+            <div class="project-header" id="page-dynamic-header">
                 <span class="status-badge">Proposal Draft</span>
                 <h1 class="serif" id="dynamic-title"
-                    style="font-size: 28px; margin-bottom: 12px; font-weight: 300; letter-spacing: 0.05em;">婚禮基本資訊</h1>
+                    style="font-size: 28px; margin-bottom: 12px; font-weight: 300; letter-spacing: 0.05em;">
+                    {{ pageTitles[currentStep - 1] }}
+                </h1>
                 <div class="page-hero-line has-bg"></div>
             </div>
 
-            <!-- ─── 步驟導覽列 ─── -->
             <div class="step-navbar">
-                <div class="nav-item-step" id="nav-step-1">
-                    <div class="nav-circle">1</div>
+                <div class="nav-item-step" :class="{ active: currentStep === 1, completed: currentStep > 1 }">
+                    <div class="nav-circle"><i v-if="currentStep > 1" class="fa-solid fa-check"></i><template v-else>1</template></div>
                     <div class="nav-label">婚禮基本資訊</div>
                 </div>
                 <div class="step-line">
-                    <div class="step-progress" id="progress-1"></div>
+                    <div class="step-progress" :style="{ width: currentStep >= 2 ? '100%' : '0%' }"></div>
                 </div>
-                <div class="nav-item-step" id="nav-step-2">
-                    <div class="nav-circle">2</div>
+                <div class="nav-item-step" :class="{ active: currentStep === 2, completed: currentStep > 2 }">
+                    <div class="nav-circle"><i v-if="currentStep > 2" class="fa-solid fa-check"></i><template v-else>2</template></div>
                     <div class="nav-label">方案與細節規劃</div>
                 </div>
                 <div class="step-line">
-                    <div class="step-progress" id="progress-2"></div>
+                    <div class="step-progress" :style="{ width: currentStep >= 3 ? '100%' : '0%' }"></div>
                 </div>
-                <div class="nav-item-step" id="nav-step-3">
-                    <div class="nav-circle">3</div>
+                <div class="nav-item-step" :class="{ active: currentStep === 3, completed: currentStep > 3 }">
+                    <div class="nav-circle"><i v-if="currentStep > 3" class="fa-solid fa-check"></i><template v-else>3</template></div>
                     <div class="nav-label">確認並送出提案</div>
                 </div>
                 <div class="step-line">
-                    <div class="step-progress" id="progress-3"></div>
+                    <div class="step-progress" :style="{ width: currentStep === 4 ? '100%' : '0%' }"></div>
                 </div>
-                <div class="nav-item-step" id="nav-step-4">
+                <div class="nav-item-step" :class="{ active: currentStep === 4, completed: currentStep > 4 }">
                     <div class="nav-circle">4</div>
                     <div class="nav-label">正式報價與簽約</div>
                 </div>
             </div>
 
-            <!-- ─── PHASE 1：婚禮基本資訊 ─── -->
-            <section id="phase-1" class="content-section">
+            <section v-show="currentStep === 1" class="content-section">
                 <div style="margin-top: 10px;">
                     <div class="interview-box">
-                        <div
-                            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
                             <div style="display: flex; align-items: center;">
-                                <h3 class="serif" style="margin: 0; font-size: 1.3rem;">新人基本資料</h3>
+                                <h3 class="serif" style="margin: 0; font-size: 24px;">新人基本資料</h3>
                             </div>
-                            <span
-                                style="font-size: 10px; color: var(--rose-dark); background: #FDF8F8; padding: 4px 10px; border-radius: 4px; font-weight: bold; letter-spacing: 0.1em;">資料已建檔</span>
+                            <span style="font-size: 10px; color: var(--rose-dark); background: #FDF8F8; padding: 4px 10px; border-radius: 4px; font-weight: bold; letter-spacing: 0.1em;">資料已建檔</span>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">新人姓名
-                                    Name</label>
-                                <input type="text" id="input-name" class="form-control-custom" readonly>
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">新人姓名 Name</label>
+                                <input type="text" v-model="form.name" class="form-control-custom" readonly>
                             </div>
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">聯絡手機
-                                    Phone</label>
-                                <input type="tel" id="input-tel" class="form-control-custom" readonly>
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">聯絡手機 Phone</label>
+                                <input type="tel" v-model="form.tel" class="form-control-custom" readonly>
                             </div>
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">LINE
-                                    ID</label>
-                                <input type="text" id="input-lineid" class="form-control-custom" readonly>
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">LINE ID</label>
+                                <input type="text" v-model="form.lineId" class="form-control-custom" readonly>
                             </div>
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">電子郵件
-                                    Email</label>
-                                <input type="email" id="input-email" class="form-control-custom" readonly>
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">電子郵件 Email</label>
+                                <input type="email" v-model="form.email" class="form-control-custom" readonly>
                             </div>
                         </div>
                     </div>
 
                     <div class="interview-box">
-                        <div
-                            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
                             <div style="display: flex; align-items: center;">
-                                <h3 class="serif" style="margin: 0; font-size: 1.3rem;">婚宴資訊與喜好</h3>
+                                <h3 class="serif" style="margin: 0; font-size: 24px;">婚宴資訊與喜好</h3>
                             </div>
                             <div style="display: flex; gap: 8px;">
-                                <button type="button" id="cancelEditBtn" class="edit-info-btn cancel-btn"
-                                    style="display: none;">取消</button>
-                                <button type="button" id="editWeddingInfoBtn" class="edit-info-btn">修改</button>
+                                <button type="button" v-show="isEditing" @click="cancelEdit" class="edit-info-btn cancel-btn">取消</button>
+                                <button type="button" @click="toggleEdit" class="edit-info-btn" :class="{ active: isEditing }">{{ isEditing ? '儲存' : '修改' }}</button>
                             </div>
                         </div>
 
-                        <div id="weddingInfoFields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">預計婚期
-                                    Wedding Date</label><input type="date" id="input-wedding-date"
-                                    class="form-control-custom editable-field" readonly></div>
-                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">賓客規模 (人數)
-                                    Guest Scale</label><input type="number" id="input-guest-scale"
-                                    class="form-control-custom editable-field" placeholder="請輸入預計人數" readonly></div>
-                            <div style="grid-column: span 2;"><label
-                                    style="font-size: 11px; color: var(--text-muted); font-weight: bold;">宴客場地
-                                    Venue</label><input type="text" id="input-venue"
-                                    class="form-control-custom editable-field" placeholder="請輸入您屬意的飯店或場地 (若尚未決定可留空)"
-                                    readonly></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">預計婚期 Wedding Date</label>
+                                <input type="date" v-model="form.weddingDate" :min="todayDate" class="form-control-custom" :readonly="!isEditing">
+                            </div>
+                            <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">賓客規模 (人數) Guest Scale</label>
+                                <input type="number" v-model="form.guestScale" class="form-control-custom" placeholder="請輸入預計人數" :readonly="!isEditing">
+                            </div>
+                            <div style="grid-column: span 2;"><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">宴客場地 Venue</label>
+                                <input type="text" v-model="form.venue" class="form-control-custom" placeholder="請輸入您屬意的飯店或場地 (若尚未決定可留空)" :readonly="!isEditing">
+                            </div>
 
-                            <div
-                                style="grid-column: span 2; padding-top: 10px; border-top: 1px dashed var(--border-grey);">
-                                <label
-                                    style="font-size: 11px; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; margin-bottom: 12px; display: block;">專屬視覺定調
-                                    Theme Preference (單選)</label>
-                                <div class="theme-tag-wrap" id="themeTagsContainer">
-                                    <label class="theme-tag"><input type="radio" name="weddingTheme"
-                                            class="hidden-chk editable-chk" checked disabled><span>森林系</span></label>
-                                    <label class="theme-tag"><input type="radio" name="weddingTheme"
-                                            class="hidden-chk editable-chk" disabled><span>美式復古</span></label>
-                                    <label class="theme-tag"><input type="radio" name="weddingTheme"
-                                            class="hidden-chk editable-chk" disabled><span>西式教堂</span></label>
-                                    <label class="theme-tag"><input type="radio" name="weddingTheme"
-                                            class="hidden-chk editable-chk" disabled><span>中式老宅</span></label>
-                                    <label class="theme-tag"><input type="radio" name="weddingTheme"
-                                            class="hidden-chk editable-chk" disabled><span>極簡現代</span></label>
-                                    <label class="theme-tag"><input type="radio" name="weddingTheme"
-                                            class="hidden-chk editable-chk" disabled><span>異國風情</span></label>
+                            <div style="grid-column: span 2; padding-top: 10px; border-top: 1px dashed var(--border-grey);">
+                                <label style="font-size: 11px; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; margin-bottom: 12px; display: block;">專屬視覺定調 Theme Preference (單選)</label>
+                                <div class="theme-tag-wrap">
+                                    <label class="theme-tag" v-for="theme in ['森林系', '美式復古', '西式教堂', '中式老宅', '極簡現代', '異國風情']" :key="theme">
+                                        <input type="radio" v-model="form.theme" :value="theme" class="hidden-chk" :disabled="!isEditing">
+                                        <span>{{ theme }}</span>
+                                    </label>
                                 </div>
                             </div>
 
                             <div style="grid-column: span 2;">
-                                <label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">婚宴備註
-                                    Notes</label>
-                                <textarea id="input-notes" class="form-control-custom editable-field"
-                                    style="min-height: 80px;" placeholder="例如：絕對不想出現的花材..." readonly></textarea>
+                                <label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">婚宴備註 Notes</label>
+                                <textarea v-model="form.notes" class="form-control-custom" style="min-height: 80px;" placeholder="例如：絕對不想出現的花材..." :readonly="!isEditing"></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- ─── PHASE 2：方案與細節規劃 ─── -->
-            <section id="phase-2" class="content-section active">
+            <section v-show="currentStep === 2" class="content-section">
                 <div style="margin-top: 10px;">
 
                     <div style="margin-bottom: 40px;">
-                        <h4 class="decor-group-title"
-                            style="border-left-color: var(--accent-gold); color: var(--accent-gold);">專案核心基底 <span>Core
-                                Base Plan</span></h4>
-                        <div class="interview-box"
-                            style="border: 2px solid var(--accent-gold); background: #FCFAF5; box-shadow: 0 10px 30px rgba(197, 160, 89, 0.1); margin-bottom: 0; padding: 30px 40px;">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+                        <h4 class="decor-group-title" style="border-left-color: var(--accent-gold); color: var(--accent-gold);">專案核心基底 <span>Core Base Plan</span></h4>
+                        <div class="interview-box" style="border: 2px solid var(--accent-gold); background: #FCFAF5; box-shadow: 0 10px 30px rgba(197, 160, 89, 0.1); margin-bottom: 0; padding: 30px 40px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
                                 <div style="flex: 1; min-width: 250px;">
                                     <span class="option-badge" style="background: var(--accent-gold);">必選項目</span>
-                                    <h3 class="serif" style="margin-bottom: 8px; font-size: 1.4rem;">A方案｜婚宴全時統籌</h3>
-                                    <p
-                                        style="font-size: 13px; color: var(--text-muted); margin-bottom: 0; line-height: 1.6;">
+                                    <h3 class="serif" style="margin-bottom: 8px; font-size: 1.4rem;">婚宴全時統籌</h3>
+                                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 0; line-height: 1.6;">
                                         包含婚禮統籌、期程規劃、宴會場勘執行與資源整合，並於婚禮當日配置專業助理1名，確保流程執行之高品質與高效率。</p>
                                 </div>
                                 <div style="text-align: right; margin-top: 10px;">
-                                    <div
-                                        style="font-size: 11px; color: var(--accent-gold); font-weight: bold; letter-spacing: 2px;">
-                                        專案基底費用</div>
-                                    <div
-                                        style="font-size: 24px; color: var(--accent-gold); font-weight: bold; font-family: var(--font-sans);">
-                                        NT$ 43,800</div>
+                                    <div style="font-size: 11px; color: var(--accent-gold); font-weight: bold; letter-spacing: 2px;">專案基底費用</div>
+                                    <div style="font-size: 24px; color: var(--accent-gold); font-weight: bold; font-family: var(--font-sans), sans-serif;">NT$ {{ basePrice.toLocaleString() }}</div>
                                 </div>
                             </div>
                         </div>
@@ -807,115 +782,58 @@
                     <div id="advanced-options" style="margin-top: 10px;">
 
                         <div class="interview-box">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px;">
-                                <h3 class="serif" style="margin: 0;">B方案｜專業婚禮團隊</h3>
-                                <span style="font-size: 11px; color: var(--text-muted);">自由加選</span>
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px;">
+                                <h3 class="serif" style="margin: 0;">專業婚禮團隊</h3>
+                                <span style="font-size: 11px; color: var(--text-muted);">可自由加選</span>
                             </div>
                             <div class="check-grid">
 
-                                <label class="check-item">
-                                    <input type="checkbox" class="group-main-trigger hidden-chk" data-service-id="3"
-                                        data-target="makeup-addons" data-category="團隊" data-price="18000"
-                                        id="cb-makeup">
-                                    <span class="custom-chk"></span><span class="chk-text">新秘造型師</span><span
-                                        class="price-tag">+NT$ 18,000</span>
+                                <label class="check-item" :class="{ active: sel[3] }">
+                                    <input type="checkbox" v-model="sel[3]" @change="handleMainToggle(3, [4,5])" class="hidden-chk">
+                                    <span class="custom-chk"></span><span class="chk-text">新秘造型師</span><span class="price-tag" v-if="prices[3]">+NT$ {{ prices[3] .toLocaleString() }}</span>
                                 </label>
-                                <div class="sub-addon-box" id="makeup-addons">
-                                    <div
-                                        style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">
-                                        造型服務加購</div>
+                                <div class="sub-addon-box" v-show="sel[3]">
+                                    <div style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">造型服務加購</div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                        <label class="sub-addon-item"><input type="checkbox"
-                                                class="sub-addon-checkbox hidden-chk" data-service-id="4"
-                                                data-category="團隊加購" data-price="5000"><span
-                                                class="custom-chk"></span><span class="chk-text">新郎妝髮造型 <span
-                                                    style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
-                                                    5,000)</span></span></label>
-                                        <label class="sub-addon-item"><input type="checkbox"
-                                                class="sub-addon-checkbox hidden-chk" data-service-id="5"
-                                                data-category="團隊加購" data-price="2000"><span
-                                                class="custom-chk"></span><span class="chk-text">主婚人/親友妝髮 <span
-                                                    style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
-                                                    2,000)</span></span></label>
+                                        <label class="sub-addon-item"><input type="checkbox" v-model="sel[4]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">新郎妝髮造型 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[4]">(+NT$ {{ prices[4] .toLocaleString()}})</span></span></label>
+                                        <label class="sub-addon-item"><input type="checkbox" v-model="sel[5]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">主婚人/親友妝髮 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[5]">(+NT$ {{ prices[5] .toLocaleString()}})</span></span></label>
                                     </div>
                                 </div>
 
-                                <label class="check-item">
-                                    <input type="checkbox" class="group-main-trigger hidden-chk" data-service-id="6"
-                                        data-target="host-addons" data-category="團隊" data-price="18000" id="cb-host">
-                                    <span class="custom-chk"></span><span class="chk-text">專業婚禮主持人</span><span
-                                        class="price-tag">+NT$ 18,000</span>
+                                <label class="check-item" :class="{ active: sel[6] }">
+                                    <input type="checkbox" v-model="sel[6]" @change="handleMainToggle(6, [7])" class="hidden-chk">
+                                    <span class="custom-chk"></span><span class="chk-text">專業婚禮主持人</span><span class="price-tag" v-if="prices[6]">+NT$ {{ prices[6] .toLocaleString() }}</span>
                                 </label>
-                                <div class="sub-addon-box" id="host-addons">
-                                    <div
-                                        style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">
-                                        主持人等級選擇 (可選)</div>
+                                <div class="sub-addon-box" v-show="sel[6]">
+                                    <div style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">主持人等級選擇 (可選)</div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="7"
-                                                class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
-                                                data-price="2000"><span class="custom-chk"></span><span
-                                                class="chk-text">品牌總監級主持人 <span
-                                                    style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
-                                                    2,000)</span></span></label>
+                                        <label class="sub-addon-item"><input type="checkbox" v-model="sel[7]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">品牌總監級主持人 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[7]">(+NT$ {{ prices[7] .toLocaleString()}})</span></span></label>
+
                                     </div>
                                 </div>
 
-                                <label class="check-item">
-                                    <input type="checkbox" class="group-main-trigger hidden-chk" data-service-id="9"
-                                        data-target="photo-addons" data-category="團隊" data-price="18000" id="cb-photo">
-                                    <span class="custom-chk"></span><span class="chk-text">平面/動態紀實攝影師</span><span
-                                        class="price-tag">+NT$ 18,000</span>
+                                <label class="check-item" :class="{ active: sel[9] }">
+                                    <input type="checkbox" v-model="sel[9]" @change="handleMainToggle(9, [10,11,12,13])" class="hidden-chk">
+                                    <span class="custom-chk"></span><span class="chk-text">平面/動態紀實攝影師</span><span class="price-tag" v-if="prices[9]">+NT$ {{ prices[9] .toLocaleString() }}</span>
                                 </label>
-                                <div class="sub-addon-box" id="photo-addons">
-                                    <div
-                                        style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">
-                                        攝影服務加購</div>
+                                <div class="sub-addon-box" v-show="sel[9]">
+                                    <div style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">攝影服務加購</div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="10"
-                                                class="sub-addon-checkbox hidden-chk bundle-target-sde"
-                                                data-category="團隊加購" data-price="15000"><span
-                                                class="custom-chk"></span><span class="chk-text">SDE 當日快剪快播 <span
-                                                    style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
-                                                    15,000)</span></span></label>
-                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="11"
-                                                class="sub-addon-checkbox hidden-chk bundle-target-double-cam"
-                                                data-category="團隊加購" data-price="12000"><span
-                                                class="custom-chk"></span><span class="chk-text">雙機位拍攝 <span
-                                                    style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
-                                                    12,000)</span></span></label>
-                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="12"
-                                                class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
-                                                data-price="5000"><span class="custom-chk"></span><span
-                                                class="chk-text">類婚紗與全家福引導 <span
-                                                    style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
-                                                    5,000)</span></span></label>
-                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="13"
-                                                class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
-                                                data-price="6000"><span class="custom-chk"></span><span
-                                                class="chk-text">空拍機壯闊空景拍攝 <span
-                                                    style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
-                                                    6,000)</span></span></label>
+                                        <label class="sub-addon-item"><input type="checkbox" v-model="sel[10]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">SDE 當日快剪快播 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[10]">(+NT$ {{ prices[10] .toLocaleString()}})</span></span></label>
+                                        <label class="sub-addon-item"><input type="checkbox" v-model="sel[11]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">雙機位拍攝 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[11]">(+NT$ {{ prices[11] .toLocaleString()}})</span></span></label>
+                                        <label class="sub-addon-item"><input type="checkbox" v-model="sel[12]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">類婚紗與全家福引導 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[12]">(+NT$ {{ prices[12] .toLocaleString()}})</span></span></label>
+                                        <label class="sub-addon-item"><input type="checkbox" v-model="sel[13]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">空拍機壯闊空景拍攝 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[13]">(+NT$ {{ prices[13] .toLocaleString()}})</span></span></label>
                                     </div>
                                 </div>
 
-                                <label class="check-item">
-                                    <input type="checkbox" class="group-main-trigger hidden-chk" data-service-id="14"
-                                        data-target="sound-addons" data-category="團隊" data-price="18000" id="cb-sound">
-                                    <span class="custom-chk"></span><span class="chk-text">燈光音響與影音場控</span><span
-                                        class="price-tag">+NT$ 18,000</span>
+                                <label class="check-item" :class="{ active: sel[14] }">
+                                    <input type="checkbox" v-model="sel[14]" @change="handleMainToggle(14, [15])" class="hidden-chk">
+                                    <span class="custom-chk"></span><span class="chk-text">燈光音響與影音場控</span><span class="price-tag"v-if="prices[14]">+NT$ {{ prices[14] .toLocaleString() }}</span>
                                 </label>
-                                <div class="sub-addon-box" id="sound-addons">
-                                    <div
-                                        style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">
-                                        硬體工程加購</div>
+                                <div class="sub-addon-box" v-show="sel[14]">
+                                    <div style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">硬體工程加購</div>
                                     <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                                        <label class="sub-addon-item"><input type="checkbox" data-service-id="15"
-                                                class="sub-addon-checkbox hidden-chk" data-category="團隊加購"
-                                                data-price="15000"><span class="custom-chk"></span><span
-                                                class="chk-text">專業 LIVE Band 音響工程系統 <span
-                                                    style="color:var(--accent-gold); font-family:var(--font-sans); margin-left:4px;">(+NT$
-                                                    15,000)</span></span></label>
+                                        <label class="sub-addon-item"><input type="checkbox" v-model="sel[15]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">專業 LIVE Band 音響工程系統 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[15]">(+NT$ {{ prices[15] .toLocaleString()}})</span></span></label>
                                     </div>
                                 </div>
 
@@ -923,96 +841,54 @@
                         </div>
 
                         <div class="interview-box">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px;">
-                                <h3 class="serif" style="margin: 0;">C方案｜儀式規劃執行</h3>
-                                <span style="font-size: 11px; color: var(--text-muted);">自由加選</span>
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px;">
+                                <h3 class="serif" style="margin: 0;">儀式規劃執行</h3>
+                                <span style="font-size: 11px; color: var(--text-muted);">可自由加選</span>
                             </div>
                             <div class="check-grid">
-                                <label class="check-item"><input type="checkbox" data-service-id="16"
-                                        class="hidden-chk main-trigger" data-category="儀式" data-price="15800"><span
-                                        class="custom-chk"></span><span class="chk-text">文定儀式引導與司儀</span><span
-                                        class="price-tag">+NT$
-                                        15,800</span></label>
-                                <label class="check-item"><input type="checkbox" data-service-id="17"
-                                        class="hidden-chk main-trigger" data-category="儀式" data-price="15800"><span
-                                        class="custom-chk"></span><span class="chk-text">迎娶儀式流程控管</span><span
-                                        class="price-tag">+NT$
-                                        15,800</span></label>
-                                <label class="check-item"><input type="checkbox" data-service-id="18"
-                                        class="hidden-chk main-trigger" data-category="儀式" data-price="15800"
-                                        id="cb-ceremony-outdoor"><span class="custom-chk"></span><span
-                                        class="chk-text">戶外/室內證婚規劃</span><span class="price-tag">+NT$
-                                        15,800</span></label>
+                                <label class="check-item" :class="{ active: sel[16] }"><input type="checkbox" v-model="sel[16]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">文定儀式引導與司儀</span><span class="price-tag" v-if="prices[16]">+NT$ {{ prices[16] .toLocaleString() }}</span></label>
+                                <label class="check-item" :class="{ active: sel[17] }"><input type="checkbox" v-model="sel[17]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">迎娶儀式流程控管</span><span class="price-tag" v-if="prices[17]">+NT$ {{ prices[17] .toLocaleString() }}</span></label>
+                                <label class="check-item" :class="{ active: sel[18] }"><input type="checkbox" v-model="sel[18]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">戶外/室內證婚規劃</span><span class="price-tag" v-if="prices[18]">+NT$ {{ prices[18] .toLocaleString() }}</span></label>
                             </div>
                         </div>
 
                         <div class="interview-box">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px;">
-                                <h3 class="serif" style="margin: 0;">D方案｜婚宴現場客製化布置</h3>
-                                <span style="font-size: 11px; color: var(--text-muted);">多維度自由加選</span>
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px;">
+                                <h3 class="serif" style="margin: 0;">婚宴現場客製化布置</h3>
+                                <span style="font-size: 11px; color: var(--text-muted);">可自由加選</span>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
 
-                                <label class="check-item"
-                                    style="align-items: flex-start; flex-direction: column; padding: 20px;">
+                                <label class="check-item" :class="{ active: sel[19] }" style="align-items: flex-start; flex-direction: column; padding: 20px;">
                                     <div style="display: flex; width: 100%; align-items: center;">
-                                        <input type="checkbox" data-service-id="19" class="hidden-chk main-trigger"
-                                            data-category="佈置" data-price="35000" id="cb-decor-welcome">
-                                        <span class="custom-chk"></span>
-                                        <span class="chk-text">迎賓與拍照區主題設計</span>
-                                        <span class="price-tag">+NT$ 35,000</span>
+                                        <input type="checkbox" v-model="sel[19]" class="hidden-chk">
+                                        <span class="custom-chk"></span><span class="chk-text">迎賓與拍照區主題設計</span><span class="price-tag" v-if="prices[19]">+NT$ {{ prices[19] .toLocaleString() }}</span>
                                     </div>
-                                    <div
-                                        style="margin-left: 34px; margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                                        包含：迎賓指引、收禮桌佈置、大型拍照背板或立體結構。
-                                    </div>
+                                    <div style="margin-left: 34px; margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">包含：迎賓指引、收禮桌佈置、大型拍照背板或立體結構。</div>
                                 </label>
 
-                                <label class="check-item"
-                                    style="align-items: flex-start; flex-direction: column; padding: 20px;">
+                                <label class="check-item" :class="{ active: sel[20] }" style="align-items: flex-start; flex-direction: column; padding: 20px;">
                                     <div style="display: flex; width: 100%; align-items: center;">
-                                        <input type="checkbox" data-service-id="20" class="hidden-chk main-trigger"
-                                            data-category="佈置" data-price="20000" id="cb-decor-table">
-                                        <span class="custom-chk"></span>
-                                        <span class="chk-text">宴客桌景與舞台視覺</span>
-                                        <span class="price-tag">+NT$ 20,000</span>
+                                        <input type="checkbox" v-model="sel[20]" class="hidden-chk">
+                                        <span class="custom-chk"></span><span class="chk-text">宴客桌景與舞台視覺</span><span class="price-tag" v-if="prices[20]">+NT$ {{ prices[20] .toLocaleString() }}</span>
                                     </div>
-                                    <div
-                                        style="margin-left: 34px; margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                                        包含：主客桌花藝、專屬椅背裝飾、舞台 Logo 與地貼設計。
-                                    </div>
+                                    <div style="margin-left: 34px; margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">包含：主客桌花藝、專屬椅背裝飾、舞台 Logo 與地貼設計。</div>
                                 </label>
 
-                                <label class="check-item"
-                                    style="align-items: flex-start; flex-direction: column; padding: 20px;">
+                                <label class="check-item" :class="{ active: sel[21] }" style="align-items: flex-start; flex-direction: column; padding: 20px;">
                                     <div style="display: flex; width: 100%; align-items: center;">
-                                        <input type="checkbox" data-service-id="21" class="hidden-chk main-trigger"
-                                            data-category="佈置" data-price="25000" id="cb-decor-flower-art">
-                                        <span class="custom-chk"></span>
-                                        <span class="chk-text">鮮花花藝佈置</span>
-                                        <span class="price-tag">+NT$ 25,000</span>
+                                        <input type="checkbox" v-model="sel[21]" class="hidden-chk">
+                                        <span class="custom-chk"></span><span class="chk-text">鮮花花藝佈置</span><span class="price-tag" v-if="prices[21]">+NT$ {{ prices[21] .toLocaleString() }}</span>
                                     </div>
-                                    <div
-                                        style="margin-left: 34px; margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                                        包含：鮮花拱門/無邊際地排花、觀禮走道佈置。
-                                    </div>
+                                    <div style="margin-left: 34px; margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">包含：鮮花拱門/無邊際地排花、觀禮走道佈置。</div>
                                 </label>
 
-                                <label class="check-item"
-                                    style="align-items: flex-start; flex-direction: column; padding: 20px;">
+                                <label class="check-item" :class="{ active: sel[22] }" style="align-items: flex-start; flex-direction: column; padding: 20px;">
                                     <div style="display: flex; width: 100%; align-items: center;">
-                                        <input type="checkbox" data-service-id="22" class="hidden-chk main-trigger"
-                                            data-category="佈置" data-price="15000" id="cb-decor-print">
-                                        <span class="custom-chk"></span>
-                                        <span class="chk-text">品牌級平面視覺套組</span>
-                                        <span class="price-tag">+NT$ 15,000</span>
+                                        <input type="checkbox" v-model="sel[22]" class="hidden-chk">
+                                        <span class="custom-chk"></span><span class="chk-text">品牌級平面視覺套組</span><span class="price-tag" v-if="prices[22]">+NT$ {{ prices[22] .toLocaleString() }}</span>
                                     </div>
-                                    <div
-                                        style="margin-left: 34px; margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                                        包含：專屬婚禮 Logo、客製喜帖、菜單、桌卡與歡迎牌設計。
-                                    </div>
+                                    <div style="margin-left: 34px; margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">包含：專屬婚禮 Logo、客製喜帖、菜單、桌卡與歡迎牌設計。</div>
                                 </label>
 
                             </div>
@@ -1021,644 +897,427 @@
                         <div class="realtime-total-box">
                             <div>
                                 <h3 class="serif" style="margin: 0; font-size: 1.2rem;">預估專案總額</h3>
-                                <p
-                                    style="font-size: 11px; color: var(--text-muted); margin-bottom: 0; margin-top: 5px;">
-                                    包含
-                                    A方案基底費用與您目前勾選的加值服務</p>
+                                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 0; margin-top: 5px;">
+                                    包含 婚宴全程統籌方案基底費用 與您目前勾選的加值服務</p>
                             </div>
                             <div style="text-align: right;">
-                                <div id="realtime-total-display"
-                                    style="font-size: 28px; color: var(--rose-dark); font-weight: bold; font-family: var(--font-sans);">
-                                    NT$ 43,800</div>
+                                <div style="font-size: 28px; color: var(--rose-dark); font-weight: bold; font-family: var(--font-sans);">
+                                    NT$ {{ totalAmount.toLocaleString() }}</div>
                             </div>
                         </div>
-
                     </div>
+                </div>
             </section>
 
-            <!-- ─── PHASE 3：確認並送出提案 ─── -->
-            <section id="phase-3" class="content-section">
-                <div class="interview-box"
-                    style="margin-top: 10px; border: 1px solid var(--rose-dark); box-shadow: 0 10px 30px rgba(194, 142, 142, 0.08); padding: 50px;">
+            <section v-show="currentStep === 3" class="content-section">
+                <div class="interview-box" style="margin-top: 10px; border: 1px solid var(--rose-dark); box-shadow: 0 10px 30px rgba(194, 142, 142, 0.08); padding: 50px;">
                     <div style="text-align: center; margin-bottom: 30px;">
-                        <i class="fa-solid fa-file-invoice-dollar"
-                            style="font-size: 40px; color: var(--rose-dark);"></i>
+                        <i class="fa-solid fa-file-invoice-dollar" style="font-size: 40px; color: var(--rose-dark);"></i>
                         <h3 class="serif" style="margin-top: 15px; font-size: 1.5rem;">預估報價總覽</h3>
                     </div>
 
-                    <div
-                        style="background: var(--soft-grey); padding: 30px; border-radius: 15px; font-size: 13px; line-height: 2;">
-                        <div
-                            style="border-bottom: 1px solid var(--border-grey); padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="color: var(--text-main); font-weight: bold; font-size: 14px;">A方案｜婚宴全時統籌
-                                (專案基底)</span>
-                            <span style="color: var(--text-main); font-weight: bold; font-family: var(--font-sans);">NT$
-                                43,800</span>
+                    <div style="background: var(--soft-grey); padding: 30px; border-radius: 15px; font-size: 13px; line-height: 2;">
+                        <div style="border-bottom: 1px solid var(--border-grey); padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--text-main); font-weight: bold; font-size: 14px;">婚宴全時統籌 (專案基底)</span>
+                            <span style="color: var(--text-main); font-weight: bold; font-family: var(--font-sans);"> NT$ {{ (basePrice || 0).toLocaleString() }}</span>
                         </div>
 
                         <div style="padding-bottom: 15px; margin-bottom: 15px;">
-                            <span
-                                style="color: var(--text-muted); font-weight: bold; font-size: 11px; letter-spacing: 1px;">附加專業團隊與客製化服務：</span>
-                            <ul id="summary-services"
-                                style="margin: 10px 0 0 0; color: var(--text-main); padding: 0; list-style: none;"></ul>
+                            <span style="color: var(--text-muted); font-weight: bold; font-size: 11px; letter-spacing: 1px;">附加專業團隊與客製化服務：</span>
+
+                            <ul style="margin: 10px 0 0 0; color: var(--text-main); padding: 0; list-style: none;">
+
+                                <li v-if="form.theme" style="margin-bottom: 15px; display: flex; flex-direction: column; border-bottom: 1px dashed var(--border-grey); padding-bottom: 15px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <span style="font-size:10px; background:var(--pure-white); border:1px solid var(--border-grey); padding:2px 6px; border-radius:4px; margin-right:8px; color:var(--text-muted);">專屬視覺定調</span>
+                                            <span style="font-size: 14px; color: var(--rose-dark); font-weight: bold;">{{ form.theme }}</span>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <li v-for="item in summaryItems" :key="item.id" style="margin-bottom: 12px; display: flex; flex-direction: column;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <i class="fa-solid fa-check" style="color: var(--rose-dark); margin-right: 8px;"></i>
+                                            <span style="font-size:10px; background:var(--pure-white); border:1px solid var(--border-grey); padding:2px 6px; border-radius:4px; margin-right:8px; color:var(--text-muted);">{{ item.cat }}</span>
+                                            <span style="font-size: 14px;">{{ item.name }}</span>
+                                        </div>
+                                        <span style="font-family: var(--font-sans); color: var(--text-main);">NT$ {{ item.price.toLocaleString() }}</span>
+                                    </div>
+
+                                    <ul v-if="item.subs.length > 0" style="margin: 6px 0 0 45px; padding: 0; list-style: none; font-size: 13px; color: var(--text-muted);">
+                                        <li v-for="sub in item.subs" :key="sub.id" style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                            <span>↳ 包含加購：{{ sub.name }}</span>
+                                            <span style="font-family: var(--font-sans);">NT$ {{ sub.price.toLocaleString() }}</span>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li v-if="summaryItems.length === 0 && !form.theme" style="color: #A09C95; font-size: 13px; margin-bottom: 10px;">未加選任何額外服務，僅保留核心統籌。</li>
+                            </ul>
                         </div>
 
-                        <div
-                            style="border-top: 2px dashed var(--rose-dark); padding-top: 20px; margin-top: 20px; display: flex; justify-content: space-between; align-items: baseline;">
+                        <div style="border-top: 2px dashed var(--rose-dark); padding-top: 20px; margin-top: 20px; display: flex; justify-content: space-between; align-items: baseline;">
                             <span style="color: var(--rose-dark); font-weight: bold; font-size: 16px;">預估總計</span>
-                            <span id="summary-total-display"
-                                style="color: var(--rose-dark); font-weight: bold; font-size: 26px; font-family: var(--font-sans);">NT$
-                                43,800</span>
+                            <span style="color: var(--rose-dark); font-weight: bold; font-size: 26px; font-family: var(--font-sans);">NT$ {{ totalAmount.toLocaleString() }}</span>
                         </div>
                     </div>
 
                     <div style="text-align: center; margin-top: 35px;">
-                        <button class="consult-btn btn-next" style="width: 100%; max-width: 280px;"
-                            onclick="submitBookDetails()">確認無誤，送出提案</button>
+                        <button class="consult-btn btn-next" style="width: 100%; max-width: 280px;" @click="submitBookDetails" :disabled="isSubmitting">
+                                <span v-if="isSubmitting">
+                                    <svg style="display:inline-block; width:16px; height:16px; vertical-align:middle; margin-right:8px; animation:spin 0.8s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                                    送出中...
+                                </span>
+                            <span v-else>確認無誤，送出提案</span>
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <!-- ─── PHASE 4：提案已送出 ─── -->
-            <section id="phase-4" class="content-section">
+            <section v-show="currentStep === 4" class="content-section">
                 <div class="text-center">
-                    <div class="interview-box"
-                        style="margin-top: 40px; text-align: center; background: #FDF8F8; border: none;">
-                        <i class="fa-solid fa-handshake-angle"
-                            style="font-size: 60px; color: var(--rose-dark); margin-bottom: 20px;"></i>
+                    <div class="interview-box" style="margin-top: 40px; text-align: center; background: #FDF8F8; border: none;">
+                        <i class="fa-solid fa-handshake-angle" style="font-size: 60px; color: var(--rose-dark); margin-bottom: 20px;"></i>
                         <h3 class="serif" style="margin-bottom: 15px; color: var(--rose-dark);">顧問正在為您擬定專屬合約</h3>
-                        <p
-                            style="font-size: 13px; color: var(--text-muted); max-width: 450px; margin: 0 auto 30px; line-height: 1.8;">
+                        <p style="font-size: 13px; color: var(--text-muted); max-width: 450px; margin: 0 auto 30px; line-height: 1.8;">
                             非常感謝您的耐心填寫！我們已經收到您的婚禮需求藍圖。<br>
                             顧問會於 24 小時內與您聯繫確認細節與報價。<br>
                             一旦確認無誤，即可進行簽約付款並開啟您的專屬婚禮儀表板。
                         </p>
-                        <a href="./index.html" class="consult-btn"
-                            style="display:inline-block; text-decoration:none; border:1px solid var(--border-grey); background:var(--pure-white); color:var(--text-main);">回首頁</a>
+                        <a href="./index.html" class="consult-btn" style="display:inline-block; text-decoration:none; border:1px solid var(--border-grey); background:var(--pure-white); color:var(--text-main);">回首頁</a>
                     </div>
                 </div>
             </section>
 
-            <div class="consult-actions" id="action-buttons">
-                <button class="consult-btn btn-prev" id="prevBtn" onclick="changeStep(-1)">← 返回上一步</button>
-                <div style="font-size: 10px; font-weight: bold; letter-spacing: 2px; color: var(--rose-dark);">PLANNING
-                    PROGRESS</div>
-                <button class="consult-btn btn-next" id="nextBtn" onclick="changeStep(1)">前往下一步驟 →</button>
+            <div class="consult-actions" v-show="currentStep < 4">
+                <button class="consult-btn btn-prev" @click="changeStep(-1)" :style="{ visibility: currentStep === 1 ? 'hidden' : 'visible' }">← 返回上一步</button>
+                <div style="font-size: 10px; font-weight: bold; letter-spacing: 2px; color: var(--rose-dark);">PLANNING PROGRESS</div>
+                <button class="consult-btn btn-next" @click="changeStep(1)" v-show="currentStep === 1">前往下一步驟 →</button>
             </div>
         </div>
     </main>
 
-    <div class="sticky-bottom-bar" id="stickyBar">
-        <div class="container-fluid"
-            style="max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+    <div class="sticky-bottom-bar" :class="{ visible: currentStep === 2 }">
+        <div class="container-fluid" style="max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
             <div>
-                <div style="font-size: 11px; color: var(--text-muted); font-weight: bold; letter-spacing: 1px;">目前方案總計
-                </div>
-                <div id="sticky-total-display"
-                    style="font-size: 24px; color: var(--rose-dark); font-weight: bold; font-family: var(--font-sans);">
-                    NT$ 43,800</div>
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: bold; letter-spacing: 1px;">目前方案總計</div>
+                <div style="font-size: 24px; color: var(--rose-dark); font-weight: bold; font-family: var(--font-sans);">NT$ {{ totalAmount.toLocaleString() }}</div>
             </div>
-            <button class="consult-btn btn-next"
-                style="padding: 12px 30px; box-shadow: 0 4px 15px rgba(194, 142, 142, 0.4);"
-                onclick="changeStep(1)">確認方案，下一步 →</button>
+            <button class="consult-btn btn-next" style="padding: 12px 30px; box-shadow: 0 4px 15px rgba(194, 142, 142, 0.4);" @click="changeStep(1)">確認方案，下一步 →</button>
         </div>
     </div>
 
-    <footer class="site-footer">
-        <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
-    </footer>
+</div>
+<footer class="site-footer">
+    <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
+</footer>
 
-    <div class="modal fade" id="saveSuccessModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content"
-                style="border:none; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-                <div class="modal-body text-center" style="padding: 40px 20px;">
-                    <i class="fa-regular fa-circle-check"
-                        style="font-size: 55px; color: var(--rose-dark); margin-bottom: 15px;"></i>
-                    <h4 class="serif" style="margin-bottom: 10px; color: var(--text-main); font-size: 1.2rem;">資料已儲存
-                    </h4>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 25px;">您的婚宴資訊已成功更新！</p>
-                    <button type="button" class="consult-btn"
-                        style="background: var(--rose-dark); color: white; border: none; padding: 8px 30px;"
-                        data-bs-dismiss="modal">確認</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<script>
+    const { createApp, ref, reactive, computed, onMounted } = Vue;
 
-    <script>
-        const BASE_PRICE = 43800;
-        const pageTitles = ['婚禮基本資訊', '方案與細節規劃', '確認並送出提案', '正式報價與簽約'];
+    const app = createApp({
+        setup() {
+            const pageTitles = ['婚禮基本資訊', '方案與細節規劃', '確認並送出提案', '正式報價與簽約'];
+            const currentStep = ref(1);
+            const isEditing = ref(false);
+            const isSubmitting = ref(false);
+            const basePrice = ref(43800); // 讓基底費用也變成響應式變數
+            const prices = reactive({
+                3: 18000, 4: 5000, 5: 2000, 6: 18000, 7: 2000, 9: 18000,
+                10: 15000, 11: 12000, 12: 5000, 13: 6000, 14: 18000, 15: 15000,
+                16: 15800, 17: 15800, 18: 15800, 19: 35000, 20: 20000, 21: 25000, 22: 15000});
 
-        //  共用 helper：向後端確認是否已簽約
-        async function checkIfSigned() {
-            try {
-                const res = await fetch(`${API_BASE}/book`, { credentials: 'include' });
-                if (!res.ok) return false;
-                const book = await res.json();
-                return book.status === '已簽約';
-            } catch (e) {
-                return false;
-            }
-        }
+            const todayDate = new Date().toISOString().split('T')[0];
 
-        // 共用 helper：顯示「已簽約，無法修改」彈窗
-        function showSignedBlocker() {
-            if (document.getElementById('dvBlockSignedOverlay')) return;
+            const form = reactive({
+                name: '', tel: '', lineId: '', email: '',
+                weddingDate: '', guestScale: '', venue: '', theme: '', notes: ''
+            });
+            const formBackup = ref({});
 
-            const overlay = createSharedModal({
-                id: 'dvBlockSignedOverlay',
-                icon: 'lock',
-                iconColor: '#C5A059',
-                eyebrow: 'ACCESS RESTRICTED',
-                title: '此方案已進入正式籌備',
-                message: '您的合約已完成簽署，方案內容已鎖定，<strong>無法再進行修改</strong>。<br><br>如需調整任何細節，請直接聯絡您的專屬婚禮顧問，顧問將為您協助處理。',
-                buttonText: '前往籌備進度',
-                buttonId: 'dvGoProgressBtn',
-                countdownSecs: 5
+            const sel = reactive({
+                3: false, 4: false, 5: false, 6: false, 7: false, 9: false,
+                10: false, 11: false, 12: false, 13: false, 14: false, 15: false,
+                16: false, 17: false, 18: false, 19: false, 20: false, 21: false, 22: false
             });
 
-            document.body.style.overflow = 'hidden';
-
-            let sec = 5;
-            const secEl = overlay.querySelector('.dv-modal-countdown strong');
-            const timer = setInterval(() => {
-                sec--;
-                if (secEl) secEl.textContent = sec;
-                if (sec <= 0) {
-                    clearInterval(timer);
-                    window.location.href = './customer_progress.html';
-                }
-            }, 1000);
-
-            overlay.querySelector('#dvGoProgressBtn').addEventListener('click', () => {
-                clearInterval(timer);
-                window.location.href = './customer_progress.html';
-            });
-        }
-
-        // 計算總金額
-        function calculateTotal() {
-            let total = BASE_PRICE;
-            const checkedBoxes = document.querySelectorAll('.check-item input[type="checkbox"]:checked, .sub-addon-checkbox:checked');
-            checkedBoxes.forEach(box => {
-                const price = parseInt(box.getAttribute('data-price') || 0);
-                total += price;
-            });
-            const formattedTotal = 'NT$ ' + total.toLocaleString();
-            if (document.getElementById('realtime-total-display'))
-                document.getElementById('realtime-total-display').innerText = formattedTotal;
-            document.getElementById('sticky-total-display').innerText = formattedTotal;
-            return total;
-        }
-
-        function updateSubAddonsBox(triggerElement) {
-            const targetId = triggerElement.getAttribute('data-target');
-            const addonBox = document.getElementById(targetId);
-            if (addonBox) {
-                const allTriggers = document.querySelectorAll(`.group-main-trigger[data-target="${targetId}"]`);
-                const isAnyChecked = Array.from(allTriggers).some(t => t.checked);
-                if (isAnyChecked) {
-                    addonBox.style.display = 'block';
-                } else {
-                    addonBox.style.display = 'none';
-                    addonBox.querySelectorAll('.sub-addon-checkbox').forEach(cb => { cb.checked = false; });
-                }
-            }
-        }
-
-        document.querySelectorAll('.check-item input[type="checkbox"]').forEach(cb => {
-            cb.addEventListener('change', function () {
-                if (this.checked) this.parentElement.classList.add('active');
-                else this.parentElement.classList.remove('active');
-                if (this.classList.contains('group-main-trigger')) updateSubAddonsBox(this);
-                calculateTotal();
-            });
-        });
-
-        document.querySelectorAll('.sub-addon-checkbox').forEach(cb => {
-            cb.addEventListener('change', calculateTotal);
-        });
-
-        function changeStep(delta) {
-            current += delta;
-            if (current < 1) current = 1;
-            if (current > totalSteps) current = totalSteps;
-            updateUI();
-        }
-
-        // 婚宴資訊 修改與唯讀切換
-        const editInfoBtn = document.getElementById('editWeddingInfoBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const editableFields = document.querySelectorAll('.editable-field');
-        const editableCheckboxes = document.querySelectorAll('.editable-chk');
-
-        let isEditing = false;
-        let originalValues = [];
-        let originalCheckboxStates = [];
-
-        if (editInfoBtn) {
-            editInfoBtn.addEventListener('click', async function () {
-                if (!isEditing) {
-                    // 進入編輯模式前，先向後端確認狀態
-                    const signed = await checkIfSigned();
-                    if (signed) {
-                        showSignedBlocker();
-                        return;
-                    }
-
-                    isEditing = true;
-                    originalValues = Array.from(editableFields).map(field => field.value);
-                    editableFields.forEach(field => field.removeAttribute('readonly'));
-                    originalCheckboxStates = Array.from(editableCheckboxes).map(chk => chk.checked);
-                    editableCheckboxes.forEach(chk => chk.removeAttribute('disabled'));
-                    this.textContent = '儲存';
-                    this.classList.add('active');
-                    cancelEditBtn.style.display = 'inline-flex';
-                } else {
-                    isEditing = false;
-                    editableFields.forEach(field => field.setAttribute('readonly', true));
-                    editableCheckboxes.forEach(chk => chk.setAttribute('disabled', true));
-                    this.textContent = '修改';
-                    this.classList.remove('active');
-                    cancelEditBtn.style.display = 'none';
-                    await saveWeddingInfo();
-                    if (current === 3) updateUI();
-                }
-            });
-        }
-
-        if (cancelEditBtn) {
-            cancelEditBtn.addEventListener('click', function () {
-                isEditing = false;
-                editableFields.forEach((field, index) => {
-                    field.value = originalValues[index];
-                    field.setAttribute('readonly', true);
-                });
-                editableCheckboxes.forEach((chk, index) => {
-                    chk.checked = originalCheckboxStates[index];
-                    chk.setAttribute('disabled', true);
-                });
-                editInfoBtn.textContent = '修改';
-                editInfoBtn.classList.remove('active');
-                this.style.display = 'none';
-            });
-        }
-
-        // ── 步驟控制邏輯 ──
-        let current = 1;
-        const totalSteps = 4;
-
-        function updateUI() {
-            const titleEl = document.getElementById('dynamic-title');
-            if (titleEl) titleEl.textContent = pageTitles[current - 1];
-
-            document.querySelectorAll('.nav-item-step').forEach((item, index) => {
-                const stepNum = index + 1;
-                item.classList.remove('active', 'completed');
-                if (stepNum < current) {
-                    item.classList.add('completed');
-                    item.querySelector('.nav-circle').innerHTML = '<i class="fa-solid fa-check"></i>';
-                } else if (stepNum === current) {
-                    item.classList.add('active');
-                    item.querySelector('.nav-circle').innerHTML = stepNum;
-                } else {
-                    item.querySelector('.nav-circle').innerHTML = stepNum;
-                }
-            });
-
-            document.getElementById('progress-1').style.width = current >= 2 ? '100%' : '0%';
-            document.getElementById('progress-2').style.width = current >= 3 ? '100%' : '0%';
-            document.getElementById('progress-3').style.width = current === 4 ? '100%' : '0%';
-
-            const stickyBar = document.getElementById('stickyBar');
-            if (current === 2) stickyBar.classList.add('visible');
-            else stickyBar.classList.remove('visible');
-
-            if (current === 3) {
-                const summaryServices = document.getElementById('summary-services');
-                summaryServices.innerHTML = '';
-                let hasAddons = false;
-
-                const selectedTheme = document.querySelector('#themeTagsContainer input[type="radio"]:checked');
-                if (selectedTheme) {
-                    let themeName = selectedTheme.nextElementSibling.innerText;
-                    summaryServices.innerHTML += `
-                <li style="margin-bottom: 15px; display: flex; flex-direction: column; border-bottom: 1px dashed var(--border-grey); padding-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <span style="font-size:10px; background:var(--white); border:1px solid var(--border-grey); padding:2px 6px; border-radius:4px; margin-right:8px; color:var(--text-muted);">專屬視覺定調</span>
-                            <span style="font-size: 14px; color: var(--rose-dark); font-weight: bold;">${themeName}</span>
-                        </div>
-                    </div>
-                </li>`;
-                }
-
-                const mainCheckboxes = document.querySelectorAll('.check-item input[type="checkbox"]:checked');
-                mainCheckboxes.forEach(box => {
-                    let serviceName = box.parentElement.querySelector('.chk-text').innerText;
-                    const price = parseInt(box.getAttribute('data-price') || 0);
-                    const category = box.getAttribute('data-category');
-                    let htmlString = '';
-
-                    if (box.classList.contains('group-main-trigger')) {
-                        const targetId = box.getAttribute('data-target');
-                        const subAddons = document.querySelectorAll(`#${targetId} .sub-addon-checkbox:checked`);
-
-                        hasAddons = true;
-                        htmlString += `
-                    <li style="margin-bottom: 12px; display: flex; flex-direction: column;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <i class="fa-solid fa-check" style="color: var(--rose-dark); margin-right: 8px;"></i>
-                                <span style="font-size:10px; background:var(--white); border:1px solid var(--border-grey); padding:2px 6px; border-radius:4px; margin-right:8px; color:var(--text-muted);">${category}</span>
-                                <span style="font-size: 14px;">${serviceName}</span>
-                            </div>
-                            <span style="font-family: var(--font-sans); color: var(--text-main);">${price > 0 ? 'NT$ ' + price.toLocaleString() : ''}</span>
-                        </div>`;
-
-                        if (subAddons.length > 0) {
-                            htmlString += `<ul style="margin: 6px 0 0 45px; padding: 0; list-style: none; font-size: 13px; color: var(--text-muted);">`;
-                            subAddons.forEach(sub => {
-                                let subName = sub.parentElement.querySelector('.chk-text').innerText.split(' (+')[0];
-                                let subPrice = parseInt(sub.getAttribute('data-price') || 0);
-                                htmlString += `
-                            <li style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                                <span>↳ 包含加購：${subName}</span>
-                                <span style="font-family: var(--font-sans);">NT$ ${subPrice.toLocaleString()}</span>
-                            </li>`;
-                            });
-                            htmlString += `</ul>`;
-                        }
-
-                        htmlString += `</li>`;
+            const loadPrices = async () => {
+                try {
+                    const res = await fetch(`/api/services`, { credentials: 'include' });
+                    if (res.ok) {
+                        const data = await res.json();
+                        /* 假設後端回傳的格式是陣列，例如：
+                           [ { service_id: 1, price: 43800 }, { service_id: 3, price: 18000 } ... ]
+                        */
+                        data.forEach(item => {
+                            if (item.service_id === 1) {
+                                basePrice.value = item.price; // 更新專案基底費用
+                            } else {
+                                prices[item.service_id] = item.price; // 更新其他加值服務費用
+                            }
+                        });
                     } else {
-                        hasAddons = true;
-                        htmlString += `
-                    <li style="margin-bottom: 12px; display: flex; flex-direction: column;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <i class="fa-solid fa-check" style="color: var(--rose-dark); margin-right: 8px;"></i>
-                                <span style="font-size:10px; background:var(--white); border:1px solid var(--border-grey); padding:2px 6px; border-radius:4px; margin-right:8px; color:var(--text-muted);">${category}</span>
-                                <span style="font-size: 14px;">${serviceName}</span>
-                            </div>
-                            <span style="font-family: var(--font-sans); color: var(--text-main);">${price > 0 ? 'NT$ ' + price.toLocaleString() : ''}</span>
-                        </div>
-                    </li>`;
+                        console.warn('API 回傳失敗，使用前端預設價目表');
                     }
-
-                    summaryServices.innerHTML += htmlString;
-                });
-
-                if (!hasAddons && !selectedTheme) {
-                    summaryServices.innerHTML = '<li style="color: #A09C95; font-size: 13px; margin-bottom: 10px;">未加選任何額外服務，僅保留核心統籌。</li>';
+                } catch (err) {
+                    console.error('價目表載入失敗，使用前端預設價目表:', err);
                 }
-
-                const finalTotal = calculateTotal();
-                document.getElementById('summary-total-display').innerText = 'NT$ ' + finalTotal.toLocaleString();
-            }
-
-            document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
-            document.getElementById('phase-' + current).classList.add('active');
-
-            const actionButtons = document.getElementById('action-buttons');
-            if (current === 4) {
-                actionButtons.style.display = 'none';
-            } else {
-                actionButtons.style.display = 'flex';
-                document.getElementById('prevBtn').style.visibility = (current === 1) ? 'hidden' : 'visible';
-                document.getElementById('nextBtn').style.display = (current === 3 || current === 2) ? 'none' : 'block';
-            }
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        updateUI();
-
-        function submitProposal() { changeStep(1); }
-
-        if (!localStorage.getItem('dv_username')) {
-            alert('請先登入會員');
-            window.location.href = './client_login.html';
-        }
-
-        const API_BASE = '/api/customer';
-
-        // ════════════════════════════════════════
-        // 頁面載入：讀取預約資料填入步驟一
-        // ════════════════════════════════════════
-        async function loadMyBook() {
-            try {
-                const res = await fetch(`${API_BASE}/book`, { credentials: 'include' });
-                if (!res.ok) { console.warn('找不到預約資料'); return; }
-
-                const book = await res.json();
-                if (book.status === '已簽約') {
-                    showProjectConvertedBlocker();
-                    return;
-                }
-
-                if (book.status === '處理中') {
-                    document.querySelectorAll('a[href="./customer_system.html"]')
-                        .forEach(link => link.parentElement.style.display = 'none');
-                }
-
-                setFieldValue('input-name', book.customerName);
-                setFieldValue('input-tel', formatPhone(book.tel));
-                setFieldValue('input-lineid', book.lineId);
-                setFieldValue('input-email', book.email);
-                setFieldValue('input-wedding-date', book.weddingDate);
-                setFieldValue('input-guest-scale', book.guestScale);
-                setFieldValue('input-venue', book.place);
-                setFieldValue('input-notes', book.content);
-
-                if (book.styles) {
-                    const radios = document.querySelectorAll('#themeTagsContainer input[type="radio"]');
-                    radios.forEach(radio => {
-                        if (radio.nextElementSibling.textContent.trim() === book.styles) radio.checked = true;
-                    });
-                }
-                await loadMyBookDetails();
-            } catch (err) {
-                console.error('載入預約資料失敗:', err);
-            }
-        }
-
-        function setFieldValue(id, value) {
-            const el = document.getElementById(id);
-            if (el && value != null) el.value = value;
-        }
-
-        // ════════════════════════════════════════
-        // 步驟一：儲存婚宴基本資訊
-        // ════════════════════════════════════════
-        async function saveWeddingInfo() {
-            // 儲存前再次確認狀態，確保 PATCH 請求不會真的送出
-            const signed = await checkIfSigned();
-            if (signed) {
-                showSignedBlocker();
-                return;
-            }
-
-            const selectedTheme = document.querySelector('#themeTagsContainer input[type="radio"]:checked');
-            const payload = {
-                wedding_date: document.getElementById('input-wedding-date').value || null,
-                guest_scale: parseInt(document.getElementById('input-guest-scale').value) || null,
-                place: document.getElementById('input-venue').value.trim() || null,
-                styles: selectedTheme ? selectedTheme.nextElementSibling.textContent.trim() : null,
-                notes: document.getElementById('input-notes').value.trim() || null
             };
 
-            try {
-                const res = await fetch(`${API_BASE}/book`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(payload)
+
+
+            const totalAmount = computed(() => {
+                return basePrice.value + Object.keys(sel).reduce((sum, key) => {
+                    return sel[key] && prices[key] ? sum + prices[key] : sum;
+                }, 0);
+            });
+
+            const summaryItems = computed(() => {
+                const items = [];
+                if (sel[3]) items.push({ id: 3, cat: '團隊', name: '新秘造型師', price: prices[3], subs: [ {id:4, name:'新郎妝髮造型', price:prices[4]}, {id:5, name:'主婚人/親友妝髮', price:prices[5]} ].filter(s => sel[s.id]) });
+                if (sel[6]) items.push({ id: 6, cat: '團隊', name: '專業婚禮主持人', price: prices[6], subs: [ {id:7, name:'品牌總監級主持人', price:prices[7]} ].filter(s => sel[s.id]) });
+                if (sel[9]) items.push({ id: 9, cat: '團隊', name: '平面/動態紀實攝影師', price: prices[9], subs: [ {id:10, name:'SDE 當日快剪快播', price:prices[10]}, {id:11, name:'雙機位拍攝', price:prices[11]}, {id:12, name:'類婚紗與全家福引導', price:prices[12]}, {id:13, name:'空拍機壯闊空景拍攝', price:prices[13]} ].filter(s => sel[s.id]) });
+                if (sel[14]) items.push({ id: 14, cat: '團隊', name: '燈光音響與影音場控', price: prices[14], subs: [ {id:15, name:'專業 LIVE Band 音響工程系統', price:prices[15]} ].filter(s => sel[s.id]) });
+                if (sel[16]) items.push({ id: 16, cat: '儀式', name: '文定儀式引導與司儀', price: prices[16], subs: [] });
+                if (sel[17]) items.push({ id: 17, cat: '儀式', name: '迎娶儀式流程控管', price: prices[17], subs: [] });
+                if (sel[18]) items.push({ id: 18, cat: '儀式', name: '戶外/室內證婚規劃', price: prices[18], subs: [] });
+                if (sel[19]) items.push({ id: 19, cat: '佈置', name: '迎賓與拍照區主題設計', price: prices[19], subs: [] });
+                if (sel[20]) items.push({ id: 20, cat: '佈置', name: '宴客桌景與舞台視覺', price: prices[20], subs: [] });
+                if (sel[21]) items.push({ id: 21, cat: '佈置', name: '鮮花花藝佈置', price: prices[21], subs: [] });
+                if (sel[22]) items.push({ id: 22, cat: '佈置', name: '品牌級平面視覺套組', price: prices[22], subs: [] });
+                return items;
+            });
+
+            const handleMainToggle = (mainId, subIds) => {
+                if (!sel[mainId]) {
+                    subIds.forEach(id => sel[id] = false);
+                }
+            };
+
+            const changeStep = (delta) => {
+                currentStep.value += delta;
+                if (currentStep.value < 1) currentStep.value = 1;
+                if (currentStep.value > 4) currentStep.value = 4;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const showSystemAlert = (isError, eyebrow, title, message, onConfirmCallback) => {
+                const existingModal = document.getElementById('dvDynamicAlertOverlay');
+                if (existingModal) existingModal.remove();
+
+                const overlay = createSharedModal({
+                    id: 'dvDynamicAlertOverlay',
+                    icon: isError ? 'error' : 'check_circle',
+                    iconColor: isError ? '#dc3545' : '#C5A059',
+                    eyebrow: eyebrow, title: title, message: message,
+                    buttonText: isError ? '關閉' : '確認',
+                    buttonId: 'dvDynamicAlertBtn'
                 });
 
-                if (res.ok) {
-                    const saveModal = new bootstrap.Modal(document.getElementById('saveSuccessModal'));
-                    saveModal.show();
-                } else if (res.status === 403) {
-                    showSignedBlocker();
-                } else {
-                    alert('儲存失敗，請稍後再試');
+                document.body.style.overflow = 'hidden';
+                const btn = overlay.querySelector('#dvDynamicAlertBtn');
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        overlay.remove();
+                        document.body.style.overflow = '';
+                        if (typeof onConfirmCallback === 'function') onConfirmCallback();
+                    });
                 }
-            } catch (err) {
-                console.error('儲存失敗:', err);
-                alert('連線失敗，請確認後端服務');
-            }
-        }
+            };
 
-        async function loadMyBookDetails() {
-            try {
-                const res = await fetch(`${API_BASE}/book/details`, { credentials: 'include' });
-                if (!res.ok) return;
-                const details = await res.json();
-                details.forEach(detail => {
-                    const cb = document.querySelector(`input[type="checkbox"][data-service-id="${detail.serviceId}"]`);
-                    if (cb) {
-                        cb.checked = true;
-                        cb.dispatchEvent(new Event('change'));
+            const showSignedBlocker = () => {
+                if (document.getElementById('dvBlockSignedOverlay')) return;
+                const overlay = createSharedModal({
+                    id: 'dvBlockSignedOverlay',
+                    icon: 'lock', iconColor: '#C5A059', eyebrow: 'ACCESS RESTRICTED',
+                    title: '此方案已進入正式籌備',
+                    message: '您的合約已完成簽署，方案內容已鎖定，<strong>無法再進行修改</strong>。<br><br>如需調整任何細節，請直接聯絡顧問。',
+                    buttonText: '前往籌備進度', buttonId: 'dvGoProgressBtn', countdownSecs: 5
+                });
+                document.body.style.overflow = 'hidden';
+
+                let sec = 5;
+                const secEl = overlay.querySelector('.dv-modal-countdown strong');
+                const timer = setInterval(() => {
+                    sec--; if (secEl) secEl.textContent = sec;
+                    if (sec <= 0) { clearInterval(timer); window.location.href = './customer_progress.html'; }
+                }, 1000);
+                overlay.querySelector('#dvGoProgressBtn').addEventListener('click', () => {
+                    clearInterval(timer); window.location.href = './customer_progress.html';
+                });
+            };
+
+            const checkIfSigned = async () => {
+                try {
+                    const res = await fetch(`/api/customer/book`, { credentials: 'include' });
+                    if (!res.ok) return false;
+                    const book = await res.json();
+                    return book.status === '已簽約';
+                } catch (e) { return false; }
+            };
+
+            const toggleEdit = async () => {
+                if (!isEditing.value) {
+                    const signed = await checkIfSigned();
+                    if (signed) return showSignedBlocker();
+                    formBackup.value = JSON.parse(JSON.stringify(form));
+                    isEditing.value = true;
+                } else {
+                    await saveWeddingInfo();
+                }
+            };
+
+            const cancelEdit = () => {
+                Object.assign(form, formBackup.value);
+                isEditing.value = false;
+            };
+
+            const loadMyBook = async () => {
+                try {
+                    const res = await fetch(`/api/customer/book`, { credentials: 'include' });
+                    if (!res.ok) return;
+                    const book = await res.json();
+
+                    if (book.status === '已簽約') {
+                        showSignedBlocker(); return;
+                    }
+                    if (book.status === '處理中') {
+                        document.querySelectorAll('a[href="./customer_progress.html"]').forEach(link => {
+                            if (link.parentElement.tagName === 'LI') {
+                                link.parentElement.style.display = 'none';
+                            } else {
+                                link.style.display = 'none';
+                            }
+                        });
+                    }
+
+                    form.name = book.customerName || '';
+                    form.tel = formatPhone(book.tel);
+                    form.lineId = book.lineId || '';
+                    form.email = book.email || '';
+                    form.weddingDate = book.weddingDate || '';
+                    form.guestScale = book.guestScale || '';
+                    form.venue = book.place || '';
+                    form.theme = book.styles || '';
+                    form.notes = book.content || '';
+
+                    await loadMyBookDetails();
+                } catch (err) { console.error('載入失敗:', err); }
+            };
+
+            const loadMyBookDetails = async () => {
+                try {
+                    const res = await fetch(`/api/customer/book/details`, { credentials: 'include' });
+                    if (!res.ok) return;
+                    const details = await res.json();
+                    details.forEach(detail => {
+                        if (sel.hasOwnProperty(detail.serviceId)) {
+                            sel[detail.serviceId] = true;
+                        }
+                    });
+                } catch (err) { console.error('載入明細失敗:', err); }
+            };
+
+            const saveWeddingInfo = async () => {
+                const signed = await checkIfSigned();
+                if (signed) return showSignedBlocker();
+
+                const payload = {
+                    wedding_date: form.weddingDate || null,
+                    guest_scale: parseInt(form.guestScale) || null,
+                    place: form.venue.trim() || null,
+                    styles: form.theme || null,
+                    notes: form.notes.trim() || null
+                };
+
+                try {
+                    const res = await fetch(`/api/customer/book`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        isEditing.value = false;
+                        showSystemAlert(false, 'SUCCESS', '資料已儲存', '您的婚宴資訊已成功更新！');
+                    } else if (res.status === 403) {
+                        showSignedBlocker();
+                    } else {
+                        showSystemAlert(true, 'ERROR', '儲存失敗', '無法儲存您的婚宴資訊，請稍後再試！');
+                    }
+                } catch (err) {
+                    showSystemAlert(true, 'NETWORK ERROR', '連線異常', '無法連接到伺服器，請確認網路狀態。');
+                }
+            };
+
+            const submitBookDetails = async () => {
+                const signed = await checkIfSigned();
+                if (signed) return showSignedBlocker();
+
+                isSubmitting.value = true;
+
+                const details = [];
+                details.push({ service_id: 1, unit_price: 43800, ceremony_date: null });
+                details.push({ service_id: 2, unit_price: 0, ceremony_date: null });
+
+                Object.keys(sel).forEach(id => {
+                    if (sel[id]) {
+                        details.push({ service_id: parseInt(id), unit_price: prices[id], ceremony_date: null });
                     }
                 });
-            } catch (err) {
-                console.error('載入服務細項失敗:', err);
-            }
-        }
 
-        // ════════════════════════════════════════
-        // 步驟三：送出方案細節
-        // ════════════════════════════════════════
-        async function submitBookDetails() {
+                try {
+                    const res = await fetch(`/api/customer/book/details`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(details)
+                    });
 
-            const submitBtn = document.querySelector('#phase-3 button[onclick="submitBookDetails()"]');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `
-            <svg style="display:inline-block; width:16px; height:16px; vertical-align:middle; margin-right:8px; animation:spin 0.8s linear infinite;"
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-            </svg>
-            送出中...
-        `;
-            }
-            // 收集所有勾選的服務項目
-            // ★ 送出前先確認狀態，直接攔截，不讓 fetch 繼續
-            const signed = await checkIfSigned();
-            if (signed) {
-                showSignedBlocker();
-                return;
-            }
-
-            const details = [];
-            document.querySelectorAll('.check-item input[type="checkbox"]:checked, .sub-addon-checkbox:checked').forEach(cb => {
-                const serviceId = parseInt(cb.getAttribute('data-service-id'));
-                const unitPrice = parseInt(cb.getAttribute('data-price') || 0);
-                if (serviceId) details.push({ service_id: serviceId, unit_price: unitPrice, ceremony_date: null });
-            });
-
-            // 加入 A方案基底
-            details.unshift({ service_id: 1, unit_price: 43800, ceremony_date: null });
-            details.unshift({ service_id: 1, unit_price: 43800, ceremony_date: null });
-
-            try {
-                const res = await fetch(`${API_BASE}/book/details`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(details)
-                });
-
-                if (res.ok) {
-                    changeStep(1);
-                } else {
-                    const errBody = await res.json();
-                    console.error('後端錯誤:', errBody);
-                    alert('送出失敗：' + (errBody.message || '請稍後再試'));
+                    if (res.ok) {
+                        changeStep(1);
+                    } else {
+                        const errBody = await res.json();
+                        showSystemAlert(true, 'ERROR', '送出失敗', errBody.message || '發生未知的錯誤，請稍後再試');
+                    }
+                } catch (err) {
+                    showSystemAlert(true, 'NETWORK ERROR', '連線異常', '無法連接到伺服器，請確認網路狀態。');
+                } finally {
+                    isSubmitting.value = false;
                 }
-            } catch (err) {
-                console.error('送出失敗:', err);
-                alert('連線失敗，請確認後端服務');
-            } finally {
-                // 不管成功失敗都恢復（成功的話已進入 phase-4，但保險起見還是恢復）
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '確認無誤，送出提案';
+            };
+
+            const formatPhone = (tel) => {
+                if (!tel) return '-';
+                if (/^09\d{8}$/.test(tel)) return tel.replace(/(\d{4})(\d{3})(\d{3})/, '$1-$2-$3');
+                return tel;
+            };
+
+            onMounted(async () => {
+                if (!localStorage.getItem('dv_username')) {
+                    showSystemAlert(true, 'ACCESS DENIED', '存取被拒', '請先登入會員，才能擬定專屬方案喔！', () => {
+                        window.location.href = './client_login.html';
+                    });
+                    return;
                 }
-            }
-        }
-
-        // ════════════════════════════════════════
-        // 初始化
-        // ════════════════════════════════════════
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('input-wedding-date').min = today;
-            loadMyBook();
-        });
-
-        function formatPhone(tel) {
-            if (!tel) return '-';
-            if (/^09\d{8}$/.test(tel)) return tel.replace(/(\d{4})(\d{3})(\d{3})/, '$1-$2-$3');
-            return tel;
-        }
-
-        // ════════════════════════════════════════
-        // 全域攔截（原有，頁面初次載入時用）
-        // ════════════════════════════════════════
-        function showProjectConvertedBlocker() {
-            if (document.getElementById('dvBlockSignedOverlay')) return;
-
-            const overlay = createSharedModal({
-                id: 'dvBlockSignedOverlay',
-                icon: 'lock',
-                iconColor: '#C5A059',
-                eyebrow: 'ACCESS RESTRICTED',
-                title: '專屬籌備進行中',
-                message: '您已完成階段性合約，專案已進入正式籌備階段。<br>後續請至「我的籌備進度」查看詳細追蹤！',
-                buttonText: '前往籌備進度',
-                buttonId: 'dvGoProgressBtn',
-                countdownSecs: 5
+                await loadPrices();
+                loadMyBook();
             });
 
-            document.body.style.overflow = 'hidden';
-
-            let sec = 5;
-            const secEl = overlay.querySelector('.dv-modal-countdown strong');
-            const timer = setInterval(() => {
-                sec--;
-                if (secEl) secEl.textContent = sec;
-                if (sec <= 0) { clearInterval(timer); window.location.href = './customer_progress.html'; }
-            }, 1000);
-
-            overlay.querySelector('#dvGoProgressBtn').addEventListener('click', () => {
-                clearInterval(timer);
-                window.location.href = './customer_progress.html';
-            });
+            return {
+                pageTitles, currentStep, isEditing, isSubmitting,
+                form, sel, prices,basePrice, totalAmount, summaryItems, todayDate,
+                handleMainToggle, changeStep, toggleEdit, cancelEdit, submitBookDetails
+            };
         }
-    </script>
+    });
+
+    app.mount('#app');
+
+</script>
 </body>
 
 </html>

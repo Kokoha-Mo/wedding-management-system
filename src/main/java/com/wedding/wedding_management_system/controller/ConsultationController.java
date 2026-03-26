@@ -97,7 +97,7 @@ public class ConsultationController {
         // 🌟 攔截並檢查信箱 MX 紀錄
         if (!emailValidationService.isDomainValid(requestDTO.getEmail())) {
             response.put("success", false);
-            response.put("message", "您輸入的信箱有誤或無法收信，請檢查是否拼寫錯誤！（例如 @gamil.com）");
+            response.put("message", "您輸入的信箱有誤或無法收信，請檢查是否拼寫錯誤！（例如 @gmail.com）");
             return ResponseEntity.ok(response); 
             // 注意：這裡回傳 HTTP 200 (ok)，把錯誤交給前端的 if (response.data.success) 去判斷
         }

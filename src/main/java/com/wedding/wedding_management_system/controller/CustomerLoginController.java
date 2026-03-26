@@ -48,9 +48,10 @@ public class CustomerLoginController {
 
             ResponseCookie jwtCookie = ResponseCookie.from("customerToken", result.getToken())
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .path("/")
                     .maxAge(60 * 60) // an hour
+                    .sameSite("Lax")
                     .build();
 
             result.setToken(null);
@@ -90,9 +91,9 @@ public class CustomerLoginController {
                     .body(Map.of("message", e.getMessage()));
         }
 
-        // 🌟 查詢是否有專案
+        // 查詢是否有專案
         boolean hasProject = projectRepository.existsByBook_Customer_Id(customer.getId());
-        
+
         return ResponseEntity.ok(Map.of(
                 "name", customer.getName(),
                 "customerId", customer.getId(),
@@ -106,6 +107,7 @@ public class CustomerLoginController {
                 .secure(false)
                 .path("/")
                 .maxAge(0)
+                .sameSite("Lax")
                 .build();
 
         return ResponseEntity.ok()
@@ -172,7 +174,11 @@ public class CustomerLoginController {
             Customer customer = customerService.findByEmail(email);
             emailService.sendResetPasswordEmail(email, customer.getName(), token);
         } catch (RuntimeException e) {
-            System.out.println("忘記密碼請求：信箱不存在或發生錯誤 (" + email + ")");
+            // 把系統原生的錯誤訊息跟 StackTrace 都印出來！
+            System.err.println("忘記密碼請求失敗，信箱 (" + email + ")");
+            System.err.println("具體錯誤原因：" + e.getMessage());
+            e.printStackTrace(); // 這行會把最底層的 Exception 完整印到 Cloud Run Logs 裡
+
         }
 
         return ResponseEntity.ok(Map.of("message", "若該電子郵件已註冊，您將在幾分鐘內收到重設密碼信件。"));

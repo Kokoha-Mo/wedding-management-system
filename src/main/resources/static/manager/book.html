@@ -114,9 +114,9 @@
                         <a href="account.html" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                             <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span> Profile
                         </a>
-                        <a href="login.html" class="flex items-center px-4 py-2.5 text-sm text-red-500 hover:bg-gray-50 transition-colors">
+                        <button @click="logout" class="w-full flex items-center px-4 py-2.5 text-sm text-red-500 hover:bg-gray-50 transition-colors">
                             <span class="material-icons text-[18px] mr-3 text-red-500">logout</span> 登出
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -737,7 +737,7 @@
 </style>
 
 <script>
-    const { createApp, ref, reactive, computed, onMounted, nextTick } = Vue;
+    const { createApp, ref, reactive, computed, onMounted} = Vue;
 
     const API_BASE = '/api/employee';
 
@@ -755,6 +755,11 @@
                 position: '...',
                 avatar:   './Img/smile.jpg'
             });
+
+            function logout() {
+                sessionStorage.clear();
+                window.location.replace('login.html');
+            }
 
             const statusCounts = reactive({ '處理中': 0, '已簽約': 0, '取消': 0 });
 
@@ -812,11 +817,7 @@
                         19:35000, 20:20000, 21:25000, 22:15000
                     };
                     Object.assign(prices, defaults);
-
-                    //
-                    if (typeof basePrice !== 'undefined') {
-                        basePrice.value = 43800;
-                    }
+                    basePrice.value = 43800;
                 } finally {
                     pricesLoaded.value = true;
                 }
@@ -1320,7 +1321,7 @@
                 submitCreateBook, updateBookStatus,
                 openEditModal, saveBookInfo,
                 viewBookDetails, saveBookDetails, viewBookDetail,
-                onMainServiceChange, switchTab, scrollCards, onSearchInput, formatPhone,
+                onMainServiceChange, switchTab, scrollCards, onSearchInput, formatPhone,logout,
             };
         }
     }).mount('#app');

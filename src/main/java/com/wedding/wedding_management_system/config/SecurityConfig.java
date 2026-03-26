@@ -26,7 +26,8 @@ import org.springframework.security.config.Customizer;
 @EnableWebSecurity
 public class SecurityConfig {
 
-        @Value("${app.jwt.secret}")
+        // 這裡可以保留，用來確認 Spring 也有抓到，但不需要強行傳給 Filter
+        @Value("${JWT_SECRET:your_default_key}")
         private String jwtSecret;
 
         private final CustomerRepository customerRepository;

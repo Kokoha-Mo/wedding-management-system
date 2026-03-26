@@ -174,7 +174,11 @@ public class CustomerLoginController {
             Customer customer = customerService.findByEmail(email);
             emailService.sendResetPasswordEmail(email, customer.getName(), token);
         } catch (RuntimeException e) {
-            System.out.println("忘記密碼請求：信箱不存在或發生錯誤 (" + email + ")");
+            // 把系統原生的錯誤訊息跟 StackTrace 都印出來！
+            System.err.println("忘記密碼請求失敗，信箱 (" + email + ")");
+            System.err.println("具體錯誤原因：" + e.getMessage());
+            e.printStackTrace(); // 這行會把最底層的 Exception 完整印到 Cloud Run Logs 裡
+
         }
 
         return ResponseEntity.ok(Map.of("message", "若該電子郵件已註冊，您將在幾分鐘內收到重設密碼信件。"));

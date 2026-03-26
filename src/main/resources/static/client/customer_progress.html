@@ -1767,35 +1767,43 @@
                             // 收到後端推播的訊息了！把它轉成 JSON
                             const receivedMsg = JSON.parse(message.body);
 
-                            // 🌟 【修改重點 1】：將後端傳來的資料，轉換成 Vue 畫面需要的格式！
-                            const isClient = receivedMsg.createBy !== data.pmName;
+                            // 🌟 【修正重點】：智慧判斷發送者身分與真實姓名
+                            let isClient = true;
+                            let displayName = receivedMsg.createBy;
+
+                            // 如果發送者是顧問的名字，或者是 "公司"、"員工"
+                            if (receivedMsg.createBy === data.pmName || receivedMsg.createBy === '公司' || receivedMsg.createBy === '員工') {
+                                isClient = false; // 設定為顧問 (左邊)
+                                displayName = data.pmName; // 強制顯示顧問真實姓名
+                            } else {
+                                isClient = true;  // 設定為客戶 (右邊)
+                                // 如果發送者是 "客戶"，強制換成真實姓名
+                                if (receivedMsg.createBy === '客戶') {
+                                    displayName = data.customerName;
+                                }
+                            }
 
                             let mappedAttachments = [];
                             if (receivedMsg.documents && receivedMsg.documents.length > 0) {
+                                // ... (保留你原本處理附件的 url, name, type 邏輯) ...
                                 mappedAttachments = receivedMsg.documents.map(doc => {
                                     let fileUrl = doc.filePath || '#';
-                                    if (fileUrl.startsWith('/uploads')) {
-                                        fileUrl = window.location.origin + fileUrl;
-                                    }
-                                    return {
-                                        name: doc.name,
-                                        type: doc.fileType || 'application/pdf',
-                                        url: fileUrl
-                                    };
+                                    if (fileUrl.startsWith('/uploads')) fileUrl = window.location.origin + fileUrl;
+                                    return { name: doc.name, type: doc.fileType || 'application/pdf', url: fileUrl };
                                 });
                             }
 
                             const formattedMsg = {
                                 id: receivedMsg.id,
                                 sender: isClient ? 'client' : 'pm',
-                                senderName: receivedMsg.createBy,
+                                senderName: displayName, // 🌟 使用我們剛剛轉換好的真實姓名
                                 text: receivedMsg.content,
                                 time: receivedMsg.createAt ? receivedMsg.createAt.replace('T', ' ').substring(0, 16) : '',
                                 attachments: mappedAttachments
                             };
 
-                            // 1. 把「格式化後」的新訊息塞進目前的聊天陣列中，畫面瞬間更新！
-                            messages.push(formattedMsg); // 🌟 刪除 .value 直接 push 即可！
+                            // 1. 把「格式化後」的新訊息塞進目前的聊天陣列中
+                            messages.push(formattedMsg); // (記得我們上一關已經拿掉 .value 了)
 
                             // 2. 判斷是否需要亮起紅點 (如果聊天視窗沒有打開的話)
                             const chatModalEl = document.getElementById('chatModal');
@@ -1940,8 +1948,22 @@
                             if (realData.timeline && realData.timeline.length > 0) {
                                 messages.splice(0, messages.length);
                                 realData.timeline.reverse().forEach(comm => {
-                                    // 🌟 只要留言者不是「專屬顧問」，我們就一律當作是「客戶」！
-                                    const isClient = comm.createBy !== realData.pmName;
+
+                                    // 🌟 【修改重點】：套用與 WebSocket 相同的「智慧翻譯濾鏡」
+                                    let isClient = true;
+                                    let displayName = comm.createBy;
+
+                                    // 如果發送者是顧問，或者是 "公司"、"員工"
+                                    if (comm.createBy === realData.pmName || comm.createBy === '公司' || comm.createBy === '員工') {
+                                        isClient = false; // 設定為顧問 (左邊)
+                                        displayName = realData.pmName; // 強制換成顧問真實姓名
+                                    } else {
+                                        isClient = true;  // 設定為客戶 (右邊)
+                                        if (comm.createBy === '客戶') {
+                                            displayName = realData.customerName; // 強制換成客戶真實姓名
+                                        }
+                                    }
+
                                     let mappedAttachments = [];
                                     if (comm.documents && comm.documents.length > 0) {
                                         mappedAttachments = comm.documents.map(doc => {
@@ -1957,24 +1979,26 @@
                                             };
                                         });
                                     }
-                                    // 🌟 2. 然後把 messages.push 改成這樣：
+
+                                    // 🌟 將格式化後的訊息推入陣列
                                     messages.push({
                                         id: comm.id,
                                         sender: isClient ? 'client' : 'pm',
-                                        senderName: comm.createBy || (isClient ? realData.customerName : realData.pmName),
+                                        senderName: displayName, // 🌟 使用我們剛剛轉換好的真實姓名
                                         text: comm.content,
                                         time: comm.createAt ? comm.createAt.replace('T', ' ').substring(0, 16) : '',
                                         attachments: mappedAttachments
                                     });
                                 });
 
-                                // 🌟 新增：判斷最後一則留言是否為顧問發送，決定是否亮起紅點
+                                // 🌟 判斷最後一則留言是否為顧問發送，決定是否亮起紅點
                                 if (messages.length > 0) {
                                     const lastMsg = messages[messages.length - 1];
                                     // 如果最後一則是 pm (顧問) 發的，就亮紅點
                                     hasUnread.value = (lastMsg.sender === 'pm');
                                 }
 
+                                // 確保滾動條保持在最下方
                                 nextTick(() => {
                                     const container = document.getElementById('boardContainer');
                                     if (container) container.scrollTop = container.scrollHeight;
@@ -2066,7 +2090,7 @@
                     const formData = new FormData();
 
                     // 🌟 2. 將身分與文字塞入包裹
-                    formData.append('createBy', '客戶'); // 直接告訴後端是客戶發言
+                    formData.append('createBy', data.customerName);
                     if (newMessage.value.trim()) {
                         formData.append('content', newMessage.value.trim());
                     }

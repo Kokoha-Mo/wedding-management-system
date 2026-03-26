@@ -3,6 +3,7 @@ package com.wedding.wedding_management_system.controller;
 import com.wedding.wedding_management_system.dto.EmployeeProfileDTO;
 import com.wedding.wedding_management_system.dto.TaskDTO;
 import com.wedding.wedding_management_system.entity.Employee;
+import com.wedding.wedding_management_system.repository.EmployeeRepository;
 import com.wedding.wedding_management_system.service.EmployeeProfileService;
 import com.wedding.wedding_management_system.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeProfileService employeeProfileService;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
     @GetMapping("/profile")
     public ResponseEntity<EmployeeProfileDTO> getProfile(Principal principal) {
@@ -110,6 +114,23 @@ public class EmployeeController {
                     return dto;
                 }).collect(Collectors.toList());
 
+        return ResponseEntity.ok(responseList);
+    }
+
+    // 🌟 新增：取得婚顧主管名單 API
+    @GetMapping("/planners")
+    public ResponseEntity<List<Map<String, Object>>> getWeddingPlanners() {
+        // 撈出所有婚顧部主管
+        List<Employee> planners = employeeRepository.findAllWeddingPlanners(); 
+        
+        // 為了前端下拉選單，只要回傳 id 和 name 即可
+        List<Map<String, Object>> responseList = planners.stream().map(emp -> {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", emp.getId());
+            map.put("name", emp.getName());
+            return map;
+        }).collect(Collectors.toList());
+        
         return ResponseEntity.ok(responseList);
     }
 }

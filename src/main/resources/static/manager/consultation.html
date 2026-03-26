@@ -128,8 +128,10 @@
     <!-- 純 HTML 權限不足 Modal（Vue 掛載前使用，不依賴 Vue） -->
     <div id="pre-auth-modal"
         style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(17,24,39,0.7); align-items:center; justify-content:center; padding:1rem;">
-        <div style="background:#fff; border-radius:1rem; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:400px; max-width:100%; padding:2rem; display:flex; flex-direction:column; align-items:center; text-align:center;">
-            <div style="width:56px; height:56px; border-radius:50%; background:#fee2e2; display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+        <div
+            style="background:#fff; border-radius:1rem; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:400px; max-width:100%; padding:2rem; display:flex; flex-direction:column; align-items:center; text-align:center;">
+            <div
+                style="width:56px; height:56px; border-radius:50%; background:#fee2e2; display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
                 <span class="material-icons" style="font-size:2rem; color:#ef4444;">lock</span>
             </div>
             <h3 style="font-size:1.25rem; font-weight:700; color:#111827; margin-bottom:0.5rem;">權限不足</h3>
@@ -646,6 +648,18 @@
                                         }}
                                     </div>
                                 </div>
+
+                                <div class="mb-3">
+                                    <label class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1 block">指定專屬婚顧 <span
+                                            class="text-gray-400 font-medium text-[11px] ml-1">(非必選)</span></label>
+                                    <select v-model="selectedManagerId"
+                                        class="form-select w-100 rounded-md border-gray-300 shadow-sm">
+                                        <option value="">-- 自動分派 --</option>
+                                        <option v-for="planner in planners" :key="planner.id" :value="planner.id">
+                                            {{ planner.name }}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer border-0 pt-0 pb-4 px-4 flex justify-end gap-2">
@@ -666,8 +680,10 @@
         <!-- ── Alert Modal ── -->
         <div v-show="alertModal.open"
             class="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity p-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 flex flex-col p-6 items-center">
-                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 text-indigo-500 mb-4 mx-auto">
+            <div
+                class="bg-white rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 flex flex-col p-6 items-center">
+                <div
+                    class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 text-indigo-500 mb-4 mx-auto">
                     <span class="material-icons text-3xl">info</span>
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 text-center mb-2">系統提示</h3>
@@ -724,7 +740,9 @@
                     isConverting: false,
                     convertModalInstance: null,
                     // Alert Modal
-                    alertModal: { open: false, message: '', callback: null }
+                    alertModal: { open: false, message: '', callback: null },
+                    planners: [], // 🌟 存放婚顧名單
+                    selectedManagerId: '', // 🌟 當前選擇的婚顧 ID
                 }
             },
             computed: {
@@ -815,6 +833,9 @@
 
                 // 🌟 新增：個人資訊與側邊欄權限控制
                 this.initSidebar();
+
+                // 🌟 網頁一載入就去後端拿婚顧名單
+                this.fetchPlanners();
             },
             methods: {
                 // ── Alert Modal
@@ -1042,6 +1063,16 @@
                 goToPage(page) {
                     this.currentPage = page;
                 },
+
+                // 🌟 新增：去後端撈取婚顧名單
+                fetchPlanners() {
+                    axios.get('/api/employee/planners')
+                        .then(res => {
+                            this.planners = res.data;
+                        })
+                        .catch(err => console.error("無法取得婚顧名單:", err));
+                },
+
                 // 🌟 更新：開啟轉預約 Modal 時自動帶入舊資料並重置錯誤
                 openConvertModal(item) {
                     this.convertForm.consultationId = item.id;
@@ -1060,6 +1091,8 @@
                     if (this.convertModalInstance) {
                         this.convertModalInstance.show();
                     }
+
+                    this.selectedManagerId = ''; // 確保每次打開 Modal 都是預設的「自動分派」
                 },
                 // 🌟 新增：從 Offcanvas 直接打開轉預約 Modal 的橋樑方法
                 openConvertModalFromOffcanvas() {
@@ -1075,8 +1108,7 @@
                     }, 300);
                 },
 
-                // 🌟 新增：送出轉預約 API
-                // 🌟 更新：送出轉預約 API 並攔截特定錯誤
+                // 🌟 送出轉預約 API 並攔截特定錯誤
                 submitConvert() {
                     if (!this.convertForm.partnerName || this.convertForm.partnerName.trim() === '') {
                         this.convertFormError = true;
@@ -1093,7 +1125,8 @@
                     axios.post(`/api/employee/books/from-consultation/${this.convertForm.consultationId}`, {
                         partnerName: this.convertForm.partnerName,
                         email: this.convertForm.email,
-                        tel: this.convertForm.tel
+                        tel: this.convertForm.tel,
+                        managerId: this.selectedManagerId // 🌟 把選擇的婚顧 ID 包進去傳給後端
                     }, { withCredentials: true })
                         .then(response => {
                             this.convertModalInstance.hide();

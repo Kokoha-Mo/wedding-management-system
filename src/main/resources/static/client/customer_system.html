@@ -17,7 +17,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="global.css">
     <script src="./login.js"></script>
-
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <style>
@@ -25,6 +24,12 @@
             --accent-gold: #C5A059;
             --rose-dark: #C28E8E;
             --rose-light: #E8D5D5;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
         }
 
         .serif {
@@ -235,12 +240,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .check-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         .check-item {
@@ -573,6 +572,196 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+
+        /* =========================================
+           RWD 響應式佈局優化
+           ========================================= */
+
+        /* 抽出共用的 Grid 設定 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .sub-addon-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .summary-box {
+            margin-top: 10px;
+            border: 1px solid var(--rose-dark);
+            box-shadow: 0 10px 30px rgba(194, 142, 142, 0.08);
+            padding: 50px;
+        }
+
+        .hero-title {
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        /* 平板尺寸 (小於 768px) */
+        @media (max-width: 768px) {
+            .consult-wrap {
+                padding: 20px 15px 30px;
+            }
+            .interview-box {
+                padding: 25px 20px;
+            }
+            .summary-box {
+                padding: 30px 20px;
+            }
+            .info-grid,
+            .sub-addon-grid,
+            .check-grid {
+                grid-template-columns: 1fr; /* 全面改為單欄 */
+                gap: 16px;
+            }
+            .step-navbar {
+                margin-bottom: 30px;
+            }
+        }
+
+        /* 手機尺寸 (小於 576px) */
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 22px !important;
+            }
+            .status-badge {
+                font-size: 11px;
+            }
+
+            /* 步驟條適應小螢幕 */
+            .nav-item-step {
+                width: 65px;
+            }
+            .nav-circle {
+                width: 26px;
+                height: 26px;
+                font-size: 12px;
+                margin-bottom: 6px;
+            }
+            .nav-label {
+                font-size: 10px;
+                letter-spacing: 0;
+            }
+            .step-line {
+                margin: 11px 2px 0;
+            }
+
+            /* 即時總計區塊 */
+            .realtime-total-box {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 20px;
+            }
+            .realtime-total-box > div {
+                text-align: center !important;
+            }
+
+            /* 底部動作按鈕 */
+            .consult-actions {
+                flex-direction: column-reverse; /* 返回按鈕放下面 */
+                gap: 15px;
+            }
+            .consult-btn {
+                width: 100%;
+            }
+
+            /* 浮動底端列 */
+            .sticky-bottom-bar .container-fluid {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px;
+                padding-bottom: 5px;
+            }
+            .sticky-bottom-bar .btn-next {
+                width: 100%;
+                padding: 10px;
+            }
+
+            @media (max-width: 768px) {
+                /* inline-style 的雙欄區塊，強制轉為單欄 */
+                div[style*="grid-template-columns: 1fr 1fr"] {
+                    grid-template-columns: 1fr !important;
+                    gap: 16px !important;
+                }
+
+                /* 縮小容器的 Padding，避免留白過多顯得擁擠 */
+                .consult-wrap {
+                    padding: 20px 15px 30px !important;
+                }
+                div[style*="padding: 50px"] {
+                    padding: 30px 20px !important;
+                }
+
+                /* 解決金色的勾勾在手機端變成黑色的異常 */
+                /* 強制覆蓋手機端瀏覽器 (如 Safari) 的預設文字顏色介入 */
+                i.fa-check,
+                .fa-check:before {
+                    color: var(--rose-light) !important;
+                    -webkit-text-fill-color: var(--rose-light) !important;
+                }
+
+                /* 若是自訂核取方塊的勾勾變黑，也一併強制覆蓋 */
+                .hidden-chk:checked ~ .custom-chk::after {
+                    border-color: var(--rose-light) !important;
+                }
+            }
+
+            @media (max-width: 576px) {
+                /* 1. 步驟條適應小螢幕，縮小圓圈與文字 */
+                .nav-item-step {
+                    width: 65px;
+                }
+
+                .nav-circle {
+                    width: 26px;
+                    height: 26px;
+                    font-size: 12px;
+                    margin-bottom: 6px;
+                }
+
+                .nav-label {
+                    font-size: 10px;
+                    letter-spacing: 0;
+                }
+
+                .step-line {
+                    margin: 11px 2px 0;
+                }
+
+                /* 底部的操作按鈕改為滿版並上下排列，方便手機點擊 */
+                .consult-actions {
+                    flex-direction: column-reverse; /* 讓「下一步」在上方 */
+                    gap: 15px;
+                }
+
+                .consult-btn {
+                    width: 100%;
+                }
+
+                /* 3. 浮動總計列調整為垂直置中排列 */
+                .sticky-bottom-bar .container-fluid {
+                    flex-direction: column;
+                    text-align: center;
+                    gap: 12px;
+                    padding-bottom: 5px;
+                }
+
+                .sticky-bottom-bar .btn-next {
+                    width: 100%;
+                    padding: 10px;
+                }
+            }
+        }
+
     </style>
 </head>
 
@@ -657,8 +846,7 @@
 
             <div class="project-header" id="page-dynamic-header">
                 <span class="status-badge">Proposal Draft</span>
-                <h1 class="serif" id="dynamic-title"
-                    style="font-size: 28px; margin-bottom: 12px; font-weight: 300; letter-spacing: 0.05em;">
+                <h1 class="serif hero-title" id="dynamic-title">
                     {{ pageTitles[currentStep - 1] }}
                 </h1>
                 <div class="page-hero-line has-bg"></div>
@@ -701,7 +889,7 @@
                             </div>
                             <span style="font-size: 10px; color: var(--rose-dark); background: #FDF8F8; padding: 4px 10px; border-radius: 4px; font-weight: bold; letter-spacing: 0.1em;">資料已建檔</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div class="info-grid">
                             <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">新人姓名 Name</label>
                                 <input type="text" v-model="form.name" class="form-control-custom" readonly>
                             </div>
@@ -728,18 +916,18 @@
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div class="info-grid">
                             <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">預計婚期 Wedding Date</label>
                                 <input type="date" v-model="form.weddingDate" :min="todayDate" class="form-control-custom" :readonly="!isEditing">
                             </div>
                             <div><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">賓客規模 (人數) Guest Scale</label>
                                 <input type="number" v-model="form.guestScale" class="form-control-custom" placeholder="請輸入預計人數" :readonly="!isEditing">
                             </div>
-                            <div style="grid-column: span 2;"><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">宴客場地 Venue</label>
+                            <div style="grid-column: 1 / -1;"><label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">宴客場地 Venue</label>
                                 <input type="text" v-model="form.venue" class="form-control-custom" placeholder="請輸入您屬意的飯店或場地 (若尚未決定可留空)" :readonly="!isEditing">
                             </div>
 
-                            <div style="grid-column: span 2; padding-top: 10px; border-top: 1px dashed var(--border-grey);">
+                            <div style="grid-column: 1 / -1; padding-top: 10px; border-top: 1px dashed var(--border-grey);">
                                 <label style="font-size: 11px; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; margin-bottom: 12px; display: block;">專屬視覺定調 Theme Preference (單選)</label>
                                 <div class="theme-tag-wrap">
                                     <label class="theme-tag" v-for="theme in ['森林系', '美式復古', '西式教堂', '中式老宅', '極簡現代', '異國風情']" :key="theme">
@@ -749,7 +937,7 @@
                                 </div>
                             </div>
 
-                            <div style="grid-column: span 2;">
+                            <div style="grid-column: 1 / -1;">
                                 <label style="font-size: 11px; color: var(--text-muted); font-weight: bold;">婚宴備註 Notes</label>
                                 <textarea v-model="form.notes" class="form-control-custom" style="min-height: 80px;" placeholder="例如：絕對不想出現的花材..." :readonly="!isEditing"></textarea>
                             </div>
@@ -763,7 +951,7 @@
 
                     <div style="margin-bottom: 40px;">
                         <h4 class="decor-group-title" style="border-left-color: var(--accent-gold); color: var(--accent-gold);">專案核心基底 <span>Core Base Plan</span></h4>
-                        <div class="interview-box" style="border: 2px solid var(--accent-gold); background: #FCFAF5; box-shadow: 0 10px 30px rgba(197, 160, 89, 0.1); margin-bottom: 0; padding: 30px 40px;">
+                        <div class="interview-box" style="border: 2px solid var(--accent-gold); background: #FCFAF5; box-shadow: 0 10px 30px rgba(197, 160, 89, 0.1); margin-bottom: 0;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
                                 <div style="flex: 1; min-width: 250px;">
                                     <span class="option-badge" style="background: var(--accent-gold);">必選項目</span>
@@ -794,7 +982,7 @@
                                 </label>
                                 <div class="sub-addon-box" v-show="sel[3]">
                                     <div style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">造型服務加購</div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div class="sub-addon-grid">
                                         <label class="sub-addon-item"><input type="checkbox" v-model="sel[4]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">新郎妝髮造型 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[4]">(+NT$ {{ prices[4] .toLocaleString()}})</span></span></label>
                                         <label class="sub-addon-item"><input type="checkbox" v-model="sel[5]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">主婚人/親友妝髮 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[5]">(+NT$ {{ prices[5] .toLocaleString()}})</span></span></label>
                                     </div>
@@ -806,9 +994,8 @@
                                 </label>
                                 <div class="sub-addon-box" v-show="sel[6]">
                                     <div style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">主持人等級選擇 (可選)</div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div class="sub-addon-grid">
                                         <label class="sub-addon-item"><input type="checkbox" v-model="sel[7]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">品牌總監級主持人 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[7]">(+NT$ {{ prices[7] .toLocaleString()}})</span></span></label>
-
                                     </div>
                                 </div>
 
@@ -818,7 +1005,7 @@
                                 </label>
                                 <div class="sub-addon-box" v-show="sel[9]">
                                     <div style="font-size: 11px; color: var(--rose-dark); font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;">攝影服務加購</div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div class="sub-addon-grid">
                                         <label class="sub-addon-item"><input type="checkbox" v-model="sel[10]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">SDE 當日快剪快播 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[10]">(+NT$ {{ prices[10] .toLocaleString()}})</span></span></label>
                                         <label class="sub-addon-item"><input type="checkbox" v-model="sel[11]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">雙機位拍攝 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[11]">(+NT$ {{ prices[11] .toLocaleString()}})</span></span></label>
                                         <label class="sub-addon-item"><input type="checkbox" v-model="sel[12]" class="hidden-chk"><span class="custom-chk"></span><span class="chk-text">類婚紗與全家福引導 <span style="color:var(--accent-gold); font-family:var(--font-sans), sans-serif; margin-left:4px;" v-if="prices[12]">(+NT$ {{ prices[12] .toLocaleString()}})</span></span></label>
@@ -910,7 +1097,7 @@
             </section>
 
             <section v-show="currentStep === 3" class="content-section">
-                <div class="interview-box" style="margin-top: 10px; border: 1px solid var(--rose-dark); box-shadow: 0 10px 30px rgba(194, 142, 142, 0.08); padding: 50px;">
+                <div class="interview-box summary-box">
                     <div style="text-align: center; margin-bottom: 30px;">
                         <i class="fa-solid fa-file-invoice-dollar" style="font-size: 40px; color: var(--rose-dark);"></i>
                         <h3 class="serif" style="margin-top: 15px; font-size: 1.5rem;">預估報價總覽</h3>
@@ -992,9 +1179,9 @@
             </section>
 
             <div class="consult-actions" v-show="currentStep < 4">
-                <button class="consult-btn btn-prev" @click="changeStep(-1)" :style="{ visibility: currentStep === 1 ? 'hidden' : 'visible' }">← 返回上一步</button>
+                <div><button class="consult-btn btn-prev" @click="changeStep(-1)" :style="{ visibility: currentStep === 1 ? 'hidden' : 'visible' }">← 返回上一步</button></div>
                 <div style="font-size: 10px; font-weight: bold; letter-spacing: 2px; color: var(--rose-dark);">PLANNING PROGRESS</div>
-                <button class="consult-btn btn-next" @click="changeStep(1)" v-show="currentStep === 1">前往下一步驟 →</button>
+                <div><button class="consult-btn btn-next" @click="changeStep(1)" v-show="currentStep === 1">前往下一步驟 →</button></div>
             </div>
         </div>
     </main>
@@ -1019,11 +1206,12 @@
 
     const app = createApp({
         setup() {
+            // Vue 的邏輯保持不變
             const pageTitles = ['婚禮基本資訊', '方案與細節規劃', '確認並送出提案', '正式報價與簽約'];
             const currentStep = ref(1);
             const isEditing = ref(false);
             const isSubmitting = ref(false);
-            const basePrice = ref(43800); // 讓基底費用也變成響應式變數
+            const basePrice = ref(43800);
             const prices = reactive({
                 3: 18000, 4: 5000, 5: 2000, 6: 18000, 7: 2000, 9: 18000,
                 10: 15000, 11: 12000, 12: 5000, 13: 6000, 14: 18000, 15: 15000,
@@ -1048,14 +1236,11 @@
                     const res = await fetch(`/api/services`, { credentials: 'include' });
                     if (res.ok) {
                         const data = await res.json();
-                        /* 假設後端回傳的格式是陣列，例如：
-                           [ { service_id: 1, price: 43800 }, { service_id: 3, price: 18000 } ... ]
-                        */
                         data.forEach(item => {
                             if (item.service_id === 1) {
-                                basePrice.value = item.price; // 更新專案基底費用
+                                basePrice.value = item.price;
                             } else {
-                                prices[item.service_id] = item.price; // 更新其他加值服務費用
+                                prices[item.service_id] = item.price;
                             }
                         });
                     } else {
@@ -1065,8 +1250,6 @@
                     console.error('價目表載入失敗，使用前端預設價目表:', err);
                 }
             };
-
-
 
             const totalAmount = computed(() => {
                 return basePrice.value + Object.keys(sel).reduce((sum, key) => {

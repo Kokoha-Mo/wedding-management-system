@@ -19,20 +19,21 @@
     <script src="./login.js"></script>
 
     <style>
+        .container{
+            max-width: 1520px;
+            margin: 0 auto;
+        }
         /* ═══ 方案卡片主體 (A區塊) 美化 ═══ */
         .main-package-card {
             background: #fff;
             border-radius: 12px;
             padding: 50px 60px;
-            /* 增加內部留白空間 */
-            /* ▼ 將底部的 margin 從 80px 縮小到 40px，讓下方的加購區塊往上提 ▼ */
             margin: 60px auto 40px auto;
-            max-width: 100vh;
+            max-width: 800px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--accent-gold);
             position: relative;
-
-            opacity: 0; /* 初始狀態隱藏 */
+            opacity: 0;
             animation: boxFadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; /* 呼叫進場動畫 */
             transition: transform 0.4s ease, box-shadow 0.4s ease; /* 讓懸停效果更平滑 */
         }
@@ -149,7 +150,7 @@
         }
 
         .service-col li::before {
-            content: '✔';
+            content: '✔\FE0E';
             position: absolute;
             left: 0;
             color: var(--accent-gold);
@@ -185,7 +186,7 @@
             justify-content: space-between;
             gap: 30px;
             max-width: 1200px;
-            margin: 0 auto 120px auto;
+            margin: 0 auto 60px auto;
         }
 
         .addon-card {
@@ -210,19 +211,6 @@
             /* hover時邊框變色 */
         }
 
-        /* 字母浮水印設計 */
-        .addon-letter {
-            font-family: var(--font-serif), sans-serif;
-            color: #F6F4F0;
-            /* 極淡的燕麥色 */
-            font-size: 68px;
-            line-height: 1;
-            text-align: center;
-            margin-bottom: -10px;
-            /* 讓字母與標題稍微重疊產生設計感 */
-            user-select: none;
-        }
-
         .addon-name {
             font-family: var(--font-serif), sans-serif;
             font-size: 20px;
@@ -244,7 +232,8 @@
 
         /* 注意事項區塊 */
         .addon-notes {
-            margin-top: 15px;
+            max-width: 1200px;
+            margin: 0 15px;
             padding-top: 20px;
             border-top: 1px dashed var(--border-grey);
         }
@@ -318,10 +307,13 @@
             border-top: 1px solid var(--border-grey);
             padding: 15px 0;
             z-index: 1000;
+            display: flex;
+            justify-content: center;
         }
 
         .checkout-content {
-            max-width: 1100px;
+            max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -365,9 +357,7 @@
             border: 1px solid #EBE7E0 !important;
             color: #C5ACA7 !important;
             padding: 10px 0;
-            /* 改為上下 padding */
             width: 100%;
-            /* 按鈕佔滿卡片寬度，視覺更大氣 */
             border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
@@ -385,13 +375,54 @@
             color: #FFFFFF !important;
             border-color: #C5ACA7 !important;
         }
+        @media (max-width: 576px) {
+            .service-terms-section .terms-text-wrapper {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+            .service-terms-section .col-md-6 {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .service-terms-section .rounded {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .service-terms-section .mb-4 {
+                margin-bottom: 28px !important;
+            }
+            .action-btns {
+                display: flex;
+                flex-direction: column; /* 讓兩個按鈕變成上下堆疊 */
+                gap: 6px;               /* 設定按鈕之間的上下安全間距 */
+                align-items: flex-end;  /* 讓按鈕整齊靠右對齊 */
+            }
+            .btn-reset {
+                margin-right: 0 !important;
+                padding: 4px 12px !important;
+            }
+
+            .btn-reserve {
+                padding: 8px 12px !important;
+                text-align: center;
+            }
+        }
 
         /* 手機版排版切換 */
+        @media (min-width: 768px) {
+            .terms-text-wrapper {
+                padding-left: 45px;
+            }
+        }
+
+        /* ═══ 平板與手機版排版切換 (991.98px 以下共用) ═══ */
         @media(max-width: 991.98px) {
+
             .main-package-card {
                 padding: 40px 24px;
-                margin: 60px 16px 40px 16px;
-                max-width: calc(100% - 32px);
+                width: 100%;
+                max-width: 500px;
+                margin: 60px auto 40px auto;
             }
 
             .sub-services {
@@ -403,7 +434,6 @@
                 padding-right: 0 !important;
             }
 
-            /* 👇 替換原本的 :first-child 設定 */
             .service-col:first-child {
                 border-right: none;
                 border-bottom: 1px solid var(--border-grey);
@@ -425,8 +455,75 @@
 
             .addon-container {
                 flex-direction: column;
+                align-items: center;
                 padding: 0 20px;
             }
+
+            .addon-card {
+                width: 100%;
+                max-width: 480px;
+                margin-bottom: 30px;
+            }
+
+            .sticky-checkout {
+                padding: 10px 0 !important;
+            }
+
+            .price-summary .label {
+                font-size: 12px !important;
+            }
+            .price-summary .amount {
+                font-size: 16px !important;
+                font-weight: bold;
+            }
+
+            .checkout-content {
+                justify-content: space-between !important;
+                padding: 0 15px !important;
+            }
+            .action-btns {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 4px !important;
+            }
+
+            .btn-reset {
+                font-size: 12px !important;
+                padding: 4px 8px !important;
+                margin-right: 0 !important;
+                line-height: 1 !important;
+                border-radius: 4px !important;
+            }
+
+            .btn-reserve {
+                font-size: 12px !important;    /* 🌟 縮小主按鈕字體 */
+                padding: 6px 10px !important;   /* 🌟 大幅減少主按鈕 padding */
+                white-space: nowrap !important; /* 強制文字絕對不能換行 */
+                line-height: 1 !important;
+                border-radius: 4px !important;
+            }
+
+            .back-to-top {
+                bottom: 80px !important;
+            }
+
+            .service-terms-section {
+                padding-left: 24px !important;
+                padding-right: 24px !important;
+                text-align: left !important;
+            }
+
+            .service-terms-section .terms-text-wrapper {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding: 0 !important;
+            }
+
+            .service-terms-section h4 {
+                padding: 0 !important;
+            }
+
         }
     </style>
 </head>
@@ -640,19 +737,16 @@
                 </div>
             </section>
 
-            <section class="container mb-5"
-                style="border-top: 1px solid var(--border-grey); padding-top: 60px; padding-bottom: 120px; margin-top: -40px;">
+            <section class="mb-5 service-terms-section"
+                style="max-width: 1200px; margin: 0 auto; border-top: 1px solid var(--border-grey); padding-top: 40px; padding-bottom: 75px;">
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
                         <div class="d-flex align-items-center mb-4">
-                            <span
-                                style="width: 30px; height: 1px; background: var(--accent-gold); display: inline-block; margin-right: 15px;"></span>
-                            <h4
-                                style="font-family: var(--font-serif), sans-serif; letter-spacing: 0.1em; margin: 0; color: var(--accent-gold); font-size: 20px;">
+                            <h4 style="font-family: var(--font-serif), sans-serif; letter-spacing: 0.1em; margin: 0; color: var(--accent-gold); font-size: 20px; text-align: left; padding: 0;">
                                 Service Terms / 注意事項</h4>
                         </div>
 
-                        <div class="row g-4" style="font-size: 13px; color: var(--text-muted); line-height: 1.8;">
+                        <div class="row g-4 terms-text-wrapper" style="font-size: 13px; color: var(--text-muted); line-height: 1.8; padding-left: 0;">
                             <div class="col-md-6">
                                 <ul class="list-unstyled mb-0">
                                     <li class="mb-4">
@@ -689,7 +783,7 @@
                             </div>
                         </div>
 
-                        <div class="mt-2 p-3 rounded">
+                        <div class="mt-2 terms-text-wrapper rounded">
                             <p class="m-0" style="font-size: 12px; color: var(--accent-gold); letter-spacing: 0.05em;">
                                 * 以上價格均為未稅價。DREAM VENUES 保有方案最終解釋權與內容調整之權利。
                             </p>

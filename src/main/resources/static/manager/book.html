@@ -51,7 +51,7 @@
          class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm cursor-pointer"></div>
 
     <!-- ═══ Sidebar ═══ -->
-    <aside :class="['w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative', sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0']">
+    <aside :class="['w-64 transition-all duration-300 ease-in-out bg-sidebar-bg flex flex-col h-full text-gray-300 flex-shrink-0 overflow-hidden z-30 fixed lg:relative', sidebarOpen ? 'translate-x-0 lg:ml-0' : '-translate-x-full lg:translate-x-0 lg:-ml-64']">
         <div class="h-16 flex items-center justify-center">
             <span class="text-blue-500 font-bold text-2xl mr-2">ES</span>
             <div class="text-white font-bold text-lg tracking-wide">Admin</div>
@@ -109,7 +109,7 @@
                         <span class="text-sm font-medium mr-1 text-gray-200">{{ sidebar.empName }}</span>
                         <span class="material-icons text-sm text-gray-400">arrow_drop_down</span>
                     </div>
-                    <div v-show="userMenuOpen"
+                    <div v-if="userMenuOpen"
                          class="absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg py-1 z-50 border border-gray-100">
                         <a href="account.html" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                             <span class="material-icons text-[18px] mr-3 text-gray-500">person_outline</span> Profile
@@ -122,9 +122,8 @@
             </div>
         </header>
 
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <div class="flex-1 overflow-auto p-5">
-                <div class="max-w-[1600px] mx-auto space-y-4">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-6 lg:p-8">
+            <div class="w-full max-w-[1600px] mx-auto space-y-6">
 
                     <!-- Tab + 操作按鈕 -->
                     <div class="flex items-center justify-between gap-3 flex-wrap">
@@ -146,7 +145,7 @@
 
                         <!-- 搜尋 + 建立按鈕 -->
                         <div class="flex flex-wrap items-center gap-4">
-                            <div class="relative w-full md:w-80">
+                            <div class="relative w-full md:w-48">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                 <span class="material-icons text-sm">search</span>
                             </span>
@@ -156,9 +155,8 @@
                                        placeholder="搜尋新人姓名..." type="text" />
                             </div>
                             <button @click="modals.createCustomer = true"
-                                    class="bg-primary hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-bold transition-all shadow-md flex items-center text-sm gap-1.5 whitespace-nowrap">
-                                <span class="material-icons text-base">person_add</span>
-                                建立客戶資料
+                                    class="bg-primary hover:bg-blue-600 text-white px-3.5 py-2 rounded-lg font-bold transition-all shadow-md flex justify-center items-center text-sm gap-1.5 whitespace-nowrap leading-none">
+                                <span class="material-icons text-sm">person_add</span>建立客戶資料
                             </button>
                         </div>
                     </div>
@@ -183,10 +181,8 @@
                             </div>
 
                             <!-- Loading -->
-                            <div v-if="loading.pending" class="flex flex-col items-center justify-center w-full py-12 text-gray-400">
-                                <svg class="spin mb-3" style="width:36px;height:36px;" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
-                                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                                </svg>
+                            <div v-if="loading.pending" class="flex flex-col items-center justify-center w-full py-16 text-gray-500">
+                                <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
                                 <p class="text-sm font-medium">正在載入預約資料...</p>
                             </div>
 
@@ -245,10 +241,8 @@
                                 <div class="grid grid-cols-[1.5fr_2fr_1.5fr_2fr_1.5fr_1.5fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3 justify-items-center text-center">
                                     <span v-for="h in signedHeaders" :key="h" class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">{{ h }}</span>
                                 </div>
-                                <div v-if="loading.signed" class="flex flex-col items-center justify-center py-12 text-gray-400">
-                                    <svg class="spin mb-3" style="width:36px;height:36px;" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
-                                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                                    </svg>
+                                <div v-if="loading.signed" class="flex flex-col items-center justify-center py-16 text-gray-500">
+                                    <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
                                     <p class="text-sm font-medium">正在載入資料...</p>
                                 </div>
                                 <div v-else>
@@ -281,14 +275,12 @@
                                 <div class="grid grid-cols-[2fr_2.5fr_2.5fr_2.5fr_1.5fr_1.5fr] bg-gray-50 dark:bg-gray-900/40 border-b border-gray-200 px-5 py-3 justify-items-center text-center">
                                     <span v-for="h in cancelledHeaders" :key="h" class="text-[13px] font-bold text-gray-500 uppercase tracking-wider">{{ h }}</span>
                                 </div>
-                                <div v-if="loading.cancelled" class="flex flex-col items-center justify-center py-12 text-gray-400">
-                                    <svg class="spin mb-3" style="width:36px;height:36px;" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
-                                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                                    </svg>
+                                <div v-if="loading.cancelled" class="flex flex-col items-center justify-center py-16 text-gray-500">
+                                    <span class="material-icons animate-spin text-indigo-500 text-3xl mb-2">autorenew</span>
                                     <p class="text-sm font-medium">正在載入資料...</p>
                                 </div>
                                 <div v-else>
-                                    <p v-if="cancelledBooks.length === 0" class="text-gray-400 text-sm px-5 py-4">目前沒有取消的預約</p>
+                                    <p v-if="cancelledBooks.length === 0" class="text-gray-400 text-sm px-5 py-4">目前沒有預約資料</p>
                                     <div v-for="book in cancelledBooks" :key="book.bookId"
                                          class="grid grid-cols-[2fr_2.5fr_2.5fr_2.5fr_1.5fr_1.5fr] px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors justify-items-center text-center">
                                         <span class="text-[12px] text-gray-600 dark:text-gray-300">{{ book.updateAt ? book.updateAt.split(' ')[0] : '-' }}</span>
@@ -305,8 +297,6 @@
                                 </div>
                             </div>
                         </section>
-                    </div>
-
                 </div>
             </div>
         </main>
@@ -744,11 +734,12 @@
     createApp({
         setup() {
             // ── 狀態 ──
-            const sidebarOpen  = ref(false);
+            const sidebarOpen = ref(window.innerWidth >= 1024);
             const userMenuOpen = ref(false);
             const activeTab    = ref('tab-pending');
             const searchQuery  = ref('');
             const today        = new Date().toLocaleDateString('sv-SE');
+            const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
             const sidebar = reactive({
                 empName:  '載入中...',
@@ -935,10 +926,9 @@
             const currentViewBookId = ref(null);
 
             const modifyTotalPrice = computed(() => {
-                const addons = modify.selectedServices
-                    .filter(s => s.serviceId !== 1 && s.serviceId !== 2)
-                    .reduce((sum, s) => sum + (s.unitPrice || 0), 0);
-                return 43800 + addons;
+                const base = 43800;
+                const addons = modify.selectedServices.reduce((sum, s) => sum + (s.unitPrice || 0), 0)
+                return base + addons;
             });
 
             const detail = reactive({
@@ -1018,6 +1008,9 @@
                     if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
 
                     const res = await fetch(url, { credentials: 'include' });
+                    let result = await res.json();
+
+                    await sleep(800);
 
                     if (!res.ok) {
                         if (res.status === 401 || res.status === 403) {
@@ -1032,7 +1025,7 @@
                         return;
                     }
 
-                    let result = await res.json();
+
                     if (!Array.isArray(result)) {
                         result = Array.isArray(result?.data) ? result.data : Array.isArray(result?.content) ? result.content : [];
                     }
@@ -1059,7 +1052,7 @@
                 const { tel, email } = createForm;
 
                 if (!name || !tel) { showToast('請填寫姓名與手機號碼', 'error'); return; }
-                if (!/^\d{10}$/.test(tel)) { showToast('手機號碼錯誤，必須為 10 位數字！', 'error'); return; }
+                if (!tel || !/^\d{10}$/.test(tel)) { showToast('手機號碼錯誤，必須為 10 位數字！', 'error'); return; }
                 if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Email 格式不正確', 'error'); return; }
 
                 let checkResult = [];
@@ -1087,12 +1080,15 @@
                     manager_id:   parseInt(sessionStorage.getItem('empId')) || null
                 };
 
+                savingEdit.value =true;
                 try {
+                    await sleep(1000);
                     const res    = await fetch(`${API_BASE}/books`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) });
-                    const result = await res.json();
+                    const result = await res.json()
+
                     if (res.ok) {
                         modals.createCustomer = false;
-                        showToast(checkResult.length > 0 ? '預約已覆蓋更新！' : '新客戶預約已建立！');
+                        showAlert('新客戶預約已建立！');
                         Object.assign(createForm, { nameA:'', nameB:'', tel:'', lineId:'', email:'', weddingDate:'', guestCount:null, venue:'', styles:'', notes:'' });
                         await loadStatusCounts();
                         await loadBooks('處理中');
@@ -1100,12 +1096,15 @@
                         showToast('建立失敗：' + (result.message || '請確認欄位'), 'error');
                     }
                 } catch (err) { showToast('連線失敗', 'error'); }
+                finally {
+                    savingEdit.value =false;
+                }
             }
 
             async function updateBookStatus(bookId, newStatus, book) {
                 if (newStatus === '已簽約') {
                     if (!book?.weddingDate || book.weddingDate === 'null') {
-                        showToast('請先點擊「修改資料」填寫婚宴日期，才能轉為簽約喔！', 'error');
+                        showAlert('請先點擊「修改資料」填寫婚宴日期，才能轉為簽約喔！', 'warning');
                         return;
                     }
                     const confirmed = await showConfirm(`確定要將「${book?.customerName || '此客戶'}」的預約轉為已簽約嗎？\n\n轉簽約後將自動建立專案與任務。`);
@@ -1128,7 +1127,8 @@
                         body: JSON.stringify({ status: newStatus, managerId: parseInt(sessionStorage.getItem('empId')) })
                     });
                     if (res.ok) {
-                        showToast('狀態已更新');
+                        showAlert('狀態已更新成功！', 'task_alt');
+
                         await loadStatusCounts();
                         await loadBooks('處理中');
                         await loadBooks('取消');
@@ -1154,10 +1154,11 @@
                 const { email, tel } = editForm;
                 if (!email) { showToast('Email 為必填', 'error'); return; }
                 if (!tel || !/^\d{10}$/.test(tel)) { showToast('手機號碼錯誤，必須為 10 位數字！', 'error'); return; }
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Email 格式不正確', 'error'); return; }
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Email 格式不正確', 'error'); return; }
 
                 savingEdit.value = true;
                 try {
+                    await sleep(1200);
                     const payload = {
                         name:         editForm.name,
                         tel:          editForm.tel,
@@ -1173,7 +1174,8 @@
                     });
                     if (res.ok) {
                         modals.editBook = false;
-                        showToast('資料已更新！');
+                        showAlert('新人基本資料已成功儲存！', 'save');
+                        modals.editBook = false;
                         await loadStatusCounts();
                         await loadBooks('處理中');
                     } else {
@@ -1210,10 +1212,11 @@
                 if (!currentViewBookId.value) return;
                 savingDetails.value = true;
                 try {
+                    await sleep(1000);
                     const notes   = modify.notes.trim();
                     const details = modify.checkedIds.map(id => ({
-                        service_id:    id,
-                        unit_price:    0,
+                        service_id:   id,
+                        unit_price:   0,
                         ceremony_date: modify.ceremonyDates[id] || null
                     }));
 
@@ -1222,10 +1225,15 @@
                         body: JSON.stringify({ notes, details })
                     });
                     if (res.ok) {
-                        showToast('需求設定已儲存！');
-                        //await viewBookDetails(currentViewBookId.value);
-                        modals.modify = false;
+                        showAlert('客戶需求與方案細項已儲存！', 'assignment_turned_in');
                         await loadBooks(activeTab.value === 'tab-pending' ? '處理中' : '已簽約');
+                        await viewBookDetails(currentViewBookId.value);
+
+                        setTimeout(() => {
+                            // 抓取畫面上可滾動的區塊並推回頂部
+                            const scrollableAreas = document.querySelectorAll('.overflow-y-auto');
+                            scrollableAreas.forEach(el => el.scrollTo({ top: 0, behavior: 'smooth' }));
+                        }, 100);
                     } else {
                         showAlert('儲存失敗，請稍後再試', 'error');
                     }

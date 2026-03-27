@@ -21,6 +21,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
     <style>
         /* 籌備進度版面 */
         .dashboard-wrap {
@@ -279,6 +282,12 @@
         .msg-content {
             display: flex;
             flex-direction: column;
+        }
+
+
+        /* 🌟 讓顧問端的氣泡靠左，並根據內容自動縮放寬度 */
+        .msg-wrapper.is-pm .msg-content {
+            align-items: flex-start;
         }
 
         .msg-wrapper.is-client .msg-content {
@@ -1490,6 +1499,13 @@
                     </div>
 
                     <div class="modal-body" id="boardContainer" style="padding: 24px 32px 0;">
+                        <div v-if="wsStatus === 'reconnecting'"
+                            class="alert alert-warning py-2 px-3 text-center d-flex align-items-center justify-content-center"
+                            style="font-size: 0.85rem; position: sticky; top: 0; z-index: 10; margin-bottom: 15px;">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <strong>網路不穩，正在為您重新連線中...</strong>
+                        </div>
+
                         <div class="message-board-list mb-4">
 
                             <div v-for="msg in messages" :key="msg.id" class="msg-wrapper"
@@ -1576,9 +1592,10 @@
                                     <span class="hint-text d-none d-sm-inline">附加檔案</span>
                                 </label>
                             </div>
-                            <button type="button" class="btn" @click="postMessage" :disabled="isSubmitting"
+                            <button type="button" class="btn" @click="postMessage"
+                                :disabled="isSubmitting || wsStatus !== 'connected'"
                                 style="background: var(--accent-gold); color: white; border-radius: 30px; font-size: 13px; letter-spacing: 0.15em; padding: 10px 28px; transition: all 0.3s;">
-                                {{ isSubmitting ? '傳送中...' : '送出留言' }}
+                                {{ wsStatus !== 'connected' ? '連線中...' : (isSubmitting ? '傳送中...' : '送出留言') }}
                             </button>
                         </div>
                     </div>
@@ -1695,6 +1712,9 @@
             setup() {
                 const isSubmitting = ref(false);
 
+                // 🌟 新增：追蹤 WebSocket 連線狀態 ('connected', 'reconnecting')
+                const wsStatus = ref('connecting');
+
                 // 核心資料物件，包含專案進度、付款狀態、文件列表等，初始值先放空或預設文字，等 API 回來再更新
                 const data = reactive({
                     countdownDays: 0,
@@ -1743,6 +1763,104 @@
                 const newMessage = ref('');
                 const hasUnread = ref(false);
                 const selectedFiles = ref([]);
+
+                // 🌟 存放 WebSocket 客戶端實體
+                let stompClient = null;
+                // 🌟 新增：用來記錄重連計時器，避免瘋狂重複觸發
+                let reconnectTimer = null;
+
+                // 建立 WebSocket 連線的方法
+                const connectWebSocket = (projectId) => {
+                    // 如果已經連線中，就不要重複建立
+                    if (stompClient && stompClient.connected) return;
+
+                    const socket = new SockJS('/ws-dream-venues');
+                    stompClient = Stomp.over(socket);
+
+                    // 關閉 STOMP 的 debug 訊息 (上線時畫面比較乾淨)
+                    // stompClient.debug = null;
+
+                    stompClient.connect({}, (frame) => {
+                        console.log('✅ WebSocket 連線成功！');
+                        wsStatus.value = 'connected'; // 🌟 狀態切換為已連線
+
+                        // 🌟 成功連線後，清除重連計時器
+                        if (reconnectTimer) {
+                            clearTimeout(reconnectTimer);
+                            reconnectTimer = null;
+                        }
+
+                        // 訂閱專屬於這個專案的頻道
+                        stompClient.subscribe('/topic/project/' + projectId, (message) => {
+                            const receivedMsg = JSON.parse(message.body);
+
+                            // 套用「智慧翻譯濾鏡」
+                            let isClient = true;
+                            let displayName = receivedMsg.createBy;
+
+                            if (receivedMsg.createBy === data.pmName || receivedMsg.createBy === '公司' || receivedMsg.createBy === '員工') {
+                                isClient = false;
+                                displayName = data.pmName;
+                            } else {
+                                isClient = true;
+                                if (receivedMsg.createBy === '客戶') displayName = data.customerName;
+                            }
+
+                            let mappedAttachments = [];
+                            if (receivedMsg.documents && receivedMsg.documents.length > 0) {
+                                mappedAttachments = receivedMsg.documents.map(doc => {
+                                    let fileUrl = doc.filePath || '#';
+                                    if (fileUrl.startsWith('/uploads')) fileUrl = window.location.origin + fileUrl;
+                                    return { name: doc.name, type: doc.fileType || 'application/pdf', url: fileUrl };
+                                });
+                            }
+
+                            const formattedMsg = {
+                                id: receivedMsg.id,
+                                sender: isClient ? 'client' : 'pm',
+                                senderName: displayName,
+                                text: receivedMsg.content,
+                                time: receivedMsg.createAt ? receivedMsg.createAt.replace('T', ' ').substring(0, 16) : '',
+                                attachments: mappedAttachments
+                            };
+
+                            // 把格式化後的新訊息塞進聊天陣列
+                            messages.push(formattedMsg);
+
+                            // 判斷是否亮起紅點
+                            const chatModalEl = document.getElementById('chatModal');
+                            if (chatModalEl && !chatModalEl.classList.contains('show')) {
+                                hasUnread.value = true;
+                            }
+
+                            // 確保滾動條保持在最下方
+                            setTimeout(() => {
+                                const container = document.getElementById('boardContainer');
+                                if (container) container.scrollTop = container.scrollHeight;
+                            }, 100);
+                        });
+
+                    }, (error) => {
+                        // 🌟 【重連核心邏輯】
+                        console.error('❌ WebSocket 連線中斷: ', error);
+                        wsStatus.value = 'reconnecting'; // 🌟 狀態切換為重新連線中
+
+                        // 確保舊的連線徹底清空，避免記憶體洩漏 (Memory Leak)
+                        if (stompClient) {
+                            stompClient.disconnect();
+                            stompClient = null;
+                        }
+
+                        // 設定 5 秒後自動重連
+                        if (!reconnectTimer) {
+                            console.log('⏳ 網路不穩，5 秒後系統將嘗試自動重新連線...');
+                            reconnectTimer = setTimeout(() => {
+                                reconnectTimer = null;
+                                connectWebSocket(projectId); // 🔄 重新呼叫自己發起連線
+                            }, 5000);
+                        }
+                    });
+                };
 
                 // 🌟 新增：用來控制圖片放大的變數與函式
                 const previewImageUrl = ref(null);
@@ -1806,6 +1924,12 @@
 
                         // 【修改重點 2】：移除 if (apiData.success) 判斷，直接綁定資料
                         if (realData) {
+                            // 🌟 在這裡呼叫 WebSocket 連線！
+                            // 加上 stompClient === null 的判斷，避免每次重新整理都重複連線
+                            if (realData.projectId && stompClient === null) {
+                                connectWebSocket(realData.projectId);
+                            }
+
                             // 1. 更新基本資料
                             if (realData.pmName) data.pmName = realData.pmName;
                             if (realData.customerName) data.customerName = realData.customerName;
@@ -1863,8 +1987,22 @@
                             if (realData.timeline && realData.timeline.length > 0) {
                                 messages.splice(0, messages.length);
                                 realData.timeline.reverse().forEach(comm => {
-                                    // 🌟 只要留言者不是「專屬顧問」，我們就一律當作是「客戶」！
-                                    const isClient = comm.createBy !== realData.pmName;
+
+                                    // 🌟 【修改重點】：套用與 WebSocket 相同的「智慧翻譯濾鏡」
+                                    let isClient = true;
+                                    let displayName = comm.createBy;
+
+                                    // 如果發送者是顧問，或者是 "公司"、"員工"
+                                    if (comm.createBy === realData.pmName || comm.createBy === '公司' || comm.createBy === '員工') {
+                                        isClient = false; // 設定為顧問 (左邊)
+                                        displayName = realData.pmName; // 強制換成顧問真實姓名
+                                    } else {
+                                        isClient = true;  // 設定為客戶 (右邊)
+                                        if (comm.createBy === '客戶') {
+                                            displayName = realData.customerName; // 強制換成客戶真實姓名
+                                        }
+                                    }
+
                                     let mappedAttachments = [];
                                     if (comm.documents && comm.documents.length > 0) {
                                         mappedAttachments = comm.documents.map(doc => {
@@ -1880,24 +2018,26 @@
                                             };
                                         });
                                     }
-                                    // 🌟 2. 然後把 messages.push 改成這樣：
+
+                                    // 🌟 將格式化後的訊息推入陣列
                                     messages.push({
                                         id: comm.id,
                                         sender: isClient ? 'client' : 'pm',
-                                        senderName: comm.createBy || (isClient ? realData.customerName : realData.pmName),
+                                        senderName: displayName, // 🌟 使用我們剛剛轉換好的真實姓名
                                         text: comm.content,
                                         time: comm.createAt ? comm.createAt.replace('T', ' ').substring(0, 16) : '',
                                         attachments: mappedAttachments
                                     });
                                 });
 
-                                // 🌟 新增：判斷最後一則留言是否為顧問發送，決定是否亮起紅點
+                                // 🌟 判斷最後一則留言是否為顧問發送，決定是否亮起紅點
                                 if (messages.length > 0) {
                                     const lastMsg = messages[messages.length - 1];
                                     // 如果最後一則是 pm (顧問) 發的，就亮紅點
                                     hasUnread.value = (lastMsg.sender === 'pm');
                                 }
 
+                                // 確保滾動條保持在最下方
                                 nextTick(() => {
                                     const container = document.getElementById('boardContainer');
                                     if (container) container.scrollTop = container.scrollHeight;
@@ -1989,7 +2129,7 @@
                     const formData = new FormData();
 
                     // 🌟 2. 將身分與文字塞入包裹
-                    formData.append('createBy', '客戶'); // 直接告訴後端是客戶發言
+                    formData.append('createBy', data.customerName);
                     if (newMessage.value.trim()) {
                         formData.append('content', newMessage.value.trim());
                     }
@@ -2018,9 +2158,6 @@
                                 // 🌟 新增：徹底清空隱藏的 file input，避免無法重複選取同一個檔案
                                 const fileInput = document.getElementById('fileUploadInput');
                                 if (fileInput) fileInput.value = '';
-
-                                // 重新撈取最新進度，讓畫面立刻更新出剛剛送出的氣泡與圖檔！
-                                fetchProjectProgress();
                             }
                         })
                         .catch(error => {
@@ -2086,7 +2223,8 @@
                     previewImageUrl, openImagePreview, closeImagePreview,
                     daysLeft,
                     motivationText,
-                    isCategoryCompleted
+                    isCategoryCompleted,
+                    wsStatus
                 }
             }
         }).mount('#app');

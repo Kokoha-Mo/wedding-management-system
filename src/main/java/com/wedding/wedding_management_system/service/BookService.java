@@ -60,15 +60,6 @@ public class BookService {
             }
         }
 
-        // 2. 再用 tel 查
-        if (dto.getTel() != null && !dto.getTel().isBlank()) {
-            Optional<Customer> byTel = customerRepository.findFirstByTel(dto.getTel());
-            if (byTel.isPresent()) {
-                log.info("以 tel 找到既有客戶，tel={}", dto.getTel());
-                return byTel.get();
-            }
-        }
-
         // 3. 都查無 → 建立新客戶（密碼先用隨機佔位，之後透過驗證信設定）
         log.info("查無客戶，建立新客戶");
         Customer c = new Customer();

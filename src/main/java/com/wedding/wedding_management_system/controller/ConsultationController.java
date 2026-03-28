@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,9 +99,29 @@ public class ConsultationController {
         if (!emailValidationService.isDomainValid(requestDTO.getEmail())) {
             response.put("success", false);
             response.put("message", "您輸入的信箱有誤或無法收信，請檢查是否拼寫錯誤！（例如 @gmail.com）");
-            return ResponseEntity.ok(response); 
+            return ResponseEntity.ok(response);
             // 注意：這裡回傳 HTTP 200 (ok)，把錯誤交給前端的 if (response.data.success) 去判斷
         }
+
+        // ==========================================
+        // 🌟 新增：後端日期防呆 (防堵 iOS Safari 繞過前端限制)
+        // ==========================================
+        LocalDate today = LocalDate.now();
+
+        // 檢查諮詢日期 (必填且不能小於今天)
+        if (requestDTO.getConsultationDate() == null || requestDTO.getConsultationDate().isBefore(today)) {
+            response.put("success", false);
+            response.put("message", "期望諮詢日期無效或不能選擇過去的時間喔！");
+            return ResponseEntity.ok(response);
+        }
+
+        // 檢查預定婚期 (選填，但若有填則不能小於今天)
+        if (requestDTO.getWeddingDate() != null && requestDTO.getWeddingDate().isBefore(today)) {
+            response.put("success", false);
+            response.put("message", "預定婚期不能選擇過去的時間喔！");
+            return ResponseEntity.ok(response);
+        }
+        // ==========================================
 
         try {
             // 將前端傳來的 JSON (已轉成 DTO) 交給 Service 處理

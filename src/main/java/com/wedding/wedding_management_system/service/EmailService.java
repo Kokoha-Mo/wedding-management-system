@@ -29,7 +29,7 @@ public class EmailService {
 
             helper.setTo(toEmail);
             helper.setSubject("【DREAM VENUES】帳號密碼設定通知");
-            helper.setFrom(fromEmail, "DREAM VENUES 專屬婚顧");
+            helper.setFrom(fromEmail, "DREAM VENUES");
 
             String resetLink = baseUrl + "/client/reset_password.html?token=" + token;
 
@@ -76,6 +76,61 @@ public class EmailService {
 
             helper.setText(htmlContent, true); // true = 啟用 HTML
 
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            throw new RuntimeException("寄信失敗：" + e.getMessage());
+        }
+    }
+
+    public void sendUnreadMessageEmail(String toEmail, String customerName) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(toEmail);
+            helper.setSubject("【DREAM VENUES】您有一則新的婚禮籌備訊息");
+            helper.setFrom(fromEmail, "DREAM VENUES");
+
+            String loginLink = baseUrl + "/client/client_login.html";
+
+            String htmlContent = """
+                    <div style="font-family: 'Noto Serif TC', serif; max-width: 560px; margin: 0 auto; background: #faf7f2; padding: 48px 40px;">
+                        <div style="text-align: center; margin-bottom: 40px;">
+                            <p style="font-size: 10px; letter-spacing: 0.4em; color: #C5A059; text-transform: uppercase; margin: 0;">Dream Venues</p>
+                            <h1 style="font-size: 24px; font-weight: 300; color: #2b2520; letter-spacing: 0.08em; margin: 12px 0 0;">High-End Wedding Journal</h1>
+                        </div>
+                        <div style="background: #ffffff; padding: 40px; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);">
+                            <p style="font-size: 15px; color: #2b2520; line-height: 2; letter-spacing: 0.06em;">
+                                親愛的 <strong>%s</strong> 您好，
+                            </p>
+                            <p style="font-size: 13px; color: #6a6053; line-height: 2.2; letter-spacing: 0.06em;">
+                                您的專屬婚顧顧問傳送了新訊息給您，<br>
+                                為了不耽誤您的籌備進度，<br>
+                                請抽空登入系統查看並回覆喔！
+                            </p>
+                            <div style="text-align: center; margin: 36px 0;">
+                                <a href="%s"
+                                   style="display: inline-block; background: #2b2520; color: #ffffff; text-decoration: none;
+                                          padding: 16px 40px; font-size: 11px; letter-spacing: 0.4em;
+                                          text-transform: uppercase; border-radius: 3px;">
+                                    登入查看訊息
+                                </a>
+                            </div>
+                            <hr style="border: none; border-top: 1px solid rgba(197,160,89,0.2); margin: 28px 0;">
+                            <p style="font-size: 10px; color: #b0a090; letter-spacing: 0.1em; line-height: 1.8;">
+                                如按鈕無法點擊，請複製以下連結貼到瀏覽器：<br>
+                                <span style="color: #C5A059;">%s</span>
+                            </p>
+                        </div>
+                        <p style="text-align: center; font-size: 10px; color: #b0a090; letter-spacing: 0.2em; margin-top: 32px;">
+                            © 2026 DREAM VENUES WEDDING DESIGN
+                        </p>
+                    </div>
+                    """
+                    .formatted(customerName, loginLink, loginLink);
+
+            helper.setText(htmlContent, true);
             mailSender.send(message);
 
         } catch (Exception e) {

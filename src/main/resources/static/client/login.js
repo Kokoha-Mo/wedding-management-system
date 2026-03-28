@@ -201,17 +201,20 @@ async function performLoginAction() {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      showStyledAlertModal(errorData.message || '登入失敗，請檢查帳號密碼');
+      try {
+        const errorData = await response.json();
+        showStyledAlertModal(errorData.message || '登入失敗，請檢查帳號密碼');
+      } catch {
+        showStyledAlertModal('系統連線異常，請稍後再試');
+      }
       return;
     }
-
     const data = await response.json();
     completeLoginProcess(data, email, rememberMe);
 
   } catch (error) {
     console.error('登入發生錯誤:', error);
-    showStyledAlertModal('伺服器連線失敗，請稍後再試');
+    showStyledAlertModal('系統連線異常，請稍後再試');
   }
 }
 

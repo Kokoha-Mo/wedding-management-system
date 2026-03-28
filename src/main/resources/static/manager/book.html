@@ -41,7 +41,7 @@
     </style>
 </head>
 
-<body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden font-display">
+<body style="visibility: hidden;" class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 h-screen flex overflow-hidden font-display">
 
 <div id="app" v-cloak class="contents">
 
@@ -369,7 +369,7 @@
                         </div>
                     </div>
                     <div class="p-5 border-t border-gray-100 dark:border-gray-700 flex justify-end space-x-3 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-xl">
-                        <button class="px-5 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" @click="modals.createCustomer = false">取消</button>
+                        <button class="px-5 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" @click="modals.createCustomer = false; Object.assign(createForm, { nameA:'', nameB:'', tel:'', lineId:'', email:'', weddingDate:'', guestCount:null, venue:'', styles:'', notes:'' })">取消</button>
                         <button class="bg-primary text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-600 transition-colors" @click="submitCreateBook">建立資料</button>
                     </div>
                 </div>
@@ -1060,13 +1060,9 @@
                     const r = await fetch(`${API_BASE}/books/check-duplicate?email=${encodeURIComponent(email)}`, { credentials: 'include' });
                     checkResult = await r.json();
                 }
-                if (checkResult.length === 0 && tel) {
-                    const r = await fetch(`${API_BASE}/books/check-duplicate?tel=${encodeURIComponent(tel)}`, { credentials: 'include' });
-                    checkResult = await r.json();
-                }
                 if (checkResult.length > 0) {
-                    const confirmed = await showConfirm(`此客戶已有資料：${checkResult[0].name}\n手機：${checkResult[0].tel}\nEmail：${checkResult[0].email || '-'}\n\n確定要覆蓋舊預約嗎？`);
-                    if (!confirmed) return;
+                    showAlert(`此客戶已有資料：\n新人姓名：${checkResult[0].name}\n手機：${checkResult[0].tel}\nEmail：${checkResult[0].email || '-'}\n\n請確定填寫資料是否有誤！`);
+                    return;
                 }
 
                 const payload = {
@@ -1173,10 +1169,8 @@
                         method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload)
                     });
                     if (res.ok) {
+                        showAlert('資料修改已成功儲存！', 'save');
                         modals.editBook = false;
-                        showAlert('新人基本資料已成功儲存！', 'save');
-                        modals.editBook = false;
-                        await loadStatusCounts();
                         await loadBooks('處理中');
                     } else {
                         const err = await res.json().catch(() => ({}));
@@ -1308,6 +1302,7 @@
                 loadStatusCounts();
                 loadBooks('處理中');
                 loadBooks('取消');
+                document.body.style.visibility = 'visible';
             });
 
             // ── Template 用得到的才需要列在這裡 ──

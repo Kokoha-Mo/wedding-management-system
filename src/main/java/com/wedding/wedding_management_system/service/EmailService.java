@@ -19,6 +19,9 @@ public class EmailService {
     @Value("${app.base.url}")
     private String baseUrl;
 
+    @Value("${spring.mail.username}")
+    private String fromEmail;
+
     public void sendResetPasswordEmail(String toEmail, String customerName, String token) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -26,6 +29,7 @@ public class EmailService {
 
             helper.setTo(toEmail);
             helper.setSubject("【DREAM VENUES】帳號密碼設定通知");
+            helper.setFrom(fromEmail, "DREAM VENUES 專屬婚顧");
 
             String resetLink = baseUrl + "/client/reset_password.html?token=" + token;
 

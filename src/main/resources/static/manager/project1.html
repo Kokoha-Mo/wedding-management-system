@@ -57,10 +57,19 @@
                 box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
             }
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .fade-in {
             animation: fadeIn 0.4s ease-out forwards;
         }
@@ -89,7 +98,8 @@
 
         <!-- Sidebar 遮罩 -->
         <div id="sidebar-overlay"
-            class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm hidden transition-opacity cursor-pointer"></div>
+            class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden backdrop-blur-sm hidden transition-opacity cursor-pointer">
+        </div>
 
         <!-- ═══ Sidebar ═══ -->
         <aside id="sidebar"
@@ -191,9 +201,10 @@
             <!-- Main -->
             <main
                 class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#EEF2F6] to-[#E3E8EF] dark:from-gray-900 dark:to-gray-800 p-4 lg:p-6 flex flex-col">
-                
+
                 <!-- 全頁載入中畫面 -->
-                <div v-if="pageLoading" class="flex-1 flex flex-col items-center justify-center text-center py-20 text-indigo-500">
+                <div v-if="pageLoading"
+                    class="flex-1 flex flex-col items-center justify-center text-center py-20 text-indigo-500">
                     <span class="material-icons animate-spin text-[48px] mb-4 block">autorenew</span>
                     <p class="text-[16px] font-bold tracking-widest uppercase">載入專案資料中...</p>
                 </div>
@@ -354,7 +365,8 @@
                                                     class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
                                                     <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
                                                 </button>
-                                                <span v-show="taskUnread[task.taskId]" class="pulse-hint border-2 border-white"></span>
+                                                <span v-show="taskUnread[task.taskId]"
+                                                    class="pulse-hint border-2 border-white"></span>
                                             </div>
                                             <button @click="openAssignModal(task)"
                                                 class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors flex items-center whitespace-nowrap">
@@ -371,7 +383,8 @@
                                                         class="px-3 py-1.5 bg-gray-50 text-gray-600 font-bold rounded-lg text-xs hover:bg-gray-100 transition-colors">
                                                         <span class="material-icons text-[16px]">forum</span>
                                                     </button>
-                                                    <span v-show="taskUnread[task.taskId]" class="pulse-hint border-2 border-white"></span>
+                                                    <span v-show="taskUnread[task.taskId]"
+                                                        class="pulse-hint border-2 border-white"></span>
                                                 </div>
                                                 <button @click="openRejectModal(task.taskId)"
                                                     class="px-3 py-1.5 bg-red-50 text-red-600 font-bold rounded-lg text-xs hover:bg-red-100 transition-colors">駁回</button>
@@ -397,7 +410,8 @@
                                                         class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
                                                         <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
                                                     </button>
-                                                    <span v-show="taskUnread[task.taskId]" class="pulse-hint border-2 border-white"></span>
+                                                    <span v-show="taskUnread[task.taskId]"
+                                                        class="pulse-hint border-2 border-white"></span>
                                                 </div>
                                                 <button @click="openAssignModal(task,true)"
                                                     class="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm hover:bg-indigo-100 transition-colors flex items-center whitespace-nowrap">
@@ -415,7 +429,8 @@
                                                         class="px-4 py-2 bg-gray-50 text-gray-600 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors flex items-center whitespace-nowrap">
                                                         <span class="material-icons text-[16px] mr-1">forum</span> 任務留言板
                                                     </button>
-                                                    <span v-show="taskUnread[task.taskId]" class="pulse-hint border-2 border-white"></span>
+                                                    <span v-show="taskUnread[task.taskId]"
+                                                        class="pulse-hint border-2 border-white"></span>
                                                 </div>
                                             </div>
                                             <button
@@ -451,18 +466,24 @@
                                 </div>
                                 <!-- v-for 取代 innerHTML -->
                                 <div v-else class="space-y-3">
-                                    <div v-for="doc in docs" :key="doc.fileName"
+                                    <div v-for="doc in docs" :key="doc.fileName || doc.name"
                                         class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 group hover:border-indigo-300 dark:hover:border-indigo-800 transition-colors">
                                         <div class="flex items-center min-w-0 flex-1">
                                             <span class="material-icons text-indigo-400 mr-3">description</span>
-                                            <div class="min-w-0">
-                                                <p class="text-sm font-bold text-gray-700 dark:text-gray-200 truncate"
-                                                    :title="doc.fileName">{{ doc.fileName }}</p>
-                                                <p class="text-[10px] text-gray-400">{{ doc.uploadInfo }}</p>
+                                            <div class="min-w-0 flex flex-col">
+                                                <a :href="doc.filePath || doc.file_path || doc.downloadUrl"
+                                                    target="_blank"
+                                                    class="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors truncate hover:underline"
+                                                    :title="doc.fileName || doc.name">
+                                                    {{ doc.fileName || doc.name }}
+                                                </a>
+                                                <p class="text-[10px] text-gray-400 mt-0.5">{{ doc.uploadInfo ||
+                                                    doc.fileType }}</p>
                                             </div>
                                         </div>
-                                        <a :href="doc.downloadUrl" target="_blank"
-                                            class="ml-2 p-2 text-gray-400 hover:text-indigo-600 transition-colors">
+                                        <a :href="doc.filePath || doc.file_path || doc.downloadUrl" target="_blank"
+                                            class="ml-2 p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+                                            title="開啟/下載檔案">
                                             <span class="material-icons text-[20px]">download</span>
                                         </a>
                                     </div>
@@ -545,7 +566,8 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                             要求完成期限 <span v-if="!assignModal.readOnly" class="text-red-500">*</span>
                         </label>
-                        <input type="date" v-model="assignModal.deadline" :readonly="assignModal.readOnly" :min="todayDate" :max="maxDeadlineDate"
+                        <input type="date" v-model="assignModal.deadline" :readonly="assignModal.readOnly"
+                            :min="todayDate" :max="maxDeadlineDate"
                             class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
                         <p v-if="maxDeadlineDate" class="text-xs text-gray-400 mt-1 flex items-center">
                             <span class="material-icons text-[13px] mr-1">info</span>
@@ -769,9 +791,8 @@
                             <p v-if="msg.content" class="m-0 whitespace-pre-wrap">{{ msg.content }}</p>
                             <div v-if="msg.documents && msg.documents.length" class="flex flex-wrap gap-2 mt-2">
                                 <template v-for="doc in msg.documents" :key="doc.filePath">
-                                    <img v-if="doc.fileType && doc.fileType.startsWith('image/') && !doc.imgError" 
-                                        :src="doc.filePath" 
-                                        @error="doc.imgError = true"
+                                    <img v-if="doc.fileType && doc.fileType.startsWith('image/') && !doc.imgError"
+                                        :src="doc.filePath" @error="doc.imgError = true"
                                         class="max-w-[160px] max-h-[160px] rounded object-cover border border-gray-200 shadow-sm mt-2" />
                                     <div v-else-if="doc.fileType && doc.fileType.startsWith('image/') && doc.imgError"
                                         class="inline-flex items-center gap-1 p-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-gray-500 dark:text-gray-400 text-xs mt-2 w-fit">
@@ -868,7 +889,11 @@
                     此處上傳的文件 (如規格書、報價單) 將歸檔於此專案，並同步供客戶在進度頁面查看。
                 </p>
                 <div @click="$refs.archiveFileInput.click()"
-                    class="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer mb-6 group">
+                    @dragover.prevent="isDragging = true"
+                    @dragleave.prevent="isDragging = false"
+                    @drop.prevent="handleDrop"
+                    :class="isDragging ? 'border-indigo-500 !bg-indigo-50 dark:!bg-indigo-900/20' : 'border-gray-200 dark:border-gray-600'"
+                    class="border-2 border-dashed rounded-2xl p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer mb-6 group">
                     <input ref="archiveFileInput" type="file" class="hidden" multiple @change="handleDocFiles" />
                     <span
                         class="material-icons text-4xl text-gray-300 group-hover:text-indigo-400 mb-2 transition-colors">cloud_upload</span>
@@ -897,12 +922,15 @@
         <!-- ── Alert Modal ── -->
         <div v-show="alertModal.open"
             class="fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
-                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 mb-4 mx-auto">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
+                <div
+                    class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 mb-4 mx-auto">
                     <span class="material-icons text-3xl">info</span>
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">系統提示</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap">{{ alertModal.message }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap">{{
+                    alertModal.message }}</p>
                 <div class="w-full flex justify-center">
                     <button @click="closeAlertModal"
                         class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -915,12 +943,15 @@
         <!-- ── Confirm Modal ── -->
         <div v-show="confirmModal.open"
             class="fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm transition-opacity p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
-                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-500 mb-4 mx-auto">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[400px] max-w-full transform transition-all border border-gray-100 dark:border-gray-700 flex flex-col p-6 items-center">
+                <div
+                    class="flex items-center justify-center w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-500 mb-4 mx-auto">
                     <span class="material-icons text-3xl">help_outline</span>
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">確認操作</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap">{{ confirmModal.message }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 whitespace-pre-wrap">{{
+                    confirmModal.message }}</p>
                 <div class="w-full flex justify-center space-x-3">
                     <button @click="executeCancel"
                         class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-bold shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
@@ -993,6 +1024,7 @@
                     rejectModal: { open: false, pendingTaskId: null },
 
                     // 文件上傳 Modal
+                    isDragging: false,
                     docUploadModal: { open: false, uploading: false, files: [] },
 
                     // Alert Modal
@@ -1118,7 +1150,7 @@
                         this.loadDocs(),
                         this.checkClientUnread()
                     ]);
-                    
+
                     // fetchTasks 必須先做完，this.tasks 才有資料，這時候才能檢查紅點
                     await this.checkAllTaskUnread();
 
@@ -1131,9 +1163,9 @@
                         const r = await fetch(`/api/manager/projects/${this.projectId}/record`, { credentials: 'include' });
                         if (!r.ok) return this.handleAuth(r.status);
                         const d = await r.json();
-                        this.project = { 
-                            customerName: d.customerName || '未定客戶', 
-                            projectNo: d.projectNo || '', 
+                        this.project = {
+                            customerName: d.customerName || '未定客戶',
+                            projectNo: d.projectNo || '',
                             weddingDate: d.weddingDate || '',
                             paymentStatus: d.paymentStatus || '訂金結清', // 預設為訂金結清
                             totalPayment: d.totalPayment || 0,
@@ -1404,8 +1436,20 @@
 
                     if (invalidFiles.length > 0) {
                         this.showAlert(`檔案大小不能超過 10MB！\n其中 ${invalidFiles.length} 個檔案超過限制。`);
-                        e.target.value = ''; 
+                        e.target.value = '';
                         this.docUploadModal.files = [];
+                    } else {
+                        this.docUploadModal.files = files;
+                    }
+                },
+                handleDrop(event) {
+                    this.isDragging = false;
+                    const MAX = 10 * 1024 * 1024;
+                    const files = Array.from(event.dataTransfer.files);
+                    if (!files.length) return;
+                    const invalid = files.filter(f => f.size > MAX);
+                    if (invalid.length > 0) {
+                        this.showAlert(`檔案大小不能超過 10MB！\n其中 ${invalid.length} 個檔案超過限制。`);
                     } else {
                         this.docUploadModal.files = files;
                     }
@@ -1469,6 +1513,9 @@
             // ══════════════════════════════════════════════════════
             mounted() {
                 this.init();
+                // 全域攔截：防止拖曳到框外時瀏覽器直接開新分頁
+                document.addEventListener('dragover', e => e.preventDefault());
+                document.addEventListener('drop', e => e.preventDefault());
                 document.addEventListener('click', e => {
                     if (this.userDropdownOpen && !e.target.closest('.relative')) this.userDropdownOpen = false;
                 });

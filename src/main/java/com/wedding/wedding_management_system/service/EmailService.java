@@ -37,8 +37,8 @@ public class EmailService {
             String htmlContent = """
                     <div style="font-family: 'Noto Serif TC', serif; max-width: 560px; margin: 0 auto; background: #faf7f2; padding: 48px 40px;">
                         <div style="text-align: center; margin-bottom: 40px;">
-                            <p style="font-size: 10px; letter-spacing: 0.4em; color: #C5A059; text-transform: uppercase; margin: 0;">Dream Venues</p>
-                            <h1 style="font-size: 24px; font-weight: 300; color: #2b2520; letter-spacing: 0.08em; margin: 12px 0 0;">High-End Wedding Journal</h1>
+                            <p style="font-size: 20px; letter-spacing: 0.4em; color: #C5A059; text-transform: uppercase; margin: 0;">Dream Venues</p>
+                            <h1 style="font-size: 12px; font-weight: 300; color: #2b2520; letter-spacing: 0.08em; margin: 12px 0 0;">High-End Wedding Journal</h1>
                         </div>
                         <div style="background: #ffffff; padding: 40px; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);">
                             <p style="font-size: 15px; color: #2b2520; line-height: 2; letter-spacing: 0.06em;">
@@ -97,8 +97,8 @@ public class EmailService {
             String htmlContent = """
                     <div style="font-family: 'Noto Serif TC', serif; max-width: 560px; margin: 0 auto; background: #faf7f2; padding: 48px 40px;">
                         <div style="text-align: center; margin-bottom: 40px;">
-                            <p style="font-size: 10px; letter-spacing: 0.4em; color: #C5A059; text-transform: uppercase; margin: 0;">Dream Venues</p>
-                            <h1 style="font-size: 24px; font-weight: 300; color: #2b2520; letter-spacing: 0.08em; margin: 12px 0 0;">High-End Wedding Journal</h1>
+                            <p style="font-size: 20px; letter-spacing: 0.4em; color: #C5A059; text-transform: uppercase; margin: 0;">Dream Venues</p>
+                            <h1 style="font-size: 12px; font-weight: 300; color: #2b2520; letter-spacing: 0.08em; margin: 12px 0 0;">High-End Wedding Journal</h1>
                         </div>
                         <div style="background: #ffffff; padding: 40px; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);">
                             <p style="font-size: 15px; color: #2b2520; line-height: 2; letter-spacing: 0.06em;">

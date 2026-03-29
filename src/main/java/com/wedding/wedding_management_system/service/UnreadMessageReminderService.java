@@ -20,7 +20,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@EnableScheduling
+// @EnableScheduling
 public class UnreadMessageReminderService {
 
     @PostConstruct
@@ -34,12 +34,12 @@ public class UnreadMessageReminderService {
     @Autowired
     private EmailService emailService;
 
-    // 改：從記錄 comm_id 改成記錄 "projectId_日期"
+    // 從記錄 comm_id 改成記錄 "projectId_日期"
     private final Set<String> alreadyRemindedToday = ConcurrentHashMap.newKeySet();
 
     // 每5分鐘巡邏一次
     // @Scheduled(fixedRate = 10*60*1000)
-    @Scheduled(fixedRate = 60 * 1000) // 1分鐘巡邏一次（測試用）
+    // @Scheduled(fixedRate = 60 * 1000) // 1分鐘巡邏一次（測試用）
     public void patrolUnreadMessages() {
         System.out.println("巡邏員啟動：檢查未回覆訊息...");
 
@@ -48,11 +48,14 @@ public class UnreadMessageReminderService {
         // LocalDateTime start = LocalDateTime.now().minusMinutes(70);
 
         // 撈 3～4 分鐘前的訊息（測試用）
-        LocalDateTime end = LocalDateTime.now().minusMinutes(3);
-        LocalDateTime start = LocalDateTime.now().minusMinutes(4);
+        LocalDateTime end = LocalDateTime.now();
+        LocalDateTime start = LocalDateTime.now().minusMinutes(5);
 
         // 一次查詢：找出未回覆的婚顧訊息（已解決 N+1）
         List<ProjectCommunication> unrepliedMessages = communicationRepo.findUnrepliedManagerMessages("公司", start, end);
+
+        // 加一行日誌，確認到底有沒有撈到東西：
+        System.out.println("是否撈到資料：共撈到 " + unrepliedMessages.size() + " 筆未回覆訊息");
 
         // 依專案分組，只取最後一則
         Map<Integer, ProjectCommunication> lastMsgPerProject = new HashMap<>();
@@ -80,10 +83,4 @@ public class UnreadMessageReminderService {
 
     }
 
-    // 每天半夜 00:00:00 自動清空暫存，防止記憶體洩漏 (Memory Leak)
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void clearDailyReminders() {
-        alreadyRemindedToday.clear();
-        System.out.println("午夜系統維護：已清空今日提醒暫存紀錄");
-    }
 }

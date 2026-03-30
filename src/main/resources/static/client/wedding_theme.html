@@ -1013,6 +1013,7 @@
 
 <body>
 
+    <!-- ─── 導覽列 ─── -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid" style="max-width:1600px; margin:0 auto;">
             <a class="navbar-brand" href="./index.html">
@@ -1094,7 +1095,7 @@
         </div>
     </div>
 
-
+    <!-- 頁面主體 -->
     <div class="page-wrap">
         <div class="page-hero has-bg">
             <p class="page-hero-eyebrow">Wedding Theme</p>
@@ -1129,10 +1130,12 @@
         <div class="lb-dots" id="lbDots"></div>
     </div>
 
+    <!-- ─── footer ─── -->
     <footer>
-        <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
+        <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN.</div>
     </footer>
 
+    <!-- 至頂按鈕 -->
     <button id="backToTop" class="back-to-top">
         <span class="material-symbols-outlined">arrow_upward</span>
     </button>
@@ -1413,6 +1416,9 @@
             document.getElementById('themeNavInner').addEventListener('click', e => {
                 const pill = e.target.closest('.theme-pill');
                 if (pill) showTheme(pill.dataset.target);
+
+                // 讓被點擊的標籤自動平滑捲動到畫面的「正中央」
+                pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             });
 
             /* navbar hide on scroll */

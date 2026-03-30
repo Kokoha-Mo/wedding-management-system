@@ -14,8 +14,8 @@ public class CorsConfig implements WebMvcConfigurer {
                         "http://localhost:5173", // 本機前端 (Vue 常用的 Port)
                         "http://localhost:8080", // 本機後端
                         "http://127.0.0.1:8080", // 本機 IP 形式
-                        "https://wedding-management-system-tw.web.app", // Firebase 漂亮網址
-                        "https://wedding-management-system-668445209806.asia-east1.run.app" // Cloud Run 原生網址
+                        "https://wedding-management-system-668445209806.asia-east1.run.app", // Cloud Run 原生網址 dev 分支
+                        "https://wedding-official-668445209806.asia-east1.run.app" // Cloud Run 原生網址 main 分支
                 )
                 // .allowedOriginPatterns("*")
                 // 開放指定網域或全域(*)。

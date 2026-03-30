@@ -663,13 +663,14 @@
                             </span>
                         </div>
                         <div v-if="resultModal.documents && resultModal.documents.length>0" class="space-y-2">
-                            <a v-for="doc in resultModal.documents" :key="doc.id" :href="'/' + doc.filePath"
-                                target="_blank"
-                                class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 transition-colors cursor-pointer">
-                                <span class="material-icons text-indigo-500 mr-3 text-[20px]">description</span>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{{ doc.name
-                                    || '未命名檔案' }}</span>
-                            </a>
+                            <div v-for="doc in resultModal.documents" :key="doc.id"
+                                @click="openFilePreview(doc)"
+                                class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:border-indigo-400 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors cursor-pointer group">
+                                <span class="material-icons text-indigo-500 mr-3 text-[20px]"
+                                    :class="isImageFile(doc.name) ? 'text-pink-500' : 'text-indigo-500'">{{ isImageFile(doc.name) ? 'image' : 'description' }}</span>
+                                <span class="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{{ doc.name || '未命名檔案' }}</span>
+                                <span class="material-icons text-[16px] text-gray-400 group-hover:text-indigo-500 transition-colors ml-2">{{ isImageFile(doc.name) ? 'zoom_in' : 'download' }}</span>
+                            </div>
                         </div>
                         <div v-else
                             class="flex items-center p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
@@ -799,17 +800,22 @@
                             <p v-if="msg.content" class="m-0 whitespace-pre-wrap">{{ msg.content }}</p>
                             <div v-if="msg.documents && msg.documents.length" class="flex flex-wrap gap-2 mt-2">
                                 <template v-for="doc in msg.documents" :key="doc.filePath">
+                                    <!-- 圖片：顯示縮圖，點擊開啟 lightbox -->
                                     <img v-if="doc.fileType && doc.fileType.startsWith('image/') && !doc.imgError"
                                         :src="doc.filePath" @error="doc.imgError = true"
-                                        class="max-w-[160px] max-h-[160px] rounded object-cover border border-gray-200 shadow-sm mt-2" />
+                                        @click="openFilePreview({ filePath: doc.filePath, name: doc.name || doc.filePath.split('/').pop() })"
+                                        class="max-w-[160px] max-h-[160px] rounded object-cover border border-gray-200 shadow-sm mt-2 cursor-zoom-in hover:opacity-90 hover:shadow-md transition-all" />
+                                    <!-- 圖片載入失敗 -->
                                     <div v-else-if="doc.fileType && doc.fileType.startsWith('image/') && doc.imgError"
                                         class="inline-flex items-center gap-1 p-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-gray-500 dark:text-gray-400 text-xs mt-2 w-fit">
                                         <span class="material-icons text-[14px]">broken_image</span>圖片無法預覽
                                     </div>
-                                    <a v-else :href="doc.filePath" target="_blank"
-                                        class="inline-flex items-center gap-1 p-2 bg-white/60 dark:bg-gray-800/60 border border-indigo-200 dark:border-indigo-800 rounded text-indigo-600 dark:text-indigo-400 text-xs mt-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors">
-                                        <span class="material-icons text-[14px]">description</span>{{ doc.name }}
-                                    </a>
+                                    <!-- 非圖片：點擊開啟 lightbox（顯示開啟按鈕） -->
+                                    <div v-else
+                                        @click="openFilePreview({ filePath: doc.filePath, name: doc.name || doc.filePath.split('/').pop() })"
+                                        class="inline-flex items-center gap-1 p-2 bg-white/60 dark:bg-gray-800/60 border border-indigo-200 dark:border-indigo-800 rounded text-indigo-600 dark:text-indigo-400 text-xs mt-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors cursor-pointer">
+                                        <span class="material-icons text-[14px]">description</span>{{ doc.name || doc.filePath.split('/').pop() }}
+                                    </div>
                                 </template>
                             </div>
                         </div>
@@ -973,6 +979,47 @@
             </div>
         </div>
 
+        <!-- ── 附檔預覽 Lightbox Modal ── -->
+        <div v-show="previewModal.open"
+            class="fixed inset-0 z-[210] flex items-center justify-center bg-gray-900/80 backdrop-blur-md"
+            @click.self="closeFilePreview">
+            <div class="relative flex flex-col items-center max-w-[92vw] max-h-[92vh]">
+                <!-- 關閉按鈕 -->
+                <button @click="closeFilePreview"
+                    class="absolute -top-4 -right-4 z-10 w-9 h-9 bg-white dark:bg-gray-700 rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors border border-gray-200 dark:border-gray-600">
+                    <span class="material-icons text-[20px]">close</span>
+                </button>
+
+                <!-- 圖片預覽 -->
+                <template v-if="previewModal.isImage">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-3 border border-gray-100 dark:border-gray-700">
+                        <img :src="previewModal.url" :alt="previewModal.name"
+                            class="max-w-[85vw] max-h-[80vh] object-contain rounded-xl block" />
+                    </div>
+                    <div class="mt-3 flex items-center gap-3">
+                        <span class="text-white text-sm font-medium bg-black/40 rounded-full px-4 py-1.5 backdrop-blur-sm">{{ previewModal.name }}</span>
+                        <a :href="previewModal.url" target="_blank" download
+                            class="flex items-center gap-1.5 text-white text-sm font-bold bg-indigo-600 hover:bg-indigo-700 rounded-full px-4 py-1.5 shadow transition-colors">
+                            <span class="material-icons text-[16px]">download</span> 下載
+                        </a>
+                    </div>
+                </template>
+
+                <!-- 非圖片檔案 -->
+                <template v-else>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-100 dark:border-gray-700 flex flex-col items-center gap-4 min-w-[280px]">
+                        <span class="material-icons text-[56px] text-indigo-400">insert_drive_file</span>
+                        <p class="text-base font-bold text-gray-800 dark:text-gray-100 text-center">{{ previewModal.name }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">此類型的檔案無法預覽，請點擊下方按鈕開啟或下載。</p>
+                        <a :href="previewModal.url" target="_blank"
+                            class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-colors">
+                            <span class="material-icons text-[18px]">open_in_new</span> 開啟檔案
+                        </a>
+                    </div>
+                </template>
+            </div>
+        </div>
+
     </div><!-- /#app -->
 
     <script>
@@ -1040,6 +1087,9 @@
 
                     // Confirm Modal
                     confirmModal: { open: false, message: '', onConfirm: null, onCancel: null },
+
+                    // 附檔預覽 Lightbox
+                    previewModal: { open: false, url: '', name: '', isImage: false },
 
                     // WebSocket
                     stompClient: null,
@@ -1301,6 +1351,22 @@
                     const t = this.tasks.find(t => t.taskId === this.resultModal.taskId);
                     if (t) t._resultViewed = true;
                     this.resultModal.open = false;
+                },
+
+                // ── 附檔預覽 Lightbox
+                isImageFile(name) {
+                    if (!name) return false;
+                    return /\.(jpe?g|png|gif|webp|svg|bmp|tiff?)$/i.test(name);
+                },
+                openFilePreview(doc) {
+                    const fp = doc.filePath || '';
+                    const url = (fp.startsWith('/') || fp.startsWith('http')) ? fp : '/' + fp;
+                    const name = doc.name || fp.split('/').pop() || '未命名檔案';
+                    const isImage = this.isImageFile(name);
+                    this.previewModal = { open: true, url, name, isImage };
+                },
+                closeFilePreview() {
+                    this.previewModal.open = false;
                 },
 
                 // ── 審核通過

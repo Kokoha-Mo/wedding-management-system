@@ -9,8 +9,7 @@
     <link rel="stylesheet" href="../css/bootstrap.css">
     <script src="./js/bootstrap.bundle.js"></script>
     <script src="./global.js"></script>
-    <link
-            href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400;500&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400;500&display=swap"
             rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
@@ -992,12 +991,14 @@
                                 <p style="font-size:14px; color:var(--accent-gold); margin:0;">
                                     ✦ 讓小幫手 VENUES 根據你的婚禮風格，推薦最適合的加購組合
                                 </p>
-                                <button @click="generateAiRec" :disabled="isAiLoading" class="consult-btn"
-                                        style="border-radius:50px; font-size:12px; padding:7px 20px; white-space:nowrap; flex-shrink:0; border:1.5px solid var(--accent-gold); background:transparent; color:var(--accent-gold);">
-        <span v-if="isAiLoading">
-            <svg style="display:inline-block; width:12px; height:12px; vertical-align:middle; margin-right:4px; animation:spin 0.8s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-            思考中...</span>
-                                    <span v-else class="venue-btn">✦ VENUES 幫我推薦婚禮組合</span>
+                                <button @click="generateAiRec" :disabled="isAiLoading" class="consult-btn venue-btn"
+                                        style="border-radius:50px; font-size:13px; padding:7px 20px; white-space:nowrap; flex-shrink:0;"><span v-if="isAiLoading" style="font-size:12px; display:inline-flex; align-items:center;">
+                                            <svg style="display:inline-block; width:12px; height:12px; vertical-align:middle; margin-right:4px; animation:spin 0.8s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                                            </svg>
+                                            思考中...
+                                        </span>
+                                    <span v-else>✦ VENUES 幫我推薦婚禮組合</span>
                                 </button>
                             </div>
                         </div>
@@ -1005,6 +1006,7 @@
 
                         <!-- AI 結果展開區，有結果才出現 -->
                         <div v-if="aiRecommendResult" class="interview-box" style="margin-top:16px; margin-bottom:0; animation: fadeIn 0.5s ease;">
+                            <h3 class="serif" style="margin-bottom: 8px; font-size: 1.4rem;">推薦組合</h3>
                             <p style="font-size:13px; color:var(--text-muted); line-height:1.75; margin-bottom:1rem;">{{ aiRecommendResult.greeting }}</p>
                             <div v-for="item in aiRecommendResult.items" :key="item.id"
                                  style="display:flex; align-items:center; gap:10px; padding:9px 12px; background:#FDF8F8; border:1px solid var(--rose-light); border-radius:10px; margin-bottom:8px;">

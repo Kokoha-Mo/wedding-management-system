@@ -967,6 +967,44 @@
                         </div>
                     </div>
 
+                    <!-- AI 推薦觸發區塊 -->
+                    <div style="margin-bottom: 40px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom: 0;">
+                            <h4 class="decor-group-title" style="border-left-color: var(--rose-dark); color: var(--rose-dark); margin-bottom:0;">
+                                讓小幫手 VENUES 為你推薦最適合的婚禮組合 <span>AI Advisor</span>
+                            </h4>
+                            <button @click="generateAiRec" :disabled="isAiLoading" class="consult-btn btn-next" style="border-radius:50px; font-size:12px; padding:8px 22px; white-space:nowrap; flex-shrink:0;">
+            <span v-if="isAiLoading">
+                <svg style="display:inline-block; width:12px; height:12px; vertical-align:middle; margin-right:4px; animation:spin 0.8s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                分析中...
+            </span>
+                                <span v-else>✦ VENUES 幫我推薦婚禮組合</span>
+                            </button>
+                        </div>
+
+                        <!-- AI 結果展開區，有結果才出現 -->
+                        <div v-if="aiRecommendResult" class="interview-box" style="margin-top:16px; margin-bottom:0; animation: fadeIn 0.5s ease;">
+                            <p style="font-size:13px; color:var(--text-muted); line-height:1.75; margin-bottom:1rem;">{{ aiRecommendResult.greeting }}</p>
+                            <div v-for="item in aiRecommendResult.items" :key="item.id"
+                                 style="display:flex; align-items:center; gap:10px; padding:9px 12px; background:#FDF8F8; border:1px solid var(--rose-light); border-radius:10px; margin-bottom:8px;">
+                                <div style="width:18px; height:18px; background:var(--rose-dark); border-radius:5px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                    <i class="fa-solid fa-check" style="font-size:9px; color:#fff;"></i>
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:13px; font-weight:500;">{{ item.name }}</div>
+                                    <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">{{ item.reason }}</div>
+                                </div>
+                                <span style="font-size:12px; color:var(--accent-gold); background:#FCFAF5; padding:2px 8px; border-radius:5px; font-weight:600; white-space:nowrap;">
+                NT$ {{ item.price.toLocaleString() }}
+            </span>
+                            </div>
+                            <p style="font-size:12px; color:var(--rose-dark); text-align:center; margin:1rem 0 0.75rem; font-style:italic;">{{ aiRecommendResult.closing }}</p>
+                            <button @click="applyAiRec" class="consult-btn" style="width:100%; border:1.5px solid var(--rose-dark); background:transparent; color:var(--rose-dark); border-radius:50px; font-size:13px;">
+                                套用這份推薦到我的方案 →
+                            </button>
+                        </div>
+                    </div>
+
                     <div id="advanced-options" style="margin-top: 10px;">
 
                         <div class="interview-box">
@@ -1080,18 +1118,6 @@
 
                             </div>
                         </div>
-
-                        <div class="realtime-total-box">
-                            <div>
-                                <h3 class="serif" style="margin: 0; font-size: 1.2rem;">預估專案總額</h3>
-                                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 0; margin-top: 5px;">
-                                    包含 婚宴全程統籌方案基底費用 與您目前勾選的加值服務</p>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 28px; color: var(--rose-dark); font-weight: bold; font-family: var(--font-sans);">
-                                    NT$ {{ totalAmount.toLocaleString() }}</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -1180,7 +1206,6 @@
 
             <div class="consult-actions" v-show="currentStep < 4">
                 <div><button class="consult-btn btn-prev" @click="changeStep(-1)" :style="{ visibility: currentStep === 1 ? 'hidden' : 'visible' }">← 返回上一步</button></div>
-                <div style="font-size: 10px; font-weight: bold; letter-spacing: 2px; color: var(--rose-dark);">PLANNING PROGRESS</div>
                 <div><button class="consult-btn btn-next" @click="changeStep(1)" v-show="currentStep === 1">前往下一步驟 →</button></div>
             </div>
         </div>
@@ -1211,6 +1236,10 @@
             const currentStep = ref(1);
             const isEditing = ref(false);
             const isSubmitting = ref(false);
+
+            const isAiLoading = ref(false);
+            const aiRecommendResult = ref(null);
+
             const basePrice = ref(43800);
             const prices = reactive({
                 3: 18000, 4: 5000, 5: 2000, 6: 18000, 7: 2000, 9: 18000,
@@ -1280,6 +1309,19 @@
             };
 
             const changeStep = (delta) => {
+
+                // if (currentStep.value === 1 && delta === 1) {
+                //     if (!form.theme) {
+                //         showSystemAlert(true, 'NOTICE', '請選擇主題', '請先選擇婚禮主題風格再繼續！');
+                //         return;
+                //     }
+                //     if (!form.guestScale) {
+                //         showSystemAlert(true, 'NOTICE', '請填寫人數', '請先填寫預計賓客人數再繼續！');
+                //         return;
+                //     }
+                // }
+
+
                 currentStep.value += delta;
                 if (currentStep.value < 1) currentStep.value = 1;
                 if (currentStep.value > 4) currentStep.value = 4;
@@ -1473,6 +1515,103 @@
                 }
             };
 
+            const generateAiRec = async () => {
+                if (!form.theme || !form.guestScale) {
+                    showSystemAlert(true, 'NOTICE', '資料不足', '請先在第一步填寫婚禮主題與賓客人數，AI 才能為你推薦喔！');
+                    return;
+                }
+
+                isAiLoading.value = true;
+                aiRecommendResult.value = null;
+                Object.keys(sel).forEach(k => sel[k] = false);
+
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                const serviceList = [
+                    { id: 3,  name: '新秘造型師' },
+                    { id: 4,  name: '新郎妝髮造型（新秘加購）' },
+                    { id: 5,  name: '主婚人/親友妝髮（新秘加購）' },
+                    { id: 6,  name: '專業婚禮主持人' },
+                    { id: 7,  name: '品牌總監級主持人（主持人加購）' },
+                    { id: 9,  name: '平面/動態紀實攝影師' },
+                    { id: 10, name: 'SDE 當日快剪快播（攝影加購）' },
+                    { id: 11, name: '雙機位拍攝（攝影加購）' },
+                    { id: 12, name: '類婚紗與全家福引導（攝影加購）' },
+                    { id: 13, name: '空拍機壯闊空景拍攝（攝影加購）' },
+                    { id: 14, name: '燈光音響與影音場控' },
+                    { id: 15, name: 'LIVE Band 音響工程（燈光加購）' },
+                    { id: 16, name: '文定儀式引導與司儀' },
+                    { id: 17, name: '迎娶儀式流程控管' },
+                    { id: 18, name: '戶外/室內證婚規劃' },
+                    { id: 19, name: '迎賓與拍照區主題設計' },
+                    { id: 20, name: '宴客桌景與舞台視覺' },
+                    { id: 21, name: '鮮花花藝佈置' },
+                    { id: 22, name: '品牌級平面視覺套組' },
+                ];
+
+                const prompt = `你是 DREAM VENUES 的高端婚禮顧問，請根據新人資訊推薦最適合的婚禮服務組合。
+
+                新人資訊：
+                - 主題風格：${form.theme}
+                - 賓客人數：${form.guestScale} 人
+                - 場地：${form.venue || '未指定'}
+                - 備註：${form.notes || '無'}
+
+                可選服務清單（ID 對應項目）：
+                ${serviceList.map(s => `- ID ${s.id}：${s.name}，NT$${prices[s.id]?.toLocaleString()}`).join('\n')}
+
+                請推薦 4–6 項最適合的服務，只回傳 JSON，不要有任何多餘文字或 markdown：
+                {
+                  "greeting": "給新人的溫暖開場白（2句，繁體中文）",
+                  "recommendations": [
+                    { "id": 服務ID數字, "reason": "推薦理由（15字以內）" }
+                  ],
+                  "closing": "一句鼓勵結語（15字以內）"
+                }`;
+
+                try {
+                    const res = await fetch('/api/ai/recommend', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            messages: [{ role: 'user', content: prompt }]
+                        })
+                    });
+
+                    const data = await res.json();
+                    const raw = data.content.map(b => b.text || '').join('').trim();
+                    const clean = raw.replace(/```json|```/g, '').trim();
+                    const parsed = JSON.parse(clean);
+
+                    // 將 AI 推薦結果存入響應式變數（附上服務名稱與金額）
+                    aiRecommendResult.value = {
+                        greeting: parsed.greeting,
+                        closing: parsed.closing,
+                        items: (parsed.recommendations || []).map(r => ({
+                            id: r.id,
+                            name: serviceList.find(s => s.id === r.id)?.name || '',
+                            price: prices[r.id] || 0,
+                            reason: r.reason
+                        })).filter(r => r.name)
+                    };
+
+                } catch (err) {
+                    showSystemAlert(true, 'AI ERROR', 'AI 顧問連線異常', '請稍後再試，或直接手動勾選您需要的服務項目。');
+                } finally {
+                    isAiLoading.value = false;
+                }
+            };
+
+            const applyAiRec = () => {
+                if (!aiRecommendResult.value) return;
+                // 先清空所有勾選，再套用 AI 推薦
+                Object.keys(sel).forEach(k => sel[k] = false);
+                aiRecommendResult.value.items.forEach(item => {
+                    if (sel.hasOwnProperty(item.id)) sel[item.id] = true;
+                });
+                showSystemAlert(false, 'APPLIED', '推薦已套用', '已自動勾選 AI 推薦的服務項目，你可以再自由調整！');
+            };
+
             const formatPhone = (tel) => {
                 if (!tel) return '-';
                 if (/^09\d{8}$/.test(tel)) return tel.replace(/(\d{4})(\d{3})(\d{3})/, '$1-$2-$3');
@@ -1493,7 +1632,9 @@
             return {
                 pageTitles, currentStep, isEditing, isSubmitting,
                 form, sel, prices,basePrice, totalAmount, summaryItems, todayDate,
-                handleMainToggle, changeStep, toggleEdit, cancelEdit, submitBookDetails
+                handleMainToggle, changeStep, toggleEdit, cancelEdit, submitBookDetails,
+                isAiLoading, aiRecommendResult,
+                generateAiRec, applyAiRec
             };
         }
     });

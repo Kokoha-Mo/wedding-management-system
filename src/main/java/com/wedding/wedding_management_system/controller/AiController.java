@@ -1,6 +1,6 @@
 package com.wedding.wedding_management_system.controller;
 
-import com.google.api.client.util.Value;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,6 +18,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/ai")
 public class AiController {
+    @Value("${GEMINI_API_KEY}")
+    private String geminiApiKey;
+
     @PostMapping("/recommend")
     public ResponseEntity<?> recommend(@RequestBody Map<String, Object> body) {
         System.out.println("=== recommend 被呼叫 ===");
@@ -25,7 +28,7 @@ public class AiController {
                 (System.getenv("GEMINI_API_KEY") != null ?
                         System.getenv("GEMINI_API_KEY").substring(0, 5) : "null"));
 
-        String apiKey = "AIzaSyD7F1wvgYn7xGDptZCbyEH_nRXnuNTTdoY";
+        String apiKey = geminiApiKey;
 
         if (apiKey == null || apiKey.isEmpty()) {
             return ResponseEntity.status(500)
@@ -37,7 +40,9 @@ public class AiController {
         try {
             List<Map<String, Object>> messages = (List<Map<String, Object>>) body.get("messages");
             prompt = (String) messages.get(0).get("content");
+            System.out.println("Step 2: prompt 取出完成，長度=" + prompt.length());
         } catch (Exception e) {
+            System.out.println("Step 2 失敗: " + e.getMessage());
             return ResponseEntity.status(400)
                     .body(Map.of("error", "無法解析 prompt"));
         }

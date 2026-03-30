@@ -56,7 +56,6 @@ public class Book {
     @Column(length = 1000)
     private String content;
 
-    @UpdateTimestamp
     @Column(name = "update_at")
     private LocalDateTime updateAt;
 

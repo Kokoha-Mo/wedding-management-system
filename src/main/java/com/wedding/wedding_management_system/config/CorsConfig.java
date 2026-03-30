@@ -22,7 +22,7 @@ public class CorsConfig implements WebMvcConfigurer {
                 // 注意：當allowCredentials 為true時，
                 // 不能使用allowedOrigins("*")，要改用allowedOriginPatterns("*")
 
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*") // 允許所有請求標頭
                 .allowCredentials(true) // 允許前端傳送 Cookie (包含 JWT Token 的 HttpOnly Cookie)
                 .maxAge(3600);

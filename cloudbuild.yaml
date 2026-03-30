@@ -38,13 +38,13 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system', '--all-tags']
 
-  # 【步驟 F】部署到 Cloud Run
+ # 【步驟 F】部署到 Cloud Run (動態指定服務名稱)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
       - 'deploy'
-      - 'wedding-management-system'
+      - '${_SERVICE_NAME}'  # 使用自訂變數，不要寫死名稱
       - '--image'
       - 'asia-east1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/wedding-management-system:$COMMIT_SHA'
       - '--region'

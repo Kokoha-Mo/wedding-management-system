@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/customer/ai")
 public class AiController {
-    @Value("${GEMINI_API_KEY}")
+    @Value("${GEMINI_API_KEY:}")
     private String geminiApiKey;
 
     @PostMapping("/recommend")

@@ -5,7 +5,7 @@ steps:
     args:
       - '-c'
       - |
-        gsutil cp gs://wedding-build-cache/maven-cache.tar.gz maven-cache.tar.gz || exit 0
+        gsutil cp gs://${_CACHE_BUCKET}/maven-cache.tar.gz maven-cache.tar.gz || exit 0
         tar -xzf maven-cache.tar.gz || exit 0
 
   # 【步驟 B】Maven 編譯 (保持 clean 以免舊程式碼殘留)
@@ -19,7 +19,7 @@ steps:
       - '-c'
       - |
         tar -czf maven-cache.tar.gz ./.m2/repository
-        gsutil cp maven-cache.tar.gz gs://wedding-build-cache/maven-cache.tar.gz
+        gsutil cp maven-cache.tar.gz gs://${_CACHE_BUCKET}/maven-cache.tar.gz
 
   # 【步驟 D】Docker Build (加入快取機制)
   - name: 'gcr.io/cloud-builders/docker'

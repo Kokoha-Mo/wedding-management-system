@@ -64,6 +64,11 @@ public class CustomerLoginController {
             CustomerLoginResponseDto errorBody = new CustomerLoginResponseDto();
             errorBody.setMessage(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
+        } catch (Exception e) {
+            // 新增：攔截資料庫連線失敗等系統錯誤
+            CustomerLoginResponseDto errorBody = new CustomerLoginResponseDto();
+            errorBody.setMessage("系統連線異常，請稍後再試");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
         }
     }
 

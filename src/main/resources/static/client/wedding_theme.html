@@ -24,7 +24,7 @@
         .themes-wrap {
             max-width: 1520px;
             margin: 0 auto;
-            padding: 60px 60px 80px;
+            padding: 60px 60px 0px;
             box-sizing: border-box;
             width: 100%;
         }
@@ -36,8 +36,7 @@
         }
 
         .theme-section {
-            padding: 50px 0;
-            border-bottom: 1px solid var(--border-grey);
+            padding: 30px 0;
             display: none;
         }
 
@@ -98,6 +97,21 @@
             }
         }
 
+        .section-hint {
+            font-size: 13px;
+            color: var(--accent-gold);
+            letter-spacing: 2px;
+            margin-top: 6px;
+            opacity: .8;
+            text-align: right;
+        }
+
+        @media(max-width:767px) {
+            .section-hint {
+                text-align: left;
+            }
+        }
+
         .mosaic-forest,
         .mosaic-vintage,
         .mosaic-chapel,
@@ -140,7 +154,6 @@
         }
 
         .mosaic-vintage .tile:nth-child(2) {
-            margin-top: 48px;
             align-self: stretch;
         }
 
@@ -232,11 +245,6 @@
             }
         }
 
-        /* ══════════════════════════════════════════
-           mosaic-exotic：橫幅全景 + 下方四宮格
-           第1張：全寬橫幅主視覺（海灘／儀式感）
-           第2~5張：等比四格並排
-        ══════════════════════════════════════════ */
         .mosaic-exotic {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -244,13 +252,11 @@
             gap: 6px;
         }
 
-        /* 第1張：橫跨全部4欄，高度飽滿 */
         .mosaic-exotic .tile:nth-child(1) {
             grid-column: 1 / 5;
             grid-row: 1;
         }
 
-        /* 第2~5張：各佔1欄，下方一排 */
         .mosaic-exotic .tile:nth-child(2),
         .mosaic-exotic .tile:nth-child(3),
         .mosaic-exotic .tile:nth-child(4),
@@ -289,6 +295,127 @@
                 grid-row: 3;
             }
         }
+
+        /* Forest extra: horizontal filmstrip (修復 6帳擠成一排的問題) */
+        .extra-forest {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 320px;
+            gap: 6px;
+        }
+
+        @media(max-width:767px) {
+            .extra-forest {
+                grid-template-columns: repeat(2, 1fr);
+                grid-auto-rows: 180px;
+            }
+        }
+
+        /* Vintage extra: editorial 2-big + 4-small (修復 圖片被卡掉的問題，上排4張下排3張平行) */
+        .extra-vintage {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: 320px;
+            gap: 6px;
+        }
+
+        .extra-vintage .tile:nth-child(1),
+        .extra-vintage .tile:nth-child(2),
+        .extra-vintage .tile:nth-child(3),
+        .extra-vintage .tile:nth-child(4) {
+            grid-column: span 3;
+        }
+
+        .extra-vintage .tile:nth-child(5),
+        .extra-vintage .tile:nth-child(6),
+        .extra-vintage .tile:nth-child(7) {
+            grid-column: span 4;
+        }
+
+        @media(max-width:767px) {
+            .extra-vintage {
+                grid-template-columns: repeat(2, 1fr);
+                grid-auto-rows: 220px;
+            }
+
+            .extra-vintage .tile {
+                grid-column: span 1 !important;
+            }
+
+            .extra-vintage .tile:nth-child(7) {
+                grid-column: span 2 !important;
+            }
+        }
+
+        /* Chapel extra: tall panorama strip (修復 圖片被卡掉的問題) */
+        .extra-chapel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 320px;
+            gap: 6px;
+        }
+
+        @media(max-width:767px) {
+            .extra-chapel {
+                grid-template-columns: 1fr 1fr;
+                grid-auto-rows: 200px;
+            }
+        }
+
+        /* Chinese extra: portrait-friendly (修復 留白問題與放直立圖片排版) */
+        .extra-chinese {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 480px;
+            gap: 6px;
+        }
+
+        @media(max-width:767px) {
+            .extra-chinese {
+                grid-template-columns: 1fr 1fr;
+                grid-auto-rows: 280px;
+            }
+        }
+
+        /* Minimal extra: asymmetric masonry feel */
+        .extra-minimal {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr 1fr;
+            grid-template-rows: 300px 200px;
+            gap: 6px;
+        }
+
+        .extra-minimal .tile:nth-child(2) {
+            grid-row: 1/3;
+        }
+
+        @media(max-width:767px) {
+            .extra-minimal {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 200px 160px 160px;
+            }
+
+            .extra-minimal .tile:nth-child(2) {
+                grid-row: 1;
+                grid-column: 1/3;
+            }
+        }
+
+        /* Exotic extra: wide hero + 3 side (修復 浮台婚禮被隱藏的問題) */
+        .extra-exotic {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 300px;
+            gap: 6px;
+        }
+
+        @media(max-width:767px) {
+            .extra-exotic {
+                grid-template-columns: repeat(2, 1fr);
+                grid-auto-rows: 180px;
+            }
+        }
+
 
         .tile {
             position: relative;
@@ -886,7 +1013,6 @@
 
 <body>
 
-    <!-- ─── 導覽列 ─── -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid" style="max-width:1600px; margin:0 auto;">
             <a class="navbar-brand" href="./index.html">
@@ -924,7 +1050,6 @@
         </div>
     </nav>
 
-    <!-- ─── 手機版 Offcanvas ─── -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="navMenu">
         <div class="offcanvas-header">
             <a class="navbar-brand" href="./index.html">
@@ -970,7 +1095,6 @@
     </div>
 
 
-    <!-- hero -->
     <div class="page-wrap">
         <div class="page-hero has-bg">
             <p class="page-hero-eyebrow">Wedding Theme</p>
@@ -979,16 +1103,13 @@
             <p class="page-hero-sub">探索婚禮的多種樣貌，讓每一種風格，都精準對接您的想像</p>
         </div>
 
-        <!-- THEME NAV -->
         <nav class="theme-nav" id="themeNav">
             <div class="theme-nav-inner" id="themeNavInner"></div>
         </nav>
 
-        <!-- THEME SECTIONS -->
         <div class="themes-wrap" id="themesWrap"></div>
     </div>
 
-    <!-- LIGHTBOX -->
     <div class="lb-overlay" id="lbOverlay">
         <button class="lb-close" id="lbClose" title="關閉">
             <span class="material-symbols-outlined">close</span>
@@ -1008,12 +1129,10 @@
         <div class="lb-dots" id="lbDots"></div>
     </div>
 
-    <!-- FOOTER -->
     <footer>
         <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
     </footer>
 
-    <!-- 至頂按鈕 -->
     <button id="backToTop" class="back-to-top">
         <span class="material-symbols-outlined">arrow_upward</span>
     </button>
@@ -1021,199 +1140,209 @@
     <script>
         const THEMES = [
             {
-                id: 'forest',
-                label: '森林系',
+                id: 'forest', label: '森林系',
                 eyebrow: 'Forest · Nature · Organic',
                 desc: '枝葉交錯的婚禮秘境<br>讓光影與綠意成為最美的佈景',
                 mosaic: 'mosaic-forest',
+                extraClass: 'extra-forest',
                 tiles: [
-                    { img: 'https://i.pinimg.com/1200x/25/19/9c/25199c5a5e7f25e4d0682b39e4c7ee16.jpg?auto=compress&w=400', name: '山間祕境婚宴', label: 'Featured Venue', sub: 'Cedar Hall · 台北烏來', featured: true, cta: '#' },
-                    { img: 'https://i.pinimg.com/1200x/1a/59/93/1a5993bffcce0c5090ac3d4320aaa5e0.jpg?auto=compress&w=400', name: '自然系花藝佈置', label: 'Florals' },
-                    { img: 'https://i.pinimg.com/1200x/2b/81/74/2b81749de349f1699156dcca1bf910c0.jpg?auto=compress&w=400', name: '戶外儀式區', label: 'Ceremony' },
-                    { img: 'https://i.pinimg.com/736x/ab/27/6d/ab276d9976cb0065d86d9cd6ee6a871a.jpg?auto=compress&w=400', name: '晚宴燈光氛圍', label: 'Reception' },
-                    { img: 'https://i.pinimg.com/736x/45/62/60/456260c1129e597dbbe5159370b01d41.jpg?auto=compress&w=400', name: '綠葉桌花細節', label: 'Details' },
+                    { img: 'https://i.pinimg.com/736x/25/19/9c/25199c5a5e7f25e4d0682b39e4c7ee16.jpg', name: '星空草地長桌晚宴', label: 'Featured Venue', sub: 'Cedar Hall · 台北烏來', featured: true },
+                    { img: 'https://i.pinimg.com/1200x/bc/c7/db/bcc7db7a444fda720cea00418c759a96.jpg', name: '純白花藝與花瓣雨', label: 'Florals' },
+                    { img: 'https://i.pinimg.com/736x/2b/81/74/2b81749de349f1699156dcca1bf910c0.jpg', name: '星光下的戶外晚宴', label: 'Ceremony' },
+                    { img: 'https://i.pinimg.com/736x/ef/ae/3f/efae3f26d6cf49a9390355be337f573b.jpg', name: '林間漫步浪漫花瓣雨', label: 'Reception' },
+                    { img: 'https://i.pinimg.com/736x/45/62/60/456260c1129e597dbbe5159370b01d41.jpg', name: '森林戶外證婚儀式', label: 'Details' },
+                ],
+                extra: [
+                    { img: 'https://i.pinimg.com/1200x/fd/43/a7/fd43a7e62aa1c52fbc11ac08ae72a835.jpg', name: '水波紋布幔證婚區', label: 'Table' },
+                    { img: 'https://i.pinimg.com/1200x/72/7c/41/727c41e3f5d9dcff6676384929bde2f2.jpg', name: '燈串隧道長桌晚宴', label: 'Signage' },
+                    { img: 'https://i.pinimg.com/736x/ca/34/b2/ca34b2be7be497ce71b89481089b12ac.jpg', name: '純白花拱門歡樂合影', label: 'Bouquet' },
+                    { img: 'https://i.pinimg.com/1200x/8f/20/0a/8f200a7c32da40350ee07309821cc45c.jpg', name: '蝴蝶蘭純白宴會佈置', label: 'Dinner' },
+                    { img: 'https://i.pinimg.com/736x/b4/99/00/b499002150197abba24652880a47d03d.jpg', name: '原野巨型花環證婚', label: 'Lighting' },
+                    { img: 'https://i.pinimg.com/1200x/2b/9f/39/2b9f39e248d0251125a69f751a660d20.jpg', name: '優雅純白布幔證婚台', label: 'Portrait' },
                 ]
             },
             {
-                id: 'vintage',
-                label: '美式復古',
+                id: 'vintage', label: '美式復古',
                 eyebrow: 'Americana · Rustic · Vintage',
                 desc: '穀倉木板與舊式燈泡<br>把每個瞬間變成老電影的畫面',
                 mosaic: 'mosaic-vintage',
+                extraClass: 'extra-vintage',
                 tiles: [
-                    { img: 'https://i.pinimg.com/736x/03/83/4e/03834e35abe51fed8838f5d9cc46f138.jpg?auto=compress&w=400', name: '復古建築', label: 'Barn Wedding', sub: 'Rustic Barn · 宜蘭', featured: true, cta: '#' },
-                    { img: 'https://i.pinimg.com/736x/1a/6e/3f/1a6e3f64cf839ef3f49e2555a99c4ecd.jpg?auto=compress&w=400', name: '沉穩復古', label: 'Tablescape' },
-                    { img: 'https://i.pinimg.com/736x/e3/8f/39/e38f39230ed22c4ce844c110e7b5e6bd.jpg?auto=compress&w=400', name: '復古婚紗造型', label: 'Bridal' },
+                    { img: 'https://i.pinimg.com/736x/03/83/4e/03834e35abe51fed8838f5d9cc46f138.jpg', name: '懷舊冰室復古婚紗', label: 'Barn Wedding', sub: 'Rustic Barn · 宜蘭', featured: true },
+                    { img: 'https://i.pinimg.com/736x/1a/6e/3f/1a6e3f64cf839ef3f49e2555a99c4ecd.jpg', name: '復古洋樓窗邊光影', label: 'Tablescape' },
+                    { img: 'https://i.pinimg.com/736x/e3/8f/39/e38f39230ed22c4ce844c110e7b5e6bd.jpg', name: '復古綠皮火車紀實', label: 'Bridal' },
+                ],
+                extra: [
+                    { img: 'https://i.pinimg.com/736x/2f/03/db/2f03dbedc820d87035e19b7425937dc7.jpg', name: '老派浪漫茶室合影', label: 'Lighting' },
+                    { img: 'https://i.pinimg.com/736x/1a/09/5f/1a095f33752bb34efc8db6d81b03c991.jpg', name: '復古冰室約會時光', label: 'Stationery' },
+                    { img: 'https://i.pinimg.com/1200x/16/05/d1/1605d15cee0f68644e38e2a1822a00b9.jpg', name: '時光照相館主題佈置', label: 'Cake' },
+                    { img: 'https://i.pinimg.com/1200x/09/d4/a3/09d4a386bbefcd9a9201453ac9f9bd4d.jpg', name: '經典復古西裝與頭紗', label: 'Invitation' },
+                    { img: 'https://i.pinimg.com/736x/2e/47/c9/2e47c928dece70b19bf225499dbdc9da.jpg', name: '黑膠唱片創意簽名', label: 'Ceremony' },
+                    { img: 'https://i.pinimg.com/736x/25/08/4a/25084a164d79d3a93c3d5bb0b9fab057.jpg', name: '古蹟廣場雙人共舞', label: 'Florals' },
+                    { img: 'https://i.pinimg.com/736x/e7/3d/fc/e73dfc68a569be96b79be8341cd28106.jpg', name: '懷舊老街漫步紀實', label: 'Decor' },
                 ]
             },
             {
-                id: 'chapel',
-                label: '西式教堂',
+                id: 'chapel', label: '西式教堂',
                 eyebrow: 'Chapel · Cathedral · Timeless',
                 desc: '彩繪玻璃灑落的光<br>是最莊嚴也最浪漫的見證',
                 mosaic: 'mosaic-chapel',
+                extraClass: 'extra-chapel',
                 tiles: [
-                    { img: 'https://i.pinimg.com/736x/df/0c/fb/df0cfb7adc15d26017a2a5b0a64621f0.jpg?auto=compress&w=400', name: '教堂側廊光影', label: 'Interior' },
-                    { img: 'https://i.pinimg.com/736x/dd/22/53/dd22536014a8902886dd10b546db318a.jpg?auto=compress&w=400', name: '純白教堂誓約', label: 'Featured Chapel', sub: 'Chapel blanc · 台南', featured: true, cta: '#' },
-                    { img: 'https://i.pinimg.com/736x/9e/54/3b/9e543ba414414d54b8c52aa736481e62.jpg?auto=compress&w=400', name: '教堂', label: 'Florals' },
+                    { img: 'https://i.pinimg.com/736x/df/0c/fb/df0cfb7adc15d26017a2a5b0a64621f0.jpg', name: '古典莊嚴聖壇誓約', label: 'Interior' },
+                    { img: 'https://i.pinimg.com/736x/dd/22/53/dd22536014a8902886dd10b546db318a.jpg', name: '純白教堂浪漫步入', label: 'Featured Chapel', sub: 'Chapel blanc · 台南', featured: true },
+                    { img: 'https://i.pinimg.com/736x/9e/54/3b/9e543ba414414d54b8c52aa736481e62.jpg', name: '現代幾何玻璃教堂', label: 'Florals' },
+                ],
+                extra: [
+                    { img: 'https://i.pinimg.com/736x/c5/68/0c/c5680cad4b8dc81a206ff35fc5c89270.jpg', name: '教堂門外花瓣雨祝福', label: 'Stained Glass' },
+                    { img: 'https://i.pinimg.com/736x/54/c1/b6/54c1b6ac7cab87630b81561b83f28bd9.jpg', name: '彩繪玻璃紅磚教堂', label: 'Aisle Decor' },
+                    { img: 'https://i.pinimg.com/1200x/a0/45/c7/a045c7f41e36f3875309b1c605a71774.jpg', name: '純白溫室日光教堂', label: 'Exterior' },
+                    { img: 'https://i.pinimg.com/1200x/02/e4/ee/02e4ee95fbdef327d8dc78e3cfc8f1bf.jpg', name: '海景三角教堂證婚', label: 'Music' },
+                    { img: 'https://i.pinimg.com/736x/55/3e/af/553eaf2ce4bb694bf54af1cc275900e8.jpg', name: '純白教堂外俏皮合影', label: 'Ceremony' },
+                    { img: 'https://i.pinimg.com/736x/eb/ce/5b/ebce5bcc5af5167c96f17fa7f484a6e5.jpg', name: '古典教堂長廊回眸', label: 'Candlelight' },
                 ]
             },
             {
-                id: 'chinese',
-                label: '中式老宅',
+                id: 'chinese', label: '中式老宅',
                 eyebrow: 'Chinese Heritage · Courtyard · Ink',
                 desc: '紅燈籠與白牆灰瓦<br>讓傳統美學在當代婚禮中重生',
                 mosaic: 'mosaic-chinese',
-                textPanel: { after: 1, quote: '「執子之手<br>與子偕老」', en: 'A Vow Across Lifetimes' },
+                extraClass: 'extra-chinese',
                 tiles: [
-                    { img: 'https://images.pexels.com/photos/13111964/pexels-photo-13111964.jpeg', name: '古韻院落婚宴', label: 'Courtyard Venue', sub: 'Heritage House · 台南老街', featured: true, cta: '#' },
-                    { img: 'https://images.pexels.com/photos/35018683/pexels-photo-35018683.jpeg', name: '漆器與囍字擺設', label: 'Details' },
-                    { img: 'https://images.pexels.com/photos/4066903/pexels-photo-4066903.jpeg', name: '紅木圓桌宴席', label: 'Banquet' },
+                    { img: 'https://i.pinimg.com/1200x/8c/55/bb/8c55bb8a41d48e90ef1144f48bc9dfc4.jpg', name: '傳統紅瓦院落迎娶', label: 'Courtyard Venue', sub: 'Heritage House · 台南老街', featured: true },
+                    { img: 'https://images.unsplash.com/photo-1596744744264-55be293ecf3b?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', name: '中式紅袍交杯喜茶', label: 'Details' },
+                    { img: 'https://images.unsplash.com/photo-1767603086212-411f195c63cd?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', name: '復古綠錦袍老街漫步', label: 'Banquet' },
+                    { img: 'https://i.pinimg.com/1200x/89/56/46/895646f7898c63258149f15bfe12c763.jpg', name: '經典雙囍高堂佈置', label: 'Aesthetics' }
+                ],
+                extra: [
+                    { img: 'https://images.pexels.com/photos/13111964/pexels-photo-13111964.jpeg', name: '老街紅燈籠浪漫相擁', label: 'Bridal', portrait: true },
+                    { img: 'https://i.pinimg.com/1200x/81/a5/26/81a5260668e35f8b062d4c46860f4035.jpg', name: '東方紅華麗宴席佈置', label: 'Tea Ceremony' },
+                    { img: 'https://i.pinimg.com/1200x/1c/b0/35/1cb035483149d00671850fd234a6861c.jpg', name: '廟宇古蹟龍鳳褂大片', label: 'Decor', portrait: true },
+                    { img: 'https://i.pinimg.com/1200x/79/cb/5a/79cb5a939284f856074eac7babe0a067.jpg', name: '立體紅玫瑰雙囍佈景', label: 'Lighting' },
+                    { img: 'https://i.pinimg.com/736x/9d/64/f3/9d64f3b793f9a519c4050fdaa3c7e34e.jpg', name: '木雕屏風雙囍合影', label: 'Calligraphy', portrait: true },
+                    { img: 'https://i.pinimg.com/1200x/03/3f/08/033f083abbc33b452887d4aa15346dbd.jpg', name: '新中式圓滿花藝佈景', label: 'Ceramics' },
+                    { img: 'https://i.pinimg.com/1200x/71/e1/d8/71e1d8f1946e6a49bc18db53479f7fc0.jpg', name: '現代中式迎賓區合影', label: 'Florals', portrait: true },
+                    { img: 'https://i.pinimg.com/736x/98/37/ae/9837ae033a6e8b4cc1c4bf47117b5fa2.jpg', name: '現代中式紅艷圓桌宴', label: 'Banquet' },
                 ]
             },
             {
-                id: 'minimal',
-                label: '極簡現代',
+                id: 'minimal', label: '極簡現代',
                 eyebrow: 'Minimal · Modern · Editorial',
                 desc: 'Less is more<br>讓空間本身成為最有力量的表達',
                 mosaic: 'mosaic-minimal',
+                extraClass: 'extra-minimal',
                 tiles: [
-                    { img: 'https://i.pinimg.com/736x/ba/f7/25/baf7250521d4efbfbd026bfcb4fe6687.jpg?auto=compress&w=400', name: '建築感白盒子婚宴', label: 'Featured Venue', sub: 'White Box Studio · 台北信義', featured: true, cta: '#' },
-                    { img: 'https://i.pinimg.com/1200x/f9/25/e4/f925e4909141a75c2d372d52503e1135.jpg?auto=compress&w=400', name: '單支芒草桌花', label: 'Tablescape' },
-                    { img: 'https://i.pinimg.com/736x/34/0b/e8/340be80d146a6c5a18de0bbe20116d76.jpg?auto=compress&w=400', name: '俐落婚紗輪廓', label: 'Bridal' },
+                    { img: 'https://i.pinimg.com/1200x/ba/f7/25/baf7250521d4efbfbd026bfcb4fe6687.jpg', name: '極簡純白空間漫步', label: 'Featured Venue', sub: 'White Box Studio · 台北信義', featured: true },
+                    { img: 'https://i.pinimg.com/736x/3d/09/9b/3d099b80c595d2ce84797b9a451a00e5.jpg', name: '極簡俐落黑白造型', label: 'Tablescape' },
+                    { img: 'https://i.pinimg.com/736x/e8/03/fd/e803fd01c4447f93476df951fde67d16.jpg', name: '黑金鏡面質感迎賓桌', label: 'Bridal' },
+                ],
+                extra: [
+                    { img: 'https://i.pinimg.com/1200x/bd/22/39/bd2239f534cbb650f8ef8894ead9bc56.jpg', name: '水晶與純白花海長廊', label: 'Concrete Space' },
+                    { img: 'https://i.pinimg.com/736x/68/0a/bd/680abd97b3f79a1a0b581684d8f36f2c.jpg', name: '拍立得極簡簽到桌', label: 'Place Card' },
+                    { img: 'https://i.pinimg.com/1200x/be/d4/e0/bed4e0b1c094e58bad287331b5df436d.jpg', name: '純白花藝背景隨性合影', label: 'Stationery' },
+                    { img: 'https://i.pinimg.com/736x/0b/77/93/0b77934180c8641e9d81bba701a6db56.jpg', name: '復古金屬相框展示桌', label: 'Arch' },
+                    { img: 'https://i.pinimg.com/736x/d4/6e/86/d46e869469363e0788565bafef552f70.jpg', name: '現代黑底星芒背景', label: 'Portrait' },
                 ]
             },
             {
-                id: 'exotic',
-                label: '異國風情',
+                id: 'exotic', label: '異國風情',
                 eyebrow: 'Tropical · Island · Destination',
                 desc: 'Escape to paradise<br>讓海島成為你們愛情故事的舞台',
                 mosaic: 'mosaic-exotic',
+                extraClass: 'extra-exotic',
                 tiles: [
-                    { img: 'https://i.pinimg.com/1200x/62/2f/7f/622f7f69ee397e920ef6ced2057f1c0d.jpg?auto=compress&w=400', name: '夏威夷海灘婚禮儀式', label: 'Featured Venue', sub: 'Beachfront Ceremony · Hawaii', featured: true, cta: '#' },
-                    { img: 'https://i.pinimg.com/736x/f9/b2/a0/f9b2a058c80fa563dde16258503f1a7e.jpg?auto=compress&w=400', name: '歐式儀式婚禮', label: 'Reception' },
-                    { img: 'https://i.pinimg.com/1200x/1a/c8/26/1ac82637cfb361647fd75fb14739ead5.jpg?auto=compress&w=400', name: '熱帶花卉拱門', label: 'Ceremony' },
-                    { img: 'https://i.pinimg.com/1200x/69/43/2e/69432ecc602eb066d34e7ece8a605ec8.jpg?auto=compress&w=400', name: 'Bali 島嶼婚禮佈置', label: 'Florals' },
-                    { img: 'https://i.pinimg.com/1200x/15/52/21/155221e08b284b2fd16ed51cf4cc3794.jpg?auto=compress&w=400', name: '馬爾地夫水上婚禮', label: 'Destination' },
+                    { img: 'https://i.pinimg.com/1200x/87/44/86/8744863275ad6f0eecad09ed11b8a9f7.jpg', name: '絕美沙灘飄紗擁吻', label: 'Featured Venue', sub: 'Beachfront Ceremony · Hawaii', featured: true },
+                    { img: 'https://i.pinimg.com/736x/f9/b2/a0/f9b2a058c80fa563dde16258503f1a7e.jpg', name: '海崖純白花環證婚', label: 'Reception' },
+                    { img: 'https://i.pinimg.com/1200x/1a/c8/26/1ac82637cfb361647fd75fb14739ead5.jpg?auto=compress&w=400', name: '海島懸崖粉白花拱門', label: 'Ceremony' },
+                    { img: 'https://i.pinimg.com/1200x/69/43/2e/69432ecc602eb066d34e7ece8a605ec8.jpg', name: '壯闊海景戶外證婚區', label: 'Florals' },
+                    { img: 'https://i.pinimg.com/1200x/15/52/21/155221e08b284b2fd16ed51cf4cc3794.jpg', name: '純白巨型花樹海景儀式', label: 'Destination' },
+                ],
+                extra: [
+                    { img: 'https://i.pinimg.com/1200x/62/2f/7f/622f7f69ee397e920ef6ced2057f1c0d.jpg', name: '沙灘心型花環與煙火', label: 'Venue' },
+                    { img: 'https://i.pinimg.com/1200x/f3/78/90/f37890564f86c1b91abfcc0715cc3966.jpg', name: '唯美落日沙灘漫步', label: 'Portrait' },
+                    { img: 'https://i.pinimg.com/1200x/94/86/e7/9486e7f53183ef03cb09db58f9f91490.jpg', name: '無邊際鏡面海景證婚', label: 'Bouquet' },
+                    { img: 'https://i.pinimg.com/1200x/09/3d/48/093d484f6ce3f803a36e7d3b0deef147.jpg', name: '海上透明浮台證婚區', label: 'Pool Venue' },
+                    { img: 'https://i.pinimg.com/1200x/32/5d/c8/325dc833c3ca935aab66ae109cc88d35.jpg', name: '純白露台海景擁吻', label: 'Table' },
+                    { img: 'https://i.pinimg.com/736x/e3/9c/87/e39c877d613526f64122507b17120318.jpg', name: '聖托里尼懸崖海景晚宴', label: 'Overwater' },
                 ]
             },
         ];
 
-        function renderTile(tile, galleryId, idx) {
-            const featuredCorner = tile.featured ? '<div class="tile-accent-corner"></div>' : '';
-            const ctaBtn = tile.featured && tile.cta
-                ? `<a class="tile-cta" href="${tile.cta}">探索場地</a>` : '';
-            const subLine = tile.sub ? `<span class="tile-sub">${tile.sub}</span>` : '';
-            const nameClass = tile.featured ? 'tile-name' : 'tile-name tile-name-small';
-
-            return /*html*/`
-        <div class="tile" data-lb="${galleryId}" data-idx="${idx}" data-name="${tile.name}" data-label="${tile.label}">
+        /* ── helpers ── */
+        function tileHTML(tile, gId, idx) {
+            return `
+        <div class="tile" data-lb="${gId}" data-idx="${idx}" data-name="${tile.name}" data-label="${tile.label}">
             <img src="${tile.img}" alt="${tile.name}" loading="lazy">
-            ${featuredCorner}
+            ${tile.featured ? '<div class="tile-accent-corner"></div>' : ''}
             <div class="tile-zoom"><span class="material-symbols-outlined">zoom_in</span></div>
             <div class="tile-overlay">
                 <span class="tile-label">${tile.label}</span>
-                <p class="${nameClass}">${tile.name}</p>
-                ${subLine}
-                ${ctaBtn}
+                <p class="tile-name${tile.featured ? '' : ' tile-name-small'}">${tile.name}</p>
+                ${tile.sub ? `<span class="tile-sub">${tile.sub}</span>` : ''}
             </div>
         </div>`;
         }
 
-        function renderTextPanel(panel) {
-            return /*html*/`
-        <div class="tile tile-text-panel tile-text">
-            <div class="panel-gold-line"></div>
-            <p class="panel-quote">${panel.quote}</p>
-            <span class="panel-en">${panel.en}</span>
+        function extraTileHTML(tile, gId, idx, startIdx) {
+            return `
+        <div class="tile" data-lb="${gId}" data-idx="${startIdx + idx}" data-name="${tile.name}" data-label="${tile.label}">
+            <img src="${tile.img}" alt="${tile.name}" loading="lazy">
+            <div class="tile-zoom"><span class="material-symbols-outlined">zoom_in</span></div>
+            <div class="tile-overlay">
+                <span class="tile-label">${tile.label}</span>
+                <p class="tile-name tile-name-small">${tile.name}</p>
+            </div>
         </div>`;
         }
 
-        function renderMosaic(theme) {
-            let tilesHTML = '';
-            theme.tiles.forEach((tile, idx) => {
-                tilesHTML += renderTile(tile, theme.id, idx);
-                if (theme.textPanel && idx === theme.textPanel.after - 1) {
-                    tilesHTML += renderTextPanel(theme.textPanel);
-                }
-            });
-            return `<div class="${theme.mosaic}">${tilesHTML}</div>`;
-        }
+        function renderSection(t) {
+            let primaryHTML = t.tiles.map((tile, i) => tileHTML(tile, t.id, i)).join('');
+            let extraHTML = t.extra.map((tile, i) => extraTileHTML(tile, t.id, i, t.tiles.length)).join('');
 
-        function renderThemeSection(theme) {
-            return /*html*/`
-        <section class="theme-section active" id="sec-${theme.id}">
+            return `
+        <section class="theme-section" id="sec-${t.id}">
             <div class="section-header">
                 <div>
-                    <span class="section-eyebrow">${theme.eyebrow}</span>
-                    <h2 class="section-title">${theme.label}</h2>
+                    <span class="section-eyebrow">${t.eyebrow}</span>
+                    <h2 class="section-title">${t.label}</h2>
                 </div>
-                <p class="section-desc">${theme.desc}</p>
+                <div>
+                    <p class="section-desc">${t.desc}</p>
+                    <p class="section-hint">— 點擊圖片可滑動瀏覽 —</p>
+                </div>
             </div>
-            ${renderMosaic(theme)}
+            
+            <div class="${t.mosaic}">${primaryHTML}</div>
+            
+            <div style="height: 7px;"></div>
+ 
+            <div class="${t.extraClass}">${extraHTML}</div>
         </section>`;
         }
 
         function renderAll() {
-            const navInner = document.getElementById('themeNavInner');
-            const themesWrap = document.getElementById('themesWrap');
-
-            navInner.innerHTML = THEMES.map((t, i) =>
+            const nav = document.getElementById('themeNavInner');
+            nav.innerHTML = THEMES.map((t, i) =>
                 (i > 0 ? '<div class="theme-pill-divider"></div>' : '') +
-                `<button class="theme-pill" data-target="${t.id}">${t.label}</button>`
+                `<button class="theme-pill${i === 0 ? ' active' : ''}" data-target="${t.id}">${t.label}</button>`
             ).join('');
 
-            themesWrap.innerHTML = THEMES.map(renderThemeSection).join('');
-            document.querySelectorAll('.theme-section').forEach(s => s.classList.remove('active'));
-            document.getElementById('sec-forest').classList.add('active');
-            document.querySelector('[data-target="forest"]').classList.add('active');
+            const wrap = document.getElementById('themesWrap');
+            wrap.innerHTML = THEMES.map(renderSection).join('');
+            document.getElementById('sec-' + THEMES[0].id).classList.add('active');
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderAll();
+        /* ── lightbox ── */
+        const overlay = document.getElementById('lbOverlay');
+        const lbImg = document.getElementById('lbImg');
+        const lbName = document.getElementById('lbName');
+        const lbLabel = document.getElementById('lbLabel');
+        const lbDots = document.getElementById('lbDots');
+        const lbCounter = document.getElementById('lbCounter');
+        let galleries = {}, curG = null, curI = 0;
 
-            const navbar = document.querySelector('.navbar');
-            let lastST = 0;
-
-            window.addEventListener('scroll', () => {
-                const st = window.pageYOffset;
-                if (Math.abs(lastST - st) <= 8) return;
-                const hiding = st > lastST && st > 80;
-                navbar.classList.toggle('nav-hidden', hiding);
-                lastST = st;
-            });
-
-            document.addEventListener('mousemove', e => {
-                if (e.clientY < 50) { navbar.classList.remove('nav-hidden'); }
-            });
-
-            function getPills() { return document.querySelectorAll('.theme-pill'); }
-            function getSectionEl(id) { return document.getElementById('sec-' + id); }
-
-            function showTheme(target) {
-                getPills().forEach(p => p.classList.toggle('active', p.dataset.target === target));
-                THEMES.forEach(t => {
-                    const el = getSectionEl(t.id);
-                    if (el) el.classList.toggle('active', target === 'all' || t.id === target);
-                });
-                document.querySelectorAll('.tile,.detail-card').forEach(el => el.classList.remove('vis'));
-                setTimeout(triggerAnim, 80);
-            }
-
-            document.getElementById('themeNavInner').addEventListener('click', e => {
-                const pill = e.target.closest('.theme-pill');
-                if (pill) showTheme(pill.dataset.target);
-            });
-
-            /* ── Lightbox ── */
-            const overlay = document.getElementById('lbOverlay');
-            const lbImg = document.getElementById('lbImg');
-            const lbName = document.getElementById('lbName');
-            const lbLabel = document.getElementById('lbLabel');
-            const lbDots = document.getElementById('lbDots');
-            const lbCounter = document.getElementById('lbCounter');
-
-            const galleries = {};
+        function buildGalleries() {
+            galleries = {};
             document.querySelectorAll('.tile[data-lb]').forEach(tile => {
                 const g = tile.dataset.lb;
                 if (!galleries[g]) galleries[g] = [];
@@ -1224,71 +1353,81 @@
                     label: tile.dataset.label || ''
                 };
             });
+        }
 
-            let curG = null, curI = 0;
+        function openLb(g, i) { curG = g; curI = i; renderLb(); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+        function closeLb() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+        function navLb(d) { curI = (curI + d + galleries[curG].length) % galleries[curG].length; renderLb(); }
 
-            function openLb(g, i) { curG = g; curI = i; renderLb(); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
-            function closeLb() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+        function renderLb() {
+            const item = galleries[curG][curI];
+            lbImg.classList.add('fade');
+            setTimeout(() => { lbImg.src = item.src; lbName.textContent = item.name; lbLabel.textContent = item.label; lbCounter.textContent = String(curI + 1).padStart(2, '0') + ' / ' + String(galleries[curG].length).padStart(2, '0'); lbImg.classList.remove('fade'); }, 200);
+            lbDots.innerHTML = '';
+            galleries[curG].forEach((_, i) => { const d = document.createElement('div'); d.className = 'lb-dot' + (i === curI ? ' active' : ''); d.addEventListener('click', () => { curI = i; renderLb(); }); lbDots.appendChild(d); });
+        }
 
-            function renderLb() {
-                const item = galleries[curG][curI];
-                lbImg.classList.add('fade');
-                setTimeout(() => {
-                    lbImg.src = item.src;
-                    lbName.textContent = item.name;
-                    lbLabel.textContent = item.label;
-                    lbCounter.textContent = String(curI + 1).padStart(2, '0') + ' / ' + String(galleries[curG].length).padStart(2, '0');
-                    lbImg.classList.remove('fade');
-                }, 200);
-                lbDots.innerHTML = '';
-                galleries[curG].forEach((_, i) => {
-                    const d = document.createElement('div');
-                    d.className = 'lb-dot' + (i === curI ? ' active' : '');
-                    d.addEventListener('click', () => { curI = i; renderLb(); });
-                    lbDots.appendChild(d);
-                });
-            }
+        document.getElementById('lbPrev').addEventListener('click', e => { e.stopPropagation(); navLb(-1); });
+        document.getElementById('lbNext').addEventListener('click', e => { e.stopPropagation(); navLb(1); });
+        document.getElementById('lbClose').addEventListener('click', closeLb);
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeLb(); });
+        document.addEventListener('keydown', e => {
+            if (!overlay.classList.contains('open')) return;
+            if (e.key === 'ArrowLeft') navLb(-1); if (e.key === 'ArrowRight') navLb(1); if (e.key === 'Escape') closeLb();
+        });
+        let lbTX = null;
+        overlay.addEventListener('touchstart', e => { lbTX = e.touches[0].clientX; }, { passive: true });
+        overlay.addEventListener('touchend', e => { if (lbTX === null) return; const dx = e.changedTouches[0].clientX - lbTX; if (Math.abs(dx) > 40) navLb(dx < 0 ? 1 : -1); lbTX = null; });
 
-            function navLb(dir) { curI = (curI + dir + galleries[curG].length) % galleries[curG].length; renderLb(); }
+        document.getElementById('themesWrap').addEventListener('click', e => {
+            const tile = e.target.closest('.tile[data-lb]');
+            if (!tile) return;
+            openLb(tile.dataset.lb, parseInt(tile.dataset.idx));
+        });
 
-            document.getElementById('lbPrev').addEventListener('click', e => { e.stopPropagation(); navLb(-1); });
-            document.getElementById('lbNext').addEventListener('click', e => { e.stopPropagation(); navLb(1); });
-            document.getElementById('lbClose').addEventListener('click', closeLb);
-            overlay.addEventListener('click', e => { if (e.target === overlay) closeLb(); });
-            document.addEventListener('keydown', e => {
-                if (!overlay.classList.contains('open')) return;
-                if (e.key === 'ArrowLeft') navLb(-1);
-                if (e.key === 'ArrowRight') navLb(1);
-                if (e.key === 'Escape') closeLb();
+        /* ── animation ── */
+        function triggerAnim() {
+            const obs = new IntersectionObserver(entries => {
+                entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('vis'), i * 55); obs.unobserve(e.target); } });
+            }, { threshold: 0.06 });
+            document.querySelectorAll('.tile:not(.vis)').forEach(el => obs.observe(el));
+        }
+
+        /* ── nav & theme switch ── */
+        function showTheme(target) {
+            document.querySelectorAll('.theme-pill').forEach(p => p.classList.toggle('active', p.dataset.target === target));
+            THEMES.forEach(t => {
+                const el = document.getElementById('sec-' + t.id);
+                if (el) el.classList.toggle('active', t.id === target);
             });
+            document.querySelectorAll('.tile').forEach(el => el.classList.remove('vis'));
+            buildGalleries();
+            setTimeout(triggerAnim, 80);
+        }
 
-            let lbTX = null;
-            overlay.addEventListener('touchstart', e => { lbTX = e.touches[0].clientX; }, { passive: true });
-            overlay.addEventListener('touchend', e => {
-                if (lbTX === null) return;
-                const dx = e.changedTouches[0].clientX - lbTX;
-                if (Math.abs(dx) > 40) navLb(dx < 0 ? 1 : -1);
-                lbTX = null;
-            });
-
-            document.getElementById('themesWrap').addEventListener('click', e => {
-                const tile = e.target.closest('.tile[data-lb]');
-                if (!tile || e.target.closest('.tile-cta')) return;
-                openLb(tile.dataset.lb, parseInt(tile.dataset.idx));
-            });
-
-            function triggerAnim() {
-                const obs = new IntersectionObserver(entries => {
-                    entries.forEach((e, i) => {
-                        if (e.isIntersecting) {
-                            setTimeout(() => e.target.classList.add('vis'), i * 60);
-                            obs.unobserve(e.target);
-                        }
-                    });
-                }, { threshold: 0.08 });
-                document.querySelectorAll('.tile:not(.vis),.detail-card:not(.vis)').forEach(el => obs.observe(el));
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+            buildGalleries();
             triggerAnim();
+
+            document.getElementById('themeNavInner').addEventListener('click', e => {
+                const pill = e.target.closest('.theme-pill');
+                if (pill) showTheme(pill.dataset.target);
+            });
+
+            /* navbar hide on scroll */
+            const navbar = document.getElementById('mainNav');
+            let lastST = 0;
+            window.addEventListener('scroll', () => {
+                const st = window.pageYOffset;
+                if (Math.abs(lastST - st) <= 8) return;
+                navbar.classList.toggle('nav-hidden', st > lastST && st > 80);
+                lastST = st;
+                const btn = document.getElementById('backToTop');
+                btn.classList.toggle('show', st > 400);
+            });
+            document.addEventListener('mousemove', e => { if (e.clientY < 50) navbar.classList.remove('nav-hidden'); });
+            document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         });
     </script>
 </body>

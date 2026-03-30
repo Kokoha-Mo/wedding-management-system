@@ -93,6 +93,7 @@ public class SecurityConfig {
                                 .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/manager/**").hasRole("MANAGER")
+                                                .requestMatchers("/api/system/patrol/execute").permitAll() // 允許系統排程器直接打API
                                                 .requestMatchers("/api/customer/forgot-password").permitAll() // 忘記密碼/重設密碼都用他
                                                 .requestMatchers("/api/customer/login").permitAll() // 開放客戶登入 API
                                                 .requestMatchers("/api/customer/verify-reset-token").permitAll()

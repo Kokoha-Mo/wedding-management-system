@@ -1,8 +1,12 @@
 /**
- * 功能：同步電腦/手機導覽列、處理 JWT 與 記住帳號
+ * 功能：同步電腦/手機導覽列、處理 JWT 與 記住帳號、全域忘記密碼倒數
  */
 
 const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 小時過期跟jwt和cookie期限一樣
+
+// 🌟 新增：全域變數來追蹤倒數狀態 (放在最外面，關閉彈窗才不會消失)
+let g_forgotSeconds = 0;
+let g_forgotTimer = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   checkAuthStatus();
@@ -21,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+  setTimeout(() => window.scrollTo(0, 0), 0);
 });
 
 
@@ -134,7 +139,6 @@ function showAccountDisabledModal(message, redirectUrl) {
 }
 
 /* UI：同步更新電腦與手機的導覽列 */
-// 新增 hasProject 參數，預設為 null
 function syncNavbarUI(isLoggedIn, username = "", hasProject = null) {
   const deskLogin = document.getElementById('loginLinkDesktop');
   const deskUserWrap = document.getElementById('userDropdownWrap');
@@ -144,13 +148,11 @@ function syncNavbarUI(isLoggedIn, username = "", hasProject = null) {
   const mobWelcome = document.getElementById('mobileWelcome');
   const mobLogout = document.getElementById('logoutBtnMobile');
 
-  // 1. 抓取桌機版與手機版的兩個選單按鈕
   const deskPlanLink = document.querySelector('#userDropdownWrap a[href="./customer_system.html"]');
   const deskProgressLink = document.querySelector('#userDropdownWrap a[href="./customer_progress.html"]');
   const mobPlanLink = document.querySelector('#mobileUserMenu a[href="./customer_system.html"]');
   const mobProgressLink = document.querySelector('#mobileUserMenu a[href="./customer_progress.html"]');
 
-  // 2. 決定專案狀態：如果有傳入就用傳入的，沒有的話去 localStorage 抓 (確保重新整理不會錯亂)
   const isProjectExists = hasProject !== null ? hasProject : (localStorage.getItem('dv_has_project') === 'true');
 
   if (isLoggedIn) {
@@ -162,22 +164,17 @@ function syncNavbarUI(isLoggedIn, username = "", hasProject = null) {
     if (mobWelcome) mobWelcome.textContent = `歡迎, ${username}`;
     if (mobLogout) mobLogout.style.display = 'block';
 
-    // 3. 核心邏輯：根據 isProjectExists 來控制顯示哪一個選單
     if (isProjectExists) {
-      // 【已有專案】：顯示「我的籌備進度」，隱藏「我的婚禮規劃」
-      // 桌機版因為是 <li> 裡面包 <a>，所以我們隱藏外層的 <li> 避免留空隙 (.parentElement)
       if (deskPlanLink) deskPlanLink.parentElement.style.display = 'none';
       if (deskProgressLink) deskProgressLink.parentElement.style.display = 'block';
       if (mobPlanLink) mobPlanLink.style.display = 'none';
       if (mobProgressLink) mobProgressLink.style.display = 'block';
     } else {
-      // 【尚無專案】：顯示「我的婚禮規劃」，隱藏「我的籌備進度」
       if (deskPlanLink) deskPlanLink.parentElement.style.display = 'block';
       if (deskProgressLink) deskProgressLink.parentElement.style.display = 'none';
       if (mobPlanLink) mobPlanLink.style.display = 'block';
       if (mobProgressLink) mobProgressLink.style.display = 'none';
     }
-
   } else {
     if (deskLogin) deskLogin.style.display = 'block';
     if (mobLogin) mobLogin.style.display = 'block';
@@ -187,7 +184,7 @@ function syncNavbarUI(isLoggedIn, username = "", hasProject = null) {
   }
 }
 
-/* 登入執行 (包含首次強制修改密碼邏輯) */
+/* 登入執行 */
 async function performLoginAction() {
   const email = document.getElementById('loginName')?.value.trim();
   const pass = document.getElementById('passwordInput')?.value.trim();
@@ -196,47 +193,37 @@ async function performLoginAction() {
   if (!email || !pass) return showStyledAlertModal('請完整填寫電子郵件與密碼');
 
   try {
-    // 1. POST 請求給後端
     const response = await fetch('/api/customer/login', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({
-        email: email,
-        password: pass
-      })
+      body: JSON.stringify({ email: email, password: pass })
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      showStyledAlertModal(errorData.message || '登入失敗，請檢查帳號密碼');
+      try {
+        const errorData = await response.json();
+        showStyledAlertModal(errorData.message || '登入失敗，請檢查帳號密碼');
+      } catch {
+        showStyledAlertModal('系統連線異常，請稍後再試');
+      }
       return;
     }
-
     const data = await response.json();
-
-    // 正常登入
     completeLoginProcess(data, email, rememberMe);
 
   } catch (error) {
     console.error('登入發生錯誤:', error);
-    showStyledAlertModal('伺服器連線失敗，請稍後再試');
+    showStyledAlertModal('系統連線異常，請稍後再試');
   }
 }
 
-/* 登入成功的共用流程 (寫入 Storage、顯示成功畫面、跳轉) */
 function completeLoginProcess(data, email, rememberMe) {
   localStorage.setItem('dv_username', data.name || data.email);
   localStorage.setItem('dv_login_time', Date.now());
-
-  // 登入成功時，立刻把專案狀態存起來
   localStorage.setItem('dv_has_project', data.hasProject === true);
 
-  if (data.customerId) {
-    localStorage.setItem('dv_customer_id', data.customerId);
-  }
+  if (data.customerId) localStorage.setItem('dv_customer_id', data.customerId);
 
   if (rememberMe) {
     localStorage.setItem('dv_remember_email', email);
@@ -245,12 +232,9 @@ function completeLoginProcess(data, email, rememberMe) {
   }
 
   showSuccessModal(data.name || data.email);
-  setTimeout(() => {
-    window.location.href = './index.html';
-  }, 1800);
+  setTimeout(() => { window.location.href = './index.html'; }, 1800);
 }
 
-/* 顯示登入成功轉場彈窗 */
 function showSuccessModal(username) {
   const overlay = createSharedModal({
     id: 'dvSuccessTransOverlay',
@@ -262,16 +246,11 @@ function showSuccessModal(username) {
     buttonText: '前往首頁探索',
     buttonId: 'dvsGoBtn'
   });
-
-  // 把按鈕改成不顯眼的外觀，並加上跳轉事件
   const btn = overlay.querySelector('#dvsGoBtn');
   btn.style.background = 'transparent';
   btn.style.color = '#7A6F66';
   btn.style.borderColor = 'rgba(197,160,89,0.3)';
-
-  btn.addEventListener('click', () => {
-    window.location.href = './index.html';
-  });
+  btn.addEventListener('click', () => { window.location.href = './index.html'; });
 }
 
 /* 登出處理 */
@@ -282,121 +261,61 @@ function handleLogout(e) {
 
 async function forceLogout() {
   try {
-    await fetch('/api/customer/logout', {
-      method: 'POST',
-      credentials: 'include'
-    });
-  } catch (e) {
-    // 網路失敗，前端仍繼續清除本地
-  }
+    await fetch('/api/customer/logout', { method: 'POST', credentials: 'include' });
+  } catch (e) { }
 
-  localStorage.removeItem('dv_token');
   localStorage.removeItem('dv_username');
   localStorage.removeItem('dv_login_time');
   localStorage.removeItem('dv_customer_id');
+  localStorage.removeItem('dv_has_project');
   sessionStorage.clear();
   showStyledAlertModal('您已成功登出');
-  setTimeout(() => {
-    window.location.href = './index.html';
-  }, 1500);
+  setTimeout(() => { window.location.href = './index.html'; }, 1500);
 }
 
 /* 共用彈窗產生器 */
 function createSharedModal(options) {
-  const {
-    id,
-    icon = 'info',
-    iconColor = '#C5A059',
-    eyebrow = 'System Message',
-    title = '系統提示',
-    message = '',
-    buttonText = '確定',
-    buttonId = 'dvModalOkBtn',
-    countdownSecs = null
-  } = options;
-
+  const { id, icon = 'info', iconColor = '#C5A059', eyebrow = 'System Message', title = '系統提示', message = '', buttonText = '確定', buttonId = 'dvModalOkBtn', countdownSecs = null } = options;
   const overlay = document.createElement('div');
   overlay.id = id;
   overlay.className = 'dv-modal-overlay';
+  let countdownHtml = countdownSecs !== null ? `<p class="dv-modal-countdown">將於 <strong>${countdownSecs}</strong> 秒後自動跳轉</p>` : '';
 
-  let countdownHtml = '';
-  if (countdownSecs !== null) {
-    countdownHtml = `<p class="dv-modal-countdown">將於 <strong>${countdownSecs}</strong> 秒後自動跳轉</p>`;
-  }
-
-  overlay.innerHTML = /*HTML*/`
+  overlay.innerHTML = `
     <div class="dv-modal-box">
-      <div class="dvd-corner-tr"></div>
-      <div class="dvd-corner-bl"></div>
-
+      <div class="dvd-corner-tr"></div><div class="dvd-corner-bl"></div>
       <div class="dv-modal-icon-wrap">
-        <span class="material-symbols-outlined"
-          style="font-size:28px; color:${iconColor};
-                 font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 24;">
-          ${icon}
-        </span>
+        <span class="material-symbols-outlined" style="font-size:28px; color:${iconColor};">${icon}</span>
       </div>
-
       <span class="dv-modal-eyebrow">${eyebrow}</span>
       <h2 class="dv-modal-title">${title}</h2>
-
       <div class="dv-modal-divider"><div class="dv-modal-dot"></div></div>
-
       <p class="dv-modal-msg">${message}</p>
-
-      <button class="dv-modal-btn" id="${buttonId}">
-        <span>${buttonText}</span>
-      </button>
+      <button class="dv-modal-btn" id="${buttonId}"><span>${buttonText}</span></button>
       ${countdownHtml}
     </div>
   `;
-
   document.body.appendChild(overlay);
   return overlay;
 }
 
-/* 顯示可共用的樣式化警告彈窗 */
 function showStyledAlertModal(message) {
-  if (document.getElementById('dvAlertOverlay')) {
-    document.getElementById('dvAlertOverlay').remove();
-  }
-
+  if (document.getElementById('dvAlertOverlay')) document.getElementById('dvAlertOverlay').remove();
   const overlay = createSharedModal({
-    id: 'dvAlertOverlay',
-    icon: 'info',
-    iconColor: '#C5A059',
-    eyebrow: 'System Message',
-    title: '系統提示',
-    message: message,
-    buttonText: '確定',
-    buttonId: 'dvAlertOkBtn'
+    id: 'dvAlertOverlay', icon: 'info', iconColor: '#C5A059', eyebrow: 'System Message', title: '系統提示', message: message, buttonText: '確定', buttonId: 'dvAlertOkBtn'
   });
-
-  overlay.querySelector('#dvAlertOkBtn').addEventListener('click', () => {
-    overlay.remove();
-  });
+  overlay.querySelector('#dvAlertOkBtn').addEventListener('click', () => { overlay.remove(); });
 }
 
-/* 初始化：記住帳號、綁定按鈕與 Enter */
 function initLoginFeatures() {
   const savedEmail = localStorage.getItem('dv_remember_email');
   const emailField = document.getElementById('loginName');
   if (savedEmail && emailField) emailField.value = savedEmail;
-
-  // 登入綁定
   document.getElementById('loginSubmitBtn')?.addEventListener('click', performLoginAction);
-  document.getElementById('passwordInput')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') performLoginAction();
-  });
-
-  // 忘記密碼按鈕綁定
-  document.getElementById('forgotBtn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    showForgotModal();
-  });
+  document.getElementById('passwordInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') performLoginAction(); });
+  document.getElementById('forgotBtn')?.addEventListener('click', (e) => { e.preventDefault(); showForgotModal(); });
 }
 
-/* 密碼眼睛切換 */
 function togglePassword(btn) {
   const input = document.getElementById('passwordInput');
   const icon = btn.querySelector('.material-symbols-outlined');
@@ -406,249 +325,70 @@ function togglePassword(btn) {
   icon.textContent = isPass ? 'visibility' : 'visibility_off';
 }
 
-
-/* 忘記密碼 Modal */
+/* 忘記密碼邏輯 - 整合全域倒數與一致彈窗樣式 */
 
 function showForgotModal() {
   if (document.getElementById('dvForgotOverlay')) {
     document.getElementById('dvForgotOverlay').style.display = 'flex';
-    document.getElementById('dvfViewForm').style.display = 'block';
-    document.getElementById('dvfViewSuccess').classList.remove('show');
-    document.getElementById('dvfAlert').classList.remove('show');
-    const emailInput = document.getElementById('dvfEmail');
-    if (emailInput) { emailInput.value = ''; emailInput.classList.remove('is-error'); }
-    setTimeout(() => document.getElementById('dvfEmail')?.focus(), 100);
+    updateForgotBtnUI(); // 打開時立即更新按鈕倒數狀態
     return;
   }
 
   const overlay = document.createElement('div');
   overlay.id = 'dvForgotOverlay';
-  overlay.innerHTML = /*html*/`
-    <style>
-      #dvForgotOverlay {
-        position: fixed; inset: 0; z-index: 9999;
-        background: rgba(0,0,0,0.52);
-        display: flex; align-items: center; justify-content: center;
-        padding: 24px; box-sizing: border-box;
-        animation: dvfFadeIn 0.2s ease;
-      }
-      @keyframes dvfFadeIn { from{opacity:0} to{opacity:1} }
+  overlay.className = 'dv-modal-overlay'; // 改用 global.css 的彈窗樣式
 
-      #dvForgotBox {
-        background: #ffffff;
-        border-radius: 4px;
-        box-shadow:
-          0 2px 4px rgba(0,0,0,0.03),
-          0 12px 40px rgba(0,0,0,0.06),
-          0 0 0 1px rgba(197,160,89,0.08);
-        width: 100%; max-width: 420px;
-        padding: 48px 44px 40px;
-        box-sizing: border-box;
-        animation: dvfSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
-      }
-      @keyframes dvfSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-
-      @media(max-width: 480px) {
-        #dvForgotBox { padding: 36px 28px 32px; }
-      }
-
-      .dvf-eyebrow {
-        display: block; text-align: center;
-        font-size: 9px; letter-spacing: 0.45em; text-transform: uppercase;
-        color: rgba(197,160,89,0.8); margin-bottom: 10px;
-        font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
-      }
-      .dvf-title {
-        font-family: 'Noto Serif TC', serif;
-        font-size: 24px; font-weight: 300; color: #2b2520;
-        text-align: center; letter-spacing: 0.06em; line-height: 1.4;
-        margin: 0 0 8px;
-      }
-      .dvf-sub {
-        font-size: 12px; color: #9c8e7f; letter-spacing: 0.12em;
-        text-align: center; line-height: 1.9; margin: 0 0 28px;
-        font-family: 'Noto Sans TC', sans-serif;
-      }
-      .dvf-divider { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
-      .dvf-divider::before, .dvf-divider::after {
-        content: ''; flex: 1; height: 1px; background: rgba(197,160,89,0.25);
-      }
-      .dvf-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(197,160,89,0.4); flex-shrink: 0; }
-
-      .dvf-alert {
-        display: none; align-items: flex-start; gap: 10px;
-        padding: 11px 14px; border-radius: 3px; margin-bottom: 16px;
-        font-size: 12px; letter-spacing: 0.1em; line-height: 1.8;
-        background: rgba(210,100,80,0.06); border: 1px solid rgba(210,100,80,0.2); color: #c45040;
-        font-family: 'Noto Sans TC', sans-serif;
-      }
-      .dvf-alert.show { display: flex; }
-      .dvf-alert .material-symbols-outlined { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-
-      .dvf-label {
-        font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
-        color: #8c7e6f; display: block; margin-bottom: 10px; font-weight: 500;
-        font-family: 'Noto Sans TC', sans-serif;
-      }
-
-      /* input wrap：背景色放在 wrap，不放在 input，避免蓋住 icon */
-      .dvf-input-wrap {
-        position: relative; margin-bottom: 20px;
-        background: #faf7f2;
-        border: 1px solid rgba(197,160,89,0.22); border-radius: 3px;
-        transition: border-color 0.3s, box-shadow 0.3s;
-      }
-      .dvf-input-wrap:focus-within {
-        border-color: rgba(197,160,89,0.6);
-        box-shadow: 0 0 0 3px rgba(197,160,89,0.08);
-        background: #ffffff;
-      }
-      .dvf-input-wrap.is-error {
-        border-color: rgba(210,100,80,0.5);
-        box-shadow: 0 0 0 3px rgba(210,100,80,0.06);
-      }
-      .dvf-input-wrap svg {
-        position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-        pointer-events: none; z-index: 0;
-      }
-      .dvf-input {
-        width: 100%; box-sizing: border-box;
-        background: transparent;
-        border: none; border-radius: 3px;
-        padding: 13px 16px 13px 42px;
-        font-size: 14px; color: #2b2520; letter-spacing: 0.06em;
-        font-family: 'Noto Sans TC', sans-serif;
-        outline: none;
-        position: relative; z-index: 1;
-      }
-      .dvf-input::placeholder { color: #c4b8ac; letter-spacing: 0.08em; }
-
-      .dvf-submit {
-        width: 100%; background: #2b2520; color: #fff;
-        border: none; border-radius: 3px;
-        padding: 15px; font-size: 11px; letter-spacing: 0.38em; text-transform: uppercase;
-        font-family: 'Noto Sans TC', sans-serif;
-        cursor: pointer;
-        transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-        position: relative; overflow: hidden;
-      }
-      .dvf-submit:hover {
-        background: #1a1410;
-        box-shadow: 0 8px 24px rgba(43,37,32,0.22);
-        transform: translateY(-1px);
-      }
-      .dvf-submit:active { transform: translateY(0); }
-
-      .dvf-cancel {
-        display: flex; align-items: center; justify-content: center; gap: 5px;
-        width: 100%; margin-top: 16px;
-        background: none; border: none;
-        font-size: 11px; letter-spacing: 0.25em; color: #9c8e7f;
-        cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
-        transition: color 0.25s;
-      }
-      .dvf-cancel:hover { color: #C5A059; }
-      .dvf-cancel .material-symbols-outlined { font-size: 14px; }
-
-      /* 成功畫面 */
-      #dvfViewSuccess { display: none; text-align: center; }
-      #dvfViewSuccess.show { display: block; }
-      .dvf-success-icon {
-        width: 56px; height: 56px; border-radius: 50%;
-        border: 1px solid rgba(197,160,89,0.3);
-        background: rgba(197,160,89,0.05);
-        display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 20px;
-      }
-      .dvf-success-title {
-        font-family: 'Noto Serif TC', serif;
-        font-size: 20px; font-weight: 300; color: #2b2520;
-        letter-spacing: 0.06em; margin-bottom: 10px;
-      }
-      .dvf-success-desc {
-        font-size: 12px; color: #9c8e7f;
-        letter-spacing: 0.12em; line-height: 2; margin: 0 0 28px;
-        font-family: 'Noto Sans TC', sans-serif;
-      }
-      .dvf-goto-login {
-        display: inline-flex; align-items: center; gap: 6px;
-        font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
-        color: #9c8e7f; background: none; border: none;
-        cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
-        transition: color 0.25s;
-      }
-      .dvf-goto-login:hover { color: #C5A059; }
-      .dvf-goto-login .material-symbols-outlined { font-size: 14px; }
-    </style>
-
-    <div id="dvForgotBox">
-
-      <!-- 表單畫面 -->
-      <div id="dvfViewForm">
-        <span class="dvf-eyebrow">Forgot Password</span>
-        <h2 class="dvf-title">忘記密碼？</h2>
-        <p class="dvf-sub">請輸入您預約時使用的電子郵件<br>我們將寄送重設連結給您</p>
-        <div class="dvf-divider"><div class="dvf-dot"></div></div>
-
-        <div class="dvf-alert" id="dvfAlert">
-          <span class="material-symbols-outlined">error_outline</span>
+  overlay.innerHTML = `
+    <div class="dv-modal-box">
+      <div class="dvd-corner-tr"></div><div class="dvd-corner-bl"></div>
+      <div class="dv-modal-icon-wrap">
+        <span class="material-symbols-outlined" style="font-size:28px; color:#C5A059;">lock_reset</span>
+      </div>
+      <span class="dv-modal-eyebrow">Forgot Password</span>
+      <h2 class="dv-modal-title">忘記密碼？</h2>
+      <div class="dv-modal-divider"><div class="dv-modal-dot"></div></div>
+      <p class="dv-modal-msg">請輸入您預約時使用的電子郵件<br>我們將寄送重設連結給您</p>
+      
+      <div id="dvfAlert" style="display:none; color:#c45040; font-size:12px; margin-bottom:15px; font-family:var(--font-sans);">
           <span id="dvfAlertMsg"></span>
-        </div>
-
-        <label class="dvf-label" for="dvfEmail">電子郵件</label>
-        <div class="dvf-input-wrap" id="dvfInputWrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="rgba(197,160,89,0.7)" stroke-width="1.6"
-            stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="4" width="20" height="16" rx="2"/>
-            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-          </svg>
-          <input class="dvf-input" type="email" id="dvfEmail" placeholder="example@email.com" />
-        </div>
-
-        <button class="dvf-submit" id="dvfSendBtn">傳送重設連結</button>
-        <button class="dvf-cancel" id="dvfCancelBtn">
-          <span class="material-symbols-outlined">arrow_back</span>
-          返回登入頁
-        </button>
       </div>
 
-      <!-- 成功畫面 -->
-      <div id="dvfViewSuccess">
-        <div class="dvf-success-icon">
-          <span class="material-symbols-outlined"
-            style="font-size:26px; color:#C5A059;
-                   font-variation-settings:'FILL' 0,'wght' 200,'GRAD' 0,'opsz' 24;">
-            mark_email_read
-          </span>
-        </div>
-        <p class="dvf-success-title">郵件已寄出</p>
-        <p class="dvf-success-desc">
-          若此信箱已完成預約，<br>重設連結將在幾分鐘內寄達。
-        </p>
-        <button class="dvf-goto-login" id="dvfCloseSuccessBtn">
-          <span class="material-symbols-outlined">arrow_back</span>
-          返回登入頁
-        </button>
+      <div style="margin-bottom: 20px; text-align: left;">
+          <input type="email" id="dvfEmail" placeholder="example@email.com" 
+              style="width:100%; padding:14px; border:1px solid rgba(197,160,89,0.22); background:#faf7f2; outline:none; border-radius:3px; font-family:var(--font-sans);">
       </div>
 
+<button id="dvfSendBtn" 
+    onmouseover="this.style.background='linear-gradient(135deg,#C5A059 0%,#A68648 100%)'; this.style.color='#fff'; this.style.borderColor='#C5A059';"
+    onmouseout="this.style.background='transparent'; this.style.color='#2D2520'; this.style.borderColor='rgba(197,160,89,0.6)';"
+    style="display:inline-block; width:100%; background:transparent; border:1px solid rgba(197,160,89,0.6); color:#2D2520; padding:0.9rem; font-size:12px; font-weight:500; letter-spacing:0.44em; text-transform:uppercase; font-family:var(--font-sans); cursor:pointer; outline:none; transition: color 0.3s, border-color 0.3s, background 0.3s;">
+    <span>傳送重設連結</span>
+</button>   
+      <button id="dvfCancelBtn" style="display:inline-block; width:100%; border:none; margin-top:10px; background:transparent; cursor:pointer; outline:none;">
+    <span style="letter-spacing:0.2em; color:#9c8e7f; font-size:11px; transition: color 0.3s, font-size 0.3s;">← 返回登入頁</span>
+</button>
     </div>
-    `;
+  `;
+
+  const cancelBtn = overlay.querySelector('#dvfCancelBtn');
+  cancelBtn.addEventListener('mouseover', () => {
+    const span = cancelBtn.querySelector('span');
+    span.style.color = '#C5A059';
+    span.style.fontSize = '12px';
+  });
+  cancelBtn.addEventListener('mouseout', () => {
+    const span = cancelBtn.querySelector('span');
+    span.style.color = '#9c8e7f';
+    span.style.fontSize = '11px';
+  });
 
   document.body.appendChild(overlay);
 
-  // 點擊遮罩關閉
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeForgotModal();
-  });
-
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeForgotModal(); });
   document.getElementById('dvfCancelBtn').addEventListener('click', closeForgotModal);
-  document.getElementById('dvfCloseSuccessBtn').addEventListener('click', closeForgotModal);
   document.getElementById('dvfSendBtn').addEventListener('click', submitForgotPassword);
-  document.getElementById('dvfEmail').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') submitForgotPassword();
-  });
 
+  updateForgotBtnUI();
   setTimeout(() => document.getElementById('dvfEmail')?.focus(), 100);
 }
 
@@ -657,41 +397,87 @@ function closeForgotModal() {
   if (overlay) overlay.style.display = 'none';
 }
 
+// 更新按鈕狀態
+function updateForgotBtnUI() {
+  const btn = document.getElementById('dvfSendBtn');
+  if (!btn) return;
+
+  if (g_forgotSeconds > 0) {
+    btn.disabled = true;
+    btn.querySelector('span').textContent = `請等待 ${g_forgotSeconds} 秒...`;
+    btn.style.opacity = "0.6";
+    btn.style.cursor = "not-allowed";
+  } else {
+    btn.disabled = false;
+    btn.querySelector('span').textContent = "傳送重設連結";
+    btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+  }
+}
+
+// 執行忘記密碼
 async function submitForgotPassword() {
   const email = document.getElementById('dvfEmail')?.value.trim();
   const alertEl = document.getElementById('dvfAlert');
   const alertMsg = document.getElementById('dvfAlertMsg');
-  const inputWrap = document.getElementById('dvfInputWrap');
-
-  alertEl.classList.remove('show');
-  inputWrap.classList.remove('is-error');
 
   if (!email || !email.includes('@')) {
+    alertEl.style.display = 'block';
     alertMsg.textContent = '請輸入有效的電子郵件格式';
-    alertEl.classList.add('show');
-    inputWrap.classList.add('is-error');
     return;
   }
 
-  const btn = document.getElementById('dvfSendBtn');
-  btn.disabled = true;
-  btn.textContent = '傳送中...';
+  // 按下後立即鎖住按鈕＋顯示載入中
+  const sendBtn = document.getElementById('dvfSendBtn');
+  sendBtn.disabled = true;
+  sendBtn.querySelector('span').textContent = '寄送中 . . .';
+  sendBtn.style.opacity = '0.7';
+  sendBtn.style.cursor = 'not-allowed';
 
   try {
-    await fetch('/api/customer/forgot-password', {
+    const response = await fetch('/api/customer/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
     });
-    // 不管後端回什麼，一律顯示成功（安全模糊化）
-    document.getElementById('dvfViewForm').style.display = 'none';
-    document.getElementById('dvfViewSuccess').classList.add('show');
+
+    closeForgotModal();
+
+    const successModal = createSharedModal({
+      id: 'dvfSuccessOverlay',
+      icon: 'mark_email_read',
+      title: '郵件已寄出',
+      message: '重設連結將在幾分鐘內寄達。<br>請檢查您的收件匣（包含垃圾郵件）。',
+      buttonText: '我知道了',
+      buttonId: 'dvfSuccessOkBtn'
+    });
+    successModal.querySelector('#dvfSuccessOkBtn').addEventListener('click', () => successModal.remove());
+
+    startGlobalForgotCountdown(60);
+
   } catch (err) {
-    console.error('忘記密碼發生錯誤:', err);
-    alertMsg.textContent = '系統連線失敗，請稍後再試';
-    alertEl.classList.add('show');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '傳送重設連結';
+    // 失敗時恢復按鈕
+    sendBtn.disabled = false;
+    sendBtn.querySelector('span').textContent = '傳送重設連結';
+    sendBtn.style.opacity = '1';
+    sendBtn.style.cursor = 'pointer';
+    showStyledAlertModal('伺服器連線失敗，請稍後再試');
   }
+}
+
+// 啟動倒數計時器
+function startGlobalForgotCountdown(seconds) {
+  if (g_forgotTimer) clearInterval(g_forgotTimer);
+  g_forgotSeconds = seconds;
+  updateForgotBtnUI();
+
+  g_forgotTimer = setInterval(() => {
+    g_forgotSeconds--;
+    updateForgotBtnUI(); // 每秒更新 UI（如果彈窗開著的話）
+
+    if (g_forgotSeconds <= 0) {
+      clearInterval(g_forgotTimer);
+      g_forgotTimer = null;
+    }
+  }, 1000);
 }

@@ -32,9 +32,10 @@ public class EmployeeLoginController {
 
             ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", result.getToken())
                     .httpOnly(true)
-                    .secure(false) // HTTP fallback for local dev
+                    .secure(true) // HTTP fallback for local dev
                     .path("/")
                     .maxAge(8 * 60 * 60) // 8 hours matching JwtToken validity
+                    .sameSite("None")
                     .build();
 
             // Clear the token so it does not appear in the response body
@@ -48,7 +49,7 @@ public class EmployeeLoginController {
 
             System.out.println("登入失敗原因: " + e.getMessage());
             e.printStackTrace();
-            
+
             EmployeeLoginResponseDto errorBody = new EmployeeLoginResponseDto();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
         }

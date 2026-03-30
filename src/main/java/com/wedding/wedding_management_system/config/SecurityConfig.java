@@ -3,6 +3,8 @@ package com.wedding.wedding_management_system.config;
 import com.wedding.wedding_management_system.filter.JwtAuthFilter;
 import com.wedding.wedding_management_system.repository.CustomerRepository;
 import com.wedding.wedding_management_system.repository.EmployeeRepository;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,6 +25,10 @@ import org.springframework.security.config.Customizer;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+        // 這裡可以保留，用來確認 Spring 也有抓到，但不需要強行傳給 Filter
+        @Value("${JWT_SECRET:your_default_key}")
+        private String jwtSecret;
 
         private final CustomerRepository customerRepository;
         private final EmployeeRepository employeeRepository;
@@ -87,6 +93,7 @@ public class SecurityConfig {
                                 .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/manager/**").hasRole("MANAGER")
+                                                .requestMatchers("/api/system/patrol/execute").permitAll() // 允許系統排程器直接打API
                                                 .requestMatchers("/api/customer/forgot-password").permitAll() // 忘記密碼/重設密碼都用他
                                                 .requestMatchers("/api/customer/login").permitAll() // 開放客戶登入 API
                                                 .requestMatchers("/api/customer/verify-reset-token").permitAll()

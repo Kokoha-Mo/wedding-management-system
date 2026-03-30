@@ -19,18 +19,39 @@
     <script src="./login.js"></script>
 
     <style>
+        .container{
+            max-width: 1520px;
+            margin: 0 auto;
+        }
         /* ═══ 方案卡片主體 (A區塊) 美化 ═══ */
         .main-package-card {
             background: #fff;
             border-radius: 12px;
             padding: 50px 60px;
-            /* 增加內部留白空間 */
-            /* ▼ 將底部的 margin 從 80px 縮小到 40px，讓下方的加購區塊往上提 ▼ */
             margin: 60px auto 40px auto;
-            max-width: 100vh;
+            max-width: 800px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--accent-gold);
             position: relative;
+            opacity: 0;
+            animation: boxFadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; /* 呼叫進場動畫 */
+            transition: transform 0.4s ease, box-shadow 0.4s ease; /* 讓懸停效果更平滑 */
+        }
+
+        .main-package-card:hover{
+            transform: translateY(-4px); /* 輕微往上浮動 */
+            box-shadow: 0 12px 35px rgba(194, 142, 142, 0.08); /* 陰影加深，帶入你的主題色 */
+        }
+
+        @keyframes boxFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .ribbon {
@@ -57,7 +78,7 @@
         }
 
         .card-header h3 {
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 32px;
             letter-spacing: 0.1em;
             color: var(--text-main);
@@ -93,22 +114,26 @@
         .service-col {
             flex: 1;
             padding: 0 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .service-col h4 {
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 18px;
             color: var(--accent-gold);
-            margin-bottom: 30px;
-            /* text-align: center; */
-            letter-spacing: 0.15em;
+            width: 210px;
+            margin: 0 auto 30px auto;
+            text-align: left !important;
+
         }
 
         .service-col ul {
             list-style: none;
             padding: 0;
-            column-count: 1;
-            /* 取消雙欄顯示，讓文字垂直排列更有高級感 */
+            width: 210px;
+            margin: 0 auto;
         }
 
         .service-col li {
@@ -125,7 +150,7 @@
         }
 
         .service-col li::before {
-            content: '✔';
+            content: '✔\FE0E';
             position: absolute;
             left: 0;
             color: var(--accent-gold);
@@ -149,7 +174,7 @@
         /* ═══ 可加購方案區塊 (B, C, D) 美化 ═══ */
         .section-title {
             text-align: center;
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 28px;
             letter-spacing: 0.1em;
             margin-bottom: 40px;
@@ -161,7 +186,7 @@
             justify-content: space-between;
             gap: 30px;
             max-width: 1200px;
-            margin: 0 auto 120px auto;
+            margin: 0 auto 60px auto;
         }
 
         .addon-card {
@@ -186,21 +211,8 @@
             /* hover時邊框變色 */
         }
 
-        /* 字母浮水印設計 */
-        .addon-letter {
-            font-family: var(--font-serif);
-            color: #F6F4F0;
-            /* 極淡的燕麥色 */
-            font-size: 68px;
-            line-height: 1;
-            text-align: center;
-            margin-bottom: -10px;
-            /* 讓字母與標題稍微重疊產生設計感 */
-            user-select: none;
-        }
-
         .addon-name {
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 20px;
             color: var(--text-main);
             text-align: center;
@@ -220,7 +232,8 @@
 
         /* 注意事項區塊 */
         .addon-notes {
-            margin-top: 15px;
+            max-width: 1200px;
+            margin: 0 15px;
             padding-top: 20px;
             border-top: 1px dashed var(--border-grey);
         }
@@ -264,7 +277,7 @@
 
         .addon-price {
             color: #C5ACA7;
-            font-family: var(--font-serif);
+            font-family: var(--font-serif), sans-serif;
             font-size: 24px;
             font-weight: 500;
             margin-bottom: 20px;
@@ -274,7 +287,7 @@
             font-size: 14px;
             color: var(--text-muted);
             font-weight: 400;
-            font-family: var(--font-sans);
+            font-family: var(--font-sans), sans-serif;
         }
 
         .price-suffix {
@@ -294,10 +307,13 @@
             border-top: 1px solid var(--border-grey);
             padding: 15px 0;
             z-index: 1000;
+            display: flex;
+            justify-content: center;
         }
 
         .checkout-content {
-            max-width: 1100px;
+            max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -341,9 +357,7 @@
             border: 1px solid #EBE7E0 !important;
             color: #C5ACA7 !important;
             padding: 10px 0;
-            /* 改為上下 padding */
             width: 100%;
-            /* 按鈕佔滿卡片寬度，視覺更大氣 */
             border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
@@ -361,35 +375,155 @@
             color: #FFFFFF !important;
             border-color: #C5ACA7 !important;
         }
+        @media (max-width: 576px) {
+            .service-terms-section .terms-text-wrapper {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+            .service-terms-section .col-md-6 {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .service-terms-section .rounded {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .service-terms-section .mb-4 {
+                margin-bottom: 28px !important;
+            }
+            .action-btns {
+                display: flex;
+                flex-direction: column; /* 讓兩個按鈕變成上下堆疊 */
+                gap: 6px;               /* 設定按鈕之間的上下安全間距 */
+                align-items: flex-end;  /* 讓按鈕整齊靠右對齊 */
+            }
+            .btn-reset {
+                margin-right: 0 !important;
+                padding: 4px 12px !important;
+            }
+
+            .btn-reserve {
+                padding: 8px 12px !important;
+                text-align: center;
+            }
+        }
 
         /* 手機版排版切換 */
+        @media (min-width: 768px) {
+            .terms-text-wrapper {
+                padding-left: 45px;
+            }
+        }
+
+        /* ═══ 平板與手機版排版切換 (991.98px 以下共用) ═══ */
         @media(max-width: 991.98px) {
+
             .main-package-card {
                 padding: 40px 24px;
-                margin: 60px 16px 40px 16px;
-                max-width: calc(100% - 32px);
+                width: 100%;
+                max-width: 500px;
+                margin: 60px auto 40px auto;
             }
 
             .sub-services {
                 flex-direction: column;
             }
 
+            .service-col {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
             .service-col:first-child {
                 border-right: none;
-                padding-right: 0;
                 border-bottom: 1px solid var(--border-grey);
                 margin-bottom: 40px;
                 padding-bottom: 40px;
             }
 
-            .service-col:last-child {
-                padding-left: 0;
+            .service-col h4 {
+                width: 100% !important;
+                text-align: center !important;
+                margin: 0 0 20px 0;
+            }
+
+            .service-col ul {
+                width: max-content !important;
+                max-width: 90% !important;
+                margin: 0 auto !important;
             }
 
             .addon-container {
                 flex-direction: column;
+                align-items: center;
                 padding: 0 20px;
             }
+
+            .addon-card {
+                width: 100%;
+                max-width: 480px;
+                margin-bottom: 30px;
+            }
+
+            .sticky-checkout {
+                padding: 10px 0 !important;
+            }
+
+            .price-summary .label {
+                font-size: 12px !important;
+            }
+            .price-summary .amount {
+                font-size: 16px !important;
+                font-weight: bold;
+            }
+
+            .checkout-content {
+                justify-content: space-between !important;
+                padding: 0 15px !important;
+            }
+            .action-btns {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 4px !important;
+            }
+
+            .btn-reset {
+                font-size: 12px !important;
+                padding: 4px 8px !important;
+                margin-right: 0 !important;
+                line-height: 1 !important;
+                border-radius: 4px !important;
+            }
+
+            .btn-reserve {
+                font-size: 12px !important;    /* 🌟 縮小主按鈕字體 */
+                padding: 6px 10px !important;   /* 🌟 大幅減少主按鈕 padding */
+                white-space: nowrap !important; /* 強制文字絕對不能換行 */
+                line-height: 1 !important;
+                border-radius: 4px !important;
+            }
+
+            .back-to-top {
+                bottom: 80px !important;
+            }
+
+            .service-terms-section {
+                padding-left: 24px !important;
+                padding-right: 24px !important;
+                text-align: left !important;
+            }
+
+            .service-terms-section .terms-text-wrapper {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding: 0 !important;
+            }
+
+            .service-terms-section h4 {
+                padding: 0 !important;
+            }
+
         }
     </style>
 </head>
@@ -434,7 +568,7 @@
         </div>
     </nav>
 
-    <!-- ─── 手機版 Offcanvas ─── -->
+    <!-- ─── 手機版 offcanvas ─── -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="navMenu">
         <div class="offcanvas-header">
             <a class="navbar-brand" href="./index.html">
@@ -492,7 +626,7 @@
             <div class="main-package-card">
                 <div class="ribbon">核心方案</div>
                 <div class="card-header">
-                    <h3>A. 婚宴全程統籌</h3>
+                    <h3>婚宴全程統籌</h3>
                     <p>本方案為獨立訂購核心，不可取消</p>
                     <div class="price">NT$ 43,800 <span>起</span></div>
                     <input type="radio" name="main_package" value="43800" checked style="display:none">
@@ -522,7 +656,7 @@
                             <li>宴會時程掌控</li>
                             <li>婚顧主場控指揮統籌</li>
                             <li>婚禮助理1名</li>
-                            <li>專業影音場控1名</li>
+                            <li>婚禮社群即時動態</li>
                             <li>流程音樂曲目建議</li>
                             <li>宴客備品代購</li>
                             <li>婚禮當日彩排引導</li>
@@ -532,13 +666,12 @@
             </div>
 
             <section class="addon-section">
-                <h3 class="section-title">可加購方案</h3>
+                <h3 class="section-title">可加購項目</h3>
 
                 <div class="addon-container">
 
                     <div class="addon-card">
                         <div class="addon-content">
-                            <div class="addon-letter">B</div>
                             <h4 class="addon-name">專業婚禮團隊</h4>
                             <div class="addon-desc">
                                 <p>嚴選業界頂尖職人，為您建構無懈可擊的婚禮陣容</p>
@@ -555,13 +688,12 @@
                         </div>
                         <div class="addon-card-bottom">
                             <p class="addon-price">NT$ 16,800 <span>起</span></p>
-                            <button type="button" class="addon-btn" data-price="16800">點擊加購</button>
+                            <button type="button" class="addon-btn" data-price="16800" data-name="專業婚禮團隊">點擊加購</button>
                         </div>
                     </div>
 
                     <div class="addon-card">
                         <div class="addon-content">
-                            <div class="addon-letter">C</div>
                             <h4 class="addon-name">儀式規劃執行</h4>
                             <div class="addon-desc">
                                 <p>提供全方位流程規劃與現場引導，成就您的經典時刻。</p>
@@ -577,13 +709,12 @@
                         </div>
                         <div class="addon-card-bottom">
                             <p class="addon-price">NT$ 15,800 <span>起</span></p>
-                            <button type="button" class="addon-btn" data-price="15800">點擊加購</button>
+                            <button type="button" class="addon-btn" data-price="15800" data-name="儀式規劃執行">點擊加購</button>
                         </div>
                     </div>
 
                     <div class="addon-card">
                         <div class="addon-content">
-                            <div class="addon-letter">D</div>
                             <h4 class="addon-name">客製化視覺佈置</h4>
                             <div class="addon-desc">
                                 <p>將您的非凡品味化為具象，打造令人屏息的唯美空間。</p>
@@ -599,26 +730,23 @@
                         </div>
                         <div class="addon-card-bottom">
                             <p class="addon-price">NT$ 15,000 <span>起</span></p>
-                            <button type="button" class="addon-btn" data-price="15000">點擊加購</button>
+                            <button type="button" class="addon-btn" data-price="15000" data-name="客製化視覺佈置">點擊加購</button>
                         </div>
                     </div>
 
                 </div>
             </section>
 
-            <section class="container mb-5"
-                style="border-top: 1px solid var(--border-grey); padding-top: 60px; padding-bottom: 120px; margin-top: -40px;">
+            <section class="mb-5 service-terms-section"
+                style="max-width: 1200px; margin: 0 auto; border-top: 1px solid var(--border-grey); padding-top: 40px; padding-bottom: 75px;">
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
                         <div class="d-flex align-items-center mb-4">
-                            <span
-                                style="width: 30px; height: 1px; background: var(--accent-gold); display: inline-block; margin-right: 15px;"></span>
-                            <h4
-                                style="font-family: var(--font-serif); letter-spacing: 0.1em; margin: 0; color: var(--accent-gold); font-size: 20px;">
+                            <h4 style="font-family: var(--font-serif), sans-serif; letter-spacing: 0.1em; margin: 0; color: var(--accent-gold); font-size: 20px; text-align: left; padding: 0;">
                                 Service Terms / 注意事項</h4>
                         </div>
 
-                        <div class="row g-4" style="font-size: 13px; color: var(--text-muted); line-height: 1.8;">
+                        <div class="row g-4 terms-text-wrapper" style="font-size: 13px; color: var(--text-muted); line-height: 1.8; padding-left: 0;">
                             <div class="col-md-6">
                                 <ul class="list-unstyled mb-0">
                                     <li class="mb-4">
@@ -643,7 +771,7 @@
                                         <strong
                                             style="color: var(--text-main); display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;">03.
                                             方案訂購說明</strong>
-                                        A方案可單獨訂購。
+                                        婚宴全程統籌方案可單獨訂購。
                                     </li>
                                     <li class="mb-4">
                                         <strong
@@ -655,7 +783,7 @@
                             </div>
                         </div>
 
-                        <div class="mt-2 p-3 rounded">
+                        <div class="mt-2 terms-text-wrapper rounded">
                             <p class="m-0" style="font-size: 12px; color: var(--accent-gold); letter-spacing: 0.05em;">
                                 * 以上價格均為未稅價。DREAM VENUES 保有方案最終解釋權與內容調整之權利。
                             </p>
@@ -729,6 +857,36 @@
                 });
             }
         });
+
+        // 🌟 處理「預約諮詢此方案」的跳轉邏輯
+            const bookPlanBtn = document.querySelector('.btn-reserve'); // 頁尾「預約諮詢此方案」按鈕
+            if (bookPlanBtn) {
+                bookPlanBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // 先阻止預設的跳轉行為
+                    
+                    // 1. 收集所有有 .selected 的加購按鈕的 data-name
+                    const selectedServices = [];
+                    document.querySelectorAll('.addon-btn.selected').forEach(btn => {
+                        const serviceName = btn.dataset.name;
+                        if (serviceName) {
+                            selectedServices.push(serviceName);
+                        }
+                    });
+
+                    // 2. 準備要跳轉的基礎網址
+                    let targetUrl = './wedding_contact.html';
+
+                    // 3. 如果有選項目，就把陣列轉成字串並附在網址後面
+                    if (selectedServices.length > 0) {
+                        // 使用 encodeURIComponent 確保中文字被安全地轉換
+                        targetUrl += '?services=' + encodeURIComponent(selectedServices.join(','));
+                    }
+
+                    // 4. 正式跳轉！
+                    window.location.href = targetUrl;
+                });
+            }
+        
     </script>
 </body>
 

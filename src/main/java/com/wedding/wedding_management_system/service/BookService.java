@@ -60,15 +60,6 @@ public class BookService {
             }
         }
 
-        // 2. 再用 tel 查
-        if (dto.getTel() != null && !dto.getTel().isBlank()) {
-            Optional<Customer> byTel = customerRepository.findFirstByTel(dto.getTel());
-            if (byTel.isPresent()) {
-                log.info("以 tel 找到既有客戶，tel={}", dto.getTel());
-                return byTel.get();
-            }
-        }
-
         // 3. 都查無 → 建立新客戶（密碼先用隨機佔位，之後透過驗證信設定）
         log.info("查無客戶，建立新客戶");
         Customer c = new Customer();
@@ -202,11 +193,9 @@ public class BookService {
                 .map(book -> BookResponseDTO.from(book, book.getCustomer()))
                 .collect(Collectors.toList());
     }
-
-    // 依員工 ID + 狀態查詢（只看自己負責的）
     @Transactional(readOnly = true)
-    public List<BookResponseDTO> findByManagerAndStatus(Integer managerId, String status) {
-        return bookRepository.findByManager_IdAndStatus(managerId, status)
+    public List<BookResponseDTO> findBooksByConditions(String status, Integer managerId, String keyword) {
+        return bookRepository.findByConditions(managerId, status, keyword)
                 .stream()
                 .map(book -> BookResponseDTO.from(book, book.getCustomer()))
                 .collect(Collectors.toList());
@@ -263,6 +252,7 @@ public class BookService {
             throw new IllegalStateException("請先填寫婚宴日期才能轉為簽約");
         }
         book.setStatus(newStatus);
+        book.setUpdateAt(LocalDateTime.now());
         if (managerId != null) {
             // 🌟 先用 managerId 去資料庫把這個 Employee 實體撈出來
             Employee employee = employeeRepository.findById(managerId)
@@ -314,5 +304,18 @@ public class BookService {
 
         Customer customer = saved.getCustomer();
         return BookResponseDTO.from(saved, customer);
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 取得所有服務與價目表 (給前端 Vue 動態渲染用)
+    // ════════════════════════════════════════════════════════
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getAllServicesPricing() {
+        return serviceRepository.findAll().stream()
+                .map(service -> Map.<String, Object>of(
+                        "service_id", service.getId(),
+                        "price", service.getPrice() != null ? service.getPrice() : 0
+                ))
+                .collect(Collectors.toList());
     }
 }

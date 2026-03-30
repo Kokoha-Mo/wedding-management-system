@@ -47,125 +47,13 @@
             flex-direction: column;
         }
 
-        /* ════ 裝飾背景 ════ */
-        .login-bg {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .login-bg::before {
-            content: '';
-            position: absolute;
-            width: 700px;
-            height: 700px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(197, 160, 89, 0.07) 0%, transparent 70%);
-            top: -160px;
-            right: -180px;
-        }
-
-        .login-bg::after {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(197, 160, 89, 0.05) 0%, transparent 70%);
-            bottom: -100px;
-            left: -120px;
-        }
-
-        .bg-ring {
-            position: absolute;
-            border-radius: 50%;
-            border: 1px solid rgba(197, 160, 89, 0.1);
-        }
-
-        .bg-ring-1 {
-            width: 480px;
-            height: 480px;
-            top: -120px;
-            right: -120px;
-        }
-
-        .bg-ring-2 {
-            width: 320px;
-            height: 320px;
-            top: -40px;
-            right: -40px;
-            border-color: rgba(197, 160, 89, 0.07);
-        }
-
-        .bg-ring-3 {
-            width: 360px;
-            height: 360px;
-            bottom: -80px;
-            left: -80px;
-        }
-
-        .bg-diamond {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: var(--gold);
-            transform: rotate(45deg);
-            opacity: 0.18;
-        }
-
-        .bg-diamond-1 {
-            top: 110px;
-            left: 8%;
-        }
-
-        .bg-diamond-2 {
-            top: 140px;
-            left: calc(8% + 20px);
-            opacity: 0.1;
-            width: 4px;
-            height: 4px;
-        }
-
-        .bg-diamond-3 {
-            bottom: 90px;
-            right: 8%;
-        }
-
-        .bg-diamond-4 {
-            bottom: 120px;
-            right: calc(8% + 20px);
-            opacity: 0.1;
-            width: 4px;
-            height: 4px;
-        }
-
-        .bg-line {
-            position: absolute;
-            height: 1px;
-            background: linear-gradient(to right, transparent, rgba(197, 160, 89, 0.15), transparent);
-        }
-
-        .bg-line-top {
-            width: 60%;
-            top: 88px;
-            left: 20%;
-        }
-
-        .bg-line-bottom {
-            width: 40%;
-            bottom: 70px;
-            left: 30%;
-        }
-
         /* ════ 主體 ════ */
         .login-wrapper {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 100px 24px 60px;
+            padding: 100px 24px 20px;
             position: relative;
             z-index: 1;
         }
@@ -731,17 +619,6 @@
 </head>
 
 <body>
-    <div class="login-bg">
-        <div class="bg-ring bg-ring-1"></div>
-        <div class="bg-ring bg-ring-2"></div>
-        <div class="bg-ring bg-ring-3"></div>
-        <div class="bg-diamond bg-diamond-1"></div>
-        <div class="bg-diamond bg-diamond-2"></div>
-        <div class="bg-diamond bg-diamond-3"></div>
-        <div class="bg-diamond bg-diamond-4"></div>
-        <div class="bg-line bg-line-top"></div>
-        <div class="bg-line bg-line-bottom"></div>
-    </div>
 
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid" style="max-width:1600px; margin:0 auto;">
@@ -892,8 +769,33 @@
     </main>
 
     <footer class="site-footer">
-        <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
+        <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN.</div>
     </footer>
+
+    <!-- 註冊說明 MODAL (直接彈出版) -->
+    <div class="dv-modal-overlay" id="registerInfoOverlay" style="display: none;">
+        <div class="dv-modal-box">
+            <div class="dvd-corner-tr"></div>
+            <div class="dvd-corner-bl"></div>
+            <div class="dv-modal-icon-wrap">
+                <span class="material-symbols-outlined" style="font-size: 32px; color: var(--accent-gold);">info</span>
+            </div>
+            <span class="dv-modal-eyebrow">Notice</span>
+            <h3 class="dv-modal-title">會員登入說明</h3>
+            <div class="dv-modal-divider">
+                <div class="dv-modal-dot"></div>
+            </div>
+            <div class="dv-modal-msg">
+                歡迎來到 Dream Venues！<br>
+                若您還沒有專屬帳號，煩請先透過<a href="./wedding_contact.html"
+                    style="color: var(--accent-gold); text-decoration: underline;">預約諮詢</a>與我們聯絡喔！<br><br>
+                <span style="font-size: 11px; opacity: 0.8;">※ 已經有帳號的您，請直接點擊「確定」即可登入。</span>
+            </div>
+            <button type="button" class="dv-modal-btn" onclick="closeRegisterInfoModal()">
+                <span>確定</span>
+            </button>
+        </div>
+    </div>
 
     <div class="success-overlay" id="successOverlay">
         <div class="success-modal">
@@ -922,6 +824,21 @@
     </div>
 
     <script>
+        function openRegisterInfoModal() {
+            document.getElementById('registerInfoOverlay').style.display = 'flex';
+        }
+
+        function closeRegisterInfoModal() {
+            document.getElementById('registerInfoOverlay').style.display = 'none';
+            sessionStorage.setItem('hasSeenRegisterInfo', 'true');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!sessionStorage.getItem('hasSeenRegisterInfo')) {
+                openRegisterInfoModal();
+            }
+        });
+
         // ── 給 login.js 的 performLoginAction 呼叫 ──
         function showSuccessModal(userName) {
             if (userName) {

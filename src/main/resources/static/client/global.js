@@ -1,3 +1,4 @@
+const API_BASE = '';
 document.addEventListener('DOMContentLoaded', () => {
 
     // ─── 元素選取 ───

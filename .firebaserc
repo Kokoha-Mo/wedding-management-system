@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "wedding-management-system"
+  },
+  "targets": {
+    "wedding-management-system": {
+      "hosting": {
+        "main_site": [
+          "wedding-management-system-tw"
+        ]
+      }
+    }
+  }
+}

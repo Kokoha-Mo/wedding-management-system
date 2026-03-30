@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -12,10 +13,15 @@ import jakarta.persistence.OneToMany;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "project_communications")
+// 加上複合索引，優化查詢效能
+@Table(name = "project_communications", indexes = {
+        @Index(name = "idx_sender_time", columnList = "create_by, create_at")
+})
 @Data
 public class ProjectCommunication {
 
@@ -33,6 +39,7 @@ public class ProjectCommunication {
     private String createBy;
 
     @Column(name = "create_at", insertable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "Asia/Taipei")
     private LocalDateTime createAt;
 
     @Column(length = 500)

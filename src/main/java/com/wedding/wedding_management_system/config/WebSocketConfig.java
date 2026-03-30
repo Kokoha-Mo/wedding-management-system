@@ -50,27 +50,35 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                 WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
+            String token = null;
+
+            // 1. 直接從 HttpOnly Cookie 獲取 Token (最安全、最標準的做法)
             if (request instanceof ServletServerHttpRequest) {
                 HttpServletRequest servletRequest = ((ServletServerHttpRequest) request).getServletRequest();
                 Cookie[] cookies = servletRequest.getCookies();
 
                 if (cookies != null) {
                     for (Cookie cookie : cookies) {
-                        // 檢查客戶端 (customerToken) 或 員工端 (employeeToken) 的 Cookie
-                        if ("customerToken".equals(cookie.getName()) || "employeeToken".equals(cookie.getName())) {
-                            String token = cookie.getValue();
-                            if (JwtToken.isValid(token)) {
-                                // 驗證成功，把使用者的 Email 存入屬性中，後續有需要可以使用
-                                String email = JwtToken.getEmail(token);
-                                attributes.put("userEmail", email);
-                                return true; // 允許建立連線
-                            }
+                        // 支援客戶端、員工端、以及全域的 jwtToken
+                        if ("customerToken".equals(cookie.getName()) ||
+                                "employeeToken".equals(cookie.getName()) ||
+                                "jwtToken".equals(cookie.getName())) {
+                            token = cookie.getValue();
+                            break;
                         }
                     }
                 }
             }
-            // 找不到 Cookie 或 Token 無效，拒絕連線
-            System.out.println("❌ WebSocket 連線失敗：無效的憑證");
+
+            // 2. 驗證 Token 是否有效
+            if (token != null && JwtToken.isValid(token)) {
+                String email = JwtToken.getEmail(token);
+                attributes.put("userEmail", email); // 存入 session 屬性供後續使用
+                return true; // 允許建立連線
+            }
+
+            // 找不到 Cookie 或 Token 無效，無情拒絕連線
+            System.out.println("❌ WebSocket 連線失敗：無效的憑證或未攜帶 Cookie");
             return false;
         }
 

@@ -16,6 +16,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <!-- Vue 3 CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- WebSocket -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -259,8 +262,8 @@
                             </div>
 
                             <div class="relative inline-block">
-                                <!-- @click.prevent 取代 onclick="openClientChatModal(event)" -->
-                                <button @click.prevent="openClientChatModal"
+                                <!-- @click.prevent 取代 onclick="openClientChat" -->
+                                <button @click.prevent="openClientChat"
                                     class="bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-900/30 dark:hover:bg-indigo-500 dark:text-indigo-400 dark:hover:text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm flex items-center transition-colors border border-indigo-100 dark:border-indigo-800">
                                     <span class="material-icons text-[18px] mr-1.5">forum</span>專屬客服通道
                                 </button>
@@ -766,6 +769,11 @@
                 <!-- 訊息列表 -->
                 <div ref="clientChatEl"
                     class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#faf7f2] dark:bg-gray-900/50 custom-scrollbar">
+                    <div v-if="wsStatus === 'reconnecting'" 
+                        class="bg-amber-100 border border-amber-200 py-2 px-4 rounded-lg text-center text-xs text-amber-700 sticky top-0 z-10 shadow-sm flex items-center justify-center mb-4">
+                        <span class="material-icons animate-spin text-[16px] mr-2">autorenew</span>
+                        網路不穩，正在為您重新連線中...
+                    </div>
                     <div v-if="clientChat.loading" class="text-center py-10 text-gray-500 text-sm">
                         <span class="material-icons animate-spin text-indigo-500 mb-2 block">autorenew</span>
                         正在載入討論紀錄...
@@ -838,10 +846,10 @@
                         <input type="text" v-model="clientChat.inputText" @keyup.enter="sendClientMsg"
                             placeholder="回覆客戶訊息..."
                             class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 dark:text-white transition-colors" />
-                        <button @click="sendClientMsg" :disabled="clientChat.sending"
+                        <button @click="sendClientMsg" :disabled="clientChat.sending || wsStatus !== 'connected'"
                             class="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center flex-shrink-0 disabled:opacity-50">
-                            <span class="material-icons text-[20px]" :class="clientChat.sending?'animate-spin':''">
-                                {{ clientChat.sending ? 'autorenew' : 'send' }}
+                            <span class="material-icons text-[20px]" :class="clientChat.sending ? 'animate-spin' : ''">
+                                {{ wsStatus !== 'connected' ? 'sync_problem' : (clientChat.sending ? 'autorenew' : 'send') }}
                             </span>
                         </button>
                     </div>
@@ -1032,6 +1040,12 @@
 
                     // Confirm Modal
                     confirmModal: { open: false, message: '', onConfirm: null, onCancel: null },
+
+                    // WebSocket
+                    stompClient: null,
+                    wsStatus: 'connecting', // 'connecting', 'connected', 'reconnecting'
+                    reconnectTimer: null,
+                    currentProjectId: null, // 紀錄當前開啟的專案 ID
                 };
             },
 
@@ -1132,6 +1146,8 @@
                 async init() {
                     this.pageLoading = true;
                     const id = sessionStorage.getItem('empId');
+                    // 🌟 獲取 token
+                    const token = sessionStorage.getItem('jwtToken');
                     if (!id) { window.location.replace('login.html'); return; }
                     this.empId = id;
                     this.empName = sessionStorage.getItem('empName') || '未知員工';
@@ -1360,8 +1376,136 @@
                     } catch (e) { console.error(e); }
                 },
 
-                // ── 客服通道 Modal
-                async openClientChatModal() { this.clientChat.open = true; this.showClientUnread = false; await this.loadClientChat(); },
+                // 🌟 1. 建立 WebSocket 連線 (專屬客服通道使用)
+                connectWebSocket() {
+                    if (this.stompClient && this.stompClient.connected) return;
+
+                    // 🌟 因為 Token 藏在 HttpOnly Cookie 裡，JS 讀不到，我們直接發起連線！
+                    // 瀏覽器底層會自動把 jwtToken 夾帶在請求裡面送給 Spring Boot
+                    const socket = new SockJS('/ws-dream-venues');
+                    this.stompClient = Stomp.over(socket);
+                    // this.stompClient.debug = null; 
+
+                    this.stompClient.connect({}, (frame) => {
+                        console.log('✅ 顧問端 WebSocket 連線成功！');
+                        this.wsStatus = 'connected';
+                        
+                        if (this.reconnectTimer) {
+                            clearTimeout(this.reconnectTimer);
+                            this.reconnectTimer = null;
+                        }
+
+                        // 訂閱該專案的頻道
+                        this.stompClient.subscribe('/topic/project/' + this.projectId, (message) => {
+                            const receivedMsg = JSON.parse(message.body);
+
+                            // 智慧判斷身分 (顧問端視角)
+                            let isPM = false;
+                            let displayName = receivedMsg.createBy || '未知';
+
+                            if (receivedMsg.createBy === this.empName || receivedMsg.createBy === '公司' || receivedMsg.createBy === '員工' || receivedMsg.createBy.includes('PM')) {
+                                isPM = true;
+                                displayName = this.empName; 
+                            } else {
+                                if (receivedMsg.createBy === '客戶') {
+                                    displayName = this.project.customerName; 
+                                }
+                            }
+
+                            // 轉換成符合 clientChat 陣列的格式
+                            const formattedMsg = {
+                                id: receivedMsg.id,
+                                isPM: isPM,
+                                senderName: displayName,
+                                firstChar: displayName.charAt(0),
+                                content: receivedMsg.content,
+                                time: receivedMsg.createAt ? receivedMsg.createAt.replace('T', ' ').substring(0, 16) : '',
+                                documents: (receivedMsg.documents || []).map(doc => ({
+                                    name: doc.name,
+                                    fileType: doc.fileType || 'application/pdf',
+                                    filePath: doc.filePath.startsWith('/uploads') ? window.location.origin + doc.filePath : doc.filePath,
+                                    imgError: false
+                                }))
+                            };
+
+                            this.clientChat.messages.push(formattedMsg);
+
+                            this.$nextTick(() => {
+                                const container = this.$refs.clientChatEl;
+                                if (container) container.scrollTop = container.scrollHeight;
+                            });
+                        });
+
+                    }, (error) => {
+                        console.error('❌ WebSocket 連線中斷: ', error);
+                        this.wsStatus = 'reconnecting';
+                        this.disconnectWebSocket();
+
+                        if (!this.reconnectTimer) {
+                            this.reconnectTimer = setTimeout(() => {
+                                this.reconnectTimer = null;
+                                this.connectWebSocket();
+                            }, 5000);
+                        }
+                    });
+                },
+                // 🌟 2. 中斷 WebSocket 連線
+                disconnectWebSocket() {
+                    if (this.stompClient) {
+                        this.stompClient.disconnect();
+                        this.stompClient = null;
+                    }
+                },
+
+                // 🌟 開啟對外客服通道
+                async openClientChat() {
+                    this.clientChat.open = true;
+                    this.showClientUnread = false; // 點開就消除首頁紅點
+                    
+                    // 先載入歷史訊息
+                    await this.loadClientChat();
+                    
+                    // 歷史訊息載入完畢後，接上 WebSocket 管線
+                    this.connectWebSocket();
+                },
+
+                // 🌟 關閉對外客服通道
+                closeClientChat() { 
+                    this.clientChat.open = false; 
+                    this.clientChat.attachedFiles = []; 
+                    this.clientChat.inputText = ''; 
+                    this.disconnectWebSocket(); // 離開時拔掉管線，節省資源
+                },
+
+                // 🌟 發送訊息
+                async sendClientMsg() {
+                    const t = this.clientChat.inputText.trim();
+                    if (!t && !this.clientChat.attachedFiles.length) return;
+                    
+                    this.clientChat.sending = true;
+                    const fd = new FormData();
+                    
+                    // 顧問端發送，身分標記為「公司」，後端與前端濾鏡會自動處理
+                    fd.append('createBy', '公司');
+                    if (t) fd.append('content', t);
+                    this.clientChat.attachedFiles.forEach(f => fd.append('files', f.file));
+                    
+                    try {
+                        const r = await fetch(`/api/manager/projects/${this.projectId}/communication`, { method: 'POST', body: fd });
+                        if (r.ok) { 
+                            this.clientChat.inputText = ''; 
+                            this.clientChat.attachedFiles = []; 
+                            // 🌟 刪除 await this.loadClientChat(); 
+                            // 因為 WebSocket 會瞬間把我們剛剛發送的訊息推播回來，不需要再重新拉一次 API！
+                        } else {
+                            this.showAlert('發送失敗！');
+                        }
+                    } catch (e) { 
+                        this.showAlert('系統異常，請聯絡管理員'); 
+                    } finally { 
+                        this.clientChat.sending = false; 
+                    }
+                },
 
                 // 預先檢查客服通道是否有未讀（最後一則為客戶發送）
                 async checkClientUnread() {
@@ -1381,7 +1525,7 @@
                         }
                     } catch (e) { console.error(e); }
                 },
-                closeClientChat() { this.clientChat.open = false; this.clientChat.attachedFiles = []; this.clientChat.inputText = ''; },
+                closeClientChat() { this.clientChat.open = false; this.clientChat.attachedFiles = []; this.clientChat.inputText = ''; this.disconnectWebSocket(); },
                 async loadClientChat() {
                     this.clientChat.loading = true;
                     try {

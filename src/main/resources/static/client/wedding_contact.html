@@ -1024,7 +1024,15 @@
                                 <div class="col-md-6 contact-field">
                                     <label class="contact-label">預定婚期 Wedding Date <span
                                             style="color:var(--text-muted); font-size: 10px; letter-spacing: 0.1em;">(選填)</span></label>
-                                    <input class="lux-input" type="date" v-model="form.wedding_date" :min="today" />
+                                    <input id="field-wedding-date" class="lux-input"
+                                        :style="errors.wedding_date ? 'border-color: #dc3545;' : ''" type="date"
+                                        v-model="form.wedding_date" :min="today" />
+                                    <div v-if="errors.wedding_date" class="text-danger mt-1"
+                                        style="font-size: 12px; letter-spacing: 0.05em;"><span
+                                            class="material-symbols-outlined"
+                                            style="font-size: 14px; vertical-align: middle;">error</span> {{
+                                        errors.wedding_date }}
+                                    </div>
                                 </div>
                                 <div class="col-md-6 contact-field">
                                     <label class="contact-label">賓客規模 Guest Scale <span
@@ -1287,7 +1295,8 @@
                     name: '',
                     tel: '',
                     email: '',
-                    consultation_date: ''
+                    consultation_date: '',
+                    wedding_date: '' // 🌟 新增這行
                 });
 
                 // 🌟 新增：防止重複送出的 Loading 狀態
@@ -1376,6 +1385,15 @@
                     if (!form.consultation_date) {
                         errors.consultation_date = '請選擇期望諮詢日期';
                         isValid = false;
+                    } else if (form.consultation_date < today) {
+                        errors.consultation_date = '諮詢日期不能選擇過去的時間喔！';
+                        isValid = false;
+                    }
+
+                    // 🌟 預定婚期防呆 (選填，但有填就不可選過去)
+                    if (form.wedding_date && form.wedding_date < today) {
+                        errors.wedding_date = '預定婚期不能選擇過去的時間喔！';
+                        isValid = false;
                     }
 
                     return isValid;
@@ -1390,7 +1408,8 @@
                             { key: 'name', id: 'field-name' },
                             { key: 'tel', id: 'field-tel' },
                             { key: 'email', id: 'field-email' },
-                            { key: 'consultation_date', id: 'field-consultation-date' }
+                            { key: 'consultation_date', id: 'field-consultation-date' },
+                            { key: 'wedding_date', id: 'field-wedding-date' } // 🌟 新增這行
                         ];
 
                         for (let field of errorFields) {
@@ -1500,7 +1519,7 @@
                     if (servicesParam) {
                         // 把 "儀式規劃執行,專業婚禮團隊" 切割成陣列
                         const incomingServices = servicesParam.split(',');
-                        
+
                         // 將這些項目推入 Vue 表單的 services 陣列中
                         // Vue 的雙向綁定會讓對應的 checkbox 自動亮起來 (打勾)！
                         incomingServices.forEach(service => {

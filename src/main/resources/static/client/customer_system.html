@@ -13,7 +13,7 @@
             href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Plus+Jakarta+Sans:wght@200;300;400;500&display=swap"
             rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          rel="stylesheet" />
+        rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="global.css">
     <script src="./login.js"></script>
@@ -136,6 +136,7 @@
             color: var(--rose-light);
             letter-spacing: 1px;
             transition: 0.4s;
+            font-weight: 500;
         }
 
         .nav-item-step.active .nav-circle {
@@ -217,6 +218,7 @@
             animation: boxFadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
+
         .interview-box:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 35px rgba(194, 142, 142, 0.08);
@@ -227,6 +229,7 @@
                 opacity: 0;
                 transform: translateY(25px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1240,10 +1243,10 @@
         </div>
     </div>
 
-</div>
-<footer class="site-footer">
-    <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN. ALL RIGHTS RESERVED.</div>
-</footer>
+    </div>
+    <footer class="site-footer">
+        <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN.</div>
+    </footer>
 
 <script>
     const { createApp, ref, reactive, computed, onMounted } = Vue;
@@ -1328,19 +1331,6 @@
             };
 
             const changeStep = (delta) => {
-
-                // if (currentStep.value === 1 && delta === 1) {
-                //     if (!form.theme) {
-                //         showSystemAlert(true, 'NOTICE', '請選擇主題', '請先選擇婚禮主題風格再繼續！');
-                //         return;
-                //     }
-                //     if (!form.guestScale) {
-                //         showSystemAlert(true, 'NOTICE', '請填寫人數', '請先填寫預計賓客人數再繼續！');
-                //         return;
-                //     }
-                // }
-
-
                 currentStep.value += delta;
                 if (currentStep.value < 1) currentStep.value = 1;
                 if (currentStep.value > 4) currentStep.value = 4;

@@ -23,10 +23,6 @@ public class AiController {
 
     @PostMapping("/recommend")
     public ResponseEntity<?> recommend(@RequestBody Map<String, Object> body) {
-        System.out.println("=== recommend 被呼叫 ===");
-        System.out.println("GEMINI_API_KEY 前5碼: " +
-                (System.getenv("GEMINI_API_KEY") != null ?
-                        System.getenv("GEMINI_API_KEY").substring(0, 5) : "null"));
 
         String apiKey = geminiApiKey;
 
@@ -40,7 +36,6 @@ public class AiController {
         try {
             List<Map<String, Object>> messages = (List<Map<String, Object>>) body.get("messages");
             prompt = (String) messages.get(0).get("content");
-            System.out.println("Step 2: prompt 取出完成，長度=" + prompt.length());
         } catch (Exception e) {
             System.out.println("Step 2 失敗: " + e.getMessage());
             return ResponseEntity.status(400)

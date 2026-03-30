@@ -1573,8 +1573,8 @@
                         </div>
 
                         <textarea class="form-control board-textarea mb-2" rows="3"
-                            placeholder="有什麼想法或圖片想傳給顧問嗎？請在這裡留言..." v-model="newMessage"></textarea>
-
+                            placeholder="有什麼想法或圖片想傳給顧問嗎？請在這裡留言... (按 Enter 傳送，Shift + Enter 換行)" v-model="newMessage"
+                            @keydown.enter.exact.prevent="postMessage"></textarea>
                         <div
                             style="font-size: 11px; color: #bbb; margin-bottom: 12px; margin-right: 4px; text-align: right;">
                             * 支援圖片或 PDF/Word 文件，單一檔案上限 10MB
@@ -1815,12 +1815,19 @@
                                 });
                             }
 
+                            // 🌟 直接將後端傳來的台灣時間字串進行格式化
+                            let displayTime = '';
+                            if (receivedMsg.createAt) {
+                                // 把 "2026-03-28T16:24:30..." 的 'T' 換成空白，並只取前 16 個字元 (YYYY-MM-DD HH:mm)
+                                displayTime = receivedMsg.createAt.replace('T', ' ').substring(0, 16);
+                            }
+
                             const formattedMsg = {
                                 id: receivedMsg.id,
                                 sender: isClient ? 'client' : 'pm',
                                 senderName: displayName,
                                 text: receivedMsg.content,
-                                time: receivedMsg.createAt ? receivedMsg.createAt.replace('T', ' ').substring(0, 16) : '',
+                                time: displayTime,
                                 attachments: mappedAttachments
                             };
 
@@ -2129,7 +2136,9 @@
                     const formData = new FormData();
 
                     // 🌟 2. 將身分與文字塞入包裹
-                    formData.append('createBy', data.customerName);
+                    // 🌟 【修改重點】：固定傳送「客戶」，保持資料庫格式統一
+                    formData.append('createBy', '客戶');
+
                     if (newMessage.value.trim()) {
                         formData.append('content', newMessage.value.trim());
                     }

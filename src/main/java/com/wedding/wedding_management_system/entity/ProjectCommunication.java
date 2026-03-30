@@ -12,6 +12,8 @@ import jakarta.persistence.OneToMany;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -33,6 +35,7 @@ public class ProjectCommunication {
     private String createBy;
 
     @Column(name = "create_at", insertable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "Asia/Taipei")
     private LocalDateTime createAt;
 
     @Column(length = 500)

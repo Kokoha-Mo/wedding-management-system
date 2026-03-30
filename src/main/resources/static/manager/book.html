@@ -926,7 +926,7 @@
             const currentViewBookId = ref(null);
 
             const modifyTotalPrice = computed(() => {
-                const base = 43800;
+                const base = (typeof basePrice !== 'undefined' && basePrice.value != null) ? basePrice.value : 43800;
                 const addons = modify.selectedServices.reduce((sum, s) => sum + (s.unitPrice || 0), 0)
                 return base + addons;
             });

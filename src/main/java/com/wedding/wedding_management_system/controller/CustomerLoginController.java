@@ -177,9 +177,10 @@ public class CustomerLoginController {
         try {
             String token = customerLoginService.generateAndSaveResetToken(email);
             Customer customer = customerService.findByEmail(email);
-            emailService.sendResetPasswordEmail(email, customer.getName(), token);
+            emailService.sendForgotPasswordEmail(email, customer.getName(), token);
         } catch (RuntimeException e) {
-            // 把系統原生的錯誤訊息跟 StackTrace 都印出來！
+            // 把系統原生的錯誤訊息跟 StackTrace 都印出來！emailService.sendForgotPasswordEmail(email,
+            // customer.getName(), token);
             System.err.println("忘記密碼請求失敗，信箱 (" + email + ")");
             System.err.println("具體錯誤原因：" + e.getMessage());
             e.printStackTrace(); // 這行會把最底層的 Exception 完整印到 Cloud Run Logs 裡

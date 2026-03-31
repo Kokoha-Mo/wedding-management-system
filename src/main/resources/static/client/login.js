@@ -314,6 +314,19 @@ function initLoginFeatures() {
   document.getElementById('loginSubmitBtn')?.addEventListener('click', performLoginAction);
   document.getElementById('passwordInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') performLoginAction(); });
   document.getElementById('forgotBtn')?.addEventListener('click', (e) => { e.preventDefault(); showForgotModal(); });
+
+  // 🌟 頁面載入時恢復倒數
+  const sentAt = localStorage.getItem('dv_forgot_sent_at');
+  if (sentAt) {
+    const elapsed = Math.floor((Date.now() - parseInt(sentAt)) / 1000);
+    const remaining = 60 - elapsed;
+    if (remaining > 0) {
+      startGlobalForgotCountdown(remaining, true); // ← isResume = true，在 if 裡面
+    } else {
+      localStorage.removeItem('dv_forgot_sent_at');
+    }
+  }
+
 }
 
 function togglePassword(btn) {
@@ -466,18 +479,24 @@ async function submitForgotPassword() {
 }
 
 // 啟動倒數計時器
-function startGlobalForgotCountdown(seconds) {
+function startGlobalForgotCountdown(seconds, isResume = false) {
   if (g_forgotTimer) clearInterval(g_forgotTimer);
+
+  // 🌟 只有「新發送」才寫入時間戳，恢復時不蓋掉
+  if (!isResume) {
+    localStorage.setItem('dv_forgot_sent_at', Date.now());
+  }
+
   g_forgotSeconds = seconds;
   updateForgotBtnUI();
 
   g_forgotTimer = setInterval(() => {
     g_forgotSeconds--;
-    updateForgotBtnUI(); // 每秒更新 UI（如果彈窗開著的話）
-
+    updateForgotBtnUI();
     if (g_forgotSeconds <= 0) {
       clearInterval(g_forgotTimer);
       g_forgotTimer = null;
+      localStorage.removeItem('dv_forgot_sent_at'); // 🌟 倒數結束清掉
     }
   }, 1000);
 }

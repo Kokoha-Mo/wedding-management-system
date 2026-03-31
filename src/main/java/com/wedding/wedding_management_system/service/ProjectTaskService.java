@@ -40,6 +40,10 @@ public class ProjectTaskService {
     @Autowired
     private TaskOwnerRepository taskOwnerRepository;
 
+    // 注入通用的檔案儲存服務
+    @Autowired
+    private FileStorageService fileStorageService;
+
     private final String UPLOAD_DIR = "uploads/";
 
     public List<TaskDTO> getInProgressTasksByEmployeeId(Integer empId) {
@@ -57,18 +61,18 @@ public class ProjectTaskService {
     private void populateDocuments(List<TaskDTO> tasks) {
         if (tasks == null || tasks.isEmpty())
             return;
-        
+
         List<Integer> taskIds = tasks.stream()
                 .map(TaskDTO::getTaskId)
                 .collect(Collectors.toList());
-        
+
         List<Document> allDocs = documentRepository.findByTask_IdIn(taskIds);
-        
+
         // 將所有附檔依 taskId 分組
         java.util.Map<Integer, List<Document>> docsMap = allDocs.stream()
                 .filter(d -> d.getTask() != null)
                 .collect(Collectors.groupingBy(d -> d.getTask().getId()));
-        
+
         for (TaskDTO dto : tasks) {
             List<Document> docs = docsMap.get(dto.getTaskId());
             if (docs != null && !docs.isEmpty()) {
@@ -90,12 +94,12 @@ public class ProjectTaskService {
             if ("待指派".equals(status)) {
                 List<Document> pendingDocs = documentRepository.findByTask_IdAndStatus(taskId, "待審核");
                 for (Document doc : pendingDocs) {
-                    if (doc.getFilePath() != null) {
+                    // 加上 !doc.getFilePath().startsWith("http") 的判斷
+                    if (doc.getFilePath() != null && !doc.getFilePath().startsWith("http")) {
                         try {
                             Path fileToDelete = Paths.get(doc.getFilePath());
                             Files.deleteIfExists(fileToDelete);
                         } catch (IOException ioEx) {
-                            // 實體檔案刪除失敗只記錄 log，不影響主流程
                             ioEx.printStackTrace();
                         }
                     }
@@ -127,36 +131,27 @@ public class ProjectTaskService {
             Employee employee = employeeRepository.findById(empId)
                     .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-            // 2. 處理檔案儲存
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            // 2. 處理檔案儲存：改用 fileStorageService，傳入專案 ID
+            String fileUrl = fileStorageService.storeFile(file, task.getProject().getId());
+
+            if (fileUrl == null) {
+                return false;
             }
 
-            String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String fileName = UUID.randomUUID().toString() + extension;
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath);
-
-            // 3. 儲存紀錄到 Document 表（同時記錄 task 關聯，供管理端「查看成果」精準抓取）
+            // 3. 儲存紀錄到 Document 表
             Document document = new Document();
             document.setProject(task.getProject());
             document.setTask(task);
             document.setUploadedBy(employee);
-            document.setName(originalFilename);
-            document.setFilePath(UPLOAD_DIR + fileName);
+            document.setName(file.getOriginalFilename());
+
+            // 這裡直接存入 GCS 回傳的公開網址
+            document.setFilePath(fileUrl);
             document.setFileType(file.getContentType());
             document.setStatus("待審核");
 
             documentRepository.save(document);
             return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -202,7 +197,7 @@ public class ProjectTaskService {
                 }).collect(Collectors.toList());
                 dto.setAssignees(assignees);
             }
-            
+
             // 處理成果附檔 (移到 if (taskOwners) 之外，確保不論是否有指派人員都能顯示附檔)
             // 根據任務狀態決定查詢哪種 status 的附檔
             // - 待審核：員工已上傳尚未審核的附檔
@@ -282,8 +277,8 @@ public class ProjectTaskService {
             Document doc = documentRepository.findById(docId)
                     .orElseThrow(() -> new RuntimeException("Document not found"));
 
-            // 1. 刪除實體檔案
-            if (doc.getFilePath() != null) {
+            // 加上判斷，只有本機路徑才執行實體刪除
+            if (doc.getFilePath() != null && !doc.getFilePath().startsWith("http")) {
                 try {
                     Path filePath = Paths.get(doc.getFilePath());
                     Files.deleteIfExists(filePath);

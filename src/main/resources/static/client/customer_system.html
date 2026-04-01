@@ -1496,7 +1496,7 @@
                 isSubmitting.value = true;
 
                 const details = [];
-                details.push({ service_id: 1, unit_price: 43800, ceremony_date: null });
+                details.push({ service_id: 1, unit_price: basePrice.value, ceremony_date: null });
                 details.push({ service_id: 2, unit_price: 0, ceremony_date: null });
 
                 Object.keys(sel).forEach(id => {
@@ -1638,7 +1638,7 @@
                     return;
                 }
                 await loadPrices();
-                loadMyBook();
+                await loadMyBook();
             });
 
             return {

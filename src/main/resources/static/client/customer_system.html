@@ -627,7 +627,9 @@
             box-shadow: 0 4px 8px rgba(191, 161, 104, 0.2); /* (可選) 加上淡淡的陰影增加立體感 */
         }
 
-        /* 平板尺寸 (小於 768px) */
+        /* ═══════════════════════════════════════════
+   平板尺寸 (max-width: 768px)
+   ═══════════════════════════════════════════ */
         @media (max-width: 768px) {
             .consult-wrap {
                 padding: 20px 15px 30px;
@@ -641,15 +643,38 @@
             .info-grid,
             .sub-addon-grid,
             .check-grid {
-                grid-template-columns: 1fr; /* 全面改為單欄 */
+                grid-template-columns: 1fr;
                 gap: 16px;
             }
             .step-navbar {
                 margin-bottom: 30px;
             }
+
+            /* inline-style 的雙欄區塊，強制轉為單欄 */
+            div[style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+            div[style*="padding: 50px"] {
+                padding: 30px 20px !important;
+            }
+
+            /* 解決 Safari 手機端 fa-check 顏色異常 */
+            i.fa-check,
+            .fa-check::before {
+                color: white !important;
+                -webkit-text-fill-color: white !important;
+            }
+
+            /* 自訂核取方塊的勾勾顏色修正 */
+            .hidden-chk:checked ~ .custom-chk::after {
+                border-color: white !important;
+            }
         }
 
-        /* 手機尺寸 (小於 576px) */
+        /* ═══════════════════════════════════════════
+           手機尺寸 (max-width: 576px)
+           ═══════════════════════════════════════════ */
         @media (max-width: 576px) {
             .hero-title {
                 font-size: 22px !important;
@@ -658,7 +683,7 @@
                 font-size: 11px;
             }
 
-            /* 步驟條適應小螢幕 */
+            /* 步驟條縮小 */
             .nav-item-step {
                 width: 65px;
             }
@@ -689,7 +714,7 @@
 
             /* 底部動作按鈕 */
             .consult-actions {
-                flex-direction: column-reverse; /* 返回按鈕放下面 */
+                flex-direction: column-reverse;
                 gap: 15px;
             }
             .consult-btn {
@@ -698,9 +723,8 @@
 
             /* 浮動底端列 */
             .sticky-bottom-bar .container-fluid {
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
+                flex-direction: column;
+                text-align: center;
                 gap: 12px;
                 padding-bottom: 5px;
             }
@@ -708,82 +732,8 @@
                 width: 100%;
                 padding: 10px;
             }
-
-            @media (max-width: 768px) {
-                /* inline-style 的雙欄區塊，強制轉為單欄 */
-                div[style*="grid-template-columns: 1fr 1fr"] {
-                    grid-template-columns: 1fr !important;
-                    gap: 16px !important;
-                }
-
-                /* 縮小容器的 Padding，避免留白過多顯得擁擠 */
-                .consult-wrap {
-                    padding: 20px 15px 30px !important;
-                }
-                div[style*="padding: 50px"] {
-                    padding: 30px 20px !important;
-                }
-
-                /* 解決金色的勾勾在手機端變成黑色的異常 */
-                /* 強制覆蓋手機端瀏覽器 (如 Safari) 的預設文字顏色介入 */
-                i.fa-check,
-                .fa-check:before {
-                    color: var(--rose-light) !important;
-                    -webkit-text-fill-color: var(--rose-light) !important;
-                }
-
-                /* 若是自訂核取方塊的勾勾變黑，也一併強制覆蓋 */
-                .hidden-chk:checked ~ .custom-chk::after {
-                    border-color: var(--rose-light) !important;
-                }
-            }
-
-            @media (max-width: 576px) {
-                /* 1. 步驟條適應小螢幕，縮小圓圈與文字 */
-                .nav-item-step {
-                    width: 65px;
-                }
-
-                .nav-circle {
-                    width: 26px;
-                    height: 26px;
-                    font-size: 12px;
-                    margin-bottom: 6px;
-                }
-
-                .nav-label {
-                    font-size: 10px;
-                    letter-spacing: 0;
-                }
-
-                .step-line {
-                    margin: 11px 2px 0;
-                }
-
-                /* 底部的操作按鈕改為滿版並上下排列，方便手機點擊 */
-                .consult-actions {
-                    flex-direction: column-reverse; /* 讓「下一步」在上方 */
-                    gap: 15px;
-                }
-
-                .consult-btn {
-                    width: 100%;
-                }
-
-                /* 3. 浮動總計列調整為垂直置中排列 */
-                .sticky-bottom-bar .container-fluid {
-                    flex-direction: column;
-                    text-align: center;
-                    gap: 12px;
-                    padding-bottom: 5px;
-                }
-
-                .sticky-bottom-bar .btn-next {
-                    width: 100%;
-                    padding: 10px;
-                }
-            }
         }
+
 
     </style>
 </head>
@@ -1496,7 +1446,7 @@
                 isSubmitting.value = true;
 
                 const details = [];
-                details.push({ service_id: 1, unit_price: 43800, ceremony_date: null });
+                details.push({ service_id: 1, unit_price: basePrice.value, ceremony_date: null });
                 details.push({ service_id: 2, unit_price: 0, ceremony_date: null });
 
                 Object.keys(sel).forEach(id => {
@@ -1560,33 +1510,16 @@
                     { id: 22, name: '品牌級平面視覺套組' },
                 ];
 
-                const prompt = `你是 DREAM VENUES 的高端婚禮顧問，請根據新人資訊推薦最適合的婚禮服務組合。
-
-                新人資訊：
-                - 主題風格：${form.theme}
-                - 賓客人數：${form.guestScale} 人
-                - 場地：${form.venue || '未指定'}
-                - 備註：${form.notes || '無'}
-
-                可選服務清單（ID 對應項目）：
-                ${serviceList.map(s => `- ID ${s.id}：${s.name}，NT$${prices[s.id]?.toLocaleString()}`).join('\n')}
-
-                請推薦 4–6 項最適合的服務，只回傳 JSON，不要有任何多餘文字或 markdown：
-                {
-                  "greeting": "給新人的溫暖開場白（2句，繁體中文）",
-                  "recommendations": [
-                    { "id": 服務ID數字, "reason": "推薦理由（15字以內）" }
-                  ],
-                  "closing": "一句鼓勵結語（15字以內）"
-                }`;
-
                 try {
                     const res = await fetch('/api/customer/ai/recommend', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
                         body: JSON.stringify({
-                            messages: [{ role: 'user', content: prompt }]
+                            theme: form.theme,
+                            guestScale: form.guestScale,
+                            venue: form.venue,
+                            notes: form.notes
                         })
                     });
 
@@ -1638,7 +1571,7 @@
                     return;
                 }
                 await loadPrices();
-                loadMyBook();
+                await loadMyBook();
             });
 
             return {

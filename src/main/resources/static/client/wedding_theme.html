@@ -1343,6 +1343,7 @@
         const lbDots = document.getElementById('lbDots');
         const lbCounter = document.getElementById('lbCounter');
         let galleries = {}, curG = null, curI = 0;
+        let scrollY = 0;
 
         function buildGalleries() {
             galleries = {};
@@ -1358,8 +1359,23 @@
             });
         }
 
-        function openLb(g, i) { curG = g; curI = i; renderLb(); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
-        function closeLb() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+        function openLb(g, i) {
+            scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
+            curG = g;
+            curI = i;
+            renderLb();
+            overlay.classList.add('open');
+        }
+        function closeLb() {
+            overlay.classList.remove('open');
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            window.scrollTo(0, scrollY);
+        }
         function navLb(d) { curI = (curI + d + galleries[curG].length) % galleries[curG].length; renderLb(); }
 
         function renderLb() {
@@ -1379,8 +1395,19 @@
             if (e.key === 'ArrowLeft') navLb(-1); if (e.key === 'ArrowRight') navLb(1); if (e.key === 'Escape') closeLb();
         });
         let lbTX = null;
-        overlay.addEventListener('touchstart', e => { lbTX = e.touches[0].clientX; }, { passive: true });
-        overlay.addEventListener('touchend', e => { if (lbTX === null) return; const dx = e.changedTouches[0].clientX - lbTX; if (Math.abs(dx) > 40) navLb(dx < 0 ? 1 : -1); lbTX = null; });
+        let lbTY = null;
+        overlay.addEventListener('touchstart', e => {
+            lbTX = e.touches[0].clientX;
+            lbTY = e.touches[0].clientY;
+        }, { passive: true });
+        overlay.addEventListener('touchend', e => {
+            if (lbTX === null) return;
+            const dx = e.changedTouches[0].clientX - lbTX;
+            const dy = e.changedTouches[0].clientY - lbTY;
+            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) navLb(dx < 0 ? 1 : -1);
+            lbTX = null;
+            lbTY = null;
+        });
 
         document.getElementById('themesWrap').addEventListener('click', e => {
             const tile = e.target.closest('.tile[data-lb]');

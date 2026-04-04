@@ -842,70 +842,115 @@
         </div>
     </div>
 
+    <div id="app">
+        <div class="page-wrap">
+            <div class="page-hero has-bg">
+                <p class="page-hero-eyebrow">Wedding Teams</p>
+                <h1 class="page-hero-title">婚禮團隊</h1>
+                <div class="page-hero-line"></div>
+                <p class="page-hero-sub">嚴選業界頂尖職人，為您的婚禮成就無瑕品質</p>
+            </div>
 
-    <!-- hero -->
-    <div class="page-wrap">
-        <div class="page-hero has-bg">
-            <p class="page-hero-eyebrow">Wedding Teams</p>
-            <h1 class="page-hero-title">婚禮團隊</h1>
-            <div class="page-hero-line"></div>
-            <p class="page-hero-sub">嚴選業界頂尖職人，為您的婚禮成就無瑕品質</p>
-        </div>
+            <div class="mobile-filter-bar" id="mobileFilterBar">
+                <button v-for="cat in CATEGORIES" :key="cat.id"
+                    :class="['mobile-filter-chip', { active: activeFilter === cat.id }]" @click="activeFilter = cat.id">
+                    {{ cat.label }}
+                </button>
+            </div>
 
-        <div class="mobile-filter-bar" id="mobileFilterBar"></div>
-
-        <div class="content-wrap">
-            <aside class="sidebar">
-                <p class="sidebar-title">類別篩選</p>
-                <div id="sidebarFilters"></div>
-            </aside>
-
-            <div class="grid-area" id="gridArea" ref="gridArea"></div>
-        </div>
-    </div>
-
-    <footer class="site-footer">
-        <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN.</div>
-    </footer>
-
-    <button id="backToTop" class="back-to-top">
-        <span class="material-symbols-outlined">arrow_upward</span>
-    </button>
-
-    <!-- 團隊介紹 Modal -->
-    <div class="modal-backdrop-custom" id="profileBackdrop">
-        <div class="profile-modal" id="profileModal">
-            <button class="modal-close" id="modalClose">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            <div class="modal-inner">
-                <div class="modal-img-col">
-                    <img id="modalImg" src="" alt="">
-                    <div class="modal-img-fade"></div>
-                </div>
-                <div class="modal-content-col">
-                    <!-- modal-tag 由前端從 CATEGORIES.eyebrow 帶入，不存資料庫 -->
-                    <span class="modal-tag" id="modalTag"></span>
-                    <h2 class="modal-name" id="modalName"></h2>
-                    <div class="modal-rule"></div>
-                    <div class="modal-stats">
-                        <div>
-                            <span class="stat-val" id="modalYears"></span>
-                            <span class="stat-lbl">Years Exp.</span>
-                        </div>
+            <div class="content-wrap">
+                <aside class="sidebar">
+                    <p class="sidebar-title">類別篩選</p>
+                    <div id="sidebarFilters">
+                        <button v-for="cat in CATEGORIES" :key="cat.id"
+                            :class="['filter-btn', { active: activeFilter === cat.id }]" @click="activeFilter = cat.id">
+                            {{ cat.label }}<span class="filter-dot"></span>
+                        </button>
                     </div>
-                    <p class="modal-bio" id="modalBio"></p>
-                    <div class="modal-style-tags" id="modalStyleTags"></div>
-                    <div class="modal-cta">
-                        <a href="./wedding_contact.html" class="cta-btn-gold">立即詢問洽談</a>
+                </aside>
+
+                <div class="grid-area" id="gridArea" ref="gridArea">
+                    <div v-for="(cat, idx) in CATEGORIES" :key="cat.id"
+                        v-show="activeFilter === 'all' || activeFilter === cat.id" class="category-section active">
+
+                        <div class="category-header">
+                            <div class="category-header-left">
+                                <div class="category-accent-bar"></div>
+                                <div>
+                                    <span class="category-label">{{ cat.eyebrow }}</span>
+                                    <h2 class="category-title">{{ cat.label }}</h2>
+                                </div>
+                            </div>
+                            <span class="result-count">{{ members[cat.id]?.length || 0 }} 位夥伴</span>
+                        </div>
+
+                        <div class="partner-grid">
+                            <div v-for="member in members[cat.id]" :key="member.name" class="partner-card"
+                                @click="openModal(member, cat)">
+                                <div class="card-img-wrap">
+                                    <img :src="member.photoUrl" :alt="member.name" loading="lazy">
+                                    <div class="card-overlay"></div>
+                                </div>
+                                <div class="card-body">
+                                    <span class="card-eyebrow">{{ cat.eyebrow }}</span>
+                                    <p class="card-name">{{ member.name }}</p>
+                                    <p class="card-years">{{ member.years }} Years of Experience</p>
+                                    <div class="card-rule"></div>
+                                    <span class="card-cta">查看詳細資訊</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr v-if="idx < CATEGORIES.length - 1" class="category-divider">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <div class="footer-bottom">© 2026 DREAM VENUES WEDDING DESIGN.</div>
+        </footer>
+
+        <button id="backToTop" class="back-to-top">
+            <span class="material-symbols-outlined">arrow_upward</span>
+        </button>
+
+        <div :class="['modal-backdrop-custom', { open: isModalOpen }]" id="profileBackdrop" @click.self="closeModal">
+            <div class="profile-modal" id="profileModal">
+                <button class="modal-close" id="modalClose" @click="closeModal">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+                <div class="modal-inner" v-if="selectedMember">
+                    <div class="modal-img-col">
+                        <img id="modalImg" :src="selectedMember.photoUrl" :alt="selectedMember.name">
+                        <div class="modal-img-fade"></div>
+                    </div>
+                    <div class="modal-content-col">
+                        <span class="modal-tag" id="modalTag">{{ selectedCat.eyebrow }}</span>
+                        <h2 class="modal-name" id="modalName">{{ selectedMember.name }}</h2>
+                        <div class="modal-rule"></div>
+                        <div class="modal-stats">
+                            <div>
+                                <span class="stat-val" id="modalYears">{{ selectedMember.years }}</span>
+                                <span class="stat-lbl">Years Exp.</span>
+                            </div>
+                        </div>
+                        <p class="modal-bio" id="modalBio">{{ selectedMember.bio }}</p>
+                        <div class="modal-style-tags" id="modalStyleTags">
+                            <span v-for="style in selectedMember.styles.split(',')" :key="style" class="style-badge">
+                                {{ style.trim() }}
+                            </span>
+                        </div>
+                        <div class="modal-cta">
+                            <a href="./wedding_contact.html" class="cta-btn-gold">立即詢問洽談</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
-        // ─── 類別定義（eyebrow 為 modal tag 顯示文字，不存資料庫）───
+        // ─── 類別定義 ───
         const CATEGORIES = [
             { id: 'planner', label: '婚禮顧問', eyebrow: 'Wedding Planner' },
             { id: 'host', label: '主持人', eyebrow: 'MC · Wedding Host' },
@@ -917,213 +962,70 @@
         // ─── deptId → catId 對應表（對應後端 TeamDto.deptId）───
         const DEPT_MAP = { 1: 'planner', 5: 'host', 4: 'photo', 3: 'sound', 6: 'makeup' };
 
-        // ─── 全域成員資料（renderAll 使用）───
-        const MEMBERS = {};
-        CATEGORIES.forEach(cat => { MEMBERS[cat.id] = []; });
-
-        // ─── 渲染單張卡片 ───
-        function renderCard(member, catId) {
-            const cat = CATEGORIES.find(c => c.id === catId);
-            const eyebrow = cat ? cat.eyebrow : '';
-            return /*html*/`
-        <div class="partner-card"
-            data-name="${member.name}"
-            data-cat="${catId}"
-            data-years="${member.years}"
-            data-bio="${member.bio.replace(/"/g, '&quot;')}"
-            data-styles="${member.styles}"
-            data-img="${member.photoUrl}">
-            <div class="card-img-wrap">
-                <img src="${member.photoUrl}" alt="${member.name}" loading="lazy">
-                <div class="card-overlay"></div>
-            </div>
-            <div class="card-body">
-                <span class="card-eyebrow">${eyebrow}</span>
-                <p class="card-name">${member.name}</p>
-                <p class="card-years">${member.years} Years of Experience</p>
-                <div class="card-rule"></div>
-                <span class="card-cta">查看詳細資訊</span>
-            </div>
-        </div>`;
-        }
-
-        // ─── 渲染整個 grid（篩選按鈕 + 卡片列表）───
-        function renderAll() {
-            const sidebarFilters = document.getElementById('sidebarFilters');
-            const mobileFilterBar = document.getElementById('mobileFilterBar');
-            const gridArea = document.getElementById('gridArea');
-
-            sidebarFilters.innerHTML = CATEGORIES.map(cat => `
-            <button class="filter-btn" data-cat="${cat.id}">
-                ${cat.label}<span class="filter-dot"></span>
-            </button>`).join('');
-
-            mobileFilterBar.innerHTML = CATEGORIES.map(cat => `
-            <button class="mobile-filter-chip" data-cat="${cat.id}">
-                ${cat.label}
-            </button>`).join('');
-
-            gridArea.innerHTML = CATEGORIES.map((cat, idx) => {
-                const members = MEMBERS[cat.id] || [];
-                const divider = idx < CATEGORIES.length - 1 ? '<hr class="category-divider">' : '';
-                return /*html*/`
-            <div class="category-section active" data-section="${cat.id}">
-                <div class="category-header">
-                    <div class="category-header-left">
-                        <div class="category-accent-bar"></div>
-                        <div>
-                            <span class="category-label">${cat.eyebrow}</span>
-                            <h2 class="category-title">${cat.label}</h2>
-                        </div>
-                    </div>
-                    <span class="result-count">${members.length} 位夥伴</span>
-                </div>
-                <div class="partner-grid">${members.map(m => renderCard(m, cat.id)).join('')}</div>
-            </div>
-            ${divider}`;
-            }).join('');
-        }
-
         // ─── Vue 接管：資料管理 + API 呼叫 ───
         const app = Vue.createApp({
             data() {
                 return {
-                    members: {},
-                    activeFilter: 'planner'
+                    CATEGORIES: CATEGORIES, // 讓 HTML 模板可以存取常數
+                    members: {
+                        planner: [], host: [], photo: [], sound: [], makeup: []
+                    },
+                    activeFilter: 'planner', // 預設顯示的分類
+
+                    // Modal 狀態管理
+                    isModalOpen: false,
+                    selectedMember: null,
+                    selectedCat: null
                 }
             },
             mounted() {
+                // 1. 打 API 要資料
                 fetch(`/api/team`)
                     .then(res => res.json())
                     .then(rows => {
-                        const result = {};
-                        CATEGORIES.forEach(cat => { result[cat.id] = []; });
+                        const result = { planner: [], host: [], photo: [], sound: [], makeup: [] };
                         rows.forEach(row => {
                             const catId = DEPT_MAP[row.deptId];
                             if (catId) result[catId].push(row);
                         });
+
+                        // 2. 更新 Vue 資料，觸發畫面自動重新渲染 (Data-Driven)
                         this.members = result;
 
-                        // 同步給全域 MEMBERS，供 renderAll 使用
-                        CATEGORIES.forEach(cat => { MEMBERS[cat.id] = this.members[cat.id] || []; });
-                        renderAll();
-
-                        const gridArea = document.getElementById('gridArea');
-                        const sidebarFilters = document.getElementById('sidebarFilters');
-                        const mobileFilterBar = document.getElementById('mobileFilterBar');
-
-                        function getSections() { return document.querySelectorAll('.category-section'); }
-                        function getDividers() { return document.querySelectorAll('.category-divider'); }
-                        function getSidebarBtns() { return document.querySelectorAll('#sidebarFilters .filter-btn'); }
-                        function getMobileBtns() { return document.querySelectorAll('.mobile-filter-chip'); }
-
-                        function applyFilter(cat) {
-                            getSections().forEach(s => {
-                                s.style.display = (cat === 'all' || s.dataset.section === cat) ? 'block' : 'none';
-                            });
-                            getDividers().forEach(d => { d.style.display = cat === 'all' ? 'block' : 'none'; });
-                            document.querySelectorAll('.partner-card').forEach(c => c.classList.remove('visible'));
-                            setTimeout(triggerVisible, 50);
-                        }
-
-                        // setActive：更新 Vue 資料 + 重新產生按鈕 active 樣式
-                        function setActive(cat) {
-                            this.activeFilter = cat;
-                            sidebarFilters.innerHTML = CATEGORIES.map(c => `
-                            <button class="filter-btn ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
-                                ${c.label}<span class="filter-dot"></span>
-                            </button>`).join('');
-                            mobileFilterBar.innerHTML = CATEGORIES.map(c => `
-                            <button class="mobile-filter-chip ${c.id === cat ? 'active' : ''}" data-cat="${c.id}">
-                                ${c.label}
-                            </button>`).join('');
-                            bindFilters();
-                        }
-                        setActive = setActive.bind(this);
-
-                        function bindFilters() {
-                            getSidebarBtns().forEach(btn => {
-                                btn.addEventListener('click', () => {
-                                    setActive(btn.dataset.cat);
-                                    applyFilter(btn.dataset.cat);
-                                    const navH = document.querySelector('.navbar').offsetHeight;
-                                    window.scrollTo({ top: gridArea.getBoundingClientRect().top + window.pageYOffset - navH - 20, behavior: 'smooth' });
-                                });
-                            });
-                            getMobileBtns().forEach(btn => {
-                                btn.addEventListener('click', () => {
-                                    setActive(btn.dataset.cat);
-                                    applyFilter(btn.dataset.cat);
-                                    gridArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                });
-                            });
-                        }
-
-                        function triggerVisible() {
-                            const obs = new IntersectionObserver((entries) => {
-                                entries.forEach((e, i) => {
-                                    if (e.isIntersecting) {
-                                        setTimeout(() => e.target.classList.add('visible'), i * 80);
-                                        obs.unobserve(e.target);
-                                    }
-                                });
-                            }, { threshold: 0.1 });
-                            document.querySelectorAll('.partner-card:not(.visible)').forEach(c => obs.observe(c));
-                        }
-
-                        function initPage() {
-                            bindFilters();
-                            setActive('planner');
-                            applyFilter('planner');
-                            triggerVisible();
-                        }
-
-                        initPage();
-
-                        // ─── PROFILE MODAL ───
-                        const backdrop = document.getElementById('profileBackdrop');
-                        const closeBtn = document.getElementById('modalClose');
-
-                        function openModal(card) {
-                            const d = card.dataset;
-                            const cat = CATEGORIES.find(c => c.id === d.cat);
-                            document.getElementById('modalTag').textContent = cat ? cat.eyebrow : '';
-                            document.getElementById('modalImg').src = d.img || '';
-                            document.getElementById('modalName').textContent = d.name || '';
-                            document.getElementById('modalYears').textContent = d.years || '—';
-                            document.getElementById('modalBio').textContent = d.bio || '';
-
-                            const tagWrap = document.getElementById('modalStyleTags');
-                            tagWrap.innerHTML = '';
-                            (d.styles || '').split(',').forEach(s => {
-                                const span = document.createElement('span');
-                                span.className = 'style-badge';
-                                span.textContent = s.trim();
-                                tagWrap.appendChild(span);
-                            });
-
-                            document.querySelector('.modal-content-col').scrollTop = 0;
-                            backdrop.classList.add('open');
-                            document.body.style.overflow = 'hidden';
-                        }
-
-                        function closeModal() {
-                            backdrop.classList.remove('open');
-                            document.body.style.overflow = '';
-                        }
-
-                        gridArea.addEventListener('click', e => {
-                            const card = e.target.closest('.partner-card');
-                            if (card) { e.preventDefault(); openModal(card); }
+                        // 3. 等待 Vue 將卡片 DOM 渲染完畢後，掛載 IntersectionObserver 動畫監聽
+                        this.$nextTick(() => {
+                            this.initObserver();
                         });
-
-                        backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
-                        closeBtn.addEventListener('click', closeModal);
-                        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
                     })
                     .catch(err => console.error('載入團隊資料失敗:', err));
+            },
+            methods: {
+                // 點擊卡片：打開 Modal 並帶入該卡片的資料
+                openModal(member, cat) {
+                    this.selectedMember = member;
+                    this.selectedCat = cat;
+                    this.isModalOpen = true;
+                    document.body.style.overflow = 'hidden'; // 鎖定背景滾動
+                },
+                // 關閉 Modal
+                closeModal() {
+                    this.isModalOpen = false;
+                    document.body.style.overflow = ''; // 解除鎖定
+                },
+                // 延遲載入動畫 (維持你原本流暢的視覺效果)
+                initObserver() {
+                    const obs = new IntersectionObserver((entries) => {
+                        entries.forEach((e, i) => {
+                            if (e.isIntersecting) {
+                                setTimeout(() => e.target.classList.add('visible'), i * 80);
+                                obs.unobserve(e.target);
+                            }
+                        });
+                    }, { threshold: 0.1 });
+                    document.querySelectorAll('.partner-card:not(.visible)').forEach(c => obs.observe(c));
+                }
             }
-        }).mount('#gridArea');
+        }).mount('#app'); // 🟩 這裡改為掛載在最外層的 #app
     </script>
 </body>
 

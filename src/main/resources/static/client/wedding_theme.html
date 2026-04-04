@@ -1381,7 +1381,12 @@
         function renderLb() {
             const item = galleries[curG][curI];
             lbImg.classList.add('fade');
-            setTimeout(() => { lbImg.src = item.src; lbName.textContent = item.name; lbLabel.textContent = item.label; lbCounter.textContent = String(curI + 1).padStart(2, '0') + ' / ' + String(galleries[curG].length).padStart(2, '0'); lbImg.classList.remove('fade'); }, 200);
+            setTimeout(() => {
+                const hiRes = item.src
+                    .replace(/\/736x\//, '/1200x/')
+                    .replace(/\/564x\//, '/1200x/');
+                lbImg.src = hiRes; lbName.textContent = item.name; lbLabel.textContent = item.label; lbCounter.textContent = String(curI + 1).padStart(2, '0') + ' / ' + String(galleries[curG].length).padStart(2, '0'); lbImg.classList.remove('fade');
+            }, 200);
             lbDots.innerHTML = '';
             galleries[curG].forEach((_, i) => { const d = document.createElement('div'); d.className = 'lb-dot' + (i === curI ? ' active' : ''); d.addEventListener('click', () => { curI = i; renderLb(); }); lbDots.appendChild(d); });
         }

@@ -38,18 +38,18 @@ public class UnreadMessageReminderService {
     private final Set<String> alreadyRemindedToday = ConcurrentHashMap.newKeySet();
 
     // 每5分鐘巡邏一次
-    // @Scheduled(fixedRate = 10*60*1000)
-    // @Scheduled(fixedRate = 60 * 1000) // 1分鐘巡邏一次（測試用）
+    // @Scheduled(fixedRate = 10 * 60 * 1000)
+    @Scheduled(fixedRate = 60 * 1000) // 1分鐘巡邏一次（測試用）
     public void patrolUnreadMessages() {
         System.out.println("巡邏員啟動：檢查未回覆訊息...");
 
-        // 撈 60～70 分鐘前，婚顧發的訊息，一天只發送一次
+        // 撈 60～72 分鐘前，婚顧發的訊息，一天只發送一次
         LocalDateTime end = LocalDateTime.now().minusMinutes(60);
-        LocalDateTime start = LocalDateTime.now().minusMinutes(70);
+        LocalDateTime start = LocalDateTime.now().minusMinutes(72);
 
-        // 撈 3～4 分鐘前的訊息（測試用）
-        //LocalDateTime end = LocalDateTime.now();
-        //LocalDateTime start = LocalDateTime.now().minusMinutes(5);
+        // 撈 0-5 分鐘前的訊息（測試用）
+        // LocalDateTime end = LocalDateTime.now();
+        // LocalDateTime start = LocalDateTime.now().minusMinutes(5);
 
         // 一次查詢：找出未回覆的婚顧訊息（已解決 N+1）
         List<ProjectCommunication> unrepliedMessages = communicationRepo.findUnrepliedManagerMessages("公司", start, end);

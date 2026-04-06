@@ -411,14 +411,26 @@
         }
 
         @media (max-width: 767.98px) {
+            .grid-area {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .category-section {
+                width: 100%;
+            }
+
             .partner-grid {
                 grid-template-columns: 1fr;
+                width: 100%;
             }
 
             .partner-card {
                 grid-template-columns: 120px 1fr;
                 padding: 20px 0;
                 border-right: none;
+                width: 100%;
+                min-width: 0;
             }
 
             .card-img-wrap {
@@ -428,13 +440,13 @@
 
             .card-body {
                 padding-left: 16px;
+                min-width: 0;
             }
 
             .card-name {
                 font-size: 18px;
             }
         }
-
 
 
         .category-section {
@@ -444,6 +456,8 @@
         .category-section.active {
             display: block;
         }
+
+
 
         /* PROFILE MODAL */
         .modal-backdrop-custom {

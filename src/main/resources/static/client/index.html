@@ -1565,6 +1565,7 @@
 
             let lbCurrent = 0;
             const total = lbItems.length;
+            let scrollY = 0;
 
             lbItems.forEach((_, i) => {
                 const dot = document.createElement('div');
@@ -1594,8 +1595,22 @@
                 tmpImg.src = hiRes;
             }
 
-            function lbOpen(idx) { lbShow(idx); lbOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
-            function lbCloseFn() { lbOverlay.classList.remove('open'); document.body.style.overflow = ''; setTimeout(() => { lbImg.src = ''; lbImg.classList.remove('lb-img-ready'); }, 350); }
+            function lbOpen(idx) {
+                scrollY = window.scrollY;
+                document.body.style.position = 'fixed';
+                document.body.style.top = `-${scrollY}px`;
+                document.body.style.width = '100%';
+                lbShow(idx);
+                lbOverlay.classList.add('open');
+            }
+            function lbCloseFn() {
+                lbOverlay.classList.remove('open');
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.width = '';
+                window.scrollTo(0, scrollY);
+                setTimeout(() => { lbImg.src = ''; lbImg.classList.remove('lb-img-ready'); }, 350);
+            }
 
             document.querySelectorAll('.gallery-img[data-index]').forEach(el => {
                 el.addEventListener('click', () => lbOpen(parseInt(el.dataset.index)));
@@ -1613,21 +1628,21 @@
             });
 
             let lbTouchX = null;
-            lbImgWrap.addEventListener('touchstart', e => { lbTouchX = e.touches[0].clientX; }, { passive: true });
-            lbImgWrap.addEventListener('touchend', e => {
-                if (lbTouchX === null) return;
-                const dx = e.changedTouches[0].clientX - lbTouchX;
-                if (Math.abs(dx) > 40) lbShow(lbCurrent + (dx < 0 ? 1 : -1));
-                lbTouchX = null;
-            });
-            lbOverlay.addEventListener('touchstart', e => { lbTouchX = e.touches[0].clientX; }, { passive: true });
+            let lbTouchY = null;
+            lbOverlay.addEventListener('touchstart', e => {
+                lbTouchX = e.touches[0].clientX;
+                lbTouchY = e.touches[0].clientY;
+            }, { passive: true });
             lbOverlay.addEventListener('touchend', e => {
                 if (lbTouchX === null) return;
                 const dx = e.changedTouches[0].clientX - lbTouchX;
-                if (Math.abs(dx) > 40) lbShow(lbCurrent + (dx < 0 ? 1 : -1));
+                const dy = e.changedTouches[0].clientY - lbTouchY;
+                if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+                    lbShow(lbCurrent + (dx < 0 ? 1 : -1));
+                }
                 lbTouchX = null;
+                lbTouchY = null;
             });
-
             // ════ fetch json ════
             const REVIEW_DELAYS = [0, 120, 240, 80, 200, 320];
 

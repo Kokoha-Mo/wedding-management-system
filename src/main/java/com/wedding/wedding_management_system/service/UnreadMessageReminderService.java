@@ -72,13 +72,17 @@ public class UnreadMessageReminderService {
             if (alreadyRemindedToday.contains(key))
                 continue;
 
-            String customerEmail = msg.getProject().getBook().getCustomer().getEmail();
-            String customerName = msg.getProject().getBook().getCustomer().getName();
+            try {
+                String customerEmail = msg.getProject().getBook().getCustomer().getEmail();
+                String customerName = msg.getProject().getBook().getCustomer().getName();
 
-            emailService.sendUnreadMessageEmail(customerEmail, customerName);
-            System.out.println("已寄信通知：" + customerName + "（" + customerEmail + "）");
+                emailService.sendUnreadMessageEmail(customerEmail, customerName);
+                alreadyRemindedToday.add(key);
 
-            alreadyRemindedToday.add(key);
+            } catch (Exception e) {
+                // NullPointerException 或寄信失敗都會被接住
+                System.out.println("處理失敗，稍後重試：" + projectId);
+            }
         }
 
     }
